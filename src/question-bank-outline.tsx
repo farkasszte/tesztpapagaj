@@ -46,7 +46,7 @@ export function QuestionBankOutline({
 
   return <nav className="bank-outline" aria-label={t('bank.outline')}>
     <section>
-      <h3>Outline</h3>
+      <h3>{t('editor.outline')}</h3>
       <button
         type="button"
         className="bank-outline-row"
@@ -75,7 +75,7 @@ export function QuestionBankOutline({
       })}
     </section>
     <section>
-      <h3>Topics</h3>
+      <h3>{t('editor.topics')}</h3>
       {topics.length === 0
         ? <p className="bank-outline-empty">{t('ui.noTopicsYet')}</p>
         : topics.map((topic) => (

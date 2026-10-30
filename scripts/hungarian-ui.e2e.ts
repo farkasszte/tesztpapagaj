@@ -89,3 +89,28 @@ test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', as
   await expect(page.getByRole('heading', { name: 'Adatvédelem', exact: true })).toBeVisible()
   await expect(page.getByText('nem gyűjt személyes adatot')).toBeVisible()
 })
+
+test('a kérdéspárbeszéd fejléce és a válaszgomb magyarul szól', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Új kérdésbank', exact: true }).first().click()
+  await expect(page).toHaveURL(/\/question-bank/)
+
+  await page.getByRole('button', { name: 'Új kérdés', exact: true }).first().click()
+  // A típus választása nyitja a kérdéspárbeszédet.
+  await page.getByRole('menuitem', { name: 'Feleletválasztós', exact: true }).click()
+  const dialog = page.locator('.question-dialog')
+  await expect(dialog).toBeVisible()
+
+  // A fejléc-mezők: a forrás, a típus, a nehézség, a témák és a pontszám.
+  const front = dialog.locator('.front-matter')
+  await expect(front).toContainText('Típus')
+  await expect(front).toContainText('Nehézség')
+  await expect(front).toContainText('Témák')
+  await expect(front).toContainText('Pontszám')
+
+  // Az üres pontszám helyőrzője és a válaszhívó gomb sem angol.
+  await expect(front.locator('input[placeholder]')).toHaveAttribute('placeholder', 'Üres')
+  // A válaszhívó gomb a szerkesztőben is magyar, és angolul nem marad belőle.
+  await expect(dialog).toContainText('Válasz hozzáadása')
+  await expect(dialog).not.toContainText('Add answer')
+})

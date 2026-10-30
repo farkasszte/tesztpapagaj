@@ -289,8 +289,8 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
         Test Parrot · Question Bank File
       </p>
       <h1>{bank.name || 'Untitled Question Bank'}</h1>
-      {bank.author && <p><strong>Declared author (unverified):</strong> {bank.author}</p>}
-      {bank.license && <p><strong>License:</strong> {bank.license.name}{bank.license.url ? ` — ${bank.license.url}` : ''}</p>}
+      {bank.author && <p><strong>{t('import.declaredAuthor')}:</strong> {bank.author}</p>}
+      {bank.license && <p><strong>{t('import.license')}:</strong> {bank.license.name}{bank.license.url ? ` — ${bank.license.url}` : ''}</p>}
       {bank.description && <p>{bank.description}</p>}
       <p><strong>{counts.join(' · ')}</strong></p>
       <aside className="question-bank-file-notice">
@@ -348,7 +348,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
           <RecordQuestion key={row.key} question={row.question} number={row.number} previewNodes={previewNodes} />
         )
       })}
-      {shown < rows.length && <div ref={sentinel} className="question-bank-file-more">Loading more…</div>}
+      {shown < rows.length && <div ref={sentinel} className="question-bank-file-more">{t('common.loadingMore')}</div>}
     </div>
   )
 }
@@ -385,7 +385,7 @@ function RecordPart({
 }) {
   if (holdsSubparts(part)) {
     return (
-      <li aria-label="Subparts">
+      <li aria-label={t('editor.subpartsOne')}>
         <DocView content={previewNodes(part.stem)} />
         <ol type="i" className="record-multipart-parts">
           {part.subparts.map((subpart) => (
@@ -405,7 +405,7 @@ function RecordPart({
               <DocView content={previewNodes(choice.content)} />
               {choice.correct && (
                 <strong className="question-bank-correct">
-                  Correct answer
+                  {t('editor.correctAnswer')}
                 </strong>
               )}
             </li>
@@ -414,7 +414,7 @@ function RecordPart({
       )}
       {part.suggestedAnswer && (
         <section>
-          <h3>Suggested Answer</h3>
+          <h3>{t('editor.suggestedAnswer')}</h3>
           <DocView content={previewNodes(part.suggestedAnswer)} />
         </section>
       )}
@@ -436,7 +436,7 @@ function RecordQuestion({
       <h2>Question {number}</h2>
       <dl>
         <div>
-          <dt>Difficulty</dt>
+          <dt>{t('editor.difficulty')}</dt>
           <dd>
             {question.difficulty
               ? question.difficulty[0]!.toUpperCase() +
@@ -445,7 +445,7 @@ function RecordQuestion({
           </dd>
         </div>
         <div>
-          <dt>Topics</dt>
+          <dt>{t('editor.topics')}</dt>
           <dd>{question.topics?.join(', ') || 'None'}</dd>
         </div>
       </dl>
@@ -463,7 +463,7 @@ function RecordQuestion({
               />
               {choice.correct && (
                 <strong className="question-bank-correct">
-                  Correct answer
+                  {t('editor.correctAnswer')}
                 </strong>
               )}
             </li>
@@ -513,14 +513,14 @@ function RecordQuestion({
         const answers = recordBlankAnswers(question.stem)
         return answers && (
           <section>
-            <h3>Answers</h3>
+            <h3>{t('editor.answers')}</h3>
             <DocView content={previewNodes(answers)} />
           </section>
         )
       })()}
       {question.suggestedAnswer && (
         <section>
-          <h3>Suggested Answer</h3>
+          <h3>{t('editor.suggestedAnswer')}</h3>
           <DocView
             content={previewNodes(
               question.suggestedAnswer,

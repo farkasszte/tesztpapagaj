@@ -14,6 +14,7 @@ import { bankLetter } from './matching'
 import { stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { defaultWordBank, type CopyFormat, type CopyPartFormat } from './question-copy'
 import { t } from './i18n'
+import { trueFalseMarks } from './paper-style'
 
 const childrenOf = (node: ProseMirrorJSON): ProseMirrorJSON[] =>
   Array.isArray(node.content) ? (node.content as ProseMirrorJSON[]) : []
@@ -145,7 +146,7 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
     case 'multiple-choice': {
       const columns = format.columns ?? question.columns
       return {
-        controls: <ColumnToggle label="Answer columns" value={columns} onChange={(value) => onFormat({ ...format, columns: value })} />,
+        controls: <ColumnToggle label={t('editor.answerColumns')} value={columns} onChange={(value) => onFormat({ ...format, columns: value })} />,
         stem,
         answers: <Answers answers={choicesOf(question).map(({ node }) => childrenOf(node))} columns={columns} />,
       }
@@ -155,7 +156,7 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
       // test prints them before the number.
       return {
         controls: null,
-        stem: <div className="pop-over-led"><span className="pop-over-marks" aria-hidden="true">T  F</span>{stem}</div>,
+        stem: <div className="pop-over-led"><span className="pop-over-marks" aria-hidden="true">{trueFalseMarks().join('  ')}</span>{stem}</div>,
         answers: null,
       }
     case 'matching': {
@@ -184,7 +185,7 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
       return { controls: null, stem, answers: null }
     case 'open':
       return {
-        controls: <FormatSelect label="Answer lines" value={format.lines ?? 0} options={LINE_OPTIONS} onChange={(value) => onFormat({ ...format, lines: value })} />,
+        controls: <FormatSelect label={t('editor.answerLines')} value={format.lines ?? 0} options={LINE_OPTIONS} onChange={(value) => onFormat({ ...format, lines: value })} />,
         stem,
         answers: (format.lines ?? 0) > 0 ? <Rules count={format.lines ?? 0} /> : null,
       }

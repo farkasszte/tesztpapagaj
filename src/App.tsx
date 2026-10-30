@@ -229,7 +229,7 @@ import {
   suggestedAnswerSchema,
   suggestedAnswerView,
 } from './suggested-answer'
-import { t, useT } from './i18n'
+import { countOf, t, useT } from './i18n'
 
 /** The mark each Question Section goes by, so a type reads the same wherever
  *  it is named — the picker that chooses one, and the dialog that states it. */
@@ -979,7 +979,7 @@ function QuestionDialog({
           <div className="front-matter-field">
             <span className="front-matter-label">
               <FileType2 />
-              Type
+              {t('editor.type')}
             </span>
             <span className="front-matter-value front-matter-stated">
               <span className="badge badge-type">
@@ -990,7 +990,7 @@ function QuestionDialog({
           </div>
           <FrontMatterSelect
             icon={<Gauge />}
-            label="Difficulty"
+            label={t('editor.difficulty')}
             options={DIFFICULTIES.map((value) => ({
               value,
               label: DIFFICULTY_LABELS[value],
@@ -1002,7 +1002,7 @@ function QuestionDialog({
           />
           <FrontMatterSelect
             icon={<Tags />}
-            label="Topics"
+            label={t('editor.topics')}
             options={Array.from(new Set([...topics, ...topicSuggestions])).map(
               (topic) => ({ value: topic, label: topic }),
             )}
@@ -1022,7 +1022,7 @@ function QuestionDialog({
                   inputMode="numeric"
                   aria-label={t('editor.points')}
                   aria-invalid={pointsValue === undefined ? true : undefined}
-                  placeholder="Empty"
+                  placeholder={t('common.empty')}
                   value={pointsText}
                   onChange={(event) => setPointsText(event.target.value)}
                   onBlur={() => {
@@ -1040,7 +1040,7 @@ function QuestionDialog({
                 {partsPoints === undefined ? (
                   <span className="front-matter-blank">{t('editor.setPerPart')}</span>
                 ) : (
-                  `${pointsLabel(partsPoints)}, from its Parts`
+                  t('editor.fromItsParts', { points: pointsLabel(partsPoints) })
                 )}
               </span>
             )}
@@ -1639,7 +1639,7 @@ function QuestionBankTabsPane({
               // by loading a document, so the browser's leave-page guard still
               // stands between the teacher and an unsaved Working Copy.
               onDoubleClick={() => window.location.assign(`/question-bank?id=${encodeURIComponent(id)}`)}
-              title="Double-click to open this Question Bank's page"
+              title={t('bank.openPage')}
               onKeyDown={(event) => {
                 if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
                 event.preventDefault()
@@ -1758,7 +1758,7 @@ function QuestionBankTabsPane({
       </div>
     </div>}
     {pickerBanks && <ResourcePicker
-      title="Open Question Bank"
+      title={t('bank.open')}
       closeLabel={t('bank.closePicker')}
       emptyMessage={t('bank.noneAvailable')}
       resources={pickerBanks}
@@ -1782,13 +1782,13 @@ function BankPageFacts({
   onResolvePictures?: () => void
 }) {
   const count = bank.questions.length
-  const facts: ReactNode[] = [`${count} ${count === 1 ? 'question' : 'questions'}`]
+  const facts: ReactNode[] = [countOf(count, 'question')]
   if (picturesNeeded > 0) {
     facts.push(<button type="button" className="link-button bank-page-pictures-needed" aria-haspopup="dialog" onClick={onResolvePictures}>
-      {picturesNeeded} {picturesNeeded === 1 ? 'picture' : 'pictures'} needed
+      {t('ui.picturesNeeded', { what: countOf(picturesNeeded, 'picture') })}
     </button>)
   }
-  if (bank.author?.trim()) facts.push(`By ${bank.author.trim()}`)
+  if (bank.author?.trim()) facts.push(t('bank.by', { name: bank.author.trim() }))
   if (bank.license?.name.trim()) {
     facts.push(bank.license.url
       ? <a href={bank.license.url} target="_blank" rel="noreferrer">{bank.license.name}</a>
@@ -1879,7 +1879,7 @@ function QuestionBankPage({
   return <AppShell
     crumbs={[
       { label: t('nav.home'), href: '/' },
-      { label: 'Question Banks', href: '/question-banks' },
+      { label: t('shell.questionBanks'), href: '/question-banks' },
       { label: bank.name },
     ]}
     persistentStorage={persistentStorage}
@@ -2592,7 +2592,7 @@ function ExamEditor({
               type="button"
               className="toolbar-icon-button"
               aria-label={t('exam.undo')}
-              title="Undo (Ctrl/Cmd+Z)"
+              title={t('ui.undo')}
               disabled={isHistoricalBrowsing || !store.canUndo()}
               onClick={() => {
                 if (!isHistoricalBrowsing) store.undo()
@@ -2604,7 +2604,7 @@ function ExamEditor({
               type="button"
               className="toolbar-icon-button"
               aria-label={t('exam.redo')}
-              title="Redo (Ctrl/Cmd+Shift+Z)"
+              title={t('ui.redo')}
               disabled={isHistoricalBrowsing || !store.canRedo()}
               onClick={() => {
                 if (!isHistoricalBrowsing) store.redo()
@@ -3237,12 +3237,12 @@ export default function App({
       return
     }
     const first = await bankWorkspaces.read(firstBankId)
-    const questions = `${result.questionCount} ${result.questionCount === 1 ? t('editor.question') : t('editor.questions')}`
+    const questions = countOf(result.questionCount, 'question')
     window.sessionStorage.setItem(
       'test-parrot-import-announcement',
       bankIds.length > 1
-        ? `Imported ${questions} into ${bankIds.length} Question Banks.`
-        : `Imported ${questions} into ${first?.name ?? 'the Question Bank'}.`,
+        ? t('bank.importedMany', { what: questions, banks: countOf(bankIds.length, 'bank') })
+        : t('bank.importedOne', { what: questions, name: first?.name ?? t('bank.title') }),
     )
     window.location.assign(`/question-bank?id=${firstBankId}`)
   }, [bankWorkspaces, closeImport, editorId, route, workspaces])

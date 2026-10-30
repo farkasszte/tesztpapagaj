@@ -276,7 +276,7 @@ export function MarginsPanel({
       ref={panel}
       className="margins-panel"
       role="dialog"
-      aria-label="Margins"
+      aria-label={t('editor.margins')}
       tabIndex={-1}
       style={{ left: position.x, top: position.y }}
       onKeyDown={(event) => {
@@ -314,8 +314,8 @@ export function MarginsPanel({
         <button
           type="button"
           className="margins-expand"
-          aria-label="Set each side"
-          title="Set each side"
+          aria-label={t('editor.setEachSide')}
+          title={t('editor.setEachSide')}
           aria-expanded={expanded}
           aria-pressed={expanded}
           onClick={() => setExpanded((open) => !open)}
@@ -324,7 +324,7 @@ export function MarginsPanel({
         </button>
       </div>
       {expanded && (
-        <div className="margins-sides" role="group" aria-label="Each side">
+        <div className="margins-sides" role="group" aria-label={t('editor.eachSide')}>
           {MARGIN_SIDES.map((side) => (
             <MarginControl
               key={side}

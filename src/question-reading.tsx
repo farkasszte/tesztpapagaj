@@ -21,7 +21,7 @@ import { t } from './i18n'
 
 /** A Locked Answer's mark: it keeps its letter when answers are shuffled. */
 function LockMark() {
-  return <Lock className="question-reading-locked" role="img" aria-label="Locked answer">
+  return <Lock className="question-reading-locked" role="img" aria-label={t('editor.lockedAnswer')}>
     <title>{t('page.lockedHint')}</title>
   </Lock>
 }
@@ -49,7 +49,7 @@ export function QuestionReading({
           <li key={choice.id} className={choice.correct ? 'is-correct' : undefined}>
             <DocView content={choice.content} />
             {choice.correct && (
-              <Check className="question-reading-correct" role="img" aria-label="Correct answer" />
+              <Check className="question-reading-correct" role="img" aria-label={t('editor.correctAnswer')} />
             )}
             {choice.locked && <LockMark />}
           </li>
@@ -82,13 +82,13 @@ export function QuestionReading({
     )}
     {content.suggestedAnswer && (
       <section className="question-reading-answer">
-        <h4>Suggested Answer</h4>
+        <h4>{t('editor.suggestedAnswer')}</h4>
         <DocView content={content.suggestedAnswer} />
       </section>
     )}
     {content.blankAnswers && (
       <section className="question-reading-answer">
-        <h4>Answers</h4>
+        <h4>{t('editor.answers')}</h4>
         <DocView content={content.blankAnswers} />
       </section>
     )}
@@ -115,7 +115,7 @@ function ReadingPart({ part, name }: { part: QuestionReadingPart; name: string }
             <li key={choice.id} className={choice.correct ? 'is-correct' : undefined}>
               <DocView content={choice.content} />
               {choice.correct && (
-                <Check className="question-reading-correct" role="img" aria-label="Correct answer" />
+                <Check className="question-reading-correct" role="img" aria-label={t('editor.correctAnswer')} />
               )}
               {choice.locked && <LockMark />}
             </li>
@@ -124,7 +124,7 @@ function ReadingPart({ part, name }: { part: QuestionReadingPart; name: string }
       )}
       {part.suggestedAnswer && (
         <section className="question-reading-answer">
-          <h4>Suggested Answer</h4>
+          <h4>{t('editor.suggestedAnswer')}</h4>
           <DocView content={part.suggestedAnswer} />
         </section>
       )}

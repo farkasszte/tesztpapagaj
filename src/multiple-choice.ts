@@ -7,6 +7,7 @@ import type { Command } from '@milkdown/kit/prose/state'
 import { splitBlock } from '@milkdown/kit/prose/commands'
 import type { EditorView, NodeView } from '@milkdown/kit/prose/view'
 import { isLocked, type AnswerLock } from './locked-answers'
+import { t } from './i18n'
 
 // Whether the radio buttons can change the correct answer. Off in read-only
 // previews, on inside the question editor.
@@ -709,7 +710,7 @@ export const multipleChoiceView = $view(
       caret.className = 'mc-add-caret'
       const label = document.createElement('span')
       label.className = 'mc-add-label'
-      label.textContent = 'Add answer'
+      label.textContent = t('editor.addAnswer')
       addButton.append(plus, caret, label)
 
       // Append a new answer (optionally seeded with a typed character) and put

@@ -44,11 +44,11 @@ describe('a paste onto an Exam', () => {
   })
 
   test('says what it did', () => {
-    expect(pastedSummary(2, 0, 2)).toBe('Pasted 2 questions.')
-    expect(pastedSummary(1, 1, 2)).toBe('Pasted 1 question; 1 already on this exam.')
-    expect(pastedSummary(1, 0, 3)).toBe('Pasted 1 question; 2 no longer in this browser.')
-    expect(pastedSummary(0, 2, 2)).toBe('Those questions are already on this exam.')
-    expect(pastedSummary(0, 0, 0)).toBe('Nothing to paste: the copied questions aren’t in this browser.')
+    expect(pastedSummary(2, 0, 2)).toBe('Beillesztve: 2 kérdés.')
+    expect(pastedSummary(1, 1, 2)).toBe('Beillesztve: 1 kérdés; 1 már rajta van ezen a dolgozaton.')
+    expect(pastedSummary(1, 0, 3)).toBe('Beillesztve: 1 kérdés; 2 már nincs ebben a böngészőben.')
+    expect(pastedSummary(0, 2, 2)).toBe('Ezek a kérdések már rajta vannak ezen a dolgozaton.')
+    expect(pastedSummary(0, 0, 0)).toBe('Nincs mit beilleszteni: a kimásolt kérdések nincsenek ebben a böngészőben.')
   })
 })
 

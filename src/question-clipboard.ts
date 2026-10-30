@@ -12,6 +12,8 @@
 // own storage; one copied on another device names Questions that are not here,
 // and the paste reports that it found nothing to add.
 
+import { countOf, t } from './i18n'
+
 const ATTRIBUTE = 'data-test-parrot-questions'
 
 /** The marker's own record: which Questions a copy holds, in order. */
@@ -56,13 +58,13 @@ export function questionsToAdd<T extends { id: string }>(
 
 /** How a paste is described when it is done, for the status line. */
 export function pastedSummary(added: number, skipped: number, copied: number): string {
-  const questions = (count: number) => `${count} question${count === 1 ? '' : 's'}`
-  if (copied === 0) return 'Nothing to paste: the copied questions aren’t in this browser.'
-  if (added === 0) return skipped > 0 ? 'Those questions are already on this exam.' : 'Nothing to paste.'
+  const questions = (count: number) => countOf(count, 'question')
+  if (copied === 0) return t('paste.nothingCopied')
+  if (added === 0) return skipped > 0 ? t('paste.alreadyOnExam') : t('paste.nothing')
   const missing = copied - added - skipped
   return [
-    `Pasted ${questions(added)}`,
-    skipped > 0 ? `${skipped} already on this exam` : '',
-    missing > 0 ? `${missing} no longer in this browser` : '',
+    t('paste.pasted', { what: questions(added) }),
+    skipped > 0 ? t('paste.skipped', { count: skipped }) : '',
+    missing > 0 ? t('paste.missing', { count: missing }) : '',
   ].filter(Boolean).join('; ') + '.'
 }

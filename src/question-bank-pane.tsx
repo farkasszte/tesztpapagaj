@@ -445,7 +445,7 @@ export function QuestionBankPane({
           onChange={(types) => onFilterChange({ ...filter, types })}
         />}
         <FilterDropdown
-          label="Difficulty"
+          label={t('editor.difficulty')}
           options={DIFFICULTY_OPTIONS}
           selected={filter.difficulties}
           emptyMessage={t('bank.noDifficulties')}
@@ -454,7 +454,7 @@ export function QuestionBankPane({
         {/* The Topics actually in the bank, exactly as they were typed. There is
             no vocabulary to offer beyond what the teacher has already used. */}
         {layout === 'rows' && <FilterDropdown
-          label="Topic"
+          label={t('editor.topic')}
           options={topicOptions(bank).map((topic) => ({ value: topic, label: topic }))}
           selected={filter.topics}
           emptyMessage={t('bank.noTopics')}
@@ -506,8 +506,7 @@ export function QuestionBankPane({
         // bank whose questions are all behind the current search.
         filtered ? (
           <p className="question-bank-empty" data-empty="no-matches">
-            No questions match this search and these filters. Clear filters shows
-            the whole Question Bank again.
+            {t('bank.noMatchesBody')}
           </p>
         ) : (
           <p className="question-bank-empty" data-empty="no-questions">
@@ -665,7 +664,7 @@ export function QuestionBankPane({
                     type="button"
                     className="question-bank-action"
                     aria-label={t('ui.editName', { name })}
-                    title="Edit"
+                    title={t('bank.edit')}
                     onClick={() => onEdit(question.id)}
                   >
                     <Pencil />
@@ -740,7 +739,7 @@ export function QuestionBankPane({
           scrollbar is as tall as the list rather than as tall as the pane. */}
       <div className="question-bank-toolbar">
         <header className="question-bank-header">
-          {heading ?? <h2>Question Bank</h2>}
+          {heading ?? <h2>{t('bank.title')}</h2>}
           <div className="question-bank-header-actions">
             {extraActions}
             {onExport && <button
@@ -754,7 +753,7 @@ export function QuestionBankPane({
               onClick={onExport}
             >
               <Upload aria-hidden="true" />
-              {layout === 'page' && 'Export'}
+              {layout === 'page' && t('bank.exportAction')}
             </button>}
             {onCreate && <button
               type="button"

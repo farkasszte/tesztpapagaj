@@ -51,7 +51,7 @@ import {
   type QuestionBankTabsWorkspace,
   type QuestionBankWorkspaceService,
 } from './question-bank-workspaces'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 /** Chrome's Document Picture-in-Picture, which not every browser offers. */
 type DocumentPictureInPicture = {
@@ -274,7 +274,7 @@ function QuestionBankPopOver({
     commit(closeBankTab(workspaceRef.current, id))
   }
 
-  if (!workspace) return <p className="pop-over-loading">Opening…</p>
+  if (!workspace) return <p className="pop-over-loading">{t('common.opening')}</p>
   const active = workspace.activeBankId ? banks[workspace.activeBankId] : undefined
   const showingPicker = picker !== null || !active
   return <div className="pop-over">
@@ -303,7 +303,7 @@ function QuestionBankPopOver({
         type="button"
         className="pop-over-add"
         aria-label={t('bank.open')}
-        title="Open Question Bank"
+        title={t('bank.open')}
         aria-pressed={picker !== null}
         onClick={() => void (picker ? setPicker(null) : openPicker())}
       ><Plus /></button>
@@ -353,7 +353,7 @@ function BankPicker({
               <button type="button" onClick={() => onChoose(bank.id)}>
                 <span>{bank.name}</span>
                 <small>
-                  {bank.questionCount} {bank.questionCount === 1 ? 'Question' : 'Questions'}
+                  {countOf(bank.questionCount, 'question')}
                   {openIds.includes(bank.id) && t('bank.openSuffix')}
                 </small>
               </button>
@@ -494,7 +494,7 @@ function CopySettings() {
     {open && <div className="pop-over-settings-menu" role="group" aria-label={t('bank.copySettings')}>
       <h2>{t('bank.copySettings')}</h2>
       <fieldset>
-        <legend>Mathematics</legend>
+        <legend>{t('common.exampleTopic')}</legend>
         {MATH_MODES.map((option) => (
           <label key={option.value}>
             <input
@@ -555,13 +555,13 @@ function PopOverBank({
     setAnnouncement(message)
     view.setTimeout(() => setAnnouncement((current) => (current === message ? null : current)), 1_800)
   }
-  const describe = (count: number) => `${count} ${count === 1 ? 'Question' : 'Questions'}`
+  const describe = (count: number) => countOf(count, 'question')
 
   const copySelection = () => {
     const items = chosen(selection.selectedIds)
     if (items.length === 0) return
     copyQuestions(items, mathMode, view).then(
-      () => announce(`Copied ${describe(items.length)}`),
+      () => announce(t('bank.copied', { what: describe(items.length) })),
       () => announce(t('bank.copyFailed')),
     )
   }
@@ -578,7 +578,7 @@ function PopOverBank({
       event.clipboardData.setData('text/html', content.html)
       event.clipboardData.setData('text/plain', content.text)
       event.preventDefault()
-      announce(`Copied ${describe(items.length)}`)
+      announce(t('bank.copied', { what: describe(items.length) }))
     }
     const onKeyDown = (event: KeyboardEvent) => {
       if (inField()) return
@@ -650,20 +650,20 @@ function PopOverBank({
         onChange={(types) => onFilterChange({ ...filter, types })}
       />
       <ChoiceChip
-        label="Difficulty"
+        label={t('editor.difficulty')}
         options={DIFFICULTY_OPTIONS}
         selected={filter.difficulties}
         onChange={(difficulties) => onFilterChange({ ...filter, difficulties })}
       />
       {/* Only the Topics the bank has, and no chip at all when it has none. */}
       {topicOptions(bank).length > 0 && <ChoiceChip
-        label="Topic"
+        label={t('editor.topic')}
         options={topicOptions(bank).map((topic) => ({ value: topic, label: topic }))}
         selected={filter.topics}
         onChange={(topics) => onFilterChange({ ...filter, topics })}
       />}
       <FilterChip
-        label="Sort"
+        label={t('editor.sort')}
         summary={SORT_OPTIONS.find((option) => option.value === (filter.sort ?? 'newest'))?.label}
       >
         {(close) => SORT_OPTIONS.map((option) => (
@@ -686,7 +686,7 @@ function PopOverBank({
         type="button"
         className="bank-filter-clear"
         onClick={() => onFilterChange({ ...NO_FILTER, sort: filter.sort ?? 'newest' })}
-      >Clear</button>}
+      >{t('bank.clearFilters')}</button>}
     </div>}
     {questions.length === 0
       ? <p className="pop-over-empty">
@@ -717,9 +717,9 @@ function PopOverBank({
     <footer className="pop-over-footer" data-selected={selectedCount > 0 ? 'true' : undefined}>
       {selectedCount > 0
         ? <>
-            <span>{describe(selectedCount)} selected</span>
+            <span>{t('bank.selectedCount', { what: describe(selectedCount) })}</span>
             <button type="button" className="pop-over-footer-copy" onClick={copySelection}><Copy aria-hidden="true" />{t('bank.copy')}</button>
-            <button type="button" className="bank-filter-clear" onClick={selection.clear}>Clear</button>
+            <button type="button" className="bank-filter-clear" onClick={selection.clear}>{t('bank.clearSelection')}</button>
           </>
         : <span className="pop-over-footer-hint">{t('bank.selectThenDrag')}</span>}
       <span className="sr-only" role="status">{announcement ?? ''}</span>
