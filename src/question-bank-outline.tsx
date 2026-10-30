@@ -44,7 +44,7 @@ export function QuestionBankOutline({
   const onlyType = filter.topics.length === 0 && filter.types.length === 1 ? filter.types[0] : null
   const onlyTopic = filter.types.length === 0 && filter.topics.length === 1 ? filter.topics[0] : null
 
-  return <nav className="bank-outline" aria-label="Question Bank outline">
+  return <nav className="bank-outline" aria-label={t('bank.outline')}>
     <section>
       <h3>Outline</h3>
       <button
@@ -54,7 +54,7 @@ export function QuestionBankOutline({
         onClick={() => scope({})}
       >
         <Library aria-hidden />
-        <span>All questions</span>
+        <span>{t('bank.allQuestions')}</span>
         <small>{questions.length}</small>
       </button>
       {SECTION_ORDER.map((type) => {

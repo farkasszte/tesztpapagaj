@@ -406,7 +406,7 @@ export function WaitingImportPage({
             />
           </div>
         : <div className="home-empty">
-            <h2>This import is no longer waiting</h2>
+            <h2>{t('imports.notWaiting')}</h2>
             <p>It was imported, discarded, or expired. <Link href="/imports">See every import</Link>.</p>
           </div>}
   </AppShell>

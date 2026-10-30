@@ -1147,8 +1147,8 @@ function QuestionDeletionConfirmation({ usage, onCancel, onConfirm }: {
   const t = useT()
   const count = usage.length
   return <DestructiveConfirmation
-    label="Permanently delete Question"
-    title="Permanently delete this Question?"
+    label={t('editor.deleteQuestionPermanent')}
+    title={t('editor.deleteQuestionTitle')}
     confirmLabel={count === 0 ? t('editor.deleteQuestion') : `Delete and remove from ${count} ${count === 1 ? t('exam.one') : t('exam.many')}`}
     onCancel={onCancel}
     onConfirm={onConfirm}
@@ -1169,7 +1169,7 @@ function BankDeletionConfirmation({ bank, impact, onCancel, onConfirm }: {
 }) {
   const t = useT()
   return <DestructiveConfirmation
-    label="Permanently delete Question Bank"
+    label={t('bank.deletePermanent')}
     title={`Permanently delete “${bank.name}”?`}
     confirmLabel={t('bank.delete')}
     onCancel={onCancel}
@@ -1669,7 +1669,7 @@ function QuestionBankTabsPane({
         type="button"
         className="open-bank-button"
         aria-label={t('bank.open')}
-        title="Open Question Bank"
+        title={t('bank.open')}
         disabled={!hydrated}
         onClick={() => void openPicker()}
       ><Plus /></button>}
@@ -1914,7 +1914,7 @@ function QuestionBankPage({
               type="button"
               className="toolbar-icon-button bank-page-details-button"
               aria-label={t('bank.editDetails')}
-              title="Edit details"
+              title={t('bank.editDetailsShort')}
               aria-haspopup="dialog"
               onClick={() => setEditingDetails(true)}
             >
@@ -1932,7 +1932,7 @@ function QuestionBankPage({
           {popOver.supported && <button
             type="button"
             className="secondary-button"
-            title="Keep this Question Bank on top of other windows, to copy Questions from"
+            title={t('bank.keepOnTop')}
             onClick={() => popOver.open(bank.id)}
           >
             <PictureInPicture2 aria-hidden="true" />

@@ -13,6 +13,7 @@ import { layOutColumns, subpartLabelAt } from './export-plan'
 import { bankLetter } from './matching'
 import { stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { defaultWordBank, type CopyFormat, type CopyPartFormat } from './question-copy'
+import { t } from './i18n'
 
 const childrenOf = (node: ProseMirrorJSON): ProseMirrorJSON[] =>
   Array.isArray(node.content) ? (node.content as ProseMirrorJSON[]) : []
@@ -167,9 +168,9 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
       const bank = <Answers answers={choicesOf(question).map(({ node }) => childrenOf(node))} columns={1} />
       return {
         controls: <FormatSelect
-          label="Word Bank"
+          label={t('format.wordBank')}
           value={wordBank}
-          options={[{ value: 'beside', label: 'Word Bank beside' }, { value: 'above', label: 'Word Bank above' }]}
+          options={[{ value: 'beside', label: t('format.wordBankBeside') }, { value: 'above', label: t('format.wordBankAbove') }]}
           onChange={(value) => onFormat({ ...format, wordBank: value })}
         />,
         stem,

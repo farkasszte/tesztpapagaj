@@ -103,7 +103,7 @@ function RailHead({ kind, name, allowed }: { kind: Kind; name: string; allowed: 
   return <header className="bank-import-rail-head" data-kind={kind}>
     <p><Icon aria-hidden="true" />{noun}</p>
     <h3>{name}</h3>
-    {!allowed && <p className="bank-import-left-out">Not being imported</p>}
+    {!allowed && <p className="bank-import-left-out">{t('import.notImported')}</p>}
   </header>
 }
 
@@ -320,7 +320,7 @@ function ExamPreview({
     ? <div className="bank-import-exam-pages" aria-label={`${exam.name || 'Untitled Test'} pages`}>
         <ExportPreview plan={plan} />
       </div>
-    : <p className="bank-import-empty">This Test has no Questions yet.</p>
+    : <p className="bank-import-empty">{t('import.noQuestionsYet')}</p>
 }
 
 /** How many of a Test's positions are of each Question Type, read from the
@@ -368,13 +368,13 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
       )}
       {summary.pendingImages > picturesNeeded && (
         <div>
-          <dt>Pictures filled in</dt>
+          <dt>{t('import.picturesFilled')}</dt>
           <dd>{summary.pendingImages - picturesNeeded}</dd>
         </div>
       )}
       {picturesNeeded > 0 && (
         <div className="is-warning">
-          <dt>Pictures needed</dt>
+          <dt>{t('import.picturesNeededTitle')}</dt>
           <dd>{picturesNeeded}</dd>
         </div>
       )}
@@ -391,7 +391,7 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
       </div>
       {readAs ? (
         <div>
-          <dt>From</dt>
+          <dt>{t('import.from')}</dt>
           <dd>{readAs}</dd>
         </div>
       ) : (
@@ -1077,13 +1077,13 @@ export function QuestionBankImportDialog({
                 }}
               />
               <UploadCloud aria-hidden="true" />
-              <strong>Drop your test or question file here</strong>
+              <strong>{t('imports.dropHere')}</strong>
               <span>or click to choose it</span>
             </label>
             {needsConversion ? (
               <div className="bank-import-assist" data-emphasis="true" role="alert">
                 <span>
-                  <strong>That file isn’t a Test Parrot file yet.</strong>{' '}
+                  <strong>{t('import.notParrotYet')}</strong>{' '}
                   Drop your test here as a PDF or Word document to convert it.
                 </span>
               </div>
@@ -1100,7 +1100,7 @@ export function QuestionBankImportDialog({
           aria-atomic="true"
         >
           {phase === 'inspecting' && <p role="status">Validating file…</p>}
-          {phase === 'analyzing' && <p role="status">Finding the pictures in your test…</p>}
+          {phase === 'analyzing' && <p role="status">{t('import.findingPictures')}</p>}
           {phase === 'saving' && <p role="status">Importing…</p>}
           {error && !needsConversion && <ImportError message={error} aiMade={aiMade} />}
         </div>
@@ -1173,7 +1173,7 @@ export function QuestionBankImportDialog({
             <nav className="bank-import-list" aria-labelledby={`${listId}-heading`}>
               <header>
                 <h3 id={`${listId}-heading`}>Import List</h3>
-                <p>This is the list that you’re going to import.</p>
+                <p>{t('import.listIntro')}</p>
               </header>
               {listSection(
                 'bank',
@@ -1302,13 +1302,13 @@ export function QuestionBankImportDialog({
                           onShow={() => showItem({ kind: 'exam', key }, true)}
                         />
                       ))
-                    : <p>No Test in this file</p>}
+                    : <p>{t('import.noTestInFile')}</p>}
                 </section>}
 
                 {/* Where the bank goes is a setting of the import, not a fact
                     about the bank, so it comes after everything that is. */}
                 {chosen.allowed && <fieldset className="bank-import-target" disabled={busy}>
-                  <legend>Import settings</legend>
+                  <legend>{t('import.settings')}</legend>
                   <label>
                     <input
                       type="radio"
@@ -1316,7 +1316,7 @@ export function QuestionBankImportDialog({
                       checked={chosen.target.kind === 'new'}
                       onChange={() => setSelection(setBankTarget(selection, bank.id, { kind: 'new', name: targetName }))}
                     />
-                    <span>Create new question bank</span>
+                    <span>{t('import.createNewBank')}</span>
                   </label>
                   {chosen.target.kind === 'new' && <input
                     className="bank-import-target-name"
@@ -1335,7 +1335,7 @@ export function QuestionBankImportDialog({
                       disabled={!fallbackExisting}
                       onChange={() => fallbackExisting && setSelection(setBankTarget(selection, bank.id, { kind: 'existing', bankId: fallbackExisting }))}
                     />
-                    <span>Add to an existing one</span>
+                    <span>{t('import.addToExisting')}</span>
                   </label>
                   {chosen.target.kind === 'existing' && <select
                     className="bank-import-target-bank"
@@ -1344,7 +1344,7 @@ export function QuestionBankImportDialog({
                     onChange={(event) => setSelection(setBankTarget(selection, bank.id, { kind: 'existing', bankId: event.target.value }))}
                   >
                     {!existingBanks.some(({ id }) => id === (chosen.target as { bankId: string }).bankId) && (
-                      <option value={chosen.target.bankId}>This Question Bank</option>
+                      <option value={chosen.target.bankId}>{t('import.thisBankLabel')}</option>
                     )}
                     {existingBanks.map((existing) => (
                       <option key={existing.id} value={existing.id}>{existing.name}</option>
@@ -1386,7 +1386,7 @@ export function QuestionBankImportDialog({
                 </dl>
 
                 <section className="bank-import-uses">
-                  <h4>Questions from</h4>
+                  <h4>{t('import.questionsFrom')}</h4>
                   {exam.banks.map((id) => (
                     <TabLink
                       key={id}

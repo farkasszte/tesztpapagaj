@@ -289,7 +289,7 @@ function workSpaceMenu(
       items: [
         {
           kind: 'radio',
-          label: 'None',
+          label: t('format.none'),
           checked: !present,
           icon: <Ban />,
           onSelect: () => onSetWorkSpace(ids, { height: 0, fill: false }),
@@ -407,7 +407,7 @@ function questionMenuItems({
   const items: MenuItem[] = [
     {
       kind: 'action',
-      label: 'Edit question',
+      label: t('editor.editQuestion'),
       icon: <Pencil />,
       onSelect: () => onEdit(question.id),
     },
@@ -539,7 +539,7 @@ function questionMenuItems({
     { kind: 'separator' },
     {
       kind: 'action',
-      label: 'Remove',
+      label: t('ui.remove'),
       icon: <CircleMinus />,
       // Taking a question off the sheet is the one thing in this menu that
       // undoes work, so the row says so on hover rather than sitting there in

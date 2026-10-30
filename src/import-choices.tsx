@@ -37,7 +37,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
           if (pasted.trim()) onPaste(new File([pasted], t('imports.pastedName'), { type: 'text/plain' }))
         }}
       >
-        <label htmlFor={textId}>Paste your questions</label>
+        <label htmlFor={textId}>{t('imports.pasteTitle')}</label>
         <textarea
           id={textId}
           value={pasted}

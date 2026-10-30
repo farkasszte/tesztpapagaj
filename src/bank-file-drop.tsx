@@ -114,10 +114,10 @@ export function BankFileDropTarget({
         <Upload aria-hidden="true" />
         {target ? <>
           <strong>{t('bank.dropToAdd', { target: target.name || t('bank.thisBank') })}</strong>
-          <span>Its Questions are added to this bank, and any Exams come too</span>
+          <span>{t('bank.dropAdds')}</span>
         </> : tests ? <>
           <strong>{t('ui.dropTest')}</strong>
-          <span>Its PDF or Word document, a photo of it, or the file your AI gave back</span>
+          <span>{t('bank.dropKinds')}</span>
         </> : <>
           <strong>Drop to import</strong>
           <span>{t('bank.fileKinds')}</span>

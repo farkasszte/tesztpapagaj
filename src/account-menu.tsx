@@ -228,7 +228,7 @@ function Modal({ title, onClose, children, className = '' }: {
       >
         <header className="resource-picker-header">
           <h2 id={titleId}>{title}</h2>
-          <button type="button" className="question-bank-action" aria-label="Close" onClick={onClose}><X /></button>
+          <button type="button" className="question-bank-action" aria-label={t('common.close')} onClick={onClose}><X /></button>
         </header>
         {children}
       </section>

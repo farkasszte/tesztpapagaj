@@ -302,7 +302,7 @@ function QuestionBankPopOver({
       <button
         type="button"
         className="pop-over-add"
-        aria-label="Open Question Bank"
+        aria-label={t('bank.open')}
         title="Open Question Bank"
         aria-pressed={picker !== null}
         onClick={() => void (picker ? setPicker(null) : openPicker())}
@@ -342,11 +342,11 @@ function BankPicker({
   // With every tab closed the picker is all there is, so it fetches its own
   // list rather than waiting for the plus.
   useEffect(() => { if (!banks) onLoad() }, [banks, onLoad])
-  if (!banks) return <p className="pop-over-loading">Loading Question Banks…</p>
+  if (!banks) return <p className="pop-over-loading">{t('bank.loading')}</p>
   return <section className="pop-over-picker" aria-label={t('bank.open')}>
-    <h2>Open a Question Bank</h2>
+    <h2>{t('bank.open')}</h2>
     {banks.length === 0
-      ? <p className="pop-over-empty">No Question Banks yet.</p>
+      ? <p className="pop-over-empty">{t('bank.noneYet')}</p>
       : <ul>
           {banks.map((bank) => (
             <li key={bank.id}>
@@ -492,7 +492,7 @@ function CopySettings() {
       onClick={() => setOpen((current) => !current)}
     ><Settings /></button>
     {open && <div className="pop-over-settings-menu" role="group" aria-label={t('bank.copySettings')}>
-      <h2>Copy settings</h2>
+      <h2>{t('bank.copySettings')}</h2>
       <fieldset>
         <legend>Mathematics</legend>
         {MATH_MODES.map((option) => (
@@ -624,8 +624,8 @@ function PopOverBank({
         <Search aria-hidden="true" />
         <input
           type="search"
-          aria-label="Search question stems"
-          placeholder="Search questions"
+          aria-label={t('bank.searchStems')}
+          placeholder={t('bank.searchQuestions')}
           value={filter.search}
           onChange={(event) => onFilterChange({ ...filter, search: event.target.value })}
         />
@@ -644,7 +644,7 @@ function PopOverBank({
     </div>
     {filtersOpen && <div className="pop-over-filters">
       <ChoiceChip
-        label="Question Type"
+        label={t('bank.questionType')}
         options={TYPE_OPTIONS}
         selected={filter.types}
         onChange={(types) => onFilterChange({ ...filter, types })}
@@ -696,7 +696,7 @@ function PopOverBank({
           className="pop-over-cards"
           role="listbox"
           aria-multiselectable="true"
-          aria-label="Questions"
+          aria-label={t('editor.questions')}
           onClick={(event) => {
             if (event.target === event.currentTarget) selection.clear()
           }}
@@ -718,10 +718,10 @@ function PopOverBank({
       {selectedCount > 0
         ? <>
             <span>{describe(selectedCount)} selected</span>
-            <button type="button" className="pop-over-footer-copy" onClick={copySelection}><Copy aria-hidden="true" />Copy</button>
+            <button type="button" className="pop-over-footer-copy" onClick={copySelection}><Copy aria-hidden="true" />{t('bank.copy')}</button>
             <button type="button" className="bank-filter-clear" onClick={selection.clear}>Clear</button>
           </>
-        : <span className="pop-over-footer-hint">Select Questions, then drag them into your document.</span>}
+        : <span className="pop-over-footer-hint">{t('bank.selectThenDrag')}</span>}
       <span className="sr-only" role="status">{announcement ?? ''}</span>
       {announcement && <span className="pop-over-toast" aria-hidden="true"><Check />{announcement}</span>}
     </footer>

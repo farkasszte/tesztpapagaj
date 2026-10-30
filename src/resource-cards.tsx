@@ -19,7 +19,7 @@ import { PageHeaderContent } from './page-item-view'
 import { PAGE_GEOMETRY } from './exam-page'
 import { TopicBadge } from './badges'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 /** How many Topics a Question Bank card shows before it counts the rest. */
 const SHOWN_TOPICS = 3
@@ -137,7 +137,7 @@ export function ResourceCarousel({
               <button
                 type="button"
                 className="carousel-arrow"
-                aria-label={`Scroll ${label} backward`}
+                aria-label={t('card.scrollBack', { label })}
                 disabled={!reach.start}
                 onClick={() => step(-1)}
               >
@@ -146,7 +146,7 @@ export function ResourceCarousel({
               <button
                 type="button"
                 className="carousel-arrow"
-                aria-label={`Scroll ${label} forward`}
+                aria-label={t('card.scrollForward', { label })}
                 disabled={!reach.end}
                 onClick={() => step(1)}
               >
@@ -199,11 +199,11 @@ export function ExamCard({
   const card = <ExamCardButton exam={exam} onOpen={onOpen} />
   if (!onDelete) return card
   const items: MenuItem[] = [
-    { kind: 'action', label: 'Open', icon: <FolderOpen />, onSelect: () => onOpen(exam.id) },
+    { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(exam.id) },
     { kind: 'separator' },
     {
       kind: 'action',
-      label: 'Delete',
+      label: t('common.delete'),
       icon: <Trash2 />,
       destructive: true,
       onSelect: () => onDelete(exam),
@@ -259,7 +259,7 @@ function ExamCardButton({
       className="exam-card"
       onClick={() => onOpen(exam.id)}
     >
-      <span className="sr-only">Open {exam.title}. </span>
+      <span className="sr-only">{t('card.openName', { name: exam.title })} </span>
       {/* Decorative: everything it says, the caption and the label above say in
           a form a screen reader can use, and six miniature pages would
           otherwise put six `h1`s into the document outline. */}
@@ -279,7 +279,7 @@ function ExamCardButton({
                 </section>
               ))
             ) : (
-              <p className="empty-page-line">Empty Exam</p>
+              <p className="empty-page-line">{t('card.emptyExam')}</p>
             )}
           </div>
           <footer className="page-footer">{furniture.pageNumber}</footer>
@@ -292,7 +292,7 @@ function ExamCardButton({
           {exam.unsaved && (
             <span className="unsaved-mark" title={t('card.unsaved')}>
               <TriangleAlert aria-hidden="true" />
-              <span className="sr-only">Unsaved changes</span>
+              <span className="sr-only">{t('card.unsaved')}</span>
             </span>
           )}
         </span>
@@ -318,7 +318,7 @@ export function QuestionBankCard({
   const [menu, setMenu] = useState<MenuPoint | null>(null)
   const popOver = usePopOver()
   const items: MenuItem[] = [
-    { kind: 'action', label: 'Open', icon: <FolderOpen />, onSelect: () => onOpen(bank.id) },
+    { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(bank.id) },
     ...(popOver.supported
       ? [{ kind: 'action' as const, label: 'Pop-over', icon: <PictureInPicture2 />, onSelect: () => popOver.open(bank.id) }]
       : []),
@@ -353,11 +353,10 @@ export function QuestionBankCard({
         className="resource-card-main"
         onClick={() => onOpen(bank.id)}
       >
-        <span className="sr-only">Open {bank.name}. </span>
+        <span className="sr-only">{t('card.openName', { name: bank.name })} </span>
         <h2 aria-hidden="true">{bank.name}</h2>
         <p className="bank-card-count">
-          {bank.questionCount}{' '}
-          {bank.questionCount === 1 ? 'Question' : 'Questions'}
+          {countOf(bank.questionCount, 'question')}
         </p>
         {/* Topics wear the same tints here as in the bank pane and the question
             dialog, so one Topic is one colour everywhere it is shown. */}

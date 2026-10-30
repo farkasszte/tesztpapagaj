@@ -28,7 +28,7 @@ export function QuestionFileReport({
   const errors = reading.issues.filter((issue) => issue.severity === 'error')
   const others = reading.issues.filter((issue) => issue.severity !== 'error')
 
-  return <section className="question-file-report" aria-label="How your file was read">
+  return <section className="question-file-report" aria-label={t('report.howRead')}>
     <div className="question-file-report-head">
       <p role="status">
         {countOf(reading.found, 'question')} found · <strong>{reading.imported} coming in</strong>

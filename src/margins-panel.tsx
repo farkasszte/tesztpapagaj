@@ -302,7 +302,7 @@ export function MarginsPanel({
       </div>
       <div className="margins-combined">
         <MarginControl
-          label="All sides"
+          label={t('margins.allSides')}
           icon={<MarginsIcon />}
           value={uniform}
           // Mixed sides scrub from their average, so a drag either way is a

@@ -176,7 +176,7 @@ export function QuestionBankExportDialog({
       >
         <header className="dialog-header">
           <div>
-            <h2 id={titleId}>Export Question Bank</h2>
+            <h2 id={titleId}>{t('bank.export')}</h2>
             <p>
               For teachers: this file contains correct answers and Suggested
               Answers. It is separate from publishing an Exam.
@@ -189,7 +189,7 @@ export function QuestionBankExportDialog({
           </p>
         )}
         {!prepared && !error ? (
-          <p role="status" aria-live="polite">Preparing Question Bank Record and complete preview…</p>
+          <p role="status" aria-live="polite">{t('bankExport.preparing')}</p>
         ) : (
           prepared && <BankFilePreview record={prepared.record} />
         )}

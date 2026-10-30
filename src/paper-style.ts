@@ -16,6 +16,7 @@
 // Exam that never chose one prints exactly as it always did.
 
 import type { WorkSpace } from './exam'
+import { t } from './i18n'
 
 export type PaperStyle = 'standard' | 'classic' | 'condensed' | 'exam-board'
 
@@ -49,7 +50,7 @@ export const PAPER_STYLE_LABELS: Record<PaperStyle, { label: string; description
     description: 'Saves paper: tighter spacing, answers across where they fit, closer-ruled lines.',
   },
   'exam-board': {
-    label: 'Exam Board',
+    label: t('paper.examBoard'),
     description: 'A4: 1 (a) (i) labels, dotted lines, points in brackets at the right.',
   },
 }

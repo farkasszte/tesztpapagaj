@@ -856,7 +856,7 @@ export function deleteSection(
  *  Section with neither part would be drawn at no height — nowhere to drop
  *  into, and nothing to type on (ADR-0040). */
 export const NEW_SECTION_WORDING: Pick<ExamSection, 'title' | 'instructions'> = {
-  title: 'New section',
+  title: t('page.newSection'),
   instructions: '',
 }
 

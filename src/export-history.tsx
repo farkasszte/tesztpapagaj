@@ -49,7 +49,7 @@ export function ExportHistoryDrawer({
       <header className="export-history-header">
         <div>
           <h2>{t('ui.exportHistory')}</h2>
-          <p>Everything exported from this Exam, kept in this browser.</p>
+          <p>{t('export.historyEmpty')}</p>
         </div>
         <button
           type="button"
@@ -61,7 +61,7 @@ export function ExportHistoryDrawer({
         </button>
       </header>
       {records.length === 0 ? (
-        <p className="export-history-empty">Export this Exam to keep a record here.</p>
+        <p className="export-history-empty">{t('export.historyHint')}</p>
       ) : (
         <ol className="export-history-list">
           {records.map((record, index) => ({ record, number: index + 1 })).reverse().map(({ record, number }) => (

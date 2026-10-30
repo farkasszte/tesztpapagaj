@@ -142,7 +142,7 @@ export function PageCropper({
       <span>Page {page} of {source.pageCount}</span>
       <button type="button" className="secondary-button" disabled={page >= source.pageCount} onClick={() => setPage(page + 1)}>Next page</button>
     </div>
-    <p className="resolve-image-note">Drag a box around the picture.</p>
+    <p className="resolve-image-note">{t('imports.dragBox')}</p>
     <div
       ref={frame}
       className="resolve-image-page"

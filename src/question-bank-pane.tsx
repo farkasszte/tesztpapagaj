@@ -462,7 +462,7 @@ export function QuestionBankPane({
         />}
         <label className="bank-sort">
           <ArrowDownAZ aria-hidden="true" />
-          <span className="sr-only">Sort Questions</span>
+          <span className="sr-only">{t('bank.sortQuestions')}</span>
           <select
             aria-label={t('bank.sortQuestions')}
             value={filter.sort ?? 'newest'}
@@ -521,7 +521,7 @@ export function QuestionBankPane({
           className="question-bank-reading-lane"
           onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 0)}
         >
-          <ul className="question-bank-reading" aria-label="Questions">
+          <ul className="question-bank-reading" aria-label={t('editor.questions')}>
             {questions.map((question) => {
               const name = stemPreview(question).text || UNTITLED
               return (
@@ -565,7 +565,7 @@ export function QuestionBankPane({
                         type="button"
                         className="toolbar-icon-button question-bank-reading-edit"
                         aria-label={t('ui.editName', { name })}
-                        title="Edit"
+                        title={t('bank.edit')}
                         onClick={(event) => {
                           event.stopPropagation()
                           onEdit(question.id)
@@ -718,7 +718,7 @@ export function QuestionBankPane({
     <section
       ref={root}
       className="question-bank"
-      aria-label="Question Bank"
+      aria-label={t('bank.title')}
       {...selectAllPaneProps('question-bank')}
       // The rule under the toolbar is drawn only while there is something
       // above it to have scrolled past.
