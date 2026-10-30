@@ -2481,7 +2481,7 @@ export function ExamPage({
         <ContextMenu
           point={menu.point}
           side={menu.side}
-          ariaLabel={`Question ${numberLabelOf(menuQuestion)} actions`}
+          ariaLabel={t('ui.questionActions', { n: numberLabelOf(menuQuestion) })}
           items={questionMenuItems({
             question: menuQuestion,
             columns: columnSettings[menuQuestion.id] ?? DEFAULT_COLUMNS,

@@ -211,7 +211,7 @@ export function ExamCard({
       <button
         type="button"
         className="bank-card-menu exam-card-menu"
-        aria-label={`${exam.title} actions`}
+        aria-label={t('ui.nameActions', { name: exam.title })}
         aria-haspopup="menu"
         onClick={(event) => {
           const bounds = event.currentTarget.getBoundingClientRect()
@@ -224,7 +224,7 @@ export function ExamCard({
         <ContextMenu
           point={menu}
           side="left"
-          ariaLabel={`${exam.title} actions`}
+          ariaLabel={t('ui.nameActions', { name: exam.title })}
           items={items}
           onClose={() => setMenu(null)}
         />
@@ -380,7 +380,7 @@ export function QuestionBankCard({
       <button
         type="button"
         className="bank-card-menu"
-        aria-label={`${bank.name} actions`}
+        aria-label={t('ui.nameActions', { name: bank.name })}
         aria-haspopup="menu"
         onClick={(event) => {
           // Hangs leftwards from the mark's own right edge, so it never covers
@@ -395,7 +395,7 @@ export function QuestionBankCard({
         <ContextMenu
           point={menu}
           side="left"
-          ariaLabel={`${bank.name} actions`}
+          ariaLabel={t('ui.nameActions', { name: bank.name })}
           items={items}
           onClose={() => setMenu(null)}
         />

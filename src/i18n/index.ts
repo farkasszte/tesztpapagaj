@@ -537,6 +537,10 @@ const en = {
   'ui.pictureNeededMany': 'Questions {named} still need pictures. Resolve them before exporting.',
   'ui.continue': 'Continue',
   'common.andWord': 'and',
+  'ui.nameActions': '{name} actions',
+  'ui.questionActions': 'Question {n} actions',
+  'ui.removeFromExam': 'Remove {name} from the exam',
+  'ui.addToExam': 'Add {name} to the exam',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1059,7 +1063,12 @@ const hu: Record<TextKey, string> = {
   'ui.pictureNeededOne': 'A(z) {named} kérdéshez még kép kell. Oldd fel exportálás előtt.',
   'ui.pictureNeededMany': 'A(z) {named} kérdésekhez még kép kell. Oldd fel őket exportálás előtt.',
   'ui.continue': 'Folytatás',
-  'common.andWord': 'és',}
+  'common.andWord': 'és',
+  'ui.nameActions': '{name} műveletei',
+  'ui.questionActions': 'A(z) {n}. kérdés műveletei',
+  'ui.removeFromExam': '{name} eltávolítása a dolgozatból',
+  'ui.addToExam': '{name} felvétele a dolgozatba',
+};
 
 const LANGUAGES = { en, hu } as const
 export type LanguageCode = keyof typeof LANGUAGES

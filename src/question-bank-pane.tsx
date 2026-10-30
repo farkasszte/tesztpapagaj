@@ -688,7 +688,7 @@ export function QuestionBankPane({
                     <button
                       type="button"
                       className="question-bank-action question-bank-included"
-                      aria-label={`Remove ${name} from the exam`}
+                      aria-label={t('ui.removeFromExam', { name })}
                       title={t('bank.removeFromExam')}
                       onClick={() => onRemoveFromWorkingCopy(question.id)}
                     >
@@ -699,7 +699,7 @@ export function QuestionBankPane({
                     <button
                       type="button"
                       className="question-bank-action"
-                      aria-label={`Add ${name} to the exam`}
+                      aria-label={t('ui.addToExam', { name })}
                       title={t('bank.addToExam')}
                       onClick={() => onAddToWorkingCopy(question.id)}
                     >

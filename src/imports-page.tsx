@@ -136,7 +136,7 @@ function ImportCard({
       <button
         type="button"
         className="bank-card-menu import-card-menu"
-        aria-label={`${entry.fileName} actions`}
+        aria-label={t('ui.nameActions', { name: entry.fileName })}
         aria-haspopup="menu"
         onClick={(event) => {
           const bounds = event.currentTarget.getBoundingClientRect()
@@ -150,7 +150,7 @@ function ImportCard({
       <ContextMenu
         point={menu}
         side="left"
-        ariaLabel={`${entry.fileName} actions`}
+        ariaLabel={t('ui.nameActions', { name: entry.fileName })}
         items={items}
         onClose={() => setMenu(null)}
       />
