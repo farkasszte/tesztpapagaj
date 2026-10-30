@@ -116,6 +116,7 @@ import { DIFFICULTY_LABELS } from './exam'
 import type { ProseMirrorJSON } from './question-doc'
 import { BLANK_LINE } from './blank'
 import { pictureKey, printedPictureWidth } from './picture-geometry'
+import { t } from './i18n'
 
 const DOCX_MIME =
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -1275,7 +1276,7 @@ function paperTotalParagraph(item: PaperTotalItem): Paragraph {
 // number, then the letter this arrangement earned — in bold, as print
 // draws it. The plan decided every one of those; nothing here reads a choice.
 
-const ANSWER_KEY_TITLE = 'Answer Section'
+const answerKeyTitle = () => t('export.answerSection')
 
 function answerKeySection(item: AnswerKeySectionItem): Paragraph {
   return new Paragraph({
@@ -1383,7 +1384,7 @@ function itemContent(
         new Paragraph({
           // Larger than a section title in print, so larger than Heading 1.
           children: [
-            new TextRun({ text: ANSWER_KEY_TITLE, size: halfPointsOf('answerKeyHeading') }),
+            new TextRun({ text: answerKeyTitle(), size: halfPointsOf('answerKeyHeading') }),
             // The paper's total, on the heading's own line against the right
             // margin in body type, as print sets it.
             ...(item.totalPoints !== undefined

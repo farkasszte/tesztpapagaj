@@ -381,7 +381,7 @@ describe('one combined package for a Export Artifact', () => {
     const keys = fingerprint.pages.slice(1)
 
     expect(keys[0]!.content).toEqual([
-      'heading:1 Answer Section',
+      'heading:1 Válaszkulcs',
       'heading:2 Multiple Choice',
       'para 1. «strong»A«/»',
     ])

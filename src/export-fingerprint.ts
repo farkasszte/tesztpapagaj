@@ -42,6 +42,7 @@ import { arrangementRange } from './export-preparation'
 import type { ProseMirrorJSON } from './question-doc'
 import { BLANK_LINE } from './blank'
 import { MARGIN_SIDES, type MarginSide } from './page-margins'
+import { t } from './i18n'
 
 /** A page's margins in CSS px, every side. */
 export type PageMarginsPx = Record<MarginSide, number>
@@ -671,8 +672,8 @@ export function planItemLines(
       // The paper's total shares the heading's line in every adapter.
       return [
         item.totalPoints !== undefined
-          ? `heading:1 Answer Section ${answerKeyTotalText(item.totalPoints)}`
-          : 'heading:1 Answer Section',
+          ? `heading:1 ${t('export.answerSection')} ${answerKeyTotalText(item.totalPoints)}`
+          : `heading:1 ${t('export.answerSection')}`,
       ]
     case 'answer-key-section':
       return [`heading:2 ${item.title}`]

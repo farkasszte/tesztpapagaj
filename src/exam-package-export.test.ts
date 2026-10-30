@@ -584,7 +584,7 @@ const withoutIds = (sections: readonly ExamSection[]) =>
   sections.map(({ title, instructions }) => ({ title, instructions }))
 
 describe('an Exam’s stored Sections in its package', () => {
-  // A Section holding Questions of two types, a Short Answer Section whose
+  // A Section holding Questions of two types, a Short Válaszkulcs whose
   // directions are cleared, a Section whose heading is cleared, and an
   // emptied Section that is kept but prints nothing.
   const sheet: Exam = {

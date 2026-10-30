@@ -168,7 +168,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
       expect(test!.some((line) => /\[\d+\]|points?\b/.test(line))).toBe(false)
       // The key gives the paper's total, each line with Points its `[n]`, a
       // Matching set's once on its first Item, and an unpointed line none.
-      expect(key).toContain('heading:1 Answer Section Total: 9 points')
+      expect(key).toContain('heading:1 Válaszkulcs Total: 9 points')
       expect(key).toContain('para 1. «strong»A«/» [1] Könnyű Rivers')
       expect(key).toContain('para 2. «strong»F«/»')
       expect(key).toContain('para 3. «strong»A«/» [2]')
@@ -481,7 +481,7 @@ describe('the Export Document', () => {
     // The key is derived from the same numbered, lettered questions the test
     // shows, so it can never name a letter the paper does not.
     expect(fingerprint.answerKey).toEqual([
-      'heading:1 Answer Section',
+      'heading:1 Válaszkulcs',
       'heading:2 Multiple Choice',
       'para 1. «strong»A«/»',
       'para 2. «strong»A«/»',

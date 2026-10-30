@@ -53,7 +53,7 @@ function field(
   return { candidates, emptySections: [], openNewSection: null, ...extra }
 }
 
-// A Multiple Choice Section of two questions, a Short Answer Section of two,
+// A Multiple Choice Section of two questions, a Short Válaszkulcs of two,
 // then a second Multiple Choice Section of one, down one sheet.
 const page = field([
   rendered('q1', 'mc', 100, 300),

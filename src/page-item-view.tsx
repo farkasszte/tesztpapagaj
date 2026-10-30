@@ -531,7 +531,7 @@ export function SectionHeadingContent({ item }: { item: SectionHeadingItem }) {
 export function AnswerKeyHeading({ item }: { item: AnswerKeyHeadingItem }) {
   return (
     <h2 className="answer-key-heading">
-      Answer Section
+      {t('export.answerSection')}
       {item.totalPoints !== undefined && (
         <>
           {' '}

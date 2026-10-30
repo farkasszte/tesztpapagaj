@@ -109,7 +109,7 @@ describe('print’s stylesheet is the table', () => {
     expect(await rule('.page-running-head')).toContain(`height: ${RUNNING_HEAD_HEIGHT}px;`)
   })
 
-  test('“Answer Section” is never broken across lines', async () => {
+  test('“Válaszkulcs” is never broken across lines', async () => {
     expect(await rule('.answer-key-heading')).toContain('white-space: nowrap;')
   })
 

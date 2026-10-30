@@ -89,6 +89,7 @@ import {
   QUESTION_BANK_ATTACHMENT_NAME,
 } from './question-bank-export'
 import { PACKAGE_ZIP_ATTACHMENT_NAME, PACKAGE_ZIP_MIME_TYPE } from './package-zip'
+import { t } from './i18n'
 
 const PDF_MIME = 'application/pdf'
 const POINTS_PER_PX = 0.75
@@ -1110,7 +1111,7 @@ function drawItem(context: DrawContext, item: PageItem): void {
       return
     case 'answer-key-heading': {
       const line = ANSWER_KEY_HEADING_SIZE * HEADING_LINE_HEIGHT
-      drawTextLine(context, 'Answer Section', { font: 'bold', size: ANSWER_KEY_HEADING_SIZE, line })
+      drawTextLine(context, t('export.answerSection'), { font: 'bold', size: ANSWER_KEY_HEADING_SIZE, line })
       // The paper's total, on the heading's own baseline against the right
       // margin in body type, as print sets it.
       if (item.totalPoints !== undefined) {

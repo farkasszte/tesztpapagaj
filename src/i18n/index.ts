@@ -654,6 +654,7 @@ const en = {
   'card.daysAgo': '{prefix} {count} days ago',
   'card.updatedPrefix': 'Updated',
   'card.createdPrefix': 'Created',
+  'export.answerSection': 'Answer Section',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1294,6 +1295,7 @@ const hu: Record<TextKey, string> = {
   'card.daysAgo': '{prefix} {count} napja',
   'card.updatedPrefix': 'Frissítve:',
   'card.createdPrefix': 'Létrehozva:',
+  'export.answerSection': 'Válaszkulcs',
 };
 
 const LANGUAGES = { en, hu } as const

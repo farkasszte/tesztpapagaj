@@ -63,9 +63,12 @@ márkajelei nem kerülnek át.
    a program logikája, valamint a fájlformátum-egyezés is ezekre épül. A
    felületen megjelenő változatuk fordítható. Ugyanígy angolul maradnak a gépi
    formátumok mezőnevei (JSON-séma, a formátumok azonosítói).
-9. **Nyitott pont.** Az exportált válaszkulcs fejléce (`Answer Section`) és a
-   letöltött fájlnevek egyelőre angolok: ezek a fingerprint-szókészletben is
-   szerepelnek, ezért a velük járó elvárások együttes frissítése kell hozzá.
+9. **Export és nyomtatás.** A válaszkulcs fejléce („Válaszkulcs", angolul
+   „Answer Section") a szótárból jön mindhárom helyen: a PDF-rajzolóban, a
+   Word-exportálóban és a nyomtatási nézetben; a fingerprint-szókészlet ugyanezt
+   a kulcsot használja, így a két adapter egyezése továbbra is mérhető. A
+   korábbi kiadású exportrekordok fingerprintje angolul készült — az összevetés
+   ezeknél eltérést jelezhet, ami nem adatvesztés.
 
 
 ## Módosított fájlok

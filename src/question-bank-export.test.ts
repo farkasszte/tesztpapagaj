@@ -695,7 +695,7 @@ describe('Question Bank exchange export seam', () => {
     expect(preview).toContain('Neutron')
     expect(preview).toContain('Correct answer')
     expect(preview).not.toContain('Student Name')
-    expect(preview).not.toContain('Answer Section')
+    expect(preview).not.toContain('Válaszkulcs')
     expect(preview).not.toContain('Version A')
     expect(source).toContain('/AFRelationship /Source')
   })

@@ -24,7 +24,7 @@ egy helyen élnek: `src/i18n/index.ts`.
 | Szerkesztő (dolgozat-oldal, eszköztár, szakaszok, formázás) | kész |
 | Kérdésbank-felületek, import, beállítások, fiók, A projektről, Adatvédelem | kész |
 | Accessible name-ek (aria-label, title, placeholder) | kész |
-| Nyomtatott feladatlap, válaszkulcs, PDF/Word export | **nyitott**: a válaszkulcs fejléce és a fájlnevek még angolok |
+| Nyomtatott feladatlap, válaszkulcs, PDF/Word export | kész: a válaszkulcs fejléce mindhárom kimeneten a szótárból jön |
 | e2e tesztek | a nagy készlet angolul fut (a nyelv a teszt-környezet beállítása), mellette 5 magyar felület-spec; a futás eredménye és az ismert eltérések a `NOTICE.md`-ben |
 
 ## Futtatás
