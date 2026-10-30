@@ -7,7 +7,7 @@ async function newExam(page: import('@playwright/test').Page) {
 
 test('Home opens independently persisted recent Exams and restores the active Exam', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('region', { name: 'Folytasd ott, ahol abbahagytad' })).toContainText('Create your first Exam')
+  await expect(page.getByRole('region', { name: 'Folytasd ott, ahol abbahagytad' })).toContainText('Készítsd el az első dolgozatodat'))
   await page.getByRole('button', { name: 'Új kérdésbank' }).first().click()
   await page.getByRole('button', { name: 'Add Question' }).click()
   await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
@@ -77,7 +77,7 @@ test('a stale launch restores and warns about the active valid Exam without crea
   await page.getByRole('textbox', { name: 'Dolgozat neve' }).fill('Active Exam')
   await page.goto('/editor?exam=unavailable')
   await expect(page).toHaveURL(/\/editor$/)
-  await expect(page.getByRole('alert')).toHaveText('That Exam is unavailable on this device.')
+  await expect(page.getByRole('alert')).toHaveText('Ez a dolgozat nem érhető el ezen az eszközön.'))
   await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Active Exam')
   await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
   await expect(page.getByRole('button', { name: 'Active Exam' })).toHaveCount(1)
@@ -87,11 +87,11 @@ test('a bare editor reload retains an active pristine workspace, while Home star
   await page.goto('/')
   await newExam(page)
   await page.reload()
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Untitled Exam')
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Névtelen dolgozat'))
   // Simulates closing the editor and later starting at Home, rather than using
   // the Home action which intentionally cleans placeholders immediately.
   await page.goto('/')
-  await expect(page.getByRole('region', { name: 'Folytasd ott, ahol abbahagytad' })).toContainText('Create your first Exam')
+  await expect(page.getByRole('region', { name: 'Folytasd ott, ahol abbahagytad' })).toContainText('Készítsd el az első dolgozatodat'))
 })
 
 test('client-side About navigation returns to refreshed Home cards without replaying editor state', async ({ page }) => {

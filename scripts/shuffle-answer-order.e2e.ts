@@ -59,7 +59,7 @@ test('keyboard Shuffle answer order varies selected Multiple Choice questions an
 
   expect(await answerContent(0)).not.toEqual(beforeFirst)
   expect(await answerContent(1)).not.toEqual(beforeSecond)
-  await expect(page.getByRole('status')).toHaveText('Shuffled answer order.')
+  await expect(page.getByRole('status')).toHaveText('A válaszok sorrendje összekeverve.'))
 
   await page.getByRole('button', { name: 'Visszavonás' }).click()
   await expect.poll(() => answerContent(0)).toEqual(beforeFirst)

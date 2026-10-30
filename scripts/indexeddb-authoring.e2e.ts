@@ -69,8 +69,7 @@ test('the fresh generation ignores earlier browser authoring data', async ({
     page.getByRole('region', { name: 'Kérdésbank' }).getByRole('listitem'),
   ).toHaveCount(0)
   await expect(page.locator('.exam-question')).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue(
-    'Untitled Exam',
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Névtelen dolgozat'),
   )
   expect(
     await page.evaluate(() => localStorage.getItem('exam-authoring-v2')),
@@ -181,7 +180,7 @@ test('Question Metadata and bank-only content survive a user-visible reload', as
     .getByRole('listitem')
   await expect(row).toHaveCount(1)
   await expect(row).toContainText('Which gas do plants take in?')
-  await expect(row).toContainText('Hard')
+  await expect(row).toContainText('Nehéz'))
   await expect(row).toContainText('Photosynthesis')
   await expect(page.locator('.exam-question')).toHaveCount(0)
 })

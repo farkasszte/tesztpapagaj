@@ -24,7 +24,7 @@ test('in-app navigation warns only while a Working Copy backup is pending', asyn
   })
 
   await page.getByRole('textbox', { name: 'Dolgozat neve' }).fill('Backup fails')
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Backup failed')
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('A mentés nem sikerült'))
   await page.getByRole('link', { name: 'a projektről' }).click()
   expect(await page.evaluate(() =>
     (window as unknown as { confirmCalls: string[] }).confirmCalls,

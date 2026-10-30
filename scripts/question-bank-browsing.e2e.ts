@@ -114,10 +114,10 @@ test('a compact row shows the stem, its classification and nothing hidden', asyn
   await expect(rows(page).nth(3)).toContainText('Photosynthesis in leaves')
 
   const leaves = row(page, 'Photosynthesis in leaves')
-  await expect(leaves).toContainText('Multiple choice')
-  await expect(leaves).toContainText('Easy')
+  await expect(leaves).toContainText('Feleletválasztós'))
+  await expect(leaves).toContainText('Könnyű'))
   await expect(leaves).toContainText('Biology')
-  await expect(leaves).toContainText('In exam')
+  await expect(leaves).toContainText('Dolgozatban'))
   // Answer choices and their correctness stay behind the popup.
   await expect(bank(page)).not.toContainText('Chlorophyll')
   await expect(bank(page)).not.toContainText('Keratin')
@@ -127,7 +127,7 @@ test('a compact row shows the stem, its classification and nothing hidden', asyn
   await expect(graph).toContainText('Math')
   await expect(graph).toContainText('Image')
   await expect(graph).not.toContainText('nRT')
-  await expect(graph).toContainText('Short answer')
+  await expect(graph).toContainText('Rövid válasz'))
 })
 
 test('a click selects a row while a double-click, Enter or Edit opens the popup', async ({ page }) => {

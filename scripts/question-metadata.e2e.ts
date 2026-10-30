@@ -34,14 +34,14 @@ test('a question is classified and saved with its Difficulty and Topics', async 
   await page.keyboard.type('Which gas do plants take in?')
 
   // Both rows open blank: neither property is required.
-  await expect(field(page, 'Difficulty')).toContainText('Empty')
-  await expect(field(page, 'Topics')).toContainText('Empty')
+  await expect(field(page, 'Difficulty')).toContainText('Üres'))
+  await expect(field(page, 'Topics')).toContainText('Üres'))
 
   await field(page, 'Difficulty').click()
   await page.getByRole('button', { name: 'Nehéz', exact: true }).click()
   // Single-select: choosing closes the row, and the value is on it.
   await expect(search(page, 'Difficulty')).toHaveCount(0)
-  await expect(field(page, 'Difficulty')).toContainText('Hard')
+  await expect(field(page, 'Difficulty')).toContainText('Nehéz'))
 
   await field(page, 'Topics').click()
   await search(page, 'Topics').fill('Photosynthesis')
@@ -53,12 +53,12 @@ test('a question is classified and saved with its Difficulty and Topics', async 
 
   const row = bankRows(page).first()
   await expect(row).toContainText('Which gas do plants take in?')
-  await expect(row).toContainText('Hard')
+  await expect(row).toContainText('Nehéz'))
   await expect(row).toContainText('Photosynthesis')
 
   // Reopening shows what was saved rather than starting over.
   await page.getByRole('button', { name: /^Edit / }).click()
-  await expect(field(page, 'Difficulty')).toContainText('Hard')
+  await expect(field(page, 'Difficulty')).toContainText('Nehéz'))
   await expect(field(page, 'Topics')).toContainText('Photosynthesis')
 })
 
@@ -140,12 +140,12 @@ test('a question is created as a Short Answer question, and stays one', async ({
   await newQuestion(page, 'Short answer')
 
   // The type is stated rather than offered: it was settled at creation.
-  await expect(dialog(page)).toContainText('Short answer')
+  await expect(dialog(page)).toContainText('Rövid válasz'))
   await expect(dialog(page).getByRole('combobox')).toHaveCount(0)
   await page.keyboard.type('Explain osmosis')
   await page.getByRole('button', { name: 'Kérdés mentése' }).click()
 
-  await expect(bankRows(page).first()).toContainText('Short answer')
+  await expect(bankRows(page).first()).toContainText('Rövid válasz'))
 })
 
 test('Escape closes the front matter first, and then the popup', async ({ page }) => {
@@ -178,7 +178,7 @@ test('the type is stated in the front matter, above the question it classifies',
   // Front matter, not header chrome: the type is the first thing the question
   // says about itself, and it is said rather than offered.
   const frontMatter = dialog(page).locator('.front-matter')
-  await expect(frontMatter).toContainText('Short answer')
+  await expect(frontMatter).toContainText('Rövid válasz'))
   await expect(frontMatter.getByRole('button', { name: 'Type' })).toHaveCount(0)
 })
 
@@ -189,11 +189,11 @@ test('choosing a Difficulty again clears it, which is what a Clear button was fo
 
   await field(page, 'Difficulty').click()
   await page.getByRole('button', { name: 'Közepes', exact: true }).click()
-  await expect(field(page, 'Difficulty')).toContainText('Medium')
+  await expect(field(page, 'Difficulty')).toContainText('Közepes'))
 
   await field(page, 'Difficulty').click()
   await page.getByRole('button', { name: 'Közepes', exact: true }).click()
-  await expect(field(page, 'Difficulty')).toContainText('Empty')
+  await expect(field(page, 'Difficulty')).toContainText('Üres'))
 })
 
 test('Escape leaves the Topics list without leaving the popup', async ({ page }) => {

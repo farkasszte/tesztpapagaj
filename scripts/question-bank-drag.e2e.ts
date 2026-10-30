@@ -116,7 +116,7 @@ test('the bottom edge of a rendered question Inserts after it', async ({ page })
   // Referenced, not copied: still five bank records, and the incoming one is
   // marked as being on the exam.
   await expect(bank(page).getByRole('listitem')).toHaveCount(QUESTIONS.length)
-  await expect(bankRow(page, 'Spare choice question')).toContainText('In exam')
+  await expect(bankRow(page, 'Spare choice question')).toContainText('Dolgozatban'))
 })
 
 test('Shift-selected bank rows drag into the Working Copy together', async ({ page }) => {
@@ -271,7 +271,7 @@ test('a question of a type the Exam has no Section for starts one from the targe
 
   expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
   await expect(newSectionTarget(page)).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Short Answer')
+  await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Rövid válasz'))
 })
 
 test('an empty Working Copy offers its placeholder as the first-question drop target', async ({ page }) => {
