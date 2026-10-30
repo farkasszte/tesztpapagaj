@@ -35,14 +35,18 @@ const THUMBNAIL_QUESTIONS = 12
  */
 export function CreateFirstCard({
   label,
+  hint,
   onClick,
 }: {
   label: string
+  /** Mi készül el az első kártyán: üres polcnál ez mondja meg, mit ér el. */
+  hint?: string
   onClick: () => void
 }) {
   return (
     <button type="button" className="create-first" onClick={onClick}>
       <span>{label}</span>
+      {hint && <small className="create-first-hint">{hint}</small>}
       <Plus aria-hidden="true" />
     </button>
   )

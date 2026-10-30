@@ -55,7 +55,7 @@ async function previewSection(page: Page) {
 
 test('a heading and its directions are reworded where they print, and the output says the same', async ({ page }) => {
   await openExam(page)
-  await expect(heading(page)).toHaveValue('Feleletválasztós'))
+  await expect(heading(page)).toHaveValue('Feleletválasztós')
 
   await heading(page).fill('Choose One')
   await directions(page).fill('Circle the best answer.')
@@ -90,7 +90,7 @@ test('a cleared part prints nothing, and the margin restores the default', async
 
   const section = await previewSection(page)
   await expect(section.locator('.section-instructions')).toHaveCount(0)
-  await expect(section.locator('.section-title')).toHaveText('Feleletválasztós'))
+  await expect(section.locator('.section-title')).toHaveText('Feleletválasztós')
   await page.keyboard.press('Escape')
 
   await page.locator('.exam-section--editable').hover()
@@ -109,7 +109,7 @@ test('a heading cleared of both prints nothing and can still be brought back', a
   await expect(directions(page)).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Restore the Multiple Choice heading' }).click()
-  await expect(heading(page)).toHaveValue('Feleletválasztós'))
+  await expect(heading(page)).toHaveValue('Feleletválasztós')
   await expect(directions(page)).toHaveValue(DEFAULT_DIRECTIONS)
 })
 

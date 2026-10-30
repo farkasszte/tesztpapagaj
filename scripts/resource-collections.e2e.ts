@@ -134,7 +134,7 @@ test('Home provides keyboard-operable horizontal previews and full collections',
   ).toHaveCount(8)
   const search = page.getByRole('searchbox', { name: 'Search Exams' })
   await search.fill('special algebra')
-  await expect(page.getByRole('status')).toHaveText('1 dolgozat'))
+  await expect(page.getByRole('status')).toHaveText('1 dolgozat')
   await search.press('Tab')
   await page.keyboard.press('Enter')
   await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue(

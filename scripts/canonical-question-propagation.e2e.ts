@@ -74,7 +74,7 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
   await dialog.getByRole('button', { name: 'Kérdés mentése' }).click()
   await expect(dialog).toBeHidden()
   await expect(page.locator('.exam-question')).toContainText('Edited everywhere')
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Elmentve'))
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Elmentve')
   await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
 
   const result = await page.evaluate(async ({ cleanId, dirtyId, bankId }) => {

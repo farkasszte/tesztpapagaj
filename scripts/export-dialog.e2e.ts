@@ -100,7 +100,7 @@ test('identical exports append distinct records without saving the Working Copy'
   await open(page)
   const title = page.getByRole('textbox', { name: 'Dolgozat neve' })
   await title.fill('Unsaved Biology Quiz')
-  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Mentetlen módosítások'))
+  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Mentetlen módosítások')
 
   expect((await download(page)).suggestedFilename()).toBe('Unsaved Biology Quiz.pdf')
   expect((await download(page)).suggestedFilename()).toBe('Unsaved Biology Quiz.pdf')
@@ -108,7 +108,7 @@ test('identical exports append distinct records without saving the Working Copy'
   const records = (await historyOf(page)).records
   expect(records[0]!.id).not.toBe(records[1]!.id)
   expect(records.every((record) => record.capturedName === 'Unsaved Biology Quiz')).toBe(true)
-  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Mentetlen módosítások'))
+  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Mentetlen módosítások')
 })
 
 test('Export History is newest-first, and its frozen Re-export appends an event', async ({ page }) => {
@@ -123,7 +123,7 @@ test('Export History is newest-first, and its frozen Re-export appends an event'
   await history.locator('.export-history-item').first().click()
 
   const reExport = page.getByRole('dialog', { name: 'Újraexportálás' })
-  await expect(reExport).toContainText('Exportbejegyzés, módosíthatatlan'))
+  await expect(reExport).toContainText('Exportbejegyzés, módosíthatatlan')
   await expect(reExport).toContainText('#2')
   // Every setting is frozen as it was exported.
   await expect(reExport.getByRole('radio', { name: 'DOCX' })).toBeChecked()

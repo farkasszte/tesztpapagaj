@@ -143,7 +143,7 @@ test('teacher exports the complete active Question Bank without Exam or history 
   await expect(preview).toContainText('Matter is not created or destroyed.')
   await expect(preview).toContainText('Which particle is neutral?')
   await expect(preview).toContainText('Neutron')
-  await expect(preview).toContainText('Helyes válasz'))
+  await expect(preview).toContainText('Helyes válasz')
 
   const downloadPromise = page.waitForEvent('download')
   await preview.getByRole('button', { name: 'PDF letöltése' }).click()

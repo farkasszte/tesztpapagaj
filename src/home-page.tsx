@@ -67,7 +67,7 @@ export function HomePage({
               </h1>
               {importLink}
             </div>
-            <CreateFirstCard label={t('home.newExam')} onClick={onNewExam} />
+            <CreateFirstCard label={t('home.newExam')} hint={t('home.createFirstExam')} onClick={onNewExam} />
           </>
         ) : (
           <ResourceCarousel
@@ -98,7 +98,7 @@ export function HomePage({
           </h2>
         </div>
         {banks.length === 0 ? (
-          <CreateFirstCard label={t('home.newBank')} onClick={onNewBank} />
+          <CreateFirstCard label={t('home.newBank')} hint={t('home.createFirstBank')} onClick={onNewBank} />
         ) : (
           <div className="collection-grid">
             {banks.map((bank) => (

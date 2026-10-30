@@ -90,8 +90,8 @@ test('the editor nests the Parts under the Multipart question, each tagged with 
 
   await expect(editor(page).getByText('Részek', { exact: true })).toBeVisible()
   await expect(partTags(page)).toHaveCount(2)
-  await expect(partTags(page).nth(0)).toContainText('Feleletválasztós'))
-  await expect(partTags(page).nth(1)).toContainText('Rövid válasz'))
+  await expect(partTags(page).nth(0)).toContainText('Feleletválasztós')
+  await expect(partTags(page).nth(1)).toContainText('Rövid válasz')
   await expect(editor(page).locator('.multipart-part').nth(0).locator('[data-type="multiple-choice"]')).toBeVisible()
   await expect(editor(page).locator('.multipart-part').nth(1).getByText('Javasolt válasz')).toBeVisible()
 })
@@ -108,7 +108,7 @@ async function newMultipart(page: Page) {
 test('a new Multipart question opens with one blank Multiple Choice Part, and the bank counts its Parts', async ({ page }) => {
   await newMultipart(page)
   await expect(partTags(page)).toHaveCount(1)
-  await expect(partTags(page).first()).toContainText('Feleletválasztós'))
+  await expect(partTags(page).first()).toContainText('Feleletválasztós')
 
   // The cursor starts in the stem, unnested at the top.
   await page.keyboard.type('A quotation to read.')
@@ -132,7 +132,7 @@ test('a Part is added, moved and deleted, and saving keeps exactly that', async 
   await editor(page).getByRole('button', { name: 'Rész hozzáadása' }).last().click()
   await editor(page).getByRole('menuitem', { name: 'Rövid válasz' }).click()
   await expect(partTags(page)).toHaveCount(2)
-  await expect(partTags(page).nth(1)).toContainText('Rövid válasz'))
+  await expect(partTags(page).nth(1)).toContainText('Rövid válasz')
   // The cursor lands in the new Part's stem, so typing writes its question.
   await page.keyboard.type('Explain one factor.')
   await expect(editor(page).locator('.multipart-part').nth(1)).toContainText('Explain one factor.')
@@ -141,7 +141,7 @@ test('a Part is added, moved and deleted, and saving keeps exactly that', async 
   await partTags(page).nth(1).getByRole('button', { name: 'Move part up' }).click()
   await expect(editor(page).locator('.multipart-part')).toHaveCount(2)
   await expect(editor(page).locator('.multipart-part').nth(0)).toContainText('Explain one factor.')
-  await expect(partTags(page).nth(0)).toContainText('Rövid válasz'))
+  await expect(partTags(page).nth(0)).toContainText('Rövid válasz')
 
   // Deleting the blank Multiple Choice Part, now second, leaves one Part.
   await partTags(page).nth(1).getByRole('button', { name: 'Delete part' }).click()
@@ -157,7 +157,7 @@ test('a Part is added, moved and deleted, and saving keeps exactly that', async 
   await bank.getByRole('button', { name: 'A quotation to read. szerkesztése' }).click()
   await expect(editor(page)).toBeVisible()
   await expect(partTags(page)).toHaveCount(1)
-  await expect(partTags(page).first()).toContainText('Rövid válasz'))
+  await expect(partTags(page).first()).toContainText('Rövid válasz')
   await expect(editor(page).locator('.multipart-part')).toContainText('Explain one factor.')
 })
 
@@ -186,7 +186,7 @@ test('a Part switches kind from its type badge, and switching back brings its an
   await part.locator('.mc-choice-body').first().click()
   await page.keyboard.type('Northern Coast')
   await switchTo('Short Answer')
-  await expect(partTags(page).first()).toContainText('Rövid válasz'))
+  await expect(partTags(page).first()).toContainText('Rövid válasz')
   await expect(part.getByText('Javasolt válasz')).toBeVisible()
   await expect(part.locator('[data-type="multiple-choice"]')).toHaveCount(0)
 

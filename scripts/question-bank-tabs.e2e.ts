@@ -53,7 +53,7 @@ test('opening a Question Bank goes to its own page and creates no Exam', async (
   await page.goto(`/question-bank?id=${ids.biology}`)
 
   await expect(page.getByRole('textbox', { name: 'Kérdésbank neve' })).toHaveValue('Biology')
-  await expect(page.getByRole('navigation', { name: 'Morzsamenü' })).toContainText('Kérdésbankok'))
+  await expect(page.getByRole('navigation', { name: 'Morzsamenü' })).toContainText('Kérdésbankok')
   await expect(bank(page)).toContainText('Describe mitosis.')
   // No Exam, and therefore no tabs and nothing to add a Question to.
   await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveCount(0)
@@ -230,11 +230,11 @@ test('adding a bank Question raises the Working Copy and Discard puts it back', 
   await bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' }).click()
 
   await expect(page.locator('.exam-question')).toContainText('Describe mitosis.')
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Mentetlen módosítások · helyben mentve'))
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Mentetlen módosítások · helyben mentve')
   await page.getByRole('button', { name: 'Fájl' }).click()
   await page.getByRole('menuitem', { name: 'Módosítások elvetése' }).click()
   await expect(page.locator('.exam-question')).toHaveCount(0)
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Elmentve'))
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Elmentve')
 })
 
 test('an Exam offers composition from banks but not direct creation or automatic Replace', async ({ page }) => {
@@ -293,7 +293,7 @@ test('a missing bank address reports the problem and returns to the collection',
   await seedBanks(page)
   await page.goto('/question-bank?id=missing-bank')
   await expect(page).toHaveURL(/\/question-banks$/)
-  await expect(page.getByRole('alert')).toHaveText('Ez a kérdésbank nem érhető el ezen az eszközön.'))
+  await expect(page.getByRole('alert')).toHaveText('Ez a kérdésbank nem érhető el ezen az eszközön.')
 })
 
 test('a bank that disappears is dropped from an Exam workspace on restore', async ({ page }) => {
@@ -320,7 +320,7 @@ test('a bank that disappears is dropped from an Exam workspace on restore', asyn
   }, ids.chemistry)
 
   await page.goto('/editor')
-  await expect(page.getByRole('alert')).toHaveText('Egy kérdésbank ebben a munkaterületen nem érhető el ezen az eszközön.'))
+  await expect(page.getByRole('alert')).toHaveText('Egy kérdésbank ebben a munkaterületen nem érhető el ezen az eszközön.')
   await expect(page.getByRole('tab')).toHaveText(['Biology', 'Physics'])
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveCount(0)
 })
