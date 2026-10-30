@@ -20,6 +20,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
+import { t } from './i18n'
 
 const DEFAULT_BANK_PERCENT = 33
 // Neither pane is allowed to become a sliver: past these the divider is no
@@ -79,7 +80,7 @@ export function WorkspaceSplit({
         role="separator"
         tabIndex={0}
         aria-orientation="vertical"
-        aria-label="Resize the Question Bank"
+        aria-label={t('bank.resize')}
         aria-valuenow={Math.round(bankPercent)}
         aria-valuemin={MIN_BANK_PERCENT}
         aria-valuemax={MAX_BANK_PERCENT}

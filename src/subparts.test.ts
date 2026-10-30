@@ -437,9 +437,9 @@ describe('Subparts elsewhere', () => {
     expect(b).toMatchObject({ letter: 'b', typeLabel: 'Subparts', stem: [paragraph('lead-in b')] })
     expect(b!.choices).toBeUndefined()
     expect(b!.subparts!.map((subpart) => [subpart.letter, subpart.typeLabel])).toEqual([
-      ['i', 'Multiple choice'],
-      ['ii', 'Short answer'],
-      ['iii', 'Short answer'],
+      ['i', 'Feleletválasztós'],
+      ['ii', 'Rövid válasz'],
+      ['iii', 'Rövid válasz'],
     ])
   })
 })

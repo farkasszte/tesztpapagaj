@@ -9,6 +9,7 @@
 // readable and images are not inflated by base64.
 
 import { STORAGE_NAME, STORAGE_VERSION, EXAM_STORE } from './storage-schema'
+import { t } from './i18n'
 
 export const ACCOUNT_BACKUP_FORMAT = 'test-parrot-account'
 export const ACCOUNT_BACKUP_VERSION = 1
@@ -319,7 +320,7 @@ export async function readAccountBackup(file: Blob): Promise<AccountSnapshot> {
 function binaryReader(binaries: Map<string, Uint8Array>) {
   return (file: string) => {
     const bytes = binaries.get(file)
-    if (!bytes) throw new AccountBackupError('This account backup is damaged: an image is missing.')
+    if (!bytes) throw new AccountBackupError(t('account.backupDamaged'))
     return bytes
   }
 }

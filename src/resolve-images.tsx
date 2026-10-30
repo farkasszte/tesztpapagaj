@@ -18,6 +18,7 @@ import {
 } from './resolved-pictures'
 import type { ImageTag, PageBox } from './source-document'
 import { namedPage, usePictureChoice, type PictureChoice } from './picture-choice'
+import { t } from './i18n'
 
 const SOURCE_FILE_TYPES = 'application/pdf,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx'
 
@@ -135,7 +136,7 @@ export function PageCropper({
     })
   }
   const usable = box && box.right - box.left > 5 && box.bottom - box.top > 5
-  return <div className="resolve-image-cropper" role="group" aria-label="Crop a picture from a page">
+  return <div className="resolve-image-cropper" role="group" aria-label={t('imports.cropFromPage')}>
     <div className="resolve-image-cropper-bar">
       <button type="button" className="secondary-button" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous page</button>
       <span>Page {page} of {source.pageCount}</span>
@@ -213,7 +214,7 @@ export function PictureChoices({
   const tags = source?.tags.length ?? 0
   return <div className="picture-choices">
     {described && (occurrence.caption || occurrence.alt) && <p className="resolve-image-description">{occurrence.caption || occurrence.alt}</p>}
-    <p className="resolve-image-status">{choice.working === occurrence.key ? 'Working…' : statusOf(occurrence, picture, source)}</p>
+    <p className="resolve-image-status">{choice.working === occurrence.key ? t('common.working') : statusOf(occurrence, picture, source)}</p>
     {others.length > 0 && (
       <label className="resolve-image-share">
         <input
@@ -221,7 +222,7 @@ export function PictureChoices({
           checked={choice.shared(occurrence)}
           onChange={(event) => choice.share(occurrence, event.target.checked)}
         />
-        <span>Change the {others.length === 1 ? 'other place' : `${others.length} other places`} that {others.length === 1 ? 'uses' : 'use'} {pendingName(occurrence.pending)} too</span>
+        <span>{others.length === 1 ? t('imports.imageUsedElsewhere') : t('imports.imageUsedElsewhereMany', { count: others.length })} {pendingName(occurrence.pending)}</span>
       </label>
     )}
     {!source && onSourceFile && (
@@ -231,7 +232,7 @@ export function PictureChoices({
         <input
           type="file"
           accept={SOURCE_FILE_TYPES}
-          aria-label="Your original test"
+          aria-label={t('imports.originalTest')}
           onChange={(event) => {
             const file = event.target.files?.[0]
             event.target.value = ''
@@ -242,7 +243,7 @@ export function PictureChoices({
     )}
     {source && tags > 0 && !chooserOpen && (
       <button type="button" className="secondary-button" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>
-        <Images aria-hidden="true" />{picture ? 'Choose another picture' : 'Choose a picture'}
+        <Images aria-hidden="true" />{picture ? t('imports.chooseAnother') : t('imports.choosePicture')}
       </button>
     )}
     {source && choosing && (
@@ -320,7 +321,7 @@ export function ResolveImages({
         <h3 id="resolve-images-heading">Resolve Images</h3>
         <p role="status">
           {filling
-            ? 'Taking pictures from your test…'
+            ? t('imports.takingPictures')
             : `${ready} of ${occurrences.length} ${occurrences.length === 1 ? 'picture' : 'pictures'} ready.`}
           {' '}Any left unresolved stay as “picture needed” and can be added later.
         </p>
@@ -333,7 +334,7 @@ export function ResolveImages({
         <input
           type="file"
           accept={SOURCE_FILE_TYPES}
-          aria-label="Your original test"
+          aria-label={t('imports.originalTest')}
           onChange={(event) => {
             const file = event.target.files?.[0]
             event.target.value = ''

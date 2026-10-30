@@ -1,10 +1,11 @@
 import { useId, useState } from 'react'
 import { ClipboardPaste } from 'lucide-react'
 import { SUPPORTED_SOURCES } from './question-formats/catalog'
+import { t } from './i18n'
 
 /** What an AI assistant converts, named first because most tests arrive as
  *  one of these. */
-const CONVERTED_SOURCES = ['PDFs', 'Word documents', 'Photos']
+const CONVERTED_SOURCES = ['PDFs', t('imports.wordDocs'), 'Photos']
 
 /**
  * What sits under every drop zone that starts an import: what it takes,
@@ -13,7 +14,7 @@ const CONVERTED_SOURCES = ['PDFs', 'Word documents', 'Photos']
  */
 
 export function SupportedSources() {
-  return <div className="import-sources" aria-label="Supported question files">
+  return <div className="import-sources" aria-label={t('imports.supportedFiles')}>
     <span>Supports</span>
     <ul>{[...CONVERTED_SOURCES, ...SUPPORTED_SOURCES].map((source) => <li key={source}>{source}</li>)}</ul>
   </div>
@@ -33,7 +34,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
         className="import-paste"
         onSubmit={(event) => {
           event.preventDefault()
-          if (pasted.trim()) onPaste(new File([pasted], 'Pasted questions.txt', { type: 'text/plain' }))
+          if (pasted.trim()) onPaste(new File([pasted], t('imports.pastedName'), { type: 'text/plain' }))
         }}
       >
         <label htmlFor={textId}>Paste your questions</label>
@@ -43,7 +44,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
           rows={10}
           spellCheck={false}
           autoFocus
-          placeholder={'MC\nWhich planet is closest to the Sun?\nVenus\n*Mercury\nMars\n\nTF\nThe Sun is a star.\nT'}
+          placeholder={t('conv.samplePlaceholder')}
           onChange={(event) => setPasted(event.target.value)}
         />
         <p>
@@ -51,9 +52,9 @@ export function TextOnlyChoices({ busy, onPaste }: {
           format Test Parrot reads. Leave a blank line between questions.
         </p>
         <div className="import-paste-actions">
-          <button type="button" className="secondary-button" onClick={() => setPasting(false)}>Cancel</button>
+          <button type="button" className="secondary-button" onClick={() => setPasting(false)}>{t('common.cancel')}</button>
           <button type="submit" className="primary-button" disabled={busy || !pasted.trim()}>
-            Read my questions
+            {t('imports.readQuestions')}
           </button>
         </div>
       </form>

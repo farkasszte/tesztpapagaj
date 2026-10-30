@@ -94,6 +94,7 @@ import {
 } from './export-preparation'
 import { wordBankLayoutFor, wordBankLayoutOf, type BankAnswerWidth } from './export-plan'
 import { clampSize } from './picture-geometry'
+import { t } from './i18n'
 
 /** Everything authoring owns: canonical content, the selection made from it,
  *  and whether that has reached the saved state yet. */
@@ -808,7 +809,7 @@ export function createExamStore(options: {
         }
       })
       .catch((error: unknown) => {
-        console.error('Could not mirror the authoring state', error)
+        console.error(t('errors.mirrorAuthoringFailed'), error)
         if (revision === backupRevision) {
           backupStatus = 'failed'
           notify()
@@ -1459,7 +1460,7 @@ export async function loadExamStore(
   try {
     stored = upgradedStoredState(await backend.read()) as AuthoringState | null
   } catch (error) {
-    console.error('Could not read the authoring state', error)
+    console.error(t('errors.readAuthoringFailed'), error)
   }
   try {
     const storedSaved = upgradedStoredState('readSaved' in backend
@@ -1467,14 +1468,14 @@ export async function loadExamStore(
       : (await savedBackend?.read()) ?? null)
     saved = isSavedState(storedSaved) ? storedSaved : null
   } catch (error) {
-    console.error('Could not read the saved exam', error)
+    console.error(t('errors.readExamFailed'), error)
   }
   try {
     exportHistory = 'readExportHistory' in backend
       ? await (backend as DurableAuthoringBackend).readExportHistory()
       : EMPTY_EXPORT_HISTORY
   } catch (error) {
-    console.error('Could not read Export History', error)
+    console.error(t('errors.readHistoryFailed'), error)
   }
   const initial = isAuthoringState(stored)
     ? stored

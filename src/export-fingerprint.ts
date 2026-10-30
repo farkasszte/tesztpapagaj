@@ -37,6 +37,7 @@ import {
   type QuestionItem,
 } from './export-plan'
 import { centredKind } from './centring'
+import { DIFFICULTY_LABELS } from './exam'
 import { arrangementRange } from './export-preparation'
 import type { ProseMirrorJSON } from './question-doc'
 import { BLANK_LINE } from './blank'
@@ -678,7 +679,7 @@ export function planItemLines(
     case 'answer-key-entry': {
       const metadata = [
         ...(item.difficulty
-          ? [item.difficulty[0]!.toUpperCase() + item.difficulty.slice(1)]
+          ? [DIFFICULTY_LABELS[item.difficulty]]
           : []),
         ...(item.topics ?? []),
       ]

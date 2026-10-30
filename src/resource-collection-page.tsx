@@ -8,6 +8,7 @@ import {
   type QuestionBankCollectionItem,
 } from './resource-collections'
 import { AppShell } from './app-shell'
+import { t } from './i18n'
 
 export function ResourceCollectionPage({
   kind,
@@ -99,7 +100,7 @@ export function ResourceCollectionPage({
           ) : (
             create && (
               <CreateFirstCard
-                label={isExams ? 'Create your first Exam' : 'Create your first Question Bank'}
+                label={isExams ? t('home.createFirstExam') : t('home.createFirstBank')}
                 onClick={create}
               />
             )

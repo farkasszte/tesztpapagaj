@@ -112,6 +112,6 @@ describe('account backup file', () => {
   test('refuses a backup with a missing image rather than restoring part of it', async () => {
     const damaged = snapshot({ exam: {}, image: new Uint8Array([1]), lastOpenedAt: '', active: '' })
     damaged.binaries = new Map()
-    await expect(readAccountBackup(await accountBackupBlob(damaged))).rejects.toThrow('an image is missing')
+    await expect(readAccountBackup(await accountBackupBlob(damaged))).rejects.toThrow('hiányzik egy kép')
   })
 })

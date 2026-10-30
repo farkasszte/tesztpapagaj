@@ -3310,12 +3310,12 @@ export default function App({
   const saveAs = useCallback(async () => {
     if (!editorStore) return
     const sourceId = await workspaces.activeId()
-    if (!sourceId) throw new Error('The source Exam is unavailable.')
+    if (!sourceId) throw new Error(t('exam.sourceUnavailable'))
     let targetId: string | null = null
     const session = await editorStore.saveAs(async (snapshot) => {
       targetId = (await workspaces.saveAs(sourceId, snapshot)).id
     })
-    if (!targetId) throw new Error('The copied Exam is unavailable.')
+    if (!targetId) throw new Error(t('exam.copyUnavailable'))
     const target = session.initial
     const saved = {
       questionBank: target.questionBank,

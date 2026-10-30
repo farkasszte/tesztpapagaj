@@ -18,6 +18,7 @@ import {
   STORAGE_NAME,
   STORAGE_VERSION,
 } from './storage-schema'
+import { t } from './i18n'
 
 export type ExamSummary = { id: string; createdAt: string; lastOpenedAt: string }
 type ActiveWorkspace = { key: 'active'; examId: string }
@@ -117,7 +118,7 @@ function deleteExamDatabase(id: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase(examDatabaseName(id))
     request.onsuccess = () => resolve()
-    request.onerror = () => reject(request.error ?? new Error('The Exam could not be deleted.'))
+    request.onerror = () => reject(request.error ?? new Error(t('errors.examDeleteFailed')))
   })
 }
 function previewOf(state: AuthoringState): readonly (readonly ProseMirrorJSON[])[] | null {

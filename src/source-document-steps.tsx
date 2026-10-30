@@ -5,6 +5,7 @@ import { fillImageTags } from './image-tag-list'
 import type { WaitingImport } from './import-history'
 import { downloadInstructions } from './instructions-file'
 import { supportMailto } from './support-email'
+import { t } from './i18n'
 
 /**
  * What to do with the test a teacher just dropped, while its import waits for
@@ -24,8 +25,6 @@ const ASSISTANTS = [
   { id: 'claude', name: 'Claude', url: 'https://claude.ai/new' },
   { id: 'gemini', name: 'Gemini', url: 'https://gemini.google.com/app' },
 ] as const
-
-const plural = (count: number, singular: string) => `${count} ${count === 1 ? singular : `${singular}s`}`
 
 /** One step: its number, what it is, and — on the right — what clicking it does. */
 function StepButton({
@@ -133,10 +132,10 @@ export function SourceDocumentSteps({
     setSaved(true)
   }
   /** What the teacher calls the file they dropped. */
-  const file = photo ? 'photo' : word ? 'document' : 'PDF'
+  const file = photo ? t('conv.filePhoto') : word ? t('conv.fileDocument') : 'PDF'
   // With a labeled copy, both files to attach are the two just downloaded.
   // The instructions say what to do with the test, so nothing needs typing.
-  const attach = pictures ? 'Attach both downloads' : `Attach the instructions and your ${file}`
+  const attach = pictures ? t('conv.attachBoth') : t('conv.attachInstructions', { file })
 
   const download = async () => {
     setError(null)
@@ -163,7 +162,7 @@ export function SourceDocumentSteps({
       link.click()
       window.setTimeout(() => URL.revokeObjectURL(url), 1000)
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : `The labeled ${file} could not be made.`)
+      setError(reason instanceof Error ? reason.message : t('conv.labeledFailed', { file }))
     }
   }
 
@@ -173,28 +172,28 @@ export function SourceDocumentSteps({
   }
 
   let number = 0
-  return <section className="source-steps" aria-label="Convert your test">
+  return <section className="source-steps" aria-label={t('conv.ariaConvert')}>
     {named && <h2 className="source-steps-title" title={waiting.fileName}>
-      <span>Converting</span> <span className="source-steps-name">{waiting.fileName}</span>
+      <span>{t('conv.converting')}</span> <span className="source-steps-name">{waiting.fileName}</span>
     </h2>}
     <p className="source-steps-intro">
-      We couldn’t import your questions automatically, but an AI assistant can convert your test for you.
+      {t('conv.intro')}
     </p>
     {noted && <p className="source-steps-note" role="status">
       {pictures && <ImageIcon aria-hidden="true" />}
       {pictures
-        ? `${plural(waiting.tags.length, 'picture')} detected in your ${file}`
+        ? t('conv.picturesDetected', { count: waiting.tags.length, file })
         : photo
-          ? 'A photo of your test: you crop its pictures after importing'
-          : `No pictures in your ${file}`}
+          ? t('conv.photoNote')
+          : t('conv.noPictures', { file })}
     </p>}
 
     <ol className="source-steps-list">
       {pictures && <li>
         <StepButton
           number={++number}
-          title={`Download the labeled ${file}`}
-          text={`We’ve added labels to your ${file}’s images so your AI can easily tell them apart.`}
+          title={t('conv.downloadLabeled', { file })}
+          text={t('conv.downloadLabeledText', { file })}
           icon={<Download />}
           disabled={busy}
           onClick={() => void download()}
@@ -203,8 +202,8 @@ export function SourceDocumentSteps({
       <li>
         <StepButton
           number={++number}
-          title={saved ? 'Downloaded' : 'Download the instructions'}
-          text="A text file that tells your AI exactly what file to make."
+          title={saved ? t('conv.downloaded') : t('conv.downloadInstructions')}
+          text={t('conv.downloadInstructionsText')}
           icon={saved ? <Check /> : <FileText />}
           disabled={busy}
           onClick={save}
@@ -213,14 +212,14 @@ export function SourceDocumentSteps({
       <li className="source-step-menu-anchor">
         <StepButton
           number={++number}
-          title="Open your AI"
-          text={`${attach} and send.`}
+          title={t('conv.openAi')}
+          text={t('conv.attachSend', { attach })}
           icon={<ChevronDown />}
           disabled={busy}
           expanded={choosing}
           onClick={() => setChoosing(!choosing)}
         />
-        {choosing && <div ref={menu} className="source-step-menu" role="menu" aria-label="Open an AI assistant">
+        {choosing && <div ref={menu} className="source-step-menu" role="menu" aria-label={t('conv.ariaOpenAssistant')}>
           {ASSISTANTS.map((assistant) => (
             <button key={assistant.id} type="button" role="menuitem" onClick={() => open(assistant)}>
               {assistant.name}
@@ -231,8 +230,8 @@ export function SourceDocumentSteps({
       <li>
         <StepButton
           number={++number}
-          title="Drop the file it gives back"
-          text={`A .parrot.json file. You check every question${pictures || photo ? ' and picture' : ''} before anything is imported, and can ask your AI to change anything first.`}
+          title={t('conv.dropBack')}
+          text={t('conv.dropBackText', { andPicture: pictures || photo ? t('conv.andPicture') : '' })}
           icon={<UploadCloud />}
           disabled={busy}
           onClick={() => returned.current?.click()}
@@ -244,7 +243,7 @@ export function SourceDocumentSteps({
       <input
         ref={returned}
         type="file"
-        aria-label="File from your AI"
+        aria-label={t('conv.ariaFileFromAi')}
         accept="application/json,.json"
         disabled={busy}
         onChange={(event) => {
@@ -254,18 +253,18 @@ export function SourceDocumentSteps({
         }}
       />
       <UploadCloud aria-hidden="true" />
-      <strong>Drop the .parrot.json here</strong>
-      <span>or click to choose it</span>
+      <strong>{t('conv.dropParrot')}</strong>
+      <span>{t('conv.orClick')}</span>
     </label>
 
     {problem}
     {error && <p className="home-error" role="alert">{error}</p>}
     <p className="source-steps-help">
-      Think we should convert this kind of file automatically?{' '}
-      <a href={supportMailto('A file type for Test Parrot to convert', { askForFile: true })}>Email us your file</a>.
+      {t('conv.shouldConvert')}{' '}
+      <a href={supportMailto(t('conv.subjectConvert'), { askForFile: true })}>{t('conv.emailFile')}</a>.
     </p>
     {onStartOver && <p className="source-steps-foot">
-      <button type="button" className="link-button" disabled={busy} onClick={onStartOver}>Start over with another file</button>
+      <button type="button" className="link-button" disabled={busy} onClick={onStartOver}>{t('conv.startOver')}</button>
     </p>}
   </section>
 }

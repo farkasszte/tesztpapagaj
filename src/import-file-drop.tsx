@@ -5,6 +5,7 @@ import { ImportError } from './import-error'
 import { routeImportFile } from './import-file-route'
 import { TEST_FILE_TYPES } from './source-file'
 import { navigate } from './use-route'
+import { t } from './i18n'
 
 /**
  * The one place an import starts: a drop for the test itself, a question
@@ -50,7 +51,7 @@ export function ImportFileDrop({
     <label className="bank-import-drop convert-drop">
       <input
         type="file"
-        aria-label="Your test, a question file, or the file your AI gave back"
+        aria-label={t('imports.fileLabel')}
         accept={`${TEST_FILE_TYPES},application/json,.json`}
         disabled={reading}
         onChange={(event) => {
@@ -60,8 +61,8 @@ export function ImportFileDrop({
         }}
       />
       <UploadCloud aria-hidden="true" />
-      <strong>{reading ? 'Reading your file…' : 'Drop your test or question file here'}</strong>
-      <span>or click to choose it</span>
+      <strong>{reading ? t('imports.reading') : t('imports.dropHere')}</strong>
+      <span>{t('conv.orClick')}</span>
     </label>
     <SupportedSources />
     <TextOnlyChoices busy={reading} onPaste={(file) => void take(file)} />

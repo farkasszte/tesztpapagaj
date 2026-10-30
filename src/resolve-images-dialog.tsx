@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PendingImageOccurrence, PendingImageResolution } from './pending-images'
 import { ResolveImages } from './resolve-images'
 import { prefilledPictures, resolutionOf, type Resolutions, type ResolvingSource } from './resolved-pictures'
+import { t } from './i18n'
 
 /**
  * Resolve Images reopened after an import, for Pending Images that remain.
@@ -39,7 +40,7 @@ export function ResolveImagesDialog({
       const filled = await prefilledPictures(occurrences.filter(({ key }) => !resolutions.has(key)), next)
       setResolutions((current) => new Map([...filled, ...current]))
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'That PDF could not be read.')
+      setError(reason instanceof Error ? reason.message : t('import.pdfUnreadable'))
     } finally {
       setFilling(false)
     }
@@ -52,7 +53,7 @@ export function ResolveImagesDialog({
     try {
       await onResolve(chosen)
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'The pictures could not be saved.')
+      setError(reason instanceof Error ? reason.message : t('imports.picturesNotSaved'))
       setSaving(false)
     }
   }
@@ -69,7 +70,7 @@ export function ResolveImagesDialog({
         }
       }}
     >
-      <section ref={dialog} className="bank-import-dialog bank-import-dialog--resolve resolve-images-dialog" role="dialog" aria-modal="true" aria-label="Resolve Images">
+      <section ref={dialog} className="bank-import-dialog bank-import-dialog--resolve resolve-images-dialog" role="dialog" aria-modal="true" aria-label={t('imports.resolveImages')}>
         {error && <p className="home-error" role="alert">{error}</p>}
         <div className="bank-import-resolve">
           <ResolveImages
@@ -84,7 +85,7 @@ export function ResolveImagesDialog({
         <footer className="dialog-actions">
           <button type="button" className="secondary-button" disabled={saving} onClick={onClose}>Cancel</button>
           <button type="button" className="primary-button" disabled={saving || filling || chosen.size === 0} onClick={() => void done()}>
-            {saving ? 'Saving…' : 'Use these pictures'}
+            {saving ? 'Saving…' : t('imports.usePictures')}
           </button>
         </footer>
       </section>

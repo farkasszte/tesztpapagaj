@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { aiFixRequest } from './import-file-route'
 import { supportMailto } from './support-email'
+import { t } from './i18n'
 
 /**
  * A file an AI made that Test Parrot cannot import is almost always fixed by
@@ -36,11 +37,13 @@ export function ImportError({ message, aiMade = false }: {
         onClick={() => void navigator.clipboard.writeText(aiFixRequest(message)).then(() => setCopied(true))}
       >
         {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-        {copied ? 'Copied' : 'Copy error'}
+        {copied ? t('imports.copied') : t('imports.copyError')}
       </button>
     </div>}
     <p className="import-error-help">
-      Having trouble? <a href={supportMailto('Trouble importing into Test Parrot', { askForFile: true })}>Email us your file</a> and we’ll help.
+      {t('imports.havingTrouble')}{' '}
+      <a href={supportMailto(t('imports.subjectTrouble'), { askForFile: true })}>{t('imports.emailFile')}</a>{' '}
+      {t('imports.helpSuffix')}
     </p>
   </div>
 }
