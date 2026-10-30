@@ -30,7 +30,7 @@ const en = {
   'shell.helpBodyAfter': '.',
   'shell.logoAlt': 'Home',
 
-  'footer.credit': 'Made by teacher.dev',
+  'footer.credit': 'Alap: Test Parrot · Apache-2.0',
   'footer.about': 'about',
   'footer.privacy': 'privacy',
 
@@ -384,7 +384,7 @@ const hu: Record<TextKey, string> = {
   'shell.helpBodyAfter': '.',
   'shell.logoAlt': 'Kezdőlap',
 
-  'footer.credit': 'Készítette: teacher.dev',
+  'footer.credit': 'Alap: Test Parrot · Apache-2.0',
   'footer.about': 'a projektről',
   'footer.privacy': 'adatvédelem',
 

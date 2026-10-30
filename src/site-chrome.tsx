@@ -38,7 +38,7 @@ export function Footer() {
   return (
     <footer className="site-footer">
       <a
-        href="https://teacher.dev"
+        href="/about"
         target="_blank"
         rel="noopener noreferrer"
         className="site-footer-credit"

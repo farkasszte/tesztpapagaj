@@ -276,28 +276,28 @@ export async function readAccountBackup(file: Blob): Promise<AccountSnapshot> {
   try {
     zip = await JSZip.loadAsync(await file.arrayBuffer())
   } catch {
-    throw new AccountBackupError('This file is not a Test Parrot account backup.')
+    throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
   }
   const manifestFile = zip.file(MANIFEST_PATH)
-  if (!manifestFile) throw new AccountBackupError('This file is not a Test Parrot account backup.')
+  if (!manifestFile) throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
   let manifest: AccountManifest
   try {
     manifest = JSON.parse(await manifestFile.async('string')) as AccountManifest
   } catch {
-    throw new AccountBackupError('This account backup is damaged and cannot be read.')
+    throw new AccountBackupError('Ez a fiókmentés sérült, nem olvasható.')
   }
   if (manifest.format !== ACCOUNT_BACKUP_FORMAT || !Array.isArray(manifest.databases)) {
-    throw new AccountBackupError('This file is not a Test Parrot account backup.')
+    throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
   }
   if (manifest.version > ACCOUNT_BACKUP_VERSION || manifest.storageVersion > STORAGE_VERSION) {
-    throw new AccountBackupError('This backup was made by a newer Test Parrot. Reload the page to update, then try again.')
+    throw new AccountBackupError('Ezt a mentést a Tesztpapagáj újabb változata készítette. Töltsd újra az oldalt, majd próbáld újra.')
   }
   if (manifest.storageVersion !== STORAGE_VERSION
     || manifest.databases.some((database) => database.version !== STORAGE_VERSION)) {
-    throw new AccountBackupError('This backup was made by an older Test Parrot whose storage this version cannot read.')
+    throw new AccountBackupError('Ezt a mentést a Tesztpapagáj régebbi változata készítette, aminek a tárolását ez a verzió nem olvassa.')
   }
   if (manifest.databases.some((database) => !isAccountDatabase(database.name))) {
-    throw new AccountBackupError('This account backup is damaged and cannot be read.')
+    throw new AccountBackupError('Ez a fiókmentés sérült, nem olvasható.')
   }
   const binaries = new Map<string, Uint8Array>()
   const reads: Promise<void>[] = []

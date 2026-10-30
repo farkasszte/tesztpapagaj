@@ -1611,7 +1611,7 @@ export function createExamDocxDocument(
   return new Document({
     title: first?.title ?? '',
     description: `Output ID ${arrangementRange(labels)}`,
-    creator: 'Test Parrot',
+    creator: 'Tesztpapagáj',
     numbering: { config: numbering.config },
     // Print's type, not Word's: with no document defaults Word falls back to
     // 10pt Times New Roman and a 28pt Title, and the exam reads a size smaller

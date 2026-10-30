@@ -92,21 +92,21 @@ describe('account backup file', () => {
   })
 
   test('refuses files that are not account backups', async () => {
-    await expect(readAccountBackup(new Blob(['not a zip']))).rejects.toThrow('not a Test Parrot account backup')
+    await expect(readAccountBackup(new Blob(['not a zip']))).rejects.toThrow('nem Tesztpapagáj-fiókmentés')
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     zip.file('account.json', JSON.stringify({ format: 'something-else' }))
-    await expect(readAccountBackup(await zip.generateAsync({ type: 'blob' }))).rejects.toThrow('not a Test Parrot account backup')
+    await expect(readAccountBackup(await zip.generateAsync({ type: 'blob' }))).rejects.toThrow('nem Tesztpapagáj-fiókmentés')
   })
 
   test('refuses backups whose storage this version cannot read', async () => {
     const older = snapshot({ ...{ exam: {}, image: new Uint8Array([1]), lastOpenedAt: '', active: '' } })
     older.manifest.storageVersion = STORAGE_VERSION - 1
     older.manifest.databases[0]!.version = STORAGE_VERSION - 1
-    await expect(readAccountBackup(await accountBackupBlob(older))).rejects.toThrow('older Test Parrot')
+    await expect(readAccountBackup(await accountBackupBlob(older))).rejects.toThrow('régebbi változata')
     const newer = snapshot({ exam: {}, image: new Uint8Array([1]), lastOpenedAt: '', active: '' })
     newer.manifest.storageVersion = STORAGE_VERSION + 1
-    await expect(readAccountBackup(await accountBackupBlob(newer))).rejects.toThrow('newer Test Parrot')
+    await expect(readAccountBackup(await accountBackupBlob(newer))).rejects.toThrow('újabb változata')
   })
 
   test('refuses a backup with a missing image rather than restoring part of it', async () => {

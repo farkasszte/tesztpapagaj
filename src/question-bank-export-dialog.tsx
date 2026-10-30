@@ -319,12 +319,8 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
         </ul>
       </nav>
       <p className="question-bank-file-credit">
-        <a href="https://teacher.dev" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabIndex={-1}>
-          <img src="/edtechathon-logo.svg" alt="" width={18} height={18} />
-        </a>
         <span>
-          Test Parrot is a free exam builder by{' '}
-          <a href="https://teacher.dev" target="_blank" rel="noopener noreferrer">teacher.dev</a>.
+          A Tesztpapagáj ingyenes dolgozatkészítő — a munkád a saját böngésződben marad.
         </span>
       </p>
       {rows.slice(0, shown).map((row) => {

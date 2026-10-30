@@ -1,7 +1,7 @@
 import type { PersistentStorageStatus } from './durable-storage'
 import { AppShell } from './app-shell'
 
-const SUPPORT_EMAIL = 'support@teacher.dev'
+const SUPPORT_EMAIL = 'farkas.szte@gmail.com'
 
 export function AboutPage({
   persistentStorage,
@@ -10,65 +10,62 @@ export function AboutPage({
 }) {
   return (
     <AppShell
-      crumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
+      crumbs={[{ label: 'Kezdőlap', href: '/' }, { label: 'A projektről' }]}
       persistentStorage={persistentStorage}
     >
       <div className="site-prose">
-        <h1>About</h1>
+        <h1>A projektről</h1>
         <p className="site-lede">
-          A free tool for teachers who need the same test in more than one order.
+          Ingyenes eszköz tanároknak, akiknek ugyanaz a dolgozat több sorrendben is kell.
         </p>
 
         <section className="site-card">
           <div className="site-card-heading">
-            <img src="/edtechathon-logo.svg" alt="" width={40} height={40} />
-            <h2>From the EdTech-a-thon</h2>
+            <h2>Mi ez, és miért ingyenes?</h2>
           </div>
           <p>
-            Test Parrot is a project from the{' '}
-            <a href="https://edtechathon.com" target="_blank" rel="noopener noreferrer">
-              EdTech-a-thon
-            </a>
-            , a community of builders making free tools for classrooms. Learn more about who we
-            are and what else we're building at{' '}
-            <a href="https://edtechathon.com" target="_blank" rel="noopener noreferrer">
-              edtechathon.com
-            </a>
-            .
+            A Tesztpapagáj azért készült, hogy egy tanár néhány perc alatt rendezett, nyomtatható
+            dolgozatot állíthasson össze a saját kérdéseiből — és ugyanazt a dolgozatot
+            változatokban is kiadhassa. Nincs fiók, nincs előfizetés, és a munkád a saját
+            böngésződben marad.
           </p>
-
-          <figure className="site-photo">
-            <img src="/edtechathon-2026.jpg" alt="Participants of the 2026 EdTech-a-thon" />
-            <figcaption>EdTech-a-thon 2026</figcaption>
-          </figure>
         </section>
 
         <section className="site-card">
-          <h2>Our promise</h2>
+          <h2>Ígéretünk</h2>
           <ul className="site-promise">
             <li>
-              <strong>Zero paywalls.</strong>
+              <strong>Nincs fizetőfal.</strong> Minden funkció mindenkinek elérhető.
             </li>
             <li>
-              <strong>Zero ads.</strong>
+              <strong>Nincs reklám.</strong> Semmi nem zavarja a munkát.
             </li>
             <li>
-              <strong>Zero tracking of personal data.</strong>
+              <strong>Nincs személyes adat gyűjtése.</strong> A dolgozataid nem hagyják el a
+              gépedet.
             </li>
           </ul>
         </section>
 
         <section className="site-card">
-          <h2>Feedback &amp; ideas</h2>
+          <h2>Forrás és licenc</h2>
           <p>
-            We'd love to hear from you. Tell us what's working, what's not, or pitch us an idea
-            for a tool you wish existed. We're here to help.
+            A Tesztpapagáj az <em>Test Parrot</em> nyílt forráskódú projekt magyar változata,
+            amelyet a <em>teacher.dev</em> készített, és Apache License 2.0 alatt adott ki. A magyar
+            fordítás és a módosítások ugyanezen licenc alatt érhetők el; a részleteket a repó{' '}
+            <code>NOTICE.md</code> és <code>LICENSE</code> fájlja tartalmazza. A név, a logó és a
+            felület saját; az eredeti projekt neve és védjegye nem került át.
           </p>
-          <a
-            className="site-button"
-            href={`mailto:${SUPPORT_EMAIL}?subject=Test%20Parrot%20feedback`}
-          >
-            Email {SUPPORT_EMAIL}
+        </section>
+
+        <section className="site-card">
+          <h2>Visszajelzés és ötletek</h2>
+          <p>
+            Örülök, ha írsz: mi működik, mi nem, vagy milyen eszközre lenne szükséged. Igyekszem
+            segíteni.
+          </p>
+          <a className="site-button" href={`mailto:${SUPPORT_EMAIL}?subject=Tesztpapag%C3%A1j%20visszajelz%C3%A9s`}>
+            Írj e-mailt: {SUPPORT_EMAIL}
           </a>
         </section>
       </div>
@@ -83,39 +80,28 @@ export function PrivacyPage({
 }) {
   return (
     <AppShell
-      crumbs={[{ label: 'Home', href: '/' }, { label: 'Privacy' }]}
+      crumbs={[{ label: 'Kezdőlap', href: '/' }, { label: 'Adatvédelem' }]}
       persistentStorage={persistentStorage}
     >
       <div className="site-prose">
-        <h1>Privacy</h1>
-        <p className="site-lede">What we collect, what we don't, and why.</p>
+        <h1>Adatvédelem</h1>
+        <p className="site-lede">Mit gyűjtünk, mit nem, és miért.</p>
 
         <section className="site-card">
           <p>
-            Test Parrot does not collect personal information from teachers or students. We use
-            Cloudflare Web Analytics to anonymously count the number of visits, which helps us
-            understand how Test Parrot is being used in classrooms. Cloudflare Web Analytics is
-            cookieless, does not fingerprint visitors, and does not track users across other
-            sites; see Cloudflare's{' '}
-            <a
-              href="https://www.cloudflare.com/privacypolicy/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              privacy policy
-            </a>{' '}
-            for details. We do not share, sell, or otherwise transfer any visitor data to third
-            parties.
+            A Tesztpapagáj nem gyűjt személyes adatot sem tanároktól, sem tanulóktól. Nincs
+            látogatottság-mérés, nincs süti és nincs nyomkövetés: az alkalmazás a saját gépeden fut,
+            és nem küld semmit a szerverünkre.
           </p>
           <p>
-            Your exams stay on your own computer. The test you are writing, the versions you save,
-            and any images you paste in are stored by your browser on your device, and never leave
-            it. Nothing you type is uploaded to us or to anyone else, and exports are built in
-            your browser and saved straight to your downloads.
+            A dolgozataid a saját számítógépeden maradnak. A dolgozat, a mentett változatok és a
+            beillesztett képek a böngésződ tárhelyén vannak, és nem hagyják el az eszközt. Semmi,
+            amit beírsz, nem kerül fel hozzánk vagy máshoz, az exportált fájlok pedig a
+            böngésződben készülnek, és egyenesen a letöltések közé kerülnek.
           </p>
           <p>
-            Questions or concerns? Email{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}?subject=Test%20Parrot%20privacy`}>
+            Ha kérdésed vagy aggályod van, írj ide:{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}?subject=Tesztpapag%C3%A1j%20adatv%C3%A9delem`}>
               {SUPPORT_EMAIL}
             </a>
             .

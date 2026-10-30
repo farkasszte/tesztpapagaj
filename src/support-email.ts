@@ -1,14 +1,14 @@
-/** Where a teacher reaches a person: for help, and for what Test Parrot
- *  should read that it does not yet. */
-export const SUPPORT_EMAIL = 'support@teacher.dev'
+/** Hova írhat a tanár, ha segítség kell, vagy ha valamit olvasnia kellene
+ *  a Tesztpapagájnak, és még nem tudja. */
+export const SUPPORT_EMAIL = 'farkas.szte@gmail.com'
 
-/** What an email about an import opens with: the file is what shows what
- *  went wrong, so the teacher is asked for it before writing anything. */
+/** Mivel indul egy importról szóló levél: a fájl mutatja meg, mi hibázott,
+ *  ezért előbb azt kérjük, mint bármilyen leírást. */
 const ATTACH_YOUR_FILE =
-  'Please attach the PDF or file you tried to import, so we can see what went wrong.\n\nWhat happened:\n'
+  'Kérlek csatold a PDF-et vagy a fájlt, amit importálni próbáltál, hogy lássuk, mi hibázott.\n\nMi történt:\n'
 
-/** A link that starts an email to support about one thing. An import's
- *  email asks for the file itself. */
+/** Egy levélindító hivatkozás egyetlen témáról. Az importhoz tartozó levél
+ *  magát a fájlt kéri. */
 export const supportMailto = (subject: string, { askForFile = false } = {}) =>
   `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}` +
   (askForFile ? `&body=${encodeURIComponent(ATTACH_YOUR_FILE)}` : '')
