@@ -34,7 +34,7 @@ test('the convert page asks only for the test, then opens its import with the pa
   await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'unit-test.pdf', mimeType: 'application/pdf', buffer: await sourceDocument() })
   await expect(page).toHaveURL(/\/import\?id=/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Converting unit-test.pdf')
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected2')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képek2')
   await expect(steps.getByRole('button', { name: 'Download the labeled PDF' })).toBeVisible()
   await expect(steps).toContainText('Attach both downloads and send.')
   await expect(steps).not.toContainText('seven days')
@@ -47,7 +47,7 @@ test('the convert page asks only for the test, then opens its import with the pa
   await page.goto('/get-started/convert')
   await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'planets.pdf', mimeType: 'application/pdf', buffer: await textOnlyPdf() })
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Converting planets.pdf')
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected0')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képek0')
   await expect(steps.getByRole('button', { name: 'Download the labeled PDF' })).toHaveCount(0)
   expect(await downloadedInstructions(page, steps)).toContain('found no pictures to tag in this document')
   await expect(steps.getByRole('button', { name: 'Letöltve' })).toBeVisible()
@@ -55,7 +55,7 @@ test('the convert page asks only for the test, then opens its import with the pa
   // A photo is converted as it is, and its pictures are cropped after.
   await page.goto('/get-started/convert')
   await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'quiz-photo.png', mimeType: 'image/png', buffer: Buffer.from(picture(600, 800, 3)) })
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detectedCropped after importing')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képekImportálás után kivágva')
   await expect(steps).toContainText('Attach the instructions and your photo')
   // The whole step opens the list of assistants.
   await steps.getByRole('button', { name: 'Nyisd meg az AI-t' }).click()
@@ -96,7 +96,7 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     buffer: await wordSourceDocument(),
   })
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected2')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képek2')
   await expect(steps).toContainText('Attach both downloads and send.')
 
   const download = page.waitForEvent('download')
@@ -120,7 +120,7 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
   const circuit = dialog.getByRole('complementary', { name: 'Kép a(z) 4. kérdéshez' })
   await expect(circuit.getByRole('button', { name: 'Kivágás az oldalról' })).toHaveCount(0)
   await circuit.getByLabel('Upload a picture for Question 4').setInputFiles({ name: 'circuit.png', mimeType: 'image/png', buffer: Buffer.from(picture(90, 60, 4)) })
-  await expect(preview.getByRole('button', { name: /^Question 4: / })).toContainText('Uploaded')
+  await expect(preview.getByRole('button', { name: /^Question 4: / })).toContainText('Feltöltve')
 })
 
 test('a file from an AI that matches no import in progress, and needs its test’s pictures, is refused', async ({ page }) => {

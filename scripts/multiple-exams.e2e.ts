@@ -87,7 +87,7 @@ test('a bare editor reload retains an active pristine workspace, while Home star
   await page.goto('/')
   await newExam(page)
   await page.reload()
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Untitled Exam')
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Névtelen dolgozat')
   // Simulates closing the editor and later starting at Home, rather than using
   // the Home action which intentionally cleans placeholders immediately.
   await page.goto('/')

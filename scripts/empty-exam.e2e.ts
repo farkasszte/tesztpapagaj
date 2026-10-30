@@ -7,7 +7,7 @@ test('Home creates a blank Exam that composes only from an open Question Bank', 
   await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await expect(page).toHaveURL(/\/editor$/)
 
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Untitled Exam')
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Névtelen dolgozat')
   await expect(page.getByRole('main')).toContainText('Húzz ide kérdést egy megnyitott kérdésbankból')
   await expect(page.getByRole('button', { name: 'Insert your first question' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Kérdésbank megnyitása' })).toBeVisible()

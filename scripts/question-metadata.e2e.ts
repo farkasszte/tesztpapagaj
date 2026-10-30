@@ -179,7 +179,7 @@ test('the type is stated in the front matter, above the question it classifies',
   // says about itself, and it is said rather than offered.
   const frontMatter = dialog(page).locator('.front-matter')
   await expect(frontMatter).toContainText('Rövid válasz')
-  await expect(frontMatter.getByRole('button', { name: 'Type' })).toHaveCount(0)
+  await expect(frontMatter.getByRole('button', { name: 'Típus' })).toHaveCount(0)
 })
 
 test('choosing a Difficulty again clears it, which is what a Clear button was for', async ({ page }) => {

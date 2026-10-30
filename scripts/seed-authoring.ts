@@ -14,7 +14,7 @@ export async function seedAuthoringState(
   state: AuthoringState,
 ): Promise<void> {
   await page.goto('/')
-  await page.getByRole('heading', { name: 'Pick up where you left off', exact: true }).waitFor()
+  await page.getByRole('heading', { name: 'Folytasd ott, ahol abbahagytad', exact: true }).waitFor()
   await page.evaluate(async (snapshot: AuthoringState) => {
     const { createExamWorkspaceService } = await import(
       /* @vite-ignore */ '/src/exam-workspaces.ts'
@@ -28,5 +28,5 @@ export async function seedAuthoringState(
   }, state)
   // The bare editor route deliberately restores the registry's active Exam.
   await page.goto('/editor')
-  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
+  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
 }

@@ -87,8 +87,8 @@ test('a downloaded account backup restores every Question Bank and image', async
   await seedAccount(page, 'Biology Bank')
   await page.goto('/question-banks')
   await openPanel(page)
-  await expect(panel(page)).toContainText('Your work is saved in your browser.')
-  await expect(panel(page)).toContainText('Go to Settings to export your data.')
+  await expect(panel(page)).toContainText('A munkád a böngésződben van elmentve.')
+  await expect(panel(page)).toContainText('Az adataid exportálásához nyisd meg a Beállításokat.')
   await panel(page).getByRole('button', { name: 'Beállítások' }).click()
   await expect(page).toHaveURL(/\/settings$/)
 
@@ -111,7 +111,7 @@ test('a downloaded account backup restores every Question Bank and image', async
     name: 'test-parrot-account.zip', mimeType: 'application/zip', buffer: backup,
   })
   const confirm = page.getByRole('dialog', { name: 'Visszaállítod ezt a biztonsági másolatot?' })
-  await expect(confirm).toContainText('replaces every Exam, Question Bank')
+  await expect(confirm).toContainText('minden dolgozatot, kérdésbankot')
   await confirm.getByRole('button', { name: 'Csere és újratöltés' }).click()
 
   await expect(backupCard(page)).toBeVisible()
@@ -128,7 +128,7 @@ test('a file that is not a backup is refused without changing anything', async (
   await page.getByLabel('Válassz visszaállítandó biztonsági másolatot').setInputFiles({
     name: 'notes.zip', mimeType: 'application/zip', buffer: Buffer.from('not a zip'),
   })
-  await expect(backupCard(page).getByRole('alert')).toHaveText('This file is not a Test Parrot account backup.')
+  await expect(backupCard(page).getByRole('alert')).toHaveText('Ez a fájl nem Tesztpapagáj-fiókmentés.')
   await expect(page.getByRole('dialog', { name: 'Visszaállítod ezt a biztonsági másolatot?' })).toHaveCount(0)
   expect(await bankNames(page)).toEqual(['Keep me'])
 })

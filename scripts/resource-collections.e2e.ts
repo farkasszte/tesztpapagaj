@@ -75,8 +75,7 @@ test('Home empty state explains local storage without creating resources', async
   const storage = page.getByRole('button', { name: 'Hol tárolódik a munkád' })
   await expect(storage).toBeVisible()
   await storage.click()
-  await expect(page.getByRole('region', { name: 'Hol tárolódik a munkád' })).toContainText(
-    'Your work is saved in your browser.',
+  await expect(page.getByRole('region', { name: 'Hol tárolódik a munkád' })).toContainText('A munkád a böngésződben van elmentve.',
   )
   await storage.click()
   await expect(

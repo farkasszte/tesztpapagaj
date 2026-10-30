@@ -68,7 +68,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await expect(page.getByText('Page 2 of 2, labeled')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Következő oldal' })).toBeDisabled()
   await expect(page.getByLabel('Erről az importról')).toContainText('Pages2')
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected2')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képek2')
   await expect(page.getByRole('button', { name: 'Kezdd újra egy másik fájllal' })).toHaveCount(0)
 
   // The file the AI gives back, dropped on a new import, finds the import it
