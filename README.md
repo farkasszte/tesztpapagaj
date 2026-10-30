@@ -25,7 +25,7 @@ egy helyen élnek: `src/i18n/index.ts`.
 | Kérdésbank-felületek, import, beállítások, fiók, A projektről, Adatvédelem | kész |
 | Accessible name-ek (aria-label, title, placeholder) | kész |
 | Nyomtatott feladatlap, válaszkulcs, PDF/Word export | **nyitott**: a válaszkulcs fejléce és a fájlnevek még angolok |
-| e2e tesztek (40 szkript, 175 teszt) | a szelektorok és állítások magyarok; a teljes futás eredménye a repóban követhető |
+| e2e tesztek | a nagy készlet angolul fut (a nyelv a teszt-környezet beállítása), mellette 5 magyar felület-spec; a futás eredménye és az ismert eltérések a `NOTICE.md`-ben |
 
 ## Futtatás
 

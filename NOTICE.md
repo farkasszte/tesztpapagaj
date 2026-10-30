@@ -45,10 +45,18 @@ márkajelei nem kerülnek át.
    igazodó, pontos szöveget mond: nincs látogatottság-mérés, nincs süti.
 6. **Kezdőlap.** Az üres polc kártyája magyarázó feliratot kapott
    (`create-first-hint`), hogy üres állapotban is elmondja, mi készül el.
-7. **e2e tesztek.** A 40 Playwright-szkript szelektorai és szöveg-állításai a
-   magyar feliratokra íródtak át (nyelvi táblából generálva, az összetett nevekre
-   mintaszabályokkal). Ez a fordítás velejárója: a tesztek a felületet úgy
-   ellenőrzik, ahogy a tanár látja.
+7. **e2e tesztek.** A nagy Playwright-készlet angolul fut (a nyelvet a
+   teszt-környezet `storageState`-ében állítjuk, nem a terméken), így az upstream
+   szelektorok változatlanok maradhatnak; a magyar felületet 5 külön spec fedi
+   (`scripts/hungarian-ui.e2e.ts`). A magyar feliratokra írt teljes készlet
+   méréssel elvetve: a rövid, egymás részstringjei lévő magyar címkék miatt a
+   szerep szerinti keresés hol kétértelmű, hol semmit nem talál.
+
+   Ismert eltérés az upstream tesztekhez képest: a `multiple-exams` első esete a
+   kérdésbank-oldal „hozzáadás a dolgozathoz" gombjára vár, ami nálunk csak
+   nyitott dolgozat mellett jelenik meg (az upstream alapértelmezett
+   munkapéldányával szemben) — ez viselkedésbeli különbség, nem fordítási hiba,
+   ezért dokumentálva marad, nem teszttel kikerülve.
 8. **Amit szándékosan nem fordítunk.** Az exportált csomagokban és a
    munkapéldányokban tárolt alapnevek (`Untitled Exam`, `Untitled Question
    Bank`, `Untitled section`) angolul maradnak: ezek adatok, nem feliratok, és
