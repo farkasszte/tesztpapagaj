@@ -399,9 +399,9 @@ describe('questions', () => {
     expect(rendered.map((question) => question.marks)).toEqual([[], []])
   })
 
-  test('true/false prints a T and an F to circle before its number, and no choice grid', () => {
+  test('true/false prints an I and an H to circle before its number, and no choice grid', () => {
     const [rendered] = plannedQuestions(render(examOf([trueFalse('t1', 'true')])))
-    expect(rendered!.marks).toEqual(['T', 'F'])
+    expect(rendered!.marks).toEqual(['I', 'H'])
     // The pair is stated by the section's directions, so the statement stands
     // alone on the page.
     expect(rendered!.grid).toBeNull()
@@ -412,7 +412,7 @@ describe('questions', () => {
 
   test('true/false answers are lettered the way a student writes them', () => {
     const [rendered] = plannedQuestions(render(examOf([trueFalse('t1', 'false')])))
-    expect(rendered!.choices.map((answer) => answer.letter)).toEqual(['T', 'F'])
+    expect(rendered!.choices.map((answer) => answer.letter)).toEqual(['I', 'H'])
   })
 
   test('the stem is the question document without its choice list', () => {
@@ -702,7 +702,7 @@ describe('answer key', () => {
     expect(pages[firstKey]!.number).toBe(1)
   })
 
-  test('records a true/false answer as T or F under its own grouping', () => {
+  test('records a true/false answer as I or H under its own grouping', () => {
     const items = keyItems(
       examOf([trueFalse('t1', 'true'), trueFalse('t2', 'false')]),
       arrangementOf(['t1', 't2']),
@@ -710,8 +710,8 @@ describe('answer key', () => {
     expect(items).toEqual([
       { kind: 'answer-key-heading' },
       { kind: 'answer-key-section', sectionId: 'true-false', title: 'True/False' },
-      { kind: 'answer-key-entry', number: 1, letter: 'T' },
-      { kind: 'answer-key-entry', number: 2, letter: 'F' },
+      { kind: 'answer-key-entry', number: 1, letter: 'I' },
+      { kind: 'answer-key-entry', number: 2, letter: 'H' },
     ])
   })
 
@@ -1664,7 +1664,7 @@ describe('stored Question Sections', () => {
         { kind: 'answer-key-heading' },
         { kind: 'answer-key-section', sectionId: 'A', title: 'Warm Up' },
         { kind: 'answer-key-entry', number: 1, letter: null },
-        { kind: 'answer-key-entry', number: 2, letter: 'F' },
+        { kind: 'answer-key-entry', number: 2, letter: 'H' },
         { kind: 'answer-key-entry', number: 3, letter: 'B' },
         { kind: 'answer-key-entry', number: 4, letter: 'A' },
       ])

@@ -174,7 +174,14 @@ export type PaperStyleRules = {
   running: RunningFurniture
 }
 
-/** The letters a True/False question's student circles, in the order they print. */
+/** The letters a True/False question's student circles, in the order they print.
+ *  Hungarian marks them Igaz/Hamis, so the letter follows the language — the
+ *  saved record still stores `true`/`false`, only the printed mark changes. */
+export function trueFalseMarks(): readonly string[] {
+  return [t('tf.true'), t('tf.false')]
+}
+
+/** The English marks, kept for the fingerprint vocabulary and older records. */
 export const TRUE_FALSE_MARKS: readonly string[] = ['T', 'F']
 
 /** The question gap every style but Condensed keeps: the sheet's own. */
@@ -199,7 +206,7 @@ export const PAPER_STYLE_RULES: Record<PaperStyle, PaperStyleRules> = {
   // The sheet as ADR-0029 left it: T and F to circle, a letter circled on its
   // answer, no blanks, and no room a teacher did not ask for.
   standard: {
-    trueFalseMarks: TRUE_FALSE_MARKS,
+    get trueFalseMarks() { return trueFalseMarks() },
     multipleChoiceMarks: [],
     lettering: 'upper',
     answersAcross: false,
@@ -229,7 +236,7 @@ export const PAPER_STYLE_RULES: Record<PaperStyle, PaperStyleRules> = {
   // but ruled closer — three lines where none were set, a quarter-inch apart,
   // the college-ruled spacing.
   condensed: {
-    trueFalseMarks: TRUE_FALSE_MARKS,
+    get trueFalseMarks() { return trueFalseMarks() },
     multipleChoiceMarks: [],
     lettering: 'upper',
     answersAcross: true,
@@ -247,7 +254,7 @@ export const PAPER_STYLE_RULES: Record<PaperStyle, PaperStyleRules> = {
   // foot. It prints no page of its own: the test opens on its first
   // question, under the Page Header every style prints.
   'exam-board': {
-    trueFalseMarks: TRUE_FALSE_MARKS,
+    get trueFalseMarks() { return trueFalseMarks() },
     multipleChoiceMarks: [],
     lettering: 'upper',
     answersAcross: false,

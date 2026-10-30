@@ -1,4 +1,5 @@
 import type { ImportProposal } from './package-import'
+import { t } from './i18n'
 
 /**
  * What a teacher has chosen to bring in from one import proposal: which banks
@@ -116,10 +117,11 @@ export function importCounts(
   }
 }
 
-/** “a”, “a and b”, “a, b, and c”. */
+/** “a”, “a and b”, “a, b, and c” — the conjunction comes from the language. */
 function listed(parts: string[]): string {
-  if (parts.length <= 2) return parts.join(' and ')
-  return `${parts.slice(0, -1).join(', ')}, and ${parts.at(-1)}`
+  const and = t('common.andWord')
+  if (parts.length <= 2) return parts.join(` ${and} `)
+  return `${parts.slice(0, -1).join(', ')}, ${and} ${parts.at(-1)}`
 }
 
 /** Beyond this many, merges are counted rather than each spelled out. */
@@ -140,7 +142,7 @@ export function importSentence(
 ): string {
   const banks = proposal.banks.filter(({ id }) => selection.banks[id]?.allowed)
   const exams = proposal.exams.filter(({ key }) => selection.exams[key]?.allowed)
-  if (!banks.length && !exams.length) return 'Nothing is selected to import.'
+  if (!banks.length && !exams.length) return t('import.nothingSelected')
 
   const created = banks.flatMap(({ id }) => {
     const target = selection.banks[id]!.target
@@ -154,16 +156,23 @@ export function importSentence(
   })
 
   const creating = [
-    ...(created.length === 1 ? [`the new Question Bank “${created[0]}”`]
-      : created.length > 1 ? [`${created.length} new Question Banks`] : []),
-    ...(exams.length === 1 ? [`the Test “${exams[0]!.name || 'Untitled Test'}”`]
-      : exams.length > 1 ? [`${exams.length} Tests`] : []),
+    ...(created.length === 1 ? [t('import.newBankItem', { name: created[0] })]
+      : created.length > 1 ? [t('import.newBanksItem', { count: created.length })] : []),
+    ...(exams.length === 1 ? [t('import.testItem', { name: exams[0]!.name || 'Untitled Test' })]
+      : exams.length > 1 ? [t('import.testsItem', { count: exams.length })] : []),
   ]
-  const create = creating.length ? `create ${creating.join(' and ')}` : ''
+  const listed_ = (parts: string[]) => (parts.length <= 2
+    ? parts.join(` ${t('common.andWord')} `)
+    : `${parts.slice(0, -1).join(', ')}, ${t('common.andWord')} ${parts.at(-1)}`)
+  const create = creating.length ? listed_(creating) : ''
   const merge = !merged.length ? ''
-    : merged.length > MERGES_SPELLED_OUT ? `merge ${merged.length} Question Banks into existing ones`
-    : `merge ${listed(merged.map(({ from, into }) => `“${from}” into “${into}”`))}`
-  if (!create || !merge) return `Will ${create || merge}.`
-  // A comma keeps the second “and” from reading as part of the first list.
-  return `Will ${create}${creating.length > 1 ? ',' : ''} and ${merge}.`
+    : merged.length > MERGES_SPELLED_OUT ? t('import.mergeMany', { count: merged.length })
+    : listed(merged.map(({ from, into }) => t('import.mergeItem', { from, into })))
+  if (!create) return t('import.willMerge', { what: merge })
+  if (!merge) return t('import.willCreate', { what: create })
+  // Több létrehozandó elem után vessző kell, hogy a második „és” ne a felsorolás
+  // részeként olvasódjon.
+  return creating.length > 1
+    ? t('import.willCreateManyAndMerge', { created: create, merged: merge })
+    : t('import.willCreateAndMerge', { created: create, merged: merge })
 }

@@ -170,7 +170,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
       // Matching set's once on its first Item, and an unpointed line none.
       expect(key).toContain('heading:1 Válaszkulcs Total: 9 points')
       expect(key).toContain('para 1. «strong»A«/» [1] Könnyű Rivers')
-      expect(key).toContain('para 2. «strong»F«/»')
+      expect(key).toContain('para 2. «strong»H«/»')
       expect(key).toContain('para 3. «strong»A«/» [2]')
       expect(key).toContain('para 4. «strong»B«/»')
       expect(key).toContain('para a. [1]')

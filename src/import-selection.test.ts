@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { afterAll, describe, expect, test } from 'bun:test'
 import type { ImportProposal, ProposedBank, ProposedExam } from './package-import'
 import {
   deniedBanksOf,
@@ -10,6 +10,16 @@ import {
   setBankTarget,
   setExamAllowed,
 } from './import-selection'
+import { setLanguage } from './i18n'
+
+// A lábléc-mondat szerkezetét vizsgáljuk (mikor mit ír le, hány elemet sorol
+// fel), ezért ebben a fájlban angolul fut; a magyar megfogalmazást a magyar
+// felület-spec fedi.
+setLanguage('en')
+
+// A nyelv modul-szintű: a fájl végén visszaállítjuk, hogy a többi teszt a
+// magyar alapértelmezéssel fusson.
+afterAll(() => setLanguage('hu'))
 
 function bank(id: string, name: string, exams: string[]): ProposedBank {
   return {

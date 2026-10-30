@@ -95,3 +95,12 @@ package.json
 README.md
 NOTICE.md                    (ez a fájl)
 ```
+
+10. **Igaz/hamis jelölés.** A magyar felületen és a nyomtatott íven az angol
+    `T`/`F` helyett `I`/`H` (Igaz/Hamis) áll — a kérdés válaszai, a körberajzolt
+    jelek és a válaszkulcs betűi is. A tárolt rekord változatlanul `true`/`false`,
+    a fájlformátumok sem változnak, csak a megjelenített jel. A jelek a
+    nyelvezetet követik (angolul továbbra is `T`/`F`), ezért a Paper Style-ok
+    getterrel olvassák őket.
+11. **Behozatal párbeszéd.** A felület és a lábléc-mondat („Létrejön: …") a
+    szótárból épül; a mondat szerkezetét vizsgáló egységteszt angolul fut.

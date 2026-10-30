@@ -214,10 +214,10 @@ describe('Paper Styles', () => {
 })
 
 describe('Standard', () => {
-  test('circles T or F, circles a capital letter, and adds no room', () => {
+  test('circles I or H, circles a capital letter, and adds no room', () => {
     const [mc, tf, , sa, mp] = testItems(examOf(EVERY_TYPE))
     expect(mc!.question.marks).toEqual([])
-    expect(tf!.question.marks).toEqual(['T', 'F'])
+    expect(tf!.question.marks).toEqual(['I', 'H'])
     expect(gridLetters(mc!)).toEqual(['A', 'B', 'C', 'D'])
     expect(sa!.workSpace!.height).toBe(0)
     expect(mp!.parts![1]!.workSpace!.height).toBe(0)
@@ -241,10 +241,10 @@ describe('Classic', () => {
     expect(questionIndentOf(tf!.question)).toBe(98)
   })
 
-  test('prints True/False as the statement and its blank, never the T and F to circle', () => {
+  test('prints True/False as the statement and its blank, never the I and H to circle', () => {
     const [, tf] = items()
     expect(tf!.grid).toBeNull()
-    expect(tf!.question.marks).not.toContain('T')
+    expect(tf!.question.marks).not.toContain('I')
   })
 
   test('letters Multiple Choice answers “a.” on the test, in the question’s own columns', () => {
@@ -305,10 +305,10 @@ describe('Condensed', () => {
     choiceWidth: (choice) => width(choice),
   })
 
-  test('adds no blanks, circles T or F, and rules lines where the teacher left a Short Answer alone', () => {
+  test('adds no blanks, circles I or H, and rules lines where the teacher left a Short Answer alone', () => {
     const [mc, tf, mx, sa, mp] = testItems(examOf(EVERY_TYPE, 'condensed'))
     expect(mc!.question.marks).toEqual([])
-    expect(tf!.question.marks).toEqual(['T', 'F'])
+    expect(tf!.question.marks).toEqual(['I', 'H'])
     expect(gridLetters(mc!)[0]).toBe('A')
     // Classic's three lines, a quarter-inch apart rather than a third.
     const ruled = { height: 18 + 24 + 24, style: 'lines', lines: 3, fill: false, pitch: 24, firstRow: 18 }

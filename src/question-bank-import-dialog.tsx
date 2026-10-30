@@ -315,7 +315,7 @@ function ExamPreview({
     return () => { current = false }
   }, [proposal, exam.key, sources, pictures])
   return plan === 'loading'
-    ? <p className="bank-import-empty" role="status">Laying out pages…</p>
+    ? <p className="bank-import-empty" role="status">{t('import.layingOutPages')}</p>
     : plan
     ? <div className="bank-import-exam-pages" aria-label={`${exam.name || 'Untitled Test'} pages`}>
         <ExportPreview plan={plan} />
@@ -362,7 +362,7 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
       ))}
       {summary.questionsWithoutCorrectAnswer > 0 && (
         <div className="is-warning">
-          <dt>No correct answer marked</dt>
+          <dt>{t('import.noCorrectAnswer')}</dt>
           <dd>{summary.questionsWithoutCorrectAnswer}</dd>
         </div>
       )}
@@ -379,7 +379,7 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
         </div>
       )}
       <div>
-        <dt>Media Assets</dt>
+        <dt>{t('import.mediaAssets')}</dt>
         <dd>
           {summary.mediaAssets}
           {summary.mediaAssets > 0 && <small>{formatBytes(summary.decodedMediaBytes)}</small>}
@@ -387,7 +387,7 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
       </div>
       <div>
         <dt>External links</dt>
-        <dd>{summary.externalLinks ? 'Present' : 'None'}</dd>
+        <dd>{summary.externalLinks ? t('import.present') : t('import.none')}</dd>
       </div>
       {readAs ? (
         <div>
@@ -396,14 +396,14 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
         </div>
       ) : (
         <div>
-          <dt>Format version</dt>
+          <dt>{t('import.formatVersion')}</dt>
           <dd>{summary.formatVersion}</dd>
         </div>
       )}
     </dl>
     {summary.topics.length > 0 && (
       <div className="bank-import-topics">
-        <h4>Topics</h4>
+        <h4>{t('import.topics')}</h4>
         <div>{summary.topics.map((topic) => <TopicBadge key={topic} topic={topic} />)}</div>
       </div>
     )}
@@ -411,13 +411,13 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
       <dl className="bank-import-provenance">
         {record.bank.author && (
           <div>
-            <dt>Declared author (unverified)</dt>
+            <dt>{t('import.declaredAuthor')}</dt>
             <dd>{record.bank.author}</dd>
           </div>
         )}
         {record.bank.license && (
           <div>
-            <dt>License</dt>
+            <dt>{t('import.license')}</dt>
             <dd>
               {record.bank.license.name}
               {record.bank.license.url ? ` — ${record.bank.license.url}` : ''}
@@ -1036,11 +1036,11 @@ export function QuestionBankImportDialog({
       >
         <header className="dialog-header">
           <div className="bank-import-title">
-            <h2 id={titleId}>Import</h2>
+            <h2 id={titleId}>{t('import.action')}</h2>
             {proposal?.reading && <span className="bank-import-read-as">Read as {proposal.reading.label}</span>}
           </div>
           <a className="bank-import-help" href={supportMailto(t('import.troubleTitle'), { askForFile: true })}>
-            Something wrong with your import? Email us
+            {t('import.troubleLink')}
           </a>
         </header>
 
@@ -1099,9 +1099,9 @@ export function QuestionBankImportDialog({
           aria-live="polite"
           aria-atomic="true"
         >
-          {phase === 'inspecting' && <p role="status">Validating file…</p>}
+          {phase === 'inspecting' && <p role="status">{t('import.validating')}</p>}
           {phase === 'analyzing' && <p role="status">{t('import.findingPictures')}</p>}
-          {phase === 'saving' && <p role="status">Importing…</p>}
+          {phase === 'saving' && <p role="status">{t('import.saving')}</p>}
           {error && !needsConversion && <ImportError message={error} aiMade={aiMade} />}
         </div>
 
@@ -1136,11 +1136,9 @@ export function QuestionBankImportDialog({
           <div className="bank-import-revise">
             <p>
               {revisedFrom
-                ? <><strong>Updated from {revisedFrom}.</strong>{' '}Still something to change? </>
-                : <><strong>See something wrong, or want something changed?</strong>{' '}</>}
-              Tell your AI in the same chat — “questions 4 to 7 all use the map, so make them one Multipart
-              question”, or “that picture belongs with the next question” — then drop the file it gives back here.
-              The preview updates and keeps the pictures you’ve chosen.
+                ? <><strong>{t('import.reviseUpdated', { name: revisedFrom })}</strong>{' '}{t('import.reviseStill')}{' '}</>
+                : <><strong>{t('import.reviseAsk')}</strong>{' '}</>}
+              {t('import.reviseBody')}
             </p>
             <label className="secondary-button bank-import-revise-file">
               <input
@@ -1155,7 +1153,7 @@ export function QuestionBankImportDialog({
                 }}
               />
               <UploadCloud aria-hidden="true" />
-              Drop or choose the new file
+              {t('import.dropNewFile')}
             </label>
           </div>
         )}
@@ -1172,12 +1170,12 @@ export function QuestionBankImportDialog({
           <section className="bank-import-body" aria-label={t('import.confirmation')}>
             <nav className="bank-import-list" aria-labelledby={`${listId}-heading`}>
               <header>
-                <h3 id={`${listId}-heading`}>Import List</h3>
+                <h3 id={`${listId}-heading`}>{t('import.listTitle')}</h3>
                 <p>{t('import.listIntro')}</p>
               </header>
               {listSection(
                 'bank',
-                proposal.banks.length === 1 ? 'Question Bank' : 'Question Banks',
+                proposal.banks.length === 1 ? t('import.kindBankOne') : t('import.kindBank'),
                 proposal.banks.map((bank) => ({
                   focus: { kind: 'bank', id: bank.id },
                   name: bank.record.bank.name || 'Untitled Question Bank',
@@ -1189,7 +1187,7 @@ export function QuestionBankImportDialog({
               )}
               {proposal.exams.length > 0 && listSection(
                 'exam',
-                proposal.exams.length === 1 ? 'Test' : 'Tests',
+                proposal.exams.length === 1 ? t('import.kindTestOne') : t('import.kindTest'),
                 proposal.exams.map((exam) => ({
                   focus: { kind: 'exam', key: exam.key },
                   name: exam.name || 'Untitled Test',
@@ -1249,7 +1247,7 @@ export function QuestionBankImportDialog({
             {pickedOccurrence && (
               <aside className="bank-import-controls bank-import-picture" aria-label={`Picture for ${placeName(pickedOccurrence)}`}>
                 <header className="bank-import-rail-head" data-kind="picture">
-                  <p><ImageIcon aria-hidden="true" />Picture</p>
+                  <p><ImageIcon aria-hidden="true" />{t('import.picture')}</p>
                   {/* Named by what it shows: a Test numbers its Questions by
                       Section, so the bank's number would name another one. */}
                   <h3>{pickedOccurrence.caption || pickedOccurrence.alt || 'Picture'}</h3>
@@ -1292,7 +1290,7 @@ export function QuestionBankImportDialog({
                 />
 
                 {proposal.exams.length > 0 && <section className="bank-import-uses">
-                  <h4>Used by</h4>
+                  <h4>{t('import.usedBy')}</h4>
                   {bank.exams.length > 0
                     ? bank.exams.map((key) => (
                         <TabLink
@@ -1380,7 +1378,7 @@ export function QuestionBankImportDialog({
                     ))
                   })()}
                   <div>
-                    <dt>Format version</dt>
+                    <dt>{t('import.formatVersion')}</dt>
                     <dd>{exam.formatVersion}</dd>
                   </div>
                 </dl>
@@ -1421,7 +1419,7 @@ export function QuestionBankImportDialog({
             disabled={busy}
             onClick={onClose}
           >
-            {waiting && !proposal ? 'Close' : 'Cancel'}
+            {waiting && !proposal ? t('import.close') : t('common.cancel')}
           </button>
           {proposal && selection && (
             <button
@@ -1431,7 +1429,7 @@ export function QuestionBankImportDialog({
               aria-describedby={`${listId}-outcome`}
               onClick={() => void confirm()}
             >
-              {phase === 'saving' ? t('import.importing') : mismatch ? t('import.importAnyway') : 'Import'}
+              {phase === 'saving' ? t('import.importing') : mismatch ? t('import.importAnyway') : t('import.action')}
             </button>
           )}
         </footer>

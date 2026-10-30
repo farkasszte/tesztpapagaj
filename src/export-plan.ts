@@ -78,6 +78,7 @@ import {
   PERIOD_LABELS,
   labelled,
   paperStyleRules,
+  trueFalseMarks,
   type LabelTemplate,
   type PaperSize,
   type PaperStyle,
@@ -965,7 +966,7 @@ export function hasMarks(type: QuestionType): boolean {
 }
 
 /** The letters a True/False question's student circles, in the order they print. */
-export { TRUE_FALSE_MARKS } from './paper-style'
+export { TRUE_FALSE_MARKS, trueFalseMarks } from './paper-style'
 
 // A matching set's prompts keep their own column: a blank for the letter a
 // student writes, then the number (`.matching-prompt` in styles.css,
@@ -1041,7 +1042,7 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
  *  answer in the authored pair. A longer pair cannot happen — the editor fixes
  *  it at two — so anything past it falls back to a choice letter rather than
  *  printing nothing. */
-const TRUE_FALSE_LETTERS = ['T', 'F']
+const TRUE_FALSE_LETTERS = () => trueFalseMarks()
 
 /** The letter a Part prints under its Multipart question — 'a', 'b', … — told apart
  *  from a choice's capital letter at a glance. */
@@ -1285,7 +1286,7 @@ function deriveQuestion(
     id: choice.id,
     // A True/False answer is written the way the student circles it, so the
     // Answer Key reads T or F rather than A or B.
-    letter: trueFalse ? TRUE_FALSE_LETTERS[index] ?? letterAt(index) : letterAt(index),
+    letter: trueFalse ? TRUE_FALSE_LETTERS()[index] ?? letterAt(index) : letterAt(index),
     correct: choice.correct,
     ...(choice.locked ? { locked: true as const } : {}),
     node: choice.node,
