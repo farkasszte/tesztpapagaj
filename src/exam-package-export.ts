@@ -177,7 +177,7 @@ export async function examPackage({
     package: {
       format: PACKAGE_FORMAT,
       formatVersion: PACKAGE_FORMAT_VERSION,
-      generator: { name: 'Test Parrot', version: QUESTION_BANK_FORMAT_VERSION },
+      generator: { name: 'Tesztpapagáj', version: QUESTION_BANK_FORMAT_VERSION },
       requiredFeatures: [],
       questionBanks,
       exams: [examRecord],

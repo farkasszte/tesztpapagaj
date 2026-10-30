@@ -111,16 +111,16 @@ function ImportCard({
       <span className="import-card-facts">
         {entry.stage === 'waiting'
           ? <>
-              {entry.tags > 0 ? `${countOf(entry.tags, 'picture')} detected · ` : ''}
+              {entry.tags > 0 ? `${countOf(entry.tags, 'picture')} ${t('imports.detectedSuffix')}` : ''}
               {timeLeft(entry.createdAt, new Date())}
             </>
           : entry.stage === 'imported'
             ? `${countOf(entry.imported.questions, 'question')} · ${when(entry.importedAt)}`
-            : `Not imported within seven days`}
+            : t('imports.expired')}
       </span>
       {needed > 0 && (
         <span className="import-pictures-needed">
-          <ImageIcon aria-hidden="true" />{countOf(needed, 'picture')} still needed
+          <ImageIcon aria-hidden="true" />{t('imports.stillNeeded', { count: countOf(needed, 'picture') })}
         </span>
       )}
     </span>
@@ -318,11 +318,11 @@ function WaitingFacts({ waiting }: { waiting: WaitingImport }) {
   const kind = waiting.kind ?? 'pdf'
   return <dl className="import-facts" aria-label={t('imports.about')}>
     <div><dt>{t('imports.file')}</dt><dd title={waiting.fileName}>{waiting.fileName}</dd></div>
-    <div><dt>Type</dt><dd>{KIND_LABELS[kind]}</dd></div>
-    {kind !== 'word' && <div><dt>Pages</dt><dd>{waiting.pageCount}</dd></div>}
-    <div><dt>Pictures detected</dt><dd>{kind === 'photo' ? t('imports.cropped') : waiting.tags.length}</dd></div>
-    <div><dt>Started</dt><dd>{when(waiting.createdAt)}</dd></div>
-    <div><dt>Kept until</dt><dd>{when(new Date(new Date(waiting.createdAt).getTime() + WAITING_IMPORT_LIFETIME_MS).toISOString())}</dd></div>
+    <div><dt>{t('imports.type')}</dt><dd>{KIND_LABELS[kind]}</dd></div>
+    {kind !== 'word' && <div><dt>{t('imports.pages')}</dt><dd>{waiting.pageCount}</dd></div>}
+    <div><dt>{t('imports.picturesDetected')}</dt><dd>{kind === 'photo' ? t('imports.cropped') : waiting.tags.length}</dd></div>
+    <div><dt>{t('imports.started')}</dt><dd>{when(waiting.createdAt)}</dd></div>
+    <div><dt>{t('imports.keptUntil')}</dt><dd>{when(new Date(new Date(waiting.createdAt).getTime() + WAITING_IMPORT_LIFETIME_MS).toISOString())}</dd></div>
   </dl>
 }
 

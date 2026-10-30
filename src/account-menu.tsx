@@ -71,11 +71,11 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
       </button>
       {open && (
         <div className="account-panel" id={panelId} role="region" aria-label={t('account.storage')}>
-          <strong>Your work is saved in your browser.</strong>
-          <p>Go to Settings to export your data.</p>
+          <strong>{t('account.savedInBrowser')}</strong>
+          <p>{t('account.goToSettings')}</p>
           {status === 'denied' && (
             <p className="account-warning">
-              Persistent storage was denied. Your browser may clear this local data when space is needed.
+              {t('account.storageDenied')}
             </p>
           )}
           <div className="account-actions">
@@ -137,7 +137,7 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
       </p>
       {status === 'denied' && (
         <p className="account-warning">
-          Persistent storage was denied. Your browser may clear this local data when space is needed.
+          {t('account.storageDenied')}
         </p>
       )}
       {status === 'granted' && <p className="account-ok">Persistent browser storage is enabled.</p>}
@@ -270,15 +270,13 @@ function RestoreDialog({ file, manifest, onClose }: {
   return (
     <Modal title={t('account.restoreConfirm')} onClose={onClose}>
       <p className="account-dialog-copy">
-        <strong>{file.name}</strong> was made {made}. Restoring replaces every Exam, Question Bank,
-        Working Copy, and Export History in this browser with the ones in the backup, then reloads
-        Test Parrot.
+        {t('account.restoreBody', { file: file.name, made })}
       </p>
       {error && <p className="account-warning" role="alert">{error}</p>}
       <div className="account-actions account-actions--end">
         <button type="button" className="secondary-button account-action" disabled={busy !== null} onClick={() => void backupFirst()}>
           <Download aria-hidden="true" />
-          {busy === 'backup' ? 'Preparing…' : t('account.backupFirst')}
+          {busy === 'backup' ? t('common.preparing') : t('account.backupFirst')}
         </button>
         <button type="button" className="primary-button" disabled={busy !== null} onClick={() => void restore()}>
           {busy === 'restore' ? t('account.restoring') : t('account.replaceAndReload')}

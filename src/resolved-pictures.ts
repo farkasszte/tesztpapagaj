@@ -9,6 +9,7 @@ import {
 } from './export-plan'
 import type { MediaAssetDeclaration, PendingImageOccurrence, PendingImageResolution } from './pending-images'
 import type { ImageTag, PageBox } from './source-document'
+import { t } from './i18n'
 
 /**
  * What Resolve Images decides, as data: a picture for each Pending Image it
@@ -244,11 +245,11 @@ export const placeName = (occurrence: PendingImageOccurrence) =>
 export function originName(picture: ResolvedPicture, source: ResolvingSource | null): string {
   switch (picture.origin.kind) {
     case 'tag':
-      return `IMG ${picture.origin.tag} from ${source?.fileName ?? 'your test'}`
+      return t('import.imgFrom', { tag: picture.origin.tag, file: source?.fileName ?? t('import.yourTest') })
     case 'crop':
-      return `Cropped from page ${picture.origin.page}`
+      return t('import.croppedFrom', { page: picture.origin.page })
     case 'upload':
-      return `Uploaded ${picture.origin.name}`
+      return t('import.uploadedName', { name: picture.origin.name })
   }
 }
 

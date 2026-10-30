@@ -46,7 +46,7 @@ describe('the instructions an assistant is given', () => {
     const filled = fillImageTags(instructions, [tag(1, 1), tag(2, 1), tag(3, 3), tag(4, 3), tag(5, 4)])
 
     expect(filled).not.toContain(IMAGE_TAGS_SLOT)
-    expect(filled).toContain('Test Parrot printed 5 tags on it:\n\n- page 1: IMG 1, IMG 2\n- page 3: IMG 3, IMG 4\n- page 4: IMG 5')
+    expect(filled).toContain('Tesztpapagáj printed 5 tags on it:\n\n- page 1: IMG 1, IMG 2\n- page 3: IMG 3, IMG 4\n- page 4: IMG 5')
   })
 
   test('say there is no labeled copy when no Source Document was uploaded first', () => {
@@ -64,7 +64,7 @@ describe('the instructions an assistant is given', () => {
   test('list a Word document’s tags without pages, which it does not have', () => {
     const filled = fillImageTags(instructions, [tag(1, 1), tag(2, 1)], 'word')
 
-    expect(filled).toContain('This is a labeled Word document. Test Parrot put 2 tags in it, each just before its picture:\n\n- IMG 1, IMG 2')
+    expect(filled).toContain('This is a labeled Word document. Tesztpapagáj put 2 tags in it, each just before its picture:\n\n- IMG 1, IMG 2')
     expect(filled).toContain('`"pending": { "page": 1 }`')
     expect(filled).not.toContain('- page 1:')
     expect(fillImageTags(instructions, [], 'word')).toContain('found no pictures stored in this Word document')

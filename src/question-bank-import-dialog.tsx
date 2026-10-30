@@ -477,10 +477,10 @@ function PreviewPictureButton({
   const badge = !resolved
     ? t('import.addPicture')
     : resolved.origin.kind === 'tag'
-      ? `Detected image · IMG ${resolved.origin.tag}`
+      ? t('import.detectedImage', { tag: resolved.origin.tag })
       : resolved.origin.kind === 'crop'
-        ? `Cropped from page ${resolved.origin.page}`
-        : 'Uploaded'
+        ? t('import.croppedFrom', { page: resolved.origin.page })
+        : t('import.uploaded')
   return <span
     className="preview-picture"
     data-inline={inline ? 'true' : undefined}
@@ -489,7 +489,7 @@ function PreviewPictureButton({
     role="button"
     tabIndex={0}
     aria-pressed={selected}
-    aria-label={`${placeName(occurrence)}: ${resolved ? originName(resolved, source) : t('import.pictureNeeded')}. Change picture`}
+    aria-label={`${placeName(occurrence)}: ${resolved ? originName(resolved, source) : t('import.pictureNeeded')}. ${t('import.changePicture')}`}
     onClick={(event) => {
       event.stopPropagation()
       onPick()

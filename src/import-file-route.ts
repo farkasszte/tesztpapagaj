@@ -36,7 +36,7 @@ export const NO_MATCHING_IMPORT_MESSAGE =
  *  cannot import: the error, framed as a request the AI can act on without
  *  being told anything else. */
 export function aiFixRequest(message: string): string {
-  return `Test Parrot couldn’t import the file you made. It said:\n\n${message}\n\nPlease fix the file and give it back to me.`
+  return `Tesztpapagáj couldn’t import the file you made. It said:\n\n${message}\n\nPlease fix the file and give it back to me.`
 }
 
 /** The import in progress a file from an AI most clearly answers, if any. */

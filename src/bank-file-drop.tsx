@@ -120,7 +120,7 @@ export function BankFileDropTarget({
           <span>Its PDF or Word document, a photo of it, or the file your AI gave back</span>
         </> : <>
           <strong>Drop to import</strong>
-          <span>A question file from another tool, your test, or a Test Parrot file</span>
+          <span>{t('bank.fileKinds')}</span>
         </>}
       </div>
     </div>
