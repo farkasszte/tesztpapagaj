@@ -1,4 +1,5 @@
 import type { FormatId } from './types'
+import { t } from '../i18n'
 
 /**
  * What a teacher is told about the question formats Test Parrot reads, kept
@@ -7,20 +8,44 @@ import type { FormatId } from './types'
 
 /** Each format as a teacher knows it. */
 export const FORMAT_LABELS: Record<FormatId, string> = {
-  'bb-generator': 'Blackboard Test Generator text',
-  'bb-tsv': 'Blackboard upload file (tab-delimited)',
-  'bb-package': 'Blackboard pool or test export',
-  qti: 'QTI (Canvas, Brightspace, Blackboard and others)',
-  'moodle-xml': 'Moodle XML',
-  gift: 'Moodle GIFT',
-  aiken: 'Aiken',
-  respondus: 'Respondus text',
+  get 'bb-generator'(): string {
+    return t('fmt.bbGenerator')
+  },
+  get 'bb-tsv'(): string {
+    return t('fmt.bbTsv')
+  },
+  get 'bb-package'(): string {
+    return t('fmt.bbPackage')
+  },
+  get 'qti'(): string {
+    return t('fmt.qti')
+  },
+  get 'moodle-xml'(): string {
+    return t('fmt.moodleXml')
+  },
+  get 'gift'(): string {
+    return t('fmt.gift')
+  },
+  get 'aiken'(): string {
+    return t('fmt.aiken')
+  },
+  get 'respondus'(): string {
+    return t('fmt.respondus')
+  },
   text2qti: 'text2qti',
   'd2l-csv': 'Brightspace (D2L) question CSV',
-  'respondus-csv': 'Respondus CSV',
-  kahoot: 'Kahoot spreadsheet',
-  spreadsheet: 'Spreadsheet (CSV or Excel)',
-  flashcards: 'Flashcards (Quizlet or Anki)',
+  get 'respondus-csv'(): string {
+    return t('fmt.respondusCsv')
+  },
+  get 'kahoot'(): string {
+    return t('fmt.kahoot')
+  },
+  get 'spreadsheet'(): string {
+    return t('fmt.spreadsheet')
+  },
+  get 'flashcards'(): string {
+    return t('fmt.flashcards')
+  },
 }
 
 /** The tools whose files a drop zone names, grouped as teachers meet them. */

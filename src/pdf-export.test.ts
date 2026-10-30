@@ -90,7 +90,7 @@ describe('PDF Export Adapter', () => {
       ),
     )).join(' ')
 
-    expect(text).toContain('Easy')
+    expect(text).toContain('Könnyű')
     expect(text).toContain('Acids')
     expect(text).toContain('Hard')
     expect(text).toContain('Titration')

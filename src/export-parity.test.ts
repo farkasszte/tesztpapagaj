@@ -169,7 +169,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
       // The key gives the paper's total, each line with Points its `[n]`, a
       // Matching set's once on its first Item, and an unpointed line none.
       expect(key).toContain('heading:1 Answer Section Total: 9 points')
-      expect(key).toContain('para 1. «strong»A«/» [1] Easy Rivers')
+      expect(key).toContain('para 1. «strong»A«/» [1] Könnyű Rivers')
       expect(key).toContain('para 2. «strong»F«/»')
       expect(key).toContain('para 3. «strong»A«/» [2]')
       expect(key).toContain('para 4. «strong»B«/»')

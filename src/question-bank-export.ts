@@ -31,6 +31,7 @@ import {
   pictureCropOf,
   type CropBox,
 } from './picture-geometry'
+import { t } from './i18n'
 
 export const QUESTION_BANK_FORMAT = 'test-parrot/question-bank'
 export const QUESTION_BANK_FORMAT_VERSION = '0.10.0'
@@ -145,12 +146,24 @@ export type QuestionBankRecordQuestionType =
 /** How each record Question Type is written wherever a teacher reads one — the
  *  export preview, the import preview, and the Question Bank File's own pages. */
 export const RECORD_TYPE_LABELS: Record<QuestionBankRecordQuestionType, string> = {
-  'multiple-choice': 'Multiple Choice',
-  'true-false': 'True/False',
-  matching: 'Matching',
-  'fill-in-the-blank': 'Fill in the Blank',
-  'short-answer': 'Short Answer',
-  multipart: 'Multipart',
+  get 'multiple-choice'(): string {
+    return t('bankType.multipleChoice')
+  },
+  get 'true-false'(): string {
+    return t('bankType.trueFalse')
+  },
+  get 'matching'(): string {
+    return t('bankType.matching')
+  },
+  get 'fill-in-the-blank'(): string {
+    return t('bankType.fillInTheBlank')
+  },
+  get 'short-answer'(): string {
+    return t('bankType.shortAnswer')
+  },
+  get 'multipart'(): string {
+    return t('bankType.multipart')
+  },
 }
 
 /** The order a summary counts the Question Types off in — the order a test

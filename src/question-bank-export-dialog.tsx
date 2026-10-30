@@ -274,7 +274,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
     recordDocumentToEditorNodes(document, record.media)
   const counts = [
     plural(bank.questions.length, 'Question'),
-    ...(outline.difficulties.easy ? [`${outline.difficulties.easy} Easy`] : []),
+    ...(outline.difficulties.easy ? [`${outline.difficulties.easy} ${t('difficulty.easy')}`] : []),
     ...(outline.difficulties.medium ? [`${outline.difficulties.medium} Medium`] : []),
     ...(outline.difficulties.hard ? [`${outline.difficulties.hard} Hard`] : []),
   ]

@@ -41,6 +41,7 @@ import type { PageMargins } from './page-margins'
 import { paperStyleRules, type PaperStyle } from './paper-style'
 import { newMatchingNode } from './matching'
 import { newMultipartPartsNode } from './multipart'
+import { t } from './i18n'
 
 export type QuestionType =
   | 'multiple-choice'
@@ -93,20 +94,38 @@ export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard']
 /** How each Question Section is written wherever a teacher sees it, so the
  *  bank row, the filter and the Working Copy's own chrome can never disagree. */
 export const SECTION_LABELS: Record<QuestionType, string> = {
-  'multiple-choice': 'Multiple choice',
-  'true-false': 'True/False',
-  matching: 'Matching',
-  'fill-in-the-blank': 'Fill in the blank',
-  open: 'Short answer',
-  multipart: 'Multipart',
+  get 'multiple-choice'(): string {
+    return t('type.multipleChoice')
+  },
+  get 'true-false'(): string {
+    return t('type.trueFalse')
+  },
+  get 'matching'(): string {
+    return t('type.matching')
+  },
+  get 'fill-in-the-blank'(): string {
+    return t('type.fillInTheBlank')
+  },
+  get 'open'(): string {
+    return t('type.open')
+  },
+  get 'multipart'(): string {
+    return t('type.multipart')
+  },
 }
 
 /** How each Difficulty is written wherever a teacher sees it, so the popup that
  *  sets one and the bank row that shows it can never disagree. */
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  easy: 'Easy',
-  medium: 'Medium',
-  hard: 'Hard',
+  get 'easy'(): string {
+    return t('difficulty.easy')
+  },
+  get 'medium'(): string {
+    return t('difficulty.medium')
+  },
+  get 'hard'(): string {
+    return t('difficulty.hard')
+  },
 }
 
 export type Question = {
