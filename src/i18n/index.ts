@@ -695,6 +695,9 @@ const en = {
   'import.saving': 'Importing…',
   'import.picture': 'Picture',
   'import.usedBy': 'Used by',
+  'header.name': 'Name',
+  'header.class': 'Class',
+  'header.date': 'Date',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1376,6 +1379,9 @@ const hu: Record<TextKey, string> = {
   'import.saving': 'Importálás…',
   'import.picture': 'Kép',
   'import.usedBy': 'Felhasználja',
+  'header.name': 'Név',
+  'header.class': 'Osztály',
+  'header.date': 'Dátum',
 };
 
 const LANGUAGES = { en, hu } as const

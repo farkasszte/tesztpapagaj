@@ -282,7 +282,7 @@ describe('PDF Export Adapter', () => {
     // Page 1: its number at the top, the header line, the title, and the
     // paper's total beneath it, then the first question. No cover.
     const first = pages[0]!.map((item) => item.text)
-    expect(first.slice(0, 2)).toEqual(['1', 'Name: __________________ Class: ___________ Date: ___________'])
+    expect(first.slice(0, 2)).toEqual(['1', 'Név: __________________ Osztály: ___________ Dátum: ___________'])
     expect(first.indexOf('Plant Biology')).toBeLessThan(first.indexOf('The total mark for this paper is 16.'))
     expect(first.indexOf('The total mark for this paper is 16.')).toBeLessThan(first.indexOf('Multiple Choice'))
     // Labels and Points on the question pages, each `[n]` at the right margin.

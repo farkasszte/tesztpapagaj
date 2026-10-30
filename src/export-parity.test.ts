@@ -197,7 +197,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
     // ahead of its first Section's heading. No page is the style's own.
     expect(testPages[0]!.header).toEqual([
       'para 1',
-      'para Name: __________________ Class: ___________ Date: ___________',
+      'para Név: __________________ Osztály: ___________ Dátum: ___________',
       'heading:title Plant Biology',
     ])
     expect(testPages[0]!.content[0]).toBe('para The total mark for this paper is 16.')
@@ -231,7 +231,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
 
     // The page number at the top, centred, above the later pages' Name line;
     // and "Turn over" on every test page another test page follows.
-    expect(testPages[1]!.header).toEqual(['para 2', 'para Name: __________________'])
+    expect(testPages[1]!.header).toEqual(['para 2', 'para Név: __________________'])
     expect(testPages.map((page) => page.footer[0])).toEqual([
       ...Array.from({ length: testPages.length - 1 }, () => 'para Turn over'),
       'para',

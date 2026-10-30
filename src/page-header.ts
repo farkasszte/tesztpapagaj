@@ -18,11 +18,27 @@ export const HEADER_LINES: readonly HeaderLine[] = ['first', 'later']
 // Underscores are the blanks, so the line is plain text — what is typed is
 // exactly what prints, in every output. The default's fit on one line beside
 // the ID at the sheet's type, with the name given the longest.
+import { t } from './i18n'
+
 const blank = (length: number) => '_'.repeat(length)
 
+const NAME_BLANK = 18
+
+/** The default line in the current language. Hungarian names the fields Név /
+ *  Osztály / Dátum, and the blanks keep the English line's width, so the line
+ *  still fits beside the paper's ID at the sheet's type. */
+export function defaultHeader(): Record<HeaderLine, string> {
+  return {
+    first: `${t('header.name')}: ${blank(NAME_BLANK)}  ${t('header.class')}: ${blank(11)}  ${t('header.date')}: ${blank(11)}`,
+    later: `${t('header.name')}: ${blank(NAME_BLANK)}`,
+  }
+}
+
+/** The default line in the current language, as a getter so a language change
+ *  reaches every reader without a reload. */
 export const DEFAULT_HEADER: Record<HeaderLine, string> = {
-  first: `Name: ${blank(18)}  Class: ${blank(11)}  Date: ${blank(11)}`,
-  later: `Name: ${blank(18)}`,
+  get first() { return defaultHeader().first },
+  get later() { return defaultHeader().later },
 }
 
 /** An Exam's own header lines. An absent key is the default; an empty string
@@ -31,7 +47,7 @@ export type ExamHeader = Partial<Record<HeaderLine, string>>
 
 /** The one reader: the Exam's line where it has one, the default elsewhere. */
 export function headerLineOf(header: ExamHeader | undefined, line: HeaderLine): string {
-  return header?.[line] ?? DEFAULT_HEADER[line]
+  return header?.[line] ?? defaultHeader()[line]
 }
 
 /** `header` with one line set, `null` meaning its default, kept to its
@@ -42,7 +58,7 @@ export function withHeaderLine(
   text: string | null,
 ): ExamHeader | undefined {
   const next: ExamHeader = { ...header }
-  if (text === null || text === DEFAULT_HEADER[line]) delete next[line]
+  if (text === null || text === defaultHeader()[line]) delete next[line]
   else next[line] = text
   return Object.keys(next).length > 0 ? next : undefined
 }
