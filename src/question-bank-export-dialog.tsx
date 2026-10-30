@@ -295,15 +295,14 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
       <p><strong>{counts.join(' · ')}</strong></p>
       <aside className="question-bank-file-notice">
         <a href={IMPORT_URL} target="_blank" rel="noopener noreferrer">
-          <strong>A digital file for importing into Test Parrot</strong>
+          <strong>{t('bankExport.fileNoticeTitle')}</strong>
         </a>
         <p>
-          It holds the whole Question Bank, answers included. Import works only from this original file:
-          printing it, scanning it, or saving it again as a PDF removes the data Test Parrot reads.
+          {t('bankExport.fileNoticeBody')}
         </p>
       </aside>
       <nav className="question-bank-file-outline" aria-label={t('bankExport.types')}>
-        <h2>Question Types</h2>
+        <h2>{t('bankExport.typesTitle')}</h2>
         <p>{hasTopics ? t('bankExport.chooseTypeTopic') : t('bankExport.chooseType')}</p>
         <ul>
           {outline.sections.map((section) => (

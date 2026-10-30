@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Upload } from 'lucide-react'
 import { isQuestionFileName } from './question-formats/catalog'
+import { t } from './i18n'
 
 /**
  * Dropping a Question Bank File anywhere on the site imports it.
@@ -112,7 +113,7 @@ export function BankFileDropTarget({
       <div className="bank-drop-card">
         <Upload aria-hidden="true" />
         {target ? <>
-          <strong>Drop to add to {target.name || 'this Question Bank'}</strong>
+          <strong>{t('bank.dropToAdd', { target: target.name || t('bank.thisBank') })}</strong>
           <span>Its Questions are added to this bank, and any Exams come too</span>
         </> : tests ? <>
           <strong>Drop your test here</strong>

@@ -1878,7 +1878,7 @@ function QuestionBankPage({
 
   return <AppShell
     crumbs={[
-      { label: 'Home', href: '/' },
+      { label: t('nav.home'), href: '/' },
       { label: 'Question Banks', href: '/question-banks' },
       { label: bank.name },
     ]}
@@ -2551,7 +2551,7 @@ function ExamEditor({
             type="button"
             className="editor-home-mark"
             aria-label={t('exam.home')}
-            title="Home"
+            title={t('nav.home')}
             onClick={onHome}
           >
             <img className="app-logo" src="/logo.png" alt="" width={36} height={36} />

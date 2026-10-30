@@ -50,7 +50,7 @@ export function AboutPage({
         <section className="site-card">
           <h2>Forrás és licenc</h2>
           <p>
-            A Tesztpapagáj az <em>Test Parrot</em> nyílt forráskódú projekt magyar változata,
+            A Tesztpapagáj a <em>Test Parrot</em> nyílt forráskódú projekt magyar változata,
             amelyet a <em>teacher.dev</em> készített, és Apache License 2.0 alatt adott ki. A magyar
             fordítás és a módosítások ugyanezen licenc alatt érhetők el; a részleteket a repó{' '}
             <code>NOTICE.md</code> és <code>LICENSE</code> fájlja tartalmazza. A név, a logó és a

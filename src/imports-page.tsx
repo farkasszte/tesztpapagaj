@@ -193,7 +193,7 @@ export function ImportsPage({
   const waiting = entries?.filter((entry): entry is Extract<ImportEntry, { stage: 'waiting' }> => entry.stage === 'waiting') ?? []
   const finished = entries?.filter((entry): entry is Exclude<ImportEntry, { stage: 'waiting' }> => entry.stage !== 'waiting') ?? []
 
-  return <AppShell crumbs={[{ label: 'Home', href: '/' }, { label: 'Imports' }]} persistentStorage={persistentStorage}>
+  return <AppShell crumbs={[{ label: t('nav.home'), href: '/' }, { label: t('nav.imports') }]} persistentStorage={persistentStorage}>
     <header className="collection-heading">
       <h1>Imports</h1>
       <div className="collection-actions">
@@ -204,8 +204,8 @@ export function ImportsPage({
       ? <p className="import-list-status" role="status">Loading imports…</p>
       : entries.length === 0
         ? <div className="home-empty">
-            <h2>No imports yet</h2>
-            <p>Every test you convert and every file you import is listed here.</p>
+            <h2>{t('imports.noneTitle')}</h2>
+            <p>{t('imports.noneBody')}</p>
           </div>
         : <>
             {waiting.length > 0 && <section className="import-section" aria-labelledby="imports-waiting">

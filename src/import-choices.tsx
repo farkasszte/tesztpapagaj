@@ -48,8 +48,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
           onChange={(event) => setPasted(event.target.value)}
         />
         <p>
-          Written for the Blackboard Test Generator, Blackboard, Aiken, GIFT, Respondus or another
-          format Test Parrot reads. Leave a blank line between questions.
+          {t('imports.pasteHint')}
         </p>
         <div className="import-paste-actions">
           <button type="button" className="secondary-button" onClick={() => setPasting(false)}>{t('common.cancel')}</button>
