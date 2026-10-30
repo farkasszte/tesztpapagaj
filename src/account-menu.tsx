@@ -15,6 +15,7 @@ import type { PersistentStorageStatus } from './durable-storage'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { navigate } from './use-route'
 import './account-menu.css'
+import { t } from './i18n'
 
 /**
  * Where the work lives, and the way to keep it. An icon in the top bar says
@@ -61,7 +62,7 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
         type="button"
         className="storage-badge-button"
         data-status={status}
-        aria-label="Where your work is stored"
+        aria-label={t('account.storage')}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
@@ -69,7 +70,7 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
         <CloudOff aria-hidden="true" />
       </button>
       {open && (
-        <div className="account-panel" id={panelId} role="region" aria-label="Where your work is stored">
+        <div className="account-panel" id={panelId} role="region" aria-label={t('account.storage')}>
           <strong>Your work is saved in your browser.</strong>
           <p>Go to Settings to export your data.</p>
           {status === 'denied' && (
@@ -106,7 +107,7 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
     try {
       await downloadBackup()
     } catch {
-      setError('The backup could not be created. Try again.')
+      setError(t('account.backupFailed'))
     } finally {
       setBusy(null)
     }
@@ -120,7 +121,7 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
       const snapshot = await readAccountBackup(file)
       setRestoring({ file, manifest: snapshot.manifest })
     } catch (caught) {
-      setError(caught instanceof AccountBackupError ? caught.message : 'This backup could not be read.')
+      setError(caught instanceof AccountBackupError ? caught.message : t('account.backupUnreadable'))
     } finally {
       setBusy(null)
       if (fileInput.current) fileInput.current.value = ''
@@ -143,18 +144,18 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
       <div className="account-actions">
         <button type="button" className="secondary-button account-action" onClick={backup} disabled={busy !== null}>
           {busy === 'backup' ? <RefreshCw aria-hidden="true" className="account-spin" /> : <Download aria-hidden="true" />}
-          {busy === 'backup' ? 'Preparing…' : 'Download backup'}
+          {busy === 'backup' ? 'Preparing…' : t('account.downloadBackup')}
         </button>
         <button type="button" className="secondary-button account-action" onClick={() => fileInput.current?.click()} disabled={busy !== null}>
           <Upload aria-hidden="true" />
-          {busy === 'restore' ? 'Reading…' : 'Restore…'}
+          {busy === 'restore' ? t('account.reading') : t('account.restore')}
         </button>
         <input
           ref={fileInput}
           type="file"
           accept=".zip,application/zip"
           hidden
-          aria-label="Choose an account backup to restore"
+          aria-label={t('account.chooseBackup')}
           onChange={(event) => void chooseRestore(event.target.files?.[0])}
         />
       </div>
@@ -251,7 +252,7 @@ function RestoreDialog({ file, manifest, onClose }: {
       await stageRestore({ bytes: await file.arrayBuffer() })
       window.location.reload()
     } catch {
-      setError('The backup could not be restored. Nothing in this browser was changed.')
+      setError(t('account.restoreFailed'))
       setBusy(null)
     }
   }
@@ -261,13 +262,13 @@ function RestoreDialog({ file, manifest, onClose }: {
     try {
       await downloadBackup()
     } catch {
-      setError('The backup could not be created. Try again.')
+      setError(t('account.backupFailed'))
     } finally {
       setBusy(null)
     }
   }
   return (
-    <Modal title="Restore this backup?" onClose={onClose}>
+    <Modal title={t('account.restoreConfirm')} onClose={onClose}>
       <p className="account-dialog-copy">
         <strong>{file.name}</strong> was made {made}. Restoring replaces every Exam, Question Bank,
         Working Copy, and Export History in this browser with the ones in the backup, then reloads
@@ -277,10 +278,10 @@ function RestoreDialog({ file, manifest, onClose }: {
       <div className="account-actions account-actions--end">
         <button type="button" className="secondary-button account-action" disabled={busy !== null} onClick={() => void backupFirst()}>
           <Download aria-hidden="true" />
-          {busy === 'backup' ? 'Preparing…' : 'Download current work first'}
+          {busy === 'backup' ? 'Preparing…' : t('account.backupFirst')}
         </button>
         <button type="button" className="primary-button" disabled={busy !== null} onClick={() => void restore()}>
-          {busy === 'restore' ? 'Restoring…' : 'Replace and reload'}
+          {busy === 'restore' ? t('account.restoring') : t('account.replaceAndReload')}
         </button>
       </div>
     </Modal>

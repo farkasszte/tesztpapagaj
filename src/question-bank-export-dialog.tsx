@@ -25,6 +25,7 @@ import {
 } from './question-bank-file-outline'
 import type { QuestionBankResource } from './question-bank-workspaces'
 import { topicTint } from './topic-tint'
+import { t } from './i18n'
 
 /** How many rows of the preview are drawn at a time. A bank of thousands of
  *  Questions is drawn a batch at a time as the teacher scrolls, rather than
@@ -83,7 +84,7 @@ export function QuestionBankExportDialog({
           setError(
             reason instanceof Error
               ? reason.message
-              : 'The Question Bank cannot be prepared.',
+              : t('bankExport.prepareFailed'),
           )
       },
     )
@@ -153,11 +154,11 @@ export function QuestionBankExportDialog({
       window.setTimeout(() => URL.revokeObjectURL(url), 0)
       onClose()
     } catch (reason) {
-      console.error('Could not export the Question Bank', reason)
+      console.error(t('bankExport.failed'), reason)
       setError(
         reason instanceof Error
           ? reason.message
-          : 'The Question Bank PDF could not be created. Try again.',
+          : t('bankExport.pdfFailed'),
       )
       setExporting(false)
       setProgress(null)
@@ -199,7 +200,7 @@ export function QuestionBankExportDialog({
             <span>
               {progress.drawn < progress.total
                 ? `Drawing ${plural(progress.drawn, 'Question')} of ${progress.total.toLocaleString()}…`
-                : 'Finishing the PDF…'}
+                : t('bankExport.finishing')}
             </span>
           </div>
         )}
@@ -218,7 +219,7 @@ export function QuestionBankExportDialog({
             disabled={!prepared || exporting}
             onClick={() => void download()}
           >
-            {exporting ? 'Creating PDF…' : 'Download PDF'}
+            {exporting ? t('bankExport.creating') : t('bankExport.download')}
           </button>
         </footer>
       </section>
@@ -282,7 +283,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
     <div
       ref={scroller}
       className="question-bank-export-preview"
-      aria-label="Question Bank PDF preview"
+      aria-label={t('bankExport.preview')}
     >
       <p className="question-bank-file-brand">
         <img src="/logo.png" alt="" width={28} height={28} />
@@ -302,9 +303,9 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
           printing it, scanning it, or saving it again as a PDF removes the data Test Parrot reads.
         </p>
       </aside>
-      <nav className="question-bank-file-outline" aria-label="Question Types">
+      <nav className="question-bank-file-outline" aria-label={t('bankExport.types')}>
         <h2>Question Types</h2>
-        <p>{hasTopics ? 'Choose a type, or one of its Topics, to go straight to it.' : 'Choose a type to go straight to it.'}</p>
+        <p>{hasTopics ? t('bankExport.chooseTypeTopic') : t('bankExport.chooseType')}</p>
         <ul>
           {outline.sections.map((section) => (
             <li key={section.type}>
@@ -483,7 +484,7 @@ function RecordQuestion({
                 <span
                   className="record-matching-blank"
                   aria-label={
-                    prompt.answer ? 'Matched answer' : 'Unmatched'
+                    prompt.answer ? t('bankExport.matchedAnswer') : 'Unmatched'
                   }
                 >
                   {wordBankLettersOf(question).get(prompt.answer ?? '') ?? '—'}

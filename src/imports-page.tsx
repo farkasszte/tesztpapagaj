@@ -16,6 +16,7 @@ import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { SourceDocumentSteps } from './source-document-steps'
 import { ImportError } from './import-error'
 import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
+import { t } from './i18n'
 
 /**
  * The Imports section: every import this browser has started. Those still
@@ -26,9 +27,9 @@ import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
 const KIND_LABELS: Record<ImportFileKind, string> = {
   pdf: 'PDF',
   photo: 'Photo',
-  word: 'Word document',
+  word: t('imports.wordDoc'),
   record: 'Test Parrot file',
-  questions: 'Question file',
+  questions: t('imports.questionFile'),
 }
 
 const plural = (count: number, singular: string) => `${count} ${count === 1 ? singular : `${singular}s`}`
@@ -39,7 +40,7 @@ const when = (iso: string) =>
 /** How long a waiting import has left, in words. */
 function timeLeft(createdAt: string, now: Date): string {
   const days = Math.ceil((new Date(createdAt).getTime() + WAITING_IMPORT_LIFETIME_MS - now.getTime()) / (24 * 60 * 60 * 1000))
-  return days <= 1 ? 'Expires within a day' : `Expires in ${days} days`
+  return days <= 1 ? t('imports.expiresToday') : `Expires in ${days} days`
 }
 
 /** One import's own page. */
@@ -279,20 +280,20 @@ function WaitingPreview({ waiting }: { waiting: WaitingImport }) {
     }
   }, [bytes, pageNumber])
   const shown = source?.page ?? pageNumber
-  const name = `Page ${shown}${labeled ? ' of the labeled copy' : ''}`
+  const name = `Page ${shown}${labeled ? t('imports.ofLabeled') : ''}`
   return <figure className="import-preview">
     <div className="import-preview-sheet">
       {source
         ? <img src={source.url} alt={name} />
         : waiting.kind === 'word' || failed
-          ? <span className="import-sheet-placeholder"><FileText aria-hidden="true" />{waiting.kind === 'word' ? 'Word document' : 'No preview'}</span>
+          ? <span className="import-sheet-placeholder"><FileText aria-hidden="true" />{waiting.kind === 'word' ? t('imports.wordDoc') : t('imports.noPreview')}</span>
           : <span className="import-sheet-placeholder" role="status">Drawing page {pageNumber}…</span>}
       {pages > 1 && <>
         <button
           type="button"
           className="import-preview-turn"
           data-side="previous"
-          aria-label="Previous page"
+          aria-label={t('common.previousPage')}
           disabled={pageNumber === 1}
           onClick={() => setPageNumber(pageNumber - 1)}
         ><ChevronLeft aria-hidden="true" /></button>
@@ -300,15 +301,15 @@ function WaitingPreview({ waiting }: { waiting: WaitingImport }) {
           type="button"
           className="import-preview-turn"
           data-side="next"
-          aria-label="Next page"
+          aria-label={t('common.nextPage')}
           disabled={pageNumber === pages}
           onClick={() => setPageNumber(pageNumber + 1)}
         ><ChevronRight aria-hidden="true" /></button>
       </>}
     </div>
     {pages > 0 && <figcaption>
-      {pages > 1 ? `Page ${pageNumber} of ${pages}` : 'Page 1'}
-      {labeled ? ', labeled: each picture carries the number your AI will name it by.' : ''}
+      {pages > 1 ? `Page ${pageNumber} of ${pages}` : t('imports.pageOne')}
+      {labeled ? t('imports.labeledHint') : ''}
     </figcaption>}
   </figure>
 }
@@ -316,11 +317,11 @@ function WaitingPreview({ waiting }: { waiting: WaitingImport }) {
 /** What is known about a waiting import, under its preview. */
 function WaitingFacts({ waiting }: { waiting: WaitingImport }) {
   const kind = waiting.kind ?? 'pdf'
-  return <dl className="import-facts" aria-label="About this import">
-    <div><dt>File</dt><dd title={waiting.fileName}>{waiting.fileName}</dd></div>
+  return <dl className="import-facts" aria-label={t('imports.about')}>
+    <div><dt>{t('imports.file')}</dt><dd title={waiting.fileName}>{waiting.fileName}</dd></div>
     <div><dt>Type</dt><dd>{KIND_LABELS[kind]}</dd></div>
     {kind !== 'word' && <div><dt>Pages</dt><dd>{waiting.pageCount}</dd></div>}
-    <div><dt>Pictures detected</dt><dd>{kind === 'photo' ? 'Cropped after importing' : waiting.tags.length}</dd></div>
+    <div><dt>Pictures detected</dt><dd>{kind === 'photo' ? t('imports.cropped') : waiting.tags.length}</dd></div>
     <div><dt>Started</dt><dd>{when(waiting.createdAt)}</dd></div>
     <div><dt>Kept until</dt><dd>{when(new Date(new Date(waiting.createdAt).getTime() + WAITING_IMPORT_LIFETIME_MS).toISOString())}</dd></div>
   </dl>
@@ -366,7 +367,7 @@ export function WaitingImportPage({
       try {
         await inspectUploadedFile(file)
       } catch (reason) {
-        setError(reason instanceof Error && reason.message ? reason.message : 'This file could not be read.')
+        setError(reason instanceof Error && reason.message ? reason.message : t('imports.unreadable'))
         return
       } finally {
         setReading(false)

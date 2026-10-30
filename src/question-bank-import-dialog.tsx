@@ -73,6 +73,7 @@ import { bestWaitingImport } from './import-file-route'
 import { SourceDocumentSteps } from './source-document-steps'
 import { TEST_FILE_TYPES, kindOfFile, readSourceDocument, startWaitingImport } from './source-file'
 import { useModalScrollLock } from './use-modal-scroll-lock'
+import { t } from './i18n'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -476,7 +477,7 @@ function PreviewPictureButton({
   children: ReactNode
 }) {
   const badge = !resolved
-    ? 'Add a picture'
+    ? t('import.addPicture')
     : resolved.origin.kind === 'tag'
       ? `Detected image · IMG ${resolved.origin.tag}`
       : resolved.origin.kind === 'crop'
@@ -490,7 +491,7 @@ function PreviewPictureButton({
     role="button"
     tabIndex={0}
     aria-pressed={selected}
-    aria-label={`${placeName(occurrence)}: ${resolved ? originName(resolved, source) : 'picture needed'}. Change picture`}
+    aria-label={`${placeName(occurrence)}: ${resolved ? originName(resolved, source) : t('import.pictureNeeded')}. Change picture`}
     onClick={(event) => {
       event.stopPropagation()
       onPick()
@@ -668,7 +669,7 @@ export function QuestionBankImportDialog({
     setError(
       reason instanceof Error && reason.message
         ? reason.message
-        : 'This file could not be inspected safely.',
+        : t('import.inspectFailed'),
     )
   }
 
@@ -913,7 +914,7 @@ export function QuestionBankImportDialog({
       const filled = await prefilledPictures(occurrences.filter(({ key }) => !resolutions.has(key)), source)
       setResolutions((current) => new Map([...filled, ...current]))
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'That PDF could not be read.')
+      setError(reason instanceof Error ? reason.message : t('import.pdfUnreadable'))
     } finally {
       setFilling(false)
     }
@@ -927,7 +928,7 @@ export function QuestionBankImportDialog({
       await onImport(proposal, selection, {
         resolution: resolutionOf(resolutions, occurrences),
         history: {
-          ...(inspected ?? { fileName: 'Test Parrot file', kind: 'record' }),
+          ...(inspected ?? { fileName: t('import.parrotFile'), kind: 'record' }),
           ...(paired && waiting ? { waitingImportId: waiting.id } : {}),
         },
       })
@@ -935,7 +936,7 @@ export function QuestionBankImportDialog({
       setError(
         reason instanceof Error && reason.message
           ? `Nothing was imported: ${reason.message}`
-          : 'Nothing was imported. Check browser storage and try again.',
+          : t('import.nothingImported'),
       )
       setPhase('choose')
     }
@@ -1040,7 +1041,7 @@ export function QuestionBankImportDialog({
             <h2 id={titleId}>Import</h2>
             {proposal?.reading && <span className="bank-import-read-as">Read as {proposal.reading.label}</span>}
           </div>
-          <a className="bank-import-help" href={supportMailto('Trouble importing into Test Parrot', { askForFile: true })}>
+          <a className="bank-import-help" href={supportMailto(t('import.troubleTitle'), { askForFile: true })}>
             Something wrong with your import? Email us
           </a>
         </header>
@@ -1066,7 +1067,7 @@ export function QuestionBankImportDialog({
               <input
                 ref={input}
                 type="file"
-                aria-label="Your test, a question file, or a Test Parrot file"
+                aria-label={t('import.sourceLabel')}
                 accept={`${TEST_FILE_TYPES},application/json,.json`}
                 disabled={busy}
                 onChange={(event) => {
@@ -1114,7 +1115,7 @@ export function QuestionBankImportDialog({
                 ? `It names ${paired!.unknownTags.map((tag) => `IMG ${tag}`).join(', ')}, which your test does not have. `
                 : ''}
               {paired!.stemsChecked > 0 && paired!.stemsFound * 2 <= paired!.stemsChecked
-                ? 'Most of its questions are not in your test. '
+                ? t('import.mostNotInTest')
                 : ''}
               You can import it anyway, or choose another file.
             </p>
@@ -1170,7 +1171,7 @@ export function QuestionBankImportDialog({
         )}
 
         {proposal && selection && focus && (
-          <section className="bank-import-body" aria-label="Import confirmation">
+          <section className="bank-import-body" aria-label={t('import.confirmation')}>
             <nav className="bank-import-list" aria-labelledby={`${listId}-heading`}>
               <header>
                 <h3 id={`${listId}-heading`}>Import List</h3>
@@ -1209,16 +1210,16 @@ export function QuestionBankImportDialog({
             <div
               className="bank-import-preview"
               data-kind={focusedExam ? 'exam' : 'bank'}
-              aria-label={focusedExam ? 'Test preview' : 'Question Bank preview'}
+              aria-label={focusedExam ? t('import.testPreview') : t('import.bankPreview')}
             >
               {occurrences.length > 0 && !cropping && (
                 <p className="bank-import-picture-hint" role="status">
                   <ImageIcon aria-hidden="true" />
                   <span>
                     {filling
-                      ? `Finding your pictures in ${resolvingSource?.fileName ?? 'your test'}…`
+                      ? `Finding your pictures in ${resolvingSource?.fileName ?? t('import.yourTest')}…`
                       : detected > 0
-                        ? `${detected === occurrences.length ? `All ${plural(detected, 'picture')}` : `${detected} of ${plural(occurrences.length, 'picture')}`} detected from ${resolvingSource?.fileName ?? 'your test'}. Click a picture to change it.`
+                        ? `${detected === occurrences.length ? `All ${plural(detected, 'picture')}` : `${detected} of ${plural(occurrences.length, 'picture')}`} detected from ${resolvingSource?.fileName ?? t('import.yourTest')}. Click a picture to change it.`
                         : `${plural(occurrences.length, 'picture')} needed. Click one to add it, or add them after importing.`}
                   </span>
                 </p>
@@ -1412,7 +1413,7 @@ export function QuestionBankImportDialog({
               {importSentence(
                 proposal,
                 selection,
-                (id) => existingBanks.find((existing) => existing.id === id)?.name ?? 'this Question Bank',
+                (id) => existingBanks.find((existing) => existing.id === id)?.name ?? t('import.thisBank'),
               )}
             </p>
           )}
@@ -1432,7 +1433,7 @@ export function QuestionBankImportDialog({
               aria-describedby={`${listId}-outcome`}
               onClick={() => void confirm()}
             >
-              {phase === 'saving' ? 'Importing…' : mismatch ? 'Import anyway' : 'Import'}
+              {phase === 'saving' ? t('import.importing') : mismatch ? t('import.importAnyway') : 'Import'}
             </button>
           )}
         </footer>

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { exportTime } from './export-time'
 import type { ExportRecord } from './export-preparation'
+import { t } from './i18n'
 
 // A few names, then how many more, so a long batch keeps its card short.
 function versionsLabel(versions: readonly string[]): string {
@@ -53,7 +54,7 @@ export function ExportHistoryDrawer({
         <button
           type="button"
           className="toolbar-icon-button"
-          aria-label="Close Export History"
+          aria-label={t('export.closeHistory')}
           onClick={() => onOpenChange(false)}
         >
           ×

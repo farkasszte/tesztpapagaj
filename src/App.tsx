@@ -229,6 +229,7 @@ import {
   suggestedAnswerSchema,
   suggestedAnswerView,
 } from './suggested-answer'
+import { t, useT } from './i18n'
 
 /** The mark each Question Section goes by, so a type reads the same wherever
  *  it is named — the picker that chooses one, and the dialog that states it. */
@@ -247,9 +248,9 @@ const STORAGE_NOTICE_DURATION = 8_000
 const DOCUMENT_MENUS = ['file', 'edit', 'format'] as const
 type DocumentMenuKind = (typeof DOCUMENT_MENUS)[number]
 const DOCUMENT_MENU_LABELS: Record<DocumentMenuKind, string> = {
-  file: 'File',
-  edit: 'Edit',
-  format: 'Format',
+  file: t('menu.file'),
+  edit: t('menu.edit'),
+  format: t('menu.format'),
 }
 
 /**
@@ -296,6 +297,7 @@ function FrontMatterSelect({
   /** How one chosen value is drawn, on the field and in the list. */
   renderValue: (value: string) => ReactNode
 }) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   // Which row Enter would take. Reset to the top whenever the list changes
@@ -406,7 +408,7 @@ function FrontMatterSelect({
         onClick={() => setOpen((current) => !current)}
       >
         {selected.length === 0 ? (
-          <span className="front-matter-blank">Empty</span>
+          <span className="front-matter-blank">{t('editor.empty')}</span>
         ) : (
           selected.map((value) => (
             <Fragment key={value}>{renderValue(value)}</Fragment>
@@ -472,7 +474,7 @@ function FrontMatterSelect({
               ),
             )}
             {rows.length === 0 && (
-              <p className="front-matter-empty">Nothing to choose</p>
+              <p className="front-matter-empty">{t('editor.nothingToChoose')}</p>
             )}
           </div>
         </div>
@@ -524,7 +526,7 @@ function CrepeQuestion({
           // where the cursor is, and only in a stem (see `side-by-side.ts`).
           buildMenu: (builder) => {
             builder.getGroup('advanced').addItem('side-by-side', {
-              label: 'Side by side',
+              label: t('editor.sideBySide'),
               icon: sideBySideIcon,
               onRun: (ctx: Ctx) => {
                 ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key)
@@ -534,7 +536,7 @@ function CrepeQuestion({
             // An empty Blank, with the caret in it to type its answer.
             if (blanks) {
               builder.getGroup('advanced').addItem('blank', {
-                label: 'Blank',
+                label: t('editor.blank'),
                 icon: blankIcon,
                 onRun: (ctx: Ctx) => {
                   ctx.get(commandsCtx).call(clearTextInCurrentBlockCommand.key)
@@ -573,10 +575,10 @@ function CrepeQuestion({
         [Crepe.Feature.ImageBlock]: { onUpload: saveImage },
         [Crepe.Feature.Placeholder]: {
           text: multipart
-            ? 'Write the shared material: a passage, quote, image or table…'
+            ? t('editor.hintShared')
             : blanks
-              ? 'Write the sentence, then select a word and make it a Blank…'
-              : 'Write the question…',
+              ? t('editor.hintBlank')
+              : t('editor.hintQuestion'),
         },
         [Crepe.Feature.Toolbar]: {
           buildToolbar: (builder) => {
@@ -584,7 +586,7 @@ function CrepeQuestion({
               .getGroup('formatting')
               .addItem('subscript', {
                 icon: subscriptIcon,
-                label: 'Subscript',
+                label: t('editor.subscript'),
                 keymap: keymapRef<'ToggleSubscript' | 'ToggleSuperscript'>(
                   scriptKeymap.key,
                   'ToggleSubscript',
@@ -594,7 +596,7 @@ function CrepeQuestion({
               })
               .addItem('superscript', {
                 icon: superscriptIcon,
-                label: 'Superscript',
+                label: t('editor.superscript'),
                 keymap: keymapRef<'ToggleSubscript' | 'ToggleSuperscript'>(
                   scriptKeymap.key,
                   'ToggleSuperscript',
@@ -608,7 +610,7 @@ function CrepeQuestion({
               .getGroup('formatting')
               .addItem('centre', {
                 icon: centreIcon,
-                label: 'Centre',
+                label: t('editor.centre'),
                 keymap: keymapRef<'ToggleCentre'>(centringKeymap.key, 'ToggleCentre'),
                 active: (ctx: Ctx) => isCentreActive(ctx),
                 onRun: (ctx: Ctx) => toggleCentre(ctx),
@@ -620,7 +622,7 @@ function CrepeQuestion({
                 .getGroup('formatting')
                 .addItem('blank', {
                   icon: blankIcon,
-                  label: 'Blank',
+                  label: t('editor.blank'),
                   active: (ctx: Ctx) => isInBlank(ctx.get(editorViewCtx).state),
                   onRun: (ctx: Ctx) => {
                     const view = ctx.get(editorViewCtx)
@@ -781,6 +783,7 @@ function QuestionDialog({
   onSave: (question: Question) => Promise<void>
   onDelete?: () => void
 }) {
+  const t = useT()
   // A question's type is settled when it is created, so the dialog reads it
   // and never changes it: there is no switch to make, and nothing to preserve
   // across one.
@@ -874,7 +877,7 @@ function QuestionDialog({
       setSaveError(
         error instanceof Error
           ? error.message
-          : 'The Question could not be saved. Your changes are still here; try again.',
+          : t('editor.saveFailed'),
       )
     } finally {
       setSaving(false)
@@ -914,15 +917,15 @@ function QuestionDialog({
         ref={dialog}
         role="dialog"
         aria-modal="true"
-        aria-label="Question editor"
+        aria-label={t('editor.questionEditor')}
       >
         {resolving && <ResolveImagesDialog
           occurrences={[{
             key: 'picture',
             bankId: '',
             questionNumber: 0,
-            where: 'Question',
-            label: 'This picture',
+            where: t('editor.question'),
+            label: t('editor.thisPicture'),
             pending: resolving.pending,
             ...(resolving.alt ? { alt: resolving.alt } : {}),
             ...(resolving.caption ? { caption: resolving.caption } : {}),
@@ -936,18 +939,18 @@ function QuestionDialog({
         />}
         {pictureMenu && <ContextMenu
           point={pictureMenu.point}
-          ariaLabel="Picture"
+          ariaLabel={t('editor.picture')}
           items={[
-            { kind: 'action', label: 'Reset crop', icon: <Crop />, disabled: !pictureMenu.cropped, onSelect: pictureMenu.resetCrop },
+            { kind: 'action', label: t('editor.resetCrop'), icon: <Crop />, disabled: !pictureMenu.cropped, onSelect: pictureMenu.resetCrop },
             {
               kind: 'action',
-              label: pictureMenu.captioned ? 'Remove caption' : 'Add caption',
+              label: pictureMenu.captioned ? t('editor.removeCaption') : t('editor.addCaption'),
               icon: <Captions />,
               onSelect: pictureMenu.toggleCaption,
             },
             {
               kind: 'action',
-              label: pictureMenu.centred ? 'Align left' : 'Centre',
+              label: pictureMenu.centred ? t('editor.alignLeft') : t('editor.centre'),
               icon: pictureMenu.centred ? <AlignLeft /> : <AlignCenter />,
               disabled: !pictureMenu.centrable,
               onSelect: pictureMenu.toggleCentre,
@@ -956,7 +959,7 @@ function QuestionDialog({
           onClose={() => setPictureMenu(null)}
         />}
         <header className="dialog-header">
-          <h2>{isNew ? 'Add question' : 'Edit question'}</h2>
+          <h2>{isNew ? t('editor.addQuestion') : t('editor.editQuestion')}</h2>
         </header>
         {/* The question's front matter, indented to the document's own margin
             because it is the head of the question rather than a strip bolted
@@ -968,7 +971,7 @@ function QuestionDialog({
             <div className="front-matter-field">
               <span className="front-matter-label">
                 <Library />
-                Question Bank
+                {t('bank.title')}
               </span>
               <span className="front-matter-value front-matter-stated">{ownerName}</span>
             </div>
@@ -1010,14 +1013,14 @@ function QuestionDialog({
             renderValue={(value) => <TopicBadge topic={value} />}
           />
           <div className="front-matter-field">
-            <span className="front-matter-label">Points</span>
+            <span className="front-matter-label">{t('editor.points')}</span>
             {pointsOnQuestion(question) ? (
               <span className="front-matter-points">
                 <input
                   className="front-matter-value front-matter-points-input"
                   type="text"
                   inputMode="numeric"
-                  aria-label="Points"
+                  aria-label={t('editor.points')}
                   aria-invalid={pointsValue === undefined ? true : undefined}
                   placeholder="Empty"
                   value={pointsText}
@@ -1030,12 +1033,12 @@ function QuestionDialog({
                     }
                   }}
                 />
-                {question.type === 'matching' ? 'for the whole set' : null}
+                {question.type === 'matching' ? t('editor.forWholeSet') : null}
               </span>
             ) : (
               <span className="front-matter-value front-matter-stated">
                 {partsPoints === undefined ? (
-                  <span className="front-matter-blank">Set on each Part</span>
+                  <span className="front-matter-blank">{t('editor.setPerPart')}</span>
                 ) : (
                   `${pointsLabel(partsPoints)}, from its Parts`
                 )}
@@ -1061,16 +1064,16 @@ function QuestionDialog({
           />
         </div>
         <footer className="dialog-actions">
-          {!isNew && onDelete && <button type="button" className="danger-button question-delete-button" onClick={onDelete}><Trash2 />Delete Question</button>}
+          {!isNew && onDelete && <button type="button" className="danger-button question-delete-button" onClick={onDelete}><Trash2 />{t('editor.deleteQuestion')}</button>}
           {saveError && <p className="dialog-save-error" role="alert">{saveError}</p>}
-          <button type="button" className="secondary-button" onClick={onCancel}>Cancel</button>
+          <button type="button" className="secondary-button" onClick={onCancel}>{t('common.cancel')}</button>
           <button
             type="button"
             className="primary-button"
             disabled={saving}
             onClick={() => void saveQuestion()}
           >
-            {saving ? 'Saving…' : 'Save question'}
+            {saving ? t('common.saving') : t('editor.saveQuestion')}
           </button>
         </footer>
       </section>
@@ -1086,6 +1089,7 @@ function DestructiveConfirmation({ label, title, children, confirmLabel, onCance
   onCancel: () => void
   onConfirm: () => Promise<void>
 }) {
+  const t = useT()
   const titleId = useId()
   const dialog = useRef<HTMLElement>(null)
   const [deleting, setDeleting] = useState(false)
@@ -1121,15 +1125,15 @@ function DestructiveConfirmation({ label, title, children, confirmLabel, onCance
       {children}
       {error && <p className="dialog-save-error" role="alert">{error}</p>}
       <footer className="destructive-dialog-actions">
-        <button type="button" className="secondary-button" disabled={deleting} onClick={onCancel}>Cancel</button>
+        <button type="button" className="secondary-button" disabled={deleting} onClick={onCancel}>{t('common.cancel')}</button>
         <button type="button" className="danger-button" disabled={deleting} onClick={() => {
           setDeleting(true)
           setError(null)
           void onConfirm().catch((reason) => {
-            setError(reason instanceof Error ? reason.message : 'Nothing was deleted. Please try again.')
+            setError(reason instanceof Error ? reason.message : t('editor.deleteFailed'))
             setDeleting(false)
           })
-        }}>{deleting ? 'Deleting…' : confirmLabel}</button>
+        }}>{deleting ? t('common.deleting') : confirmLabel}</button>
       </footer>
     </section>
   </div>, document.body)
@@ -1140,17 +1144,18 @@ function QuestionDeletionConfirmation({ usage, onCancel, onConfirm }: {
   onCancel: () => void
   onConfirm: () => Promise<void>
 }) {
+  const t = useT()
   const count = usage.length
   return <DestructiveConfirmation
     label="Permanently delete Question"
     title="Permanently delete this Question?"
-    confirmLabel={count === 0 ? 'Delete Question' : `Delete and remove from ${count} ${count === 1 ? 'Exam' : 'Exams'}`}
+    confirmLabel={count === 0 ? t('editor.deleteQuestion') : `Delete and remove from ${count} ${count === 1 ? t('exam.one') : t('exam.many')}`}
     onCancel={onCancel}
     onConfirm={onConfirm}
   >
-    <p>This cannot be undone.</p>
-    {count === 0 ? <p>This Question is not used in any Exams.</p> : <>
-      <p>This Question will be removed from every saved Exam and Working Copy below:</p>
+    <p>{t('common.cannotBeUndone')}</p>
+    {count === 0 ? <p>{t('editor.questionUnused')}</p> : <>
+      <p>{t('editor.questionRemovedFrom')}</p>
       <ul>{usage.map((item) => <li key={item.examId}>{item.title}</li>)}</ul>
     </>}
   </DestructiveConfirmation>
@@ -1162,19 +1167,20 @@ function BankDeletionConfirmation({ bank, impact, onCancel, onConfirm }: {
   onCancel: () => void
   onConfirm: () => Promise<void>
 }) {
+  const t = useT()
   return <DestructiveConfirmation
     label="Permanently delete Question Bank"
     title={`Permanently delete “${bank.name}”?`}
-    confirmLabel="Delete Question Bank"
+    confirmLabel={t('bank.delete')}
     onCancel={onCancel}
     onConfirm={onConfirm}
   >
-    <p>This cannot be undone.</p>
-    {bank.questionCount === 0 ? <p>This empty Question Bank will be permanently deleted.</p> : <>
-      <p>{bank.questionCount} {bank.questionCount === 1 ? 'Question' : 'Questions'} will be permanently deleted.</p>
-      <p>{impact.length} affected {impact.length === 1 ? 'Exam' : 'Exams'}:</p>
-      {impact.length > 0 && <ul>{impact.map((item) => <li key={item.examId}>{item.title} — {item.questionCount} {item.questionCount === 1 ? 'Question' : 'Questions'} removed</li>)}</ul>}
-      <p><strong>Export History remains unchanged.</strong> Historical exports stay viewable and can be exported again.</p>
+    <p>{t('common.cannotBeUndone')}</p>
+    {bank.questionCount === 0 ? <p>{t('bank.deleteEmpty')}</p> : <>
+      <p>{bank.questionCount} {bank.questionCount === 1 ? t('editor.question') : t('editor.questions')} will be permanently deleted.</p>
+      <p>{impact.length} affected {impact.length === 1 ? t('exam.one') : t('exam.many')}:</p>
+      {impact.length > 0 && <ul>{impact.map((item) => <li key={item.examId}>{item.title} — {item.questionCount} {item.questionCount === 1 ? t('editor.question') : t('editor.questions')} removed</li>)}</ul>}
+      <p><strong>{t('bank.exportHistoryUnchanged')}</strong>{t('bank.exportHistoryStays')}</p>
     </>}
   </DestructiveConfirmation>
 }
@@ -1185,11 +1191,12 @@ function ExamDeletionConfirmation({ summary, onCancel, onConfirm }: {
   onCancel: () => void
   onConfirm: () => Promise<void>
 }) {
+  const t = useT()
   const message = examDeletionMessage(summary)
   return <DestructiveConfirmation
-    label="Delete Exam"
+    label={t('exam.delete')}
     title={message.title}
-    confirmLabel="Delete Exam"
+    confirmLabel={t('exam.delete')}
     onCancel={onCancel}
     onConfirm={onConfirm}
   >
@@ -1270,7 +1277,7 @@ function ResourcePicker({
             onChoose(resource.id)
           }}>
             <strong>{resource.name}</strong>
-            <span>{resource.questionCount} {resource.questionCount === 1 ? 'Question' : 'Questions'}</span>
+            <span>{resource.questionCount} {resource.questionCount === 1 ? t('editor.question') : t('editor.questions')}</span>
           </button>)}
         </div>}
     </section>
@@ -1399,7 +1406,7 @@ function QuestionBankWorkspace({
     {exporting && <QuestionBankExportDialog bank={bank} onClose={() => setExporting(false)} />}
     {choosingType && <ContextMenu
       point={choosingType}
-      ariaLabel="Question type"
+      ariaLabel={t('editor.questionType')}
       items={SECTION_ORDER.map((type) => ({
         kind: 'action' as const,
         label: SECTION_LABELS[type],
@@ -1491,6 +1498,7 @@ function QuestionBankTabsPane({
   onCanonicalQuestionCommitted?: (question: Question) => void
   onQuestionDeleted?: (questionId: string) => void
 }) {
+  const t = useT()
   const stableContext = useMemo<BankWorkspaceContext>(
     () => ({ examId: context.examId }),
     [context.examId],
@@ -1527,13 +1535,13 @@ function QuestionBankTabsPane({
       setResources(Object.fromEntries(valid.map((bank) => [bank.id, bank])))
       setWorkspace(sanitized)
       if (sanitized !== saved) {
-        setMessage('A Question Bank in this workspace is unavailable on this device.')
+        setMessage(t('bank.unavailableInWorkspace'))
         await service.saveWorkspace(stableContext, sanitized)
       }
       setHydrated(true)
     })()
     return () => { current = false }
-  }, [resourceRevision, service, stableContext])
+  }, [resourceRevision, service, stableContext, t])
 
   const active = workspace.activeBankId ? resources[workspace.activeBankId] : undefined
   useEffect(() => {
@@ -1552,12 +1560,12 @@ function QuestionBankTabsPane({
     try {
       const bank = await service.create()
       const opened = await service.openTab(stableContext, bank.id)
-      if (!opened) throw new Error('The new Question Bank could not be opened.')
+      if (!opened) throw new Error(t('bank.openFailed'))
       setWorkspace(opened.workspace)
       updateResource(opened.bank)
       requestAnimationFrame(() => document.querySelector<HTMLElement>(`[role="tab"][data-bank-id="${CSS.escape(bank.id)}"]`)?.focus())
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'The Question Bank could not be created.')
+      setMessage(error instanceof Error ? error.message : t('bank.createFailed'))
     } finally {
       setCreatingBank(false)
     }
@@ -1602,7 +1610,7 @@ function QuestionBankTabsPane({
     requestAnimationFrame(() => {
       const target = next.activeBankId
         ? document.querySelector<HTMLElement>(`[role="tab"][data-bank-id="${CSS.escape(next.activeBankId)}"]`)
-        : document.querySelector<HTMLElement>('[aria-label="Open Question Bank"]')
+        : document.querySelector<HTMLElement>(`[aria-label="${t('bank.open')}"]`)
       target?.focus()
     })
   }
@@ -1615,7 +1623,7 @@ function QuestionBankTabsPane({
   >
     {message && <p className="home-error bank-tabs-error" role="alert">{message}</p>}
     <div className="bank-tabs-bar">
-      <div className="bank-tabs" role="tablist" aria-label="Open Question Banks">
+      <div className="bank-tabs" role="tablist" aria-label={t('bank.openList')}>
         {workspace.openBankIds.map((id, index) => {
           const bank = resources[id]
           if (!bank) return null
@@ -1660,7 +1668,7 @@ function QuestionBankTabsPane({
       {workspace.openBankIds.length > 0 && <button
         type="button"
         className="open-bank-button"
-        aria-label="Open Question Bank"
+        aria-label={t('bank.open')}
         title="Open Question Bank"
         disabled={!hydrated}
         onClick={() => void openPicker()}
@@ -1694,7 +1702,7 @@ function QuestionBankTabsPane({
         // it gets here. Anything else the pointer is carrying — a screenshot,
         // a scan — is taken by the pane so it can be told apart from an
         // import and answered with the way to convert it.
-        if (!onImportBank || !Array.from(event.dataTransfer.types).includes('Files')) return
+        if (!onImportBank || !Array.from(event.dataTransfer.types).includes(t('bank.files'))) return
         event.preventDefault()
         event.dataTransfer.dropEffect = 'copy'
         setFileOver(true)
@@ -1716,10 +1724,10 @@ function QuestionBankTabsPane({
           dotted ground Home uses for a space a card has not been put in yet.
           The whole pane is also the drop target for a file. */}
       <div className="question-bank-toolbar">
-        <header className="question-bank-header"><h2>Question Bank</h2></header>
+        <header className="question-bank-header"><h2>{t('bank.title')}</h2></header>
       </div>
       <div className="bank-get-started">
-        <p className="bank-get-started-title">Get started</p>
+        <p className="bank-get-started-title">{t('bank.getStarted')}</p>
         <div className="bank-get-started-actions">
           <button
             type="button"
@@ -1727,7 +1735,7 @@ function QuestionBankTabsPane({
             onClick={() => void openPicker()}
           >
             <FolderOpen aria-hidden="true" />
-            <span>Open Question Bank</span>
+            <span>{t('bank.open')}</span>
           </button>
           <button
             type="button"
@@ -1735,7 +1743,7 @@ function QuestionBankTabsPane({
             onClick={() => void createBank()}
           >
             <Plus aria-hidden="true" />
-            <span>{creatingBank ? 'Creating…' : 'New Question Bank'}</span>
+            <span>{creatingBank ? t('common.creating') : 'New Question Bank'}</span>
           </button>
           {onImportBank && <button
             type="button"
@@ -1743,16 +1751,16 @@ function QuestionBankTabsPane({
             onClick={() => onImportBank()}
           >
             <Import aria-hidden="true" />
-            <span>Import Question Bank</span>
+            <span>{t('bank.import')}</span>
           </button>}
         </div>
-        <p className="bank-get-started-hint">Or drop a Question Bank file anywhere here.</p>
+        <p className="bank-get-started-hint">{t('bank.dropFile')}</p>
       </div>
     </div>}
     {pickerBanks && <ResourcePicker
       title="Open Question Bank"
-      closeLabel="Close Question Bank picker"
-      emptyMessage="No Question Banks are available on this device."
+      closeLabel={t('bank.closePicker')}
+      emptyMessage={t('bank.noneAvailable')}
       resources={pickerBanks}
       onChoose={(id) => void chooseBank(id)}
       onClose={() => setPickerBanks(null)}
@@ -1820,6 +1828,7 @@ function QuestionBankPage({
    *  adding into this one. */
   onImportInto: (bankId: string) => void
 }) {
+  const t = useT()
   const [bank, setBank] = useState(initialBank)
   const popOver = usePopOver()
   const [name, setName] = useState(initialBank.name)
@@ -1863,7 +1872,7 @@ function QuestionBankPage({
     try {
       setBank(await bankWorkspaces.commit(bank.id, { kind: 'rename', name }))
     } catch (error) {
-      setNameError(error instanceof Error ? error.message : 'The Question Bank name could not be saved.')
+      setNameError(error instanceof Error ? error.message : t('bank.nameSaveFailed'))
     }
   }
 
@@ -1874,7 +1883,7 @@ function QuestionBankPage({
       { label: bank.name },
     ]}
     persistentStorage={persistentStorage}
-    actions={<span className="bank-save-status">Changes save immediately</span>}
+    actions={<span className="bank-save-status">{t('bank.savesImmediately')}</span>}
   >
     {launchError && <p className="home-error" role="alert">{launchError}</p>}
     {importAnnouncement && <p className="sr-only" role="status" aria-live="polite">{importAnnouncement}</p>}
@@ -1891,7 +1900,7 @@ function QuestionBankPage({
         heading={<div className="bank-page-heading">
           <div className="bank-page-title-row">
             <input
-              aria-label="Question Bank name"
+              aria-label={t('bank.name')}
               className="bank-page-title"
               value={name}
               size={Math.max(name.length, 8)}
@@ -1904,7 +1913,7 @@ function QuestionBankPage({
             <button
               type="button"
               className="toolbar-icon-button bank-page-details-button"
-              aria-label="Edit Question Bank details"
+              aria-label={t('bank.editDetails')}
               title="Edit details"
               aria-haspopup="dialog"
               onClick={() => setEditingDetails(true)}
@@ -1949,14 +1958,14 @@ function QuestionBankPage({
     />}
     {editingDetails && <div className="dialog-backdrop" role="presentation">
       <section className="question-bank-details-dialog" role="dialog" aria-modal="true" aria-labelledby="bank-details-title">
-        <h2 id="bank-details-title">Question Bank details</h2>
-        <p>Only details you enter are included when this Question Bank is shared.</p>
+        <h2 id="bank-details-title">{t('bank.detailsTitle')}</h2>
+        <p>{t('bank.detailsHint')}</p>
         <label>Description<textarea value={details.description} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, description: event.target.value })} /></label>
         <label>Declared author<input value={details.author} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, author: event.target.value })} /></label>
         <label>License name<input value={details.licenseName} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseName: event.target.value })} /></label>
         <label>License URL<input type="url" value={details.licenseUrl} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseUrl: event.target.value })} /></label>
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" disabled={detailsBusy} onClick={() => setEditingDetails(false)}>Cancel</button>
+          <button type="button" className="secondary-button" disabled={detailsBusy} onClick={() => setEditingDetails(false)}>{t('common.cancel')}</button>
           <button type="button" className="primary-button" disabled={detailsBusy} onClick={() => {
             setDetailsBusy(true)
             setNameError(null)
@@ -1971,9 +1980,9 @@ function QuestionBankPage({
               setBank(updated)
               setEditingDetails(false)
             }).catch((error: unknown) => {
-              setNameError(error instanceof Error ? error.message : 'Question Bank details could not be saved.')
+              setNameError(error instanceof Error ? error.message : t('bank.detailsSaveFailed'))
             }).finally(() => setDetailsBusy(false))
-          }}>{detailsBusy ? 'Saving…' : 'Save details'}</button>
+          }}>{detailsBusy ? t('common.saving') : t('bank.saveDetails')}</button>
         </div>
       </section>
     </div>}
@@ -1983,16 +1992,17 @@ function QuestionBankPage({
 
 /** What the Working Copy's state is, in a slot that never changes size. */
 const WORKING_COPY_STATES = {
-  pending: { Icon: RefreshCw, label: 'Backing up…', detail: 'This change is still being written to this browser.' },
-  failed: { Icon: TriangleAlert, label: 'Backup failed', detail: 'This change could not be written to this browser. Export to keep it.' },
-  dirty: { Icon: CircleDot, label: 'Unsaved changes · backed up locally', detail: 'Backed up in this browser. Save to update the Exam itself.' },
-  saved: { Icon: Check, label: 'Saved', detail: 'Everything in this Working Copy is in the saved Exam.' },
+  pending: { Icon: RefreshCw, label: t('status.backingUp'), detail: t('status.writingDetail') },
+  failed: { Icon: TriangleAlert, label: t('status.backupFailed'), detail: t('status.backupFailedDetail') },
+  dirty: { Icon: CircleDot, label: t('status.dirtyLabel'), detail: t('status.dirtyDetail') },
+  saved: { Icon: Check, label: t('status.saved'), detail: t('status.savedDetail') },
 } as const
 
 function WorkingCopyStatus({ dirty, backupStatus }: {
   dirty: boolean
   backupStatus: 'pending' | 'failed' | 'ready'
 }) {
+  const t = useT()
   const state = backupStatus === 'pending' ? 'pending'
     : backupStatus === 'failed' ? 'failed'
       : dirty ? 'dirty' : 'saved'
@@ -2008,7 +2018,7 @@ function WorkingCopyStatus({ dirty, backupStatus }: {
         <strong>{label}</strong>
         <p>{detail}</p>
       </div>
-      <span className="sr-only" role="status" aria-live="polite" aria-label="Working Copy status">{label}</span>
+      <span className="sr-only" role="status" aria-live="polite" aria-label={t('exam.workingCopyStatus')}>{label}</span>
     </div>
   )
 }
@@ -2044,6 +2054,7 @@ function ExamEditor({
   bankLibraryRevision?: number
   onImportBank?: (file?: File) => void
 }) {
+  const t = useT()
   const state = useSyncExternalStore(store.subscribe, store.getState)
   const backupStatus = useSyncExternalStore(store.subscribe, store.backupStatus)
   useEffect(() => {
@@ -2199,12 +2210,12 @@ function ExamEditor({
   }
   const shuffleSelectedQuestions = (questionIds: readonly string[]) => {
     store.shuffleSelectedQuestions(questionIds)
-    setVarySummary('Shuffled question order.')
+    setVarySummary(t('exam.shuffledQuestions'))
   }
 
   const shuffleSelectedAnswers = (questionIds: readonly string[]) => {
     store.shuffleSelectedAnswers(questionIds)
-    setVarySummary('Shuffled answer order.')
+    setVarySummary(t('exam.shuffledAnswers'))
   }
 
   // Points belong to the Question, not to this Exam (ADR-0042): set on the
@@ -2222,7 +2233,7 @@ function ExamEditor({
       if (JSON.stringify(saved) === JSON.stringify(question)) return
       try {
         const owner = await bankWorkspaces.ownerOfQuestion(questionId)
-        if (!owner) throw new Error('The owning Question Bank is unavailable on this device.')
+        if (!owner) throw new Error(t('exam.bankUnavailable'))
         await store.whenSettled()
         await bankWorkspaces.commitCanonicalQuestion(
           owner.id,
@@ -2307,7 +2318,7 @@ function ExamEditor({
       if (!backupNeedsWarning()) return
       // The browser-native beforeunload prompt is unavailable to pushState.
       // Make the same choice explicit for in-app routes.
-      if (!window.confirm('Your latest Working Copy has not been backed up locally. Leave anyway?')) {
+      if (!window.confirm(t('exam.leaveUnsaved'))) {
         event.preventDefault()
       }
     }
@@ -2317,7 +2328,7 @@ function ExamEditor({
       window.removeEventListener('beforeunload', onBeforeUnload)
       window.removeEventListener(BEFORE_NAVIGATE_EVENT, onBeforeNavigate)
     }
-  }, [backupStatus, store])
+  }, [backupStatus, store, t])
 
   useEffect(() => {
     const onPrintShortcut = (event: KeyboardEvent) => {
@@ -2451,8 +2462,8 @@ function ExamEditor({
       ) throw error
       throw new Error(
         format === 'pdf'
-          ? 'The PDF file could not be created in this browser. Choose DOCX or try again.'
-          : 'The Word file could not be created. Please try again.',
+          ? t('export.pdfFailed')
+          : t('export.wordFailed'),
       )
     }
 
@@ -2469,22 +2480,22 @@ function ExamEditor({
     try {
       await store.publish(prepared.record)
     } catch (error) {
-      console.error('Could not commit the Export Record', error)
+      console.error(t('export.commitFailed'), error)
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         throw new Error(
-          'Browser storage is full. Free space in this browser, then try exporting again.',
+          t('export.storageFull'),
         )
       }
       throw new Error(
-        'The Export Record could not be saved to browser storage, so no download was started. Try again.',
+        t('export.recordSaveFailed'),
       )
     }
 
     if (durability) {
       setStorageNotice(
         durability === 'granted'
-          ? 'Export History is stored locally in this browser with persistent storage enabled. Keep an external archival copy of important files.'
-          : 'Persistent storage was not granted. Export History remains browser-local and may be cleared by the browser; keep an external archival copy.',
+          ? t('export.historyPersistent')
+          : t('export.historyNotPersistent'),
       )
     }
     try {
@@ -2497,7 +2508,7 @@ function ExamEditor({
       }
     } catch (error) {
       console.error(`Could not start the ${format.toUpperCase()} download`, error)
-      throw new Error('The download could not be started. The Export Record remains in History.')
+      throw new Error(t('export.downloadFailed'))
     }
     // Told once the file is the teacher's, and only about this export.
     setExportWarning(warning)
@@ -2522,7 +2533,7 @@ function ExamEditor({
         : prepared
     } catch (error) {
       if (error instanceof PicturesNeededError) exportBlocked = error.message
-      else previewError = error instanceof Error ? error.message : 'The export cannot be prepared.'
+      else previewError = error instanceof Error ? error.message : t('export.prepareFailed')
     }
   }
 
@@ -2539,7 +2550,7 @@ function ExamEditor({
           <button
             type="button"
             className="editor-home-mark"
-            aria-label="Test Parrot home"
+            aria-label={t('exam.home')}
             title="Home"
             onClick={onHome}
           >
@@ -2547,14 +2558,14 @@ function ExamEditor({
           </button>
           <div className="document-title-stack">
             <input
-              aria-label="Exam name"
+              aria-label={t('exam.name')}
               className="document-title"
               value={state.workingCopy.title}
               disabled={isHistoricalBrowsing}
               placeholder="Untitled Exam"
               onChange={(event) => store.setTitle(event.target.value)}
             />
-            <nav className="document-menus" aria-label="Exam menus">
+            <nav className="document-menus" aria-label={t('exam.menus')}>
               {DOCUMENT_MENUS.map((kind) => (
                 <button
                   key={kind}
@@ -2576,11 +2587,11 @@ function ExamEditor({
           </div>
         </div>
         <div className="header-actions">
-          <div className="document-edit-actions" aria-label="Editing actions">
+          <div className="document-edit-actions" aria-label={t('exam.editingActions')}>
             <button
               type="button"
               className="toolbar-icon-button"
-              aria-label="Undo"
+              aria-label={t('exam.undo')}
               title="Undo (Ctrl/Cmd+Z)"
               disabled={isHistoricalBrowsing || !store.canUndo()}
               onClick={() => {
@@ -2592,7 +2603,7 @@ function ExamEditor({
             <button
               type="button"
               className="toolbar-icon-button"
-              aria-label="Redo"
+              aria-label={t('exam.redo')}
               title="Redo (Ctrl/Cmd+Shift+Z)"
               disabled={isHistoricalBrowsing || !store.canRedo()}
               onClick={() => {
@@ -2612,7 +2623,7 @@ function ExamEditor({
             ref={historyButton}
             type="button"
             className="toolbar-icon-button"
-            aria-label="Export History"
+            aria-label={t('exam.exportHistory')}
             title="Export History"
             aria-expanded={historyOpen}
             aria-controls="export-history"
@@ -2626,11 +2637,11 @@ function ExamEditor({
           <button
             type="button"
             className="primary-button"
-            aria-label="Save"
+            aria-label={t('exam.save')}
             disabled={isHistoricalBrowsing || !state.dirty || backupStatus === 'failed'}
             onClick={() => void store.save()}
           >
-            Save
+            {t('exam.save')}
           </button>
           <button
             ref={exportButton}
@@ -2641,7 +2652,7 @@ function ExamEditor({
             aria-expanded={exportDialog !== null}
             onClick={() => openExport()}
           >
-            Export
+            {t('exam.export')}
           </button>
         </div>
       </header>
@@ -2654,7 +2665,7 @@ function ExamEditor({
           // setting here is this Exam's presentation, saved and undone with it.
           {
             kind: 'submenu',
-            label: 'Heading size',
+            label: t('exam.headingSize'),
             icon: <Heading />,
             items: HEADING_SIZES.map((size) => ({
               kind: 'radio' as const,
@@ -2667,7 +2678,7 @@ function ExamEditor({
           },
           {
             kind: 'submenu',
-            label: 'Text size',
+            label: t('exam.textSize'),
             icon: <TypeIcon />,
             items: TEXT_SIZES.map((size) => ({
               kind: 'radio' as const,
@@ -2682,7 +2693,7 @@ function ExamEditor({
           // per type (ADR-0041). The sheet reflows as soon as it changes.
           {
             kind: 'submenu',
-            label: 'Paper style',
+            label: t('exam.paperStyle'),
             icon: <ListOrdered />,
             value: PAPER_STYLE_LABELS[state.workingCopy.paperStyle ?? DEFAULT_PAPER_STYLE].label,
             items: PAPER_STYLES.map((style) => ({
@@ -2700,7 +2711,7 @@ function ExamEditor({
             // Opens beside the menu it came from, and stays while the sheet
             // reflows behind it.
             kind: 'action',
-            label: 'Margins…',
+            label: t('exam.margins'),
             icon: <MarginsIcon />,
             disabled: isHistoricalBrowsing,
             onSelect: () => setMarginsPanel(documentMenu.point),
@@ -2722,14 +2733,14 @@ function ExamEditor({
           },
           {
             kind: 'action',
-            label: 'Save As',
+            label: t('exam.saveAs'),
             icon: <SaveAll />,
             disabled: isHistoricalBrowsing,
             onSelect: () => { void onSaveAs() },
           },
           {
             kind: 'action',
-            label: 'Discard changes',
+            label: t('exam.discard'),
             icon: <RefreshCw />,
             disabled: !state.dirty,
             onSelect: () => { void store.discard() },
@@ -2737,7 +2748,7 @@ function ExamEditor({
           { kind: 'separator' },
           {
             kind: 'action',
-            label: 'Export',
+            label: t('exam.export'),
             icon: <FileType2 />,
             disabled: backupStatus === 'failed' || isHistoricalBrowsing,
             onSelect: openExport,
@@ -2751,7 +2762,7 @@ function ExamEditor({
           { kind: 'separator' },
           {
             kind: 'action',
-            label: 'Delete Exam',
+            label: t('exam.delete'),
             icon: <Trash2 />,
             destructive: true,
             onSelect: onDelete,
@@ -2785,8 +2796,8 @@ function ExamEditor({
 
       {choosingExam && <ResourcePicker
         title="Open Exam"
-        closeLabel="Close Exam picker"
-        emptyMessage="No other Exams are available on this device."
+        closeLabel={t('exam.closePicker')}
+        emptyMessage={t('exam.noneOther')}
         resources={exams
           .filter((candidate) => candidate.id !== examId)
           .map((candidate) => ({
@@ -3015,7 +3026,7 @@ function ExamEditor({
           <button
             type="button"
             className="toolbar-icon-button"
-            aria-label="Dismiss PDF warning"
+            aria-label={t('exam.dismissPdfWarning')}
             onClick={() => setExportWarning(null)}
           >
             ×
@@ -3029,7 +3040,7 @@ function ExamEditor({
           <button
             type="button"
             className="toolbar-icon-button"
-            aria-label="Dismiss storage notice"
+            aria-label={t('exam.dismissStorageNotice')}
             onClick={() => setStorageNotice(null)}
           >
             ×
@@ -3060,7 +3071,7 @@ function ExamEditor({
             // changes only after that durable commit succeeds.
             if (bankQuestionById(state.questionBank, saved.id)) {
               const owner = editing.owner ?? await bankWorkspaces.ownerOfQuestion(saved.id)
-              if (!owner) throw new Error('The owning Question Bank is unavailable on this device.')
+              if (!owner) throw new Error(t('exam.bankUnavailable'))
               await store.whenSettled()
               await bankWorkspaces.commitCanonicalQuestion(
                 owner.id,
@@ -3226,7 +3237,7 @@ export default function App({
       return
     }
     const first = await bankWorkspaces.read(firstBankId)
-    const questions = `${result.questionCount} ${result.questionCount === 1 ? 'Question' : 'Questions'}`
+    const questions = `${result.questionCount} ${result.questionCount === 1 ? t('editor.question') : t('editor.questions')}`
     window.sessionStorage.setItem(
       'test-parrot-import-announcement',
       bankIds.length > 1

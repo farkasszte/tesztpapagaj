@@ -19,6 +19,7 @@ import { PageHeaderContent } from './page-item-view'
 import { PAGE_GEOMETRY } from './exam-page'
 import { TopicBadge } from './badges'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
+import { t } from './i18n'
 
 /** How many Topics a Question Bank card shows before it counts the rest. */
 const SHOWN_TOPICS = 3
@@ -245,7 +246,7 @@ function ExamCardButton({
   const furniture: PageFurniture = {
     identityFields: ['Name', 'Class', 'Date'],
     title: exam.title,
-    arrangementLabel: 'ID: A',
+    arrangementLabel: t('card.versionId'),
     pageNumber: 1,
   }
   return (
@@ -285,7 +286,7 @@ function ExamCardButton({
         <span className="exam-card-stats">
           <span>{exam.questionCount} {exam.questionCount === 1 ? 'Q' : 'Qs'}</span>
           {exam.unsaved && (
-            <span className="unsaved-mark" title="Unsaved changes">
+            <span className="unsaved-mark" title={t('card.unsaved')}>
               <TriangleAlert aria-hidden="true" />
               <span className="sr-only">Unsaved changes</span>
             </span>
@@ -369,7 +370,7 @@ export function QuestionBankCard({
             while changing or deleting the bank, and it is answered there. */}
         <p className="bank-card-usage">
           {bank.usage.length === 0
-            ? 'Not used in any Exams'
+            ? t('card.notUsed')
             : `Used in ${bank.usage.length} ${bank.usage.length === 1 ? 'Exam' : 'Exams'}`}
         </p>
         <time dateTime={bank.lastUpdatedAt}>

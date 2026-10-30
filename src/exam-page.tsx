@@ -137,6 +137,7 @@ import {
   type MenuSide,
 } from './context-menu'
 import { domMeasure, imageSourcesOfDocuments } from './dom-measure'
+import { t } from './i18n'
 
 /** Every question id across every page, in on-page (number) order. */
 function orderedQuestionIds(pages: readonly PlannedPage[]): string[] {
@@ -157,9 +158,9 @@ function columnSettingsOf(exam: Exam): Record<string, ColumnSetting> {
 // The answer-column settings, spelled out because a bare number in a menu
 // would not explain itself.
 const COLUMN_MENU_OPTIONS: readonly { label: string; value: ColumnSetting }[] = [
-  { label: '1 column', value: 1 },
-  { label: '2 columns', value: 2 },
-  { label: '4 columns', value: 4 },
+  { label: t('format.oneColumn'), value: 1 },
+  { label: t('format.twoColumns'), value: 2 },
+  { label: t('format.fourColumns'), value: 4 },
 ]
 
 /** How much room a work space opens with when a teacher picks blank or lined
@@ -200,15 +201,15 @@ function columnsMenu(
 // from the Paper Style when it arrived. Choosing one here is the teacher's,
 // and a change of style then leaves it (ADR-0044).
 const WORD_BANK_MENU_OPTIONS: readonly { label: string; value: WordBankLayout; icon: ReactNode }[] = [
-  { label: 'Beside items', value: 'beside', icon: <Columns2 /> },
-  { label: 'Above items', value: 'above', icon: <Rows2 /> },
+  { label: t('format.besideItems'), value: 'beside', icon: <Columns2 /> },
+  { label: t('format.aboveItems'), value: 'above', icon: <Rows2 /> },
 ]
 
 function wordBankMenu(layout: WordBankLayout, onSelect: (layout: WordBankLayout) => void): MenuItem {
   const current = WORD_BANK_MENU_OPTIONS.find((option) => option.value === layout)!
   return {
     kind: 'submenu',
-    label: 'Word Bank',
+    label: t('format.wordBank'),
     icon: current.icon,
     items: WORD_BANK_MENU_OPTIONS.map((option) => ({
       kind: 'radio',
@@ -229,7 +230,7 @@ function shownIncorrectMenu(
   if (state.disabled) {
     return {
       kind: 'submenu',
-      label: 'Incorrect answers shown',
+      label: t('format.incorrectShown'),
       icon: <EyeOff />,
       disabled: true,
       description: state.hint,
@@ -239,7 +240,7 @@ function shownIncorrectMenu(
   const { range, shown } = state
   return {
     kind: 'submenu',
-    label: 'Incorrect answers shown',
+    label: t('format.incorrectShown'),
     icon: <EyeOff />,
     value: shown === range.max ? 'All' : `${shown} of ${range.max}`,
     items: shownIncorrectChoices(range).map(({ count, label }) => ({
@@ -275,7 +276,7 @@ function workSpaceMenu(
   if (!present) {
     return [{
       kind: 'action',
-      label: label.replace(/Work space$/, 'Add work space'),
+      label: label.replace(/Work space$/, t('format.addWorkSpace')),
       icon: <PencilLine />,
       onSelect: () => withStyle(workSpace.style),
     }]
@@ -295,14 +296,14 @@ function workSpaceMenu(
         },
         {
           kind: 'radio',
-          label: 'Blank space',
+          label: t('format.blankSpace'),
           checked: present && workSpace.style === 'blank',
           icon: <SquareDashed />,
           onSelect: () => withStyle('blank'),
         },
         {
           kind: 'radio',
-          label: 'Lined space',
+          label: t('format.linedSpace'),
           checked: present && workSpace.style === 'lines',
           icon: <AlignJustify />,
           onSelect: () => withStyle('lines'),
@@ -420,7 +421,7 @@ function questionMenuItems({
   if (onResetPictureSize) {
     items.push({
       kind: 'action',
-      label: 'Reset picture size',
+      label: t('format.resetPictureSize'),
       icon: <ImageIcon />,
       onSelect: onResetPictureSize,
     })
@@ -436,14 +437,14 @@ function questionMenuItems({
       actedOnIds.length > 1
         ? {
             kind: 'action',
-            label: 'Move to new section',
+            label: t('format.moveToNewSection'),
             icon: <BetweenHorizontalStart />,
             disabled: !sectionActions.canMoveToNewSection(actedOnIds),
             onSelect: () => sectionActions.onMoveToNewSection(actedOnIds),
           }
         : {
             kind: 'action',
-            label: 'Insert new section below',
+            label: t('format.insertSectionBelow'),
             icon: <BetweenHorizontalEnd />,
             disabled: !sectionActions.canSplit(question.id),
             onSelect: () => sectionActions.onSplit(question.id),
@@ -460,7 +461,7 @@ function questionMenuItems({
   // selection alone.
   const answerFormat: MenuItem[] = []
   if (question.type === 'multiple-choice') {
-    answerFormat.push(columnsMenu('Answer columns', columns, (next) => onSetColumns(actedOnIds, next)))
+    answerFormat.push(columnsMenu(t('format.answerColumns'), columns, (next) => onSetColumns(actedOnIds, next)))
   }
   if (shownIncorrect && onSetShownIncorrect) {
     answerFormat.push(shownIncorrectMenu(shownIncorrect, (count) => onSetShownIncorrect(actedOnIds, count)))
@@ -483,7 +484,7 @@ function questionMenuItems({
     )
   }
   if (answerFormat.length > 0) {
-    items.push({ kind: 'separator' }, { kind: 'label', label: 'Answer format' }, ...answerFormat)
+    items.push({ kind: 'separator' }, { kind: 'label', label: t('format.answerFormat') }, ...answerFormat)
   }
   // A Short Answer Part leaves room under its own id, as a Short Answer
   // question does under its.
@@ -507,7 +508,7 @@ function questionMenuItems({
   if (takesWorkSpace(question.type)) {
     items.push(
       { kind: 'separator' },
-      ...workSpaceMenu('Work space', 'Fill rest of page', workSpace, actedOnIds, onSetWorkSpace),
+      ...workSpaceMenu(t('format.workSpace'), t('format.fillRest'), workSpace, actedOnIds, onSetWorkSpace),
     )
   }
   items.push(
@@ -520,13 +521,13 @@ function questionMenuItems({
     // and draws again which ones (ADR-0038).
     {
       kind: 'action',
-      label: 'Shuffle question order',
+      label: t('format.shuffleQuestions'),
       icon: <Shuffle />,
       onSelect: () => onShuffleSelected(actedOnIds),
     },
     {
       kind: 'action',
-      label: 'Shuffle answer order',
+      label: t('format.shuffleAnswers'),
       icon: <ListRestart />,
       onSelect: () => onShuffleSelectedAnswers(actedOnIds),
     },
@@ -667,7 +668,7 @@ function WorkSpaceHandle({
       aria-valuemax={rowsIn(max, rows)}
       aria-valuenow={lines}
       aria-valuetext={`${lines} ${lines === 1 ? 'line' : 'lines'} of work space`}
-      title="Drag to change the work space"
+      title={t('page.dragWorkSpace')}
       tabIndex={0}
       // Never a question drag, a selection click or an editor double-click:
       // this gesture is the bar's alone.
@@ -805,7 +806,7 @@ function EditablePoints({
           type="button"
           className="points-after-button"
           aria-label={`Points for ${label}: ${pointsLabel(points)}`}
-          title="Change points"
+          title={t('page.changePoints')}
           {...stop}
           onClick={(event) => {
             event.stopPropagation()
@@ -1140,7 +1141,7 @@ function NewSectionTarget({ afterSectionId, armed }: NewSectionTargetState) {
       data-active={armed ? 'true' : undefined}
       aria-hidden="true"
     >
-      Drop here to create a new section
+      {t('page.dropNewSection')}
     </div>
   )
 }
@@ -1171,13 +1172,13 @@ function sectionMenuItems(controls: SectionControls): MenuItem[] {
   return [
     {
       kind: 'action',
-      label: 'Insert section above',
+      label: t('page.insertSectionAbove'),
       icon: <InsertSectionAboveIcon />,
       onSelect: () => controls.onInsert('above'),
     },
     {
       kind: 'action',
-      label: 'Merge with section above',
+      label: t('page.mergeSectionAbove'),
       icon: <FoldVertical />,
       disabled: !controls.canMoveUp,
       onSelect: () => controls.onMerge(-1),
@@ -1280,7 +1281,7 @@ function EditableSectionHeading({
     : {}
   const hint = item.empty && emptyActive && (
     <div className="exam-section-empty-drop" data-active="true" {...emptyMarks}>
-      Drag questions here
+      {t('page.dragQuestions')}
     </div>
   )
   const opened = newSectionTarget && <NewSectionTarget {...newSectionTarget} />
@@ -1292,7 +1293,7 @@ function EditableSectionHeading({
     return (
       <>
         <div className="exam-section-hidden" {...emptyMarks} data-section-id={item.sectionId}>
-          <span className="exam-section-untitled" aria-hidden="true">Untitled section</span>
+          <span className="exam-section-untitled" aria-hidden="true">{t('page.untitledSection')}</span>
         </div>
         {hint}
         {opened}
@@ -1310,9 +1311,9 @@ function EditableSectionHeading({
       {showTitle && (
         <h2 className="section-title" style={styles.title}>
           <SectionHeadingField
-            label="Section heading"
+            label={t('page.sectionHeading')}
             value={item.title}
-            placeholder="Section heading"
+            placeholder={t('page.sectionHeading')}
             disabled={disabled}
             autoFocus={revealTitle}
             onChange={(title) => onChange(item.sectionId, { title })}
@@ -1323,9 +1324,9 @@ function EditableSectionHeading({
       {showInstructions && (
         <p className="section-instructions" style={styles.instructions}>
           <SectionHeadingField
-            label="Section directions"
+            label={t('page.sectionDirections')}
             value={item.instructions}
-            placeholder="Directions"
+            placeholder={t('page.directions')}
             disabled={disabled}
             onChange={(instructions) => onChange(item.sectionId, { instructions })}
             onFocusChange={focus('instructions')}
@@ -1380,8 +1381,8 @@ function SectionRail({
         <button
           type="button"
           className="question-handle"
-          aria-label="Add a section heading"
-          title="Add a heading"
+          aria-label={t('page.addHeading')}
+          title={t('page.addHeadingShort')}
           disabled={disabled}
           onClick={onRevealTitle}
         >
@@ -1391,8 +1392,8 @@ function SectionRail({
       <button
         type="button"
         className="question-handle"
-        aria-label="Move section up"
-        title="Move section up"
+        aria-label={t('page.moveSectionUp')}
+        title={t('page.moveSectionUp')}
         disabled={disabled || !controls.canMoveUp}
         onClick={() => controls.onMove(-1)}
       >
@@ -1401,8 +1402,8 @@ function SectionRail({
       <button
         type="button"
         className="question-handle"
-        aria-label="Move section down"
-        title="Move section down"
+        aria-label={t('page.moveSectionDown')}
+        title={t('page.moveSectionDown')}
         disabled={disabled || !controls.canMoveDown}
         onClick={() => controls.onMove(1)}
       >
@@ -1411,8 +1412,8 @@ function SectionRail({
       <button
         type="button"
         className="question-handle"
-        aria-label="Delete section"
-        title="Delete section and remove its questions"
+        aria-label={t('page.deleteSection')}
+        title={t('page.deleteSectionHint')}
         disabled={disabled}
         onClick={controls.onDelete}
       >
@@ -1421,8 +1422,8 @@ function SectionRail({
       <button
         type="button"
         className="question-handle"
-        aria-label="More section actions"
-        title="More section actions"
+        aria-label={t('page.moreSectionActions')}
+        title={t('page.moreSectionActions')}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         disabled={disabled}
@@ -2412,7 +2413,7 @@ export function ExamPage({
                 className="secondary-button empty-exam-button"
                 data-active={startsFirstSection ? 'true' : undefined}
               >
-                Drag or add a Question from an open Question Bank
+                {t('page.dragQuestionHint')}
               </div>
             )}
             {page.items.map((item) => (
@@ -2470,7 +2471,7 @@ export function ExamPage({
       {sectionMenu && sectionControls && sections.some(({ id }) => id === sectionMenu.sectionId) && (
         <ContextMenu
           point={sectionMenu.point}
-          ariaLabel="Section actions"
+          ariaLabel={t('page.sectionActions')}
           items={sectionMenuItems(sectionControls(sectionMenu.sectionId))}
           onClose={closeSectionMenu}
         />

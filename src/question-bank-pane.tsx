@@ -56,6 +56,7 @@ import {
   type QuestionBankFilter,
   type QuestionBankSort,
 } from './question-bank-view'
+import { t } from './i18n'
 
 /** The width the filter list is laid out at, and the gap it keeps from the
  *  window edge. Both are also in the stylesheet; they are here because the
@@ -70,7 +71,7 @@ const BADGE_LABELS: Record<StemPreviewBadge, string> = {
 
 /** What a row with nothing written into it is called. A question saves whether
  *  or not it says anything, so this is a real state rather than a placeholder. */
-const UNTITLED = 'Untitled question'
+const UNTITLED = t('bank.untitledQuestion')
 
 
 /**
@@ -428,8 +429,8 @@ export function QuestionBankPane({
           <Search aria-hidden="true" />
           <input
             type="search"
-            aria-label="Search question stems"
-            placeholder="Search questions"
+            aria-label={t('bank.searchStems')}
+            placeholder={t('bank.searchQuestions')}
             value={filter.search}
             onChange={(event) => onFilterChange({ ...filter, search: event.target.value })}
           />
@@ -437,17 +438,17 @@ export function QuestionBankPane({
         {/* The page's outline chooses a type and a topic; only the pane beside
             the Working Copy, which has no outline, needs them as lists. */}
         {layout === 'rows' && <FilterDropdown
-          label="Question Type"
+          label={t('bank.questionType')}
           options={TYPE_OPTIONS}
           selected={filter.types}
-          emptyMessage="No Question Types"
+          emptyMessage={t('bank.noTypes')}
           onChange={(types) => onFilterChange({ ...filter, types })}
         />}
         <FilterDropdown
           label="Difficulty"
           options={DIFFICULTY_OPTIONS}
           selected={filter.difficulties}
-          emptyMessage="No Difficulties"
+          emptyMessage={t('bank.noDifficulties')}
           onChange={(difficulties) => onFilterChange({ ...filter, difficulties })}
         />
         {/* The Topics actually in the bank, exactly as they were typed. There is
@@ -456,14 +457,14 @@ export function QuestionBankPane({
           label="Topic"
           options={topicOptions(bank).map((topic) => ({ value: topic, label: topic }))}
           selected={filter.topics}
-          emptyMessage="No Topics yet"
+          emptyMessage={t('bank.noTopics')}
           onChange={(topics) => onFilterChange({ ...filter, topics })}
         />}
         <label className="bank-sort">
           <ArrowDownAZ aria-hidden="true" />
           <span className="sr-only">Sort Questions</span>
           <select
-            aria-label="Sort Questions"
+            aria-label={t('bank.sortQuestions')}
             value={filter.sort ?? 'newest'}
             onChange={(event) => onFilterChange({
               ...filter,
@@ -479,7 +480,7 @@ export function QuestionBankPane({
           <button
             type="button"
             className="bank-add-all"
-            title={filtered ? 'Add all matching questions to the exam' : 'Add all questions to the exam'}
+            title={filtered ? t('bank.addAllMatching') : t('bank.addAll')}
             disabled={addableQuestions.length === 0}
             onClick={() => onAddManyToWorkingCopy(addableQuestions.map(({ id }) => id))}
           >
@@ -511,8 +512,8 @@ export function QuestionBankPane({
         ) : (
           <p className="question-bank-empty" data-empty="no-questions">
             {layout === 'page'
-              ? 'No questions yet. New question writes the first one into this bank.'
-              : 'No questions yet. Add Question writes one into the bank without putting it on the Exam.'}
+              ? t('bank.emptyNew')
+              : t('bank.emptyAdd')}
           </p>
         )
       ) : layout === 'page' ? (
@@ -679,7 +680,7 @@ export function QuestionBankPane({
                   {/* A question already on the Working Copy offers no way onto it
                       a second time — a reference occurs at most once — so the
                       plus becomes a tick: the same slot answers "can I add
-                      this?" and "is it already on?". Reaching for it is the
+                      this?t('common.and')is it already on?". Reaching for it is the
                       one thing a teacher could still want from that slot, so
                       under the cursor the tick becomes the minus that takes
                       the question back off the exam. */}
@@ -688,7 +689,7 @@ export function QuestionBankPane({
                       type="button"
                       className="question-bank-action question-bank-included"
                       aria-label={`Remove ${name} from the exam`}
-                      title="Remove from the exam"
+                      title={t('bank.removeFromExam')}
                       onClick={() => onRemoveFromWorkingCopy(question.id)}
                     >
                       <Check className="question-bank-included-resting" />
@@ -699,7 +700,7 @@ export function QuestionBankPane({
                       type="button"
                       className="question-bank-action"
                       aria-label={`Add ${name} to the exam`}
-                      title="Add to the exam"
+                      title={t('bank.addToExam')}
                       onClick={() => onAddToWorkingCopy(question.id)}
                     >
                       <Plus />
@@ -745,8 +746,8 @@ export function QuestionBankPane({
             {onExport && <button
               type="button"
               className={layout === 'page' ? 'secondary-button' : 'toolbar-icon-button'}
-              aria-label="Export Question Bank"
-              title="Export Question Bank"
+              aria-label={t('bank.export')}
+              title={t('bank.export')}
               aria-haspopup="dialog"
               aria-describedby={bank.questions.length === 0 ? 'empty-bank-export-help' : exportBlocked ? 'editing-bank-export-help' : undefined}
               disabled={bank.questions.length === 0 || exportBlocked}
@@ -758,8 +759,8 @@ export function QuestionBankPane({
             {onCreate && <button
               type="button"
               className={layout === 'page' ? 'primary-button' : 'toolbar-icon-button'}
-              aria-label={layout === 'page' ? undefined : 'Add Question'}
-              title={layout === 'page' ? undefined : 'Add Question'}
+              aria-label={layout === 'page' ? undefined : t('editor.addQuestion')}
+              title={layout === 'page' ? undefined : t('editor.addQuestion')}
               aria-haspopup="menu"
               onClick={(event) => {
                 // Below the button and aligned with it, so the list of types
@@ -769,7 +770,7 @@ export function QuestionBankPane({
               }}
             >
               <Plus aria-hidden="true" />
-              {layout === 'page' && 'New question'}
+              {layout === 'page' && t('bank.newQuestion')}
             </button>}
             {onExport && bank.questions.length === 0 && <span id="empty-bank-export-help" className="sr-only">At least one Question is required.</span>}
             {onExport && exportBlocked && <span id="editing-bank-export-help" className="sr-only">Save or cancel the open Question edit before exporting.</span>}

@@ -47,6 +47,7 @@ import {
   rowsOfPlanned,
 } from './export-plan'
 import type { ProseMirrorJSON } from './question-doc'
+import { t } from './i18n'
 
 /** The blocks inside a node — a choice's own paragraphs, say. */
 function blocksOf(node: ProseMirrorJSON): ProseMirrorJSON[] {
@@ -88,7 +89,7 @@ export function ChoiceGridView({
                         <span
                           className="choice-correctness-marker"
                           role="img"
-                          aria-label="Correct answer"
+                          aria-label={t('page.correctAnswer')}
                         >
                           <Check aria-hidden="true" />
                         </span>
@@ -102,8 +103,8 @@ export function ChoiceGridView({
                         <span
                           className="choice-correctness-marker choice-lock-marker"
                           role="img"
-                          aria-label={choice.correct ? 'Correct answer, locked' : 'Locked answer'}
-                          title="Locked: keeps its letter when answers are shuffled"
+                          aria-label={choice.correct ? t('page.correctAnswerLocked') : t('page.lockedAnswer')}
+                          title={t('page.lockedHint')}
                         >
                           <Lock aria-hidden="true" />
                         </span>
@@ -155,7 +156,7 @@ export function MatchingSetView({
             would without it. */}
         <span
           className="matching-blank"
-          aria-label="Answer blank"
+          aria-label={t('page.answerBlank')}
           data-answer={showCorrectness && prompt.letter ? prompt.letter : undefined}
         />
         <span className="matching-count">{printedLabel(prompt.number, prompt.printed)}</span>
@@ -442,7 +443,7 @@ export function QuestionContent({
         {numbered && item.question.marks.length > 0 && (
           <span
             className="question-marks"
-            aria-label={hasAnswerBlank(item.question) ? 'Answer blank' : 'Circle one'}
+            aria-label={hasAnswerBlank(item.question) ? t('page.answerBlank') : t('page.circleOne')}
           >
             {item.question.marks.map((mark) => (
               <span key={mark} className="question-mark">{mark}</span>
@@ -557,12 +558,12 @@ export function AnswerKeyEntry({ item }: { item: AnswerKeyEntryItem }) {
       className={item.points !== undefined ? 'answer-key-entry answer-key-entry--pointed' : 'answer-key-entry'}
     >
       <span>{item.number}.</span>
-      <span className="answer-key-answer" aria-label={item.letter ?? 'Blank answer'}>
+      <span className="answer-key-answer" aria-label={item.letter ?? t('page.blankAnswer')}>
         {item.letter}
       </span>
       <AnswerKeyPoints points={item.points} />
       {(item.difficulty || (item.topics?.length ?? 0) > 0) && (
-        <span className="answer-key-metadata" aria-label="Question Metadata">
+        <span className="answer-key-metadata" aria-label={t('page.questionMetadata')}>
           {item.difficulty && <DifficultyBadge difficulty={item.difficulty} />}
           {(item.topics ?? []).map((topic) => <TopicBadge topic={topic} key={topic} />)}
         </span>
@@ -583,7 +584,7 @@ export function AnswerKeyEntry({ item }: { item: AnswerKeyEntryItem }) {
               <span className="answer-key-part-letter">{part.letter}.</span>
               <span
                 className="answer-key-answer"
-                aria-label={part.answer ?? 'Blank answer'}
+                aria-label={part.answer ?? t('page.blankAnswer')}
               >
                 {part.answer}
               </span>
@@ -649,8 +650,8 @@ function EditableIdentityText({ editor }: { editor: IdentityLineEditor }) {
           <button
             type="button"
             className="question-handle"
-            aria-label="Restore the default header"
-            title="Restore the default header"
+            aria-label={t('page.restoreHeader')}
+            title={t('page.restoreHeader')}
             disabled={editor.disabled}
             onClick={() => editor.onChange(null)}
           >
@@ -662,7 +663,7 @@ function EditableIdentityText({ editor }: { editor: IdentityLineEditor }) {
           underline is as wide as the words and not the page. */}
       <span className="identity-input-field" data-value={editor.text || ' '}>
         <input
-          aria-label="Header printed on the exam"
+          aria-label={t('page.headerPrinted')}
           className="identity-input"
           size={1}
           value={editor.text}
@@ -732,7 +733,7 @@ export function PageHeaderContent({
             // line of text, so Enter finishes rather than breaking it.
             <span className="exam-title-field" data-value={furniture.title || 'Untitled Exam'}>
               <textarea
-                aria-label="Title printed on the exam"
+                aria-label={t('page.titlePrinted')}
                 className="exam-title-input"
                 rows={1}
                 value={furniture.title}

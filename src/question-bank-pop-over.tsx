@@ -51,6 +51,7 @@ import {
   type QuestionBankTabsWorkspace,
   type QuestionBankWorkspaceService,
 } from './question-bank-workspaces'
+import { t } from './i18n'
 
 /** Chrome's Document Picture-in-Picture, which not every browser offers. */
 type DocumentPictureInPicture = {
@@ -78,7 +79,7 @@ function prepareWindow(view: Window) {
   for (const node of document.head.querySelectorAll('link[rel="stylesheet"], style')) {
     target.head.append(node.cloneNode(true))
   }
-  target.title = 'Question Bank Pop-over'
+  target.title = t('bank.popOverTitle')
   target.documentElement.lang = document.documentElement.lang || 'en'
   target.body.className = 'pop-over-body'
 }
@@ -278,7 +279,7 @@ function QuestionBankPopOver({
   const showingPicker = picker !== null || !active
   return <div className="pop-over">
     <div className="pop-over-tabs">
-      <div role="tablist" aria-label="Open Question Banks">
+      <div role="tablist" aria-label={t('bank.openList')}>
         {workspace.openBankIds.map((id) => {
           const bank = banks[id]
           if (!bank) return null
@@ -342,7 +343,7 @@ function BankPicker({
   // list rather than waiting for the plus.
   useEffect(() => { if (!banks) onLoad() }, [banks, onLoad])
   if (!banks) return <p className="pop-over-loading">Loading Question Banks…</p>
-  return <section className="pop-over-picker" aria-label="Open a Question Bank">
+  return <section className="pop-over-picker" aria-label={t('bank.open')}>
     <h2>Open a Question Bank</h2>
     {banks.length === 0
       ? <p className="pop-over-empty">No Question Banks yet.</p>
@@ -353,7 +354,7 @@ function BankPicker({
                 <span>{bank.name}</span>
                 <small>
                   {bank.questionCount} {bank.questionCount === 1 ? 'Question' : 'Questions'}
-                  {openIds.includes(bank.id) && ' · open'}
+                  {openIds.includes(bank.id) && t('bank.openSuffix')}
                 </small>
               </button>
             </li>
@@ -453,8 +454,8 @@ function ChoiceChip<T extends string>({
 }
 
 const MATH_MODES: readonly { value: CopyMathMode; label: string; detail: string }[] = [
-  { value: 'picture', label: 'Pictures', detail: 'For Google Docs, and anywhere else.' },
-  { value: 'word', label: 'Word equations', detail: 'Native, editable equations in Microsoft Word.' },
+  { value: 'picture', label: 'Pictures', detail: t('bank.copyForDocs') },
+  { value: 'word', label: t('bank.wordEquations'), detail: t('bank.wordEquationsHint') },
 ]
 
 /** How Questions leave the Pop-over: for now, how their mathematics travels.
@@ -485,12 +486,12 @@ function CopySettings() {
     <button
       type="button"
       className="pop-over-add"
-      aria-label="Copy settings"
-      title="Copy settings"
+      aria-label={t('bank.copySettings')}
+      title={t('bank.copySettings')}
       aria-expanded={open}
       onClick={() => setOpen((current) => !current)}
     ><Settings /></button>
-    {open && <div className="pop-over-settings-menu" role="group" aria-label="Copy settings">
+    {open && <div className="pop-over-settings-menu" role="group" aria-label={t('bank.copySettings')}>
       <h2>Copy settings</h2>
       <fieldset>
         <legend>Mathematics</legend>
@@ -561,7 +562,7 @@ function PopOverBank({
     if (items.length === 0) return
     copyQuestions(items, mathMode, view).then(
       () => announce(`Copied ${describe(items.length)}`),
-      () => announce('Could not copy — this browser refused the clipboard.'),
+      () => announce(t('bank.copyFailed')),
     )
   }
 
@@ -689,7 +690,7 @@ function PopOverBank({
     </div>}
     {questions.length === 0
       ? <p className="pop-over-empty">
-          {isFilterActive(filter) ? 'No questions match this search and these filters.' : 'No questions in this bank yet.'}
+          {isFilterActive(filter) ? t('bank.noMatches') : t('bank.noQuestions')}
         </p>
       : <ul
           className="pop-over-cards"

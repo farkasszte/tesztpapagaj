@@ -14,11 +14,12 @@ import {
   versionCountError,
   versionNamesIn,
 } from './export-versions'
+import { t } from './i18n'
 
 function progressMessage(progress: PreparationProgress): string {
   return progress.stage === 'planning'
     ? `Laying out document ${progress.completed} of ${progress.total}…`
-    : 'Recording export…'
+    : t('export.recording')
 }
 
 function focusableWithin(root: HTMLElement): HTMLElement[] {
@@ -54,7 +55,7 @@ function VersionLine({
 }) {
   return (
     <section className="export-version-line" aria-label="Versions">
-      <h3>{names.length === 1 ? '1 Version' : `${names.length} Versions`}</h3>
+      <h3>{names.length === 1 ? t('export.oneVersion') : `${names.length} Versions`}</h3>
       <ul>
         {names.map((name) => (
           <li key={name}>
@@ -181,7 +182,7 @@ function ExportSettings({
           <p className="export-hint" id={`${id}-version-hint`}>
             {shuffling
               ? `Each Version gets its own name, printed at the top right. Up to ${Math.max(0, maxVersions ?? 0)} for this Exam.`
-              : 'Turn on a shuffle to print named Versions. Otherwise the Exam prints as you see it.'}
+              : t('export.versionsHint')}
           </p>
         )}
       </fieldset>
@@ -270,14 +271,14 @@ function ExportDialogFrame({
     if (preparing || submitDisabled) return
     setPreparing(true)
     setError(null)
-    setProgress('Preparing document…')
+    setProgress(t('export.preparing'))
     try {
       await onSubmit((update) => setProgress(progressMessage(update)))
     } catch (failure) {
       setError(
         failure instanceof Error
           ? failure.message
-          : 'Something went wrong while preparing the export. Please try again.',
+          : t('export.prepareError'),
       )
       setPreparing(false)
       setProgress(null)
@@ -341,7 +342,7 @@ function ExportDialogFrame({
           {/* The preview is output-faithful, not an alternate reading or
               navigation surface. `inert` prevents authored links and any
               future focusable document content from escaping this dialog. */}
-          <div className="export-preview" aria-label="Export Preview" ref={preview}>
+          <div className="export-preview" aria-label={t('export.preview')} ref={preview}>
             {/* Keep paper content inert while leaving its scroll container live:
                 browsing a long preview must not pass wheel input through to
                 the document under this modal. */}
@@ -377,7 +378,7 @@ function ExportDialogFrame({
             className="export-status"
             role="status"
             aria-live="polite"
-            aria-label="Export preparation status"
+            aria-label={t('export.preparationStatus')}
           >
             {preparing ? progress : null}
           </p>
@@ -400,7 +401,7 @@ function ExportDialogFrame({
             disabled={preparing || submitDisabled}
             onClick={() => void submit()}
           >
-            {preparing ? 'Preparing…' : submitLabel}
+            {preparing ? t('common.preparing') : submitLabel}
           </button>
         </footer>
       </section>
@@ -438,10 +439,10 @@ export function ExportDialog({
   const { selection } = configuration
   const selectionError =
     !selection.test && !selection.answerKey
-      ? 'Choose the student test, the answer key, or both.'
+      ? t('export.chooseWhat')
       : null
   const emptyError = empty
-    ? 'Add at least one question to the Working Copy before exporting.'
+    ? t('export.needQuestion')
     : null
   const shuffling = shufflesAnything(configuration.shuffle)
   const versionError = !shuffling || empty
@@ -451,7 +452,7 @@ export function ExportDialog({
 
   return (
     <ExportDialogFrame
-      title="Export"
+      title={t('exam.export')}
       previewPlans={previewPlans}
       settings={(disabled) => (
         <ExportSettings
@@ -515,7 +516,7 @@ export function ReExportDialog({
   return (
     <ExportDialogFrame
       title="Re-export"
-      eyebrow="Export Record, Immutable"
+      eyebrow={t('export.recordImmutable')}
       previewPlans={plans}
       settings={(disabled) => (
         <>
