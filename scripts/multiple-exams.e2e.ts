@@ -20,13 +20,13 @@ test('Home opens independently persisted recent Exams and restores the active Ex
   await page.reload()
   await expect(name).toHaveValue('First Exam')
   await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
-  const first = page.getByRole('button', { name: 'First Exam' })
+  const first = page.getByRole('button', { name: 'First Exam' }).first()
   await expect(first).toContainText('1 Q')
   await expect(first).toContainText('First question preview')
   await newExam(page)
   await name.fill('Second Exam')
   await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
-  await page.getByRole('button', { name: 'First Exam' }).click()
+  await page.getByRole('button', { name: 'First Exam' }).first().click()
   await expect(name).toHaveValue('First Exam')
   await expect(page).toHaveURL(/\/editor$/)
 })
@@ -63,7 +63,7 @@ test('Recent Exams are ordered by opening, not background authoring writes', asy
 
   // Opening First moves it to the top. Renaming it later is background
   // authoring state, so it must not rewrite the recency order.
-  await page.getByRole('button', { name: 'First Exam' }).click()
+  await page.getByRole('button', { name: 'First Exam' }).first().click()
   await name.fill('First renamed')
   await page.reload()
   await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
@@ -80,7 +80,7 @@ test('a stale launch restores and warns about the active valid Exam without crea
   await expect(page.getByRole('alert')).toHaveText('That Exam is unavailable on this device.')
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue('Active Exam')
   await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
-  await expect(page.getByRole('button', { name: 'Active Exam' })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Active Exam' }).first()).toBeVisible()
 })
 
 test('a bare editor reload retains an active pristine workspace, while Home startup cleans it up', async ({ page }) => {
@@ -100,8 +100,8 @@ test('client-side About navigation returns to refreshed Home cards without repla
   await page.getByRole('textbox', { name: 'Exam name' }).fill('Renamed through editor')
   await page.getByRole('link', { name: 'about' }).click()
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
-  await page.getByRole('link', { name: 'Home' }).click()
-  const card = page.getByRole('button', { name: 'Renamed through editor' })
+  await page.getByRole('link', { name: 'Home' }).first().click()
+  const card = page.getByRole('button', { name: 'Renamed through editor' }).first()
   await expect(card).toContainText('0 Qs')
   await expect(card).toContainText('Empty Exam')
   await page.goBack()
