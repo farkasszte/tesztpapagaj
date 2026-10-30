@@ -464,7 +464,7 @@ function drawPictureNeeded(context: Context, node: SemanticNode, x: number, widt
     borderWidth: 1,
     borderDashArray: [4, 3],
   })
-  const label = 'Picture needed'
+  const label = t('ui.pictureNeeded')
   const named = 'image' in pending ? `IMG ${pending.image}` : `page ${pending.page}`
   const labelWidth = context.fonts.bold.widthOfTextAtSize(label, BODY_SIZE)
   const namedWidth = context.fonts.regular.widthOfTextAtSize(named, 9)
@@ -987,12 +987,12 @@ function drawQuestion(context: Context, question: QuestionBankRecordQuestion, nu
       {
         text: question.difficulty
           ? question.difficulty[0]!.toUpperCase() + question.difficulty.slice(1)
-          : 'Unspecified',
+          : t('ui.unspecified'),
         font: 'regular',
         size: 9.5,
         color: MUTED,
       },
-      { text: '     Topics: ', font: 'bold', size: 9.5, color: MUTED },
+      { text: t('ui.topicsColon'), font: 'bold', size: 9.5, color: MUTED },
       { text: question.topics?.join(', ') || 'None', font: 'regular', size: 9.5, color: MUTED },
     ],
     { line: 14 },
@@ -1041,7 +1041,7 @@ function drawQuestion(context: Context, question: QuestionBankRecordQuestion, nu
     // The shared material above, then each Part lettered as the test prints it,
     // with its own choices or Suggested Answer beneath it.
     if (question.parts.length === 0) {
-      drawText(context, 'No Parts yet.', { font: 'italic' })
+      drawText(context, t('ui.noParts'), { font: 'italic' })
     }
     // A Part that holds Subparts prints its lead-in, then each Subpart
     // numbered beneath it and one level further in, drawn as a Part is.

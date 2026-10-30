@@ -413,7 +413,7 @@ function questionMenuItems({
     },
     {
       kind: 'action',
-      label: 'Duplicate',
+      label: t('ui.duplicate'),
       icon: <Copy />,
       onSelect: () => onDuplicate(question.id),
     },
@@ -586,7 +586,7 @@ function QuestionHandles({
         type="button"
         className="question-handle menu-handle"
         aria-haspopup="menu"
-        aria-label={`Actions for question ${numberLabelOf(question)}`}
+        aria-label={t('ui.actionsFor', { n: numberLabelOf(question) })}
         onClick={(event) => openBeside(event.currentTarget)}
         // The keyboard's own ways to ask for a context menu open the same one,
         // on every platform — Shift+F10 raises no context menu on a Mac.

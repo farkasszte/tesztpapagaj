@@ -16,7 +16,7 @@ import { Check, Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { DifficultyBadge, TopicBadge } from './badges'
 import { DocView } from './doc-view'
-import type { QuestionReadingContent, QuestionReadingPart } from './question-reading-content'
+import type { QuestionReadingContent, QuestionReadingPart } from './question-reading-content'
 
 /** A Locked Answer's mark: it keeps its letter when answers are shuffled. */
 function LockMark() {

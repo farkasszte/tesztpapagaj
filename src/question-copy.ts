@@ -23,6 +23,7 @@ import { layOutColumns, MATCHING_BESIDE_LIMIT, subpartLabelAt, TRUE_FALSE_MARKS 
 import { pendingImageOf, stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { choicesOf, partsOf, promptsOf, type ColumnSetting, type Part, type Question } from './exam'
 import { mathJaxTools } from './mathjax'
+import { t } from './i18n'
 
 /** One paragraph's worth of a copied Question: blocks of Question Content,
  *  led by a label such as "A. " or "_____ ", and indented under a Part when it
@@ -326,7 +327,7 @@ function inlineHtml(node: ProseMirrorJSON, writer: Writer): string {
       return BLANK_LINE
     case 'image':
       return pendingImageOf(node)
-        ? '[Picture needed]'
+        ? t('ui.pictureNeededTag')
         : pictureHtml(writer.media.pictures.get(copyPictureKey(node)), stringOf(attrsOf(node).alt))
     default:
       return childrenOf(node).map((child) => inlineHtml(child, writer)).join('')
@@ -354,7 +355,7 @@ function nodeHtml(node: ProseMirrorJSON, writer: Writer, lead: string, indent: n
     case 'image-block': {
       const caption = stringOf(attrsOf(node).caption)
       const picture = pendingImageOf(node)
-        ? '[Picture needed]'
+        ? t('ui.pictureNeededTag')
         : pictureHtml(writer.media.pictures.get(copyPictureKey(node)), caption)
       return `${open}${picture}</p>${caption ? `<p style="${style}"><i>${escapeHtml(caption)}</i></p>` : ''}`
     }
@@ -445,7 +446,7 @@ function inlineText(node: ProseMirrorJSON): string {
     case 'hardbreak': return '\n'
     case 'math_inline': return `$${stringOf(attrsOf(node).value)}$`
     case 'blank': return BLANK_LINE
-    case 'image': return pendingImageOf(node) ? '[Picture needed]' : '[Picture]'
+    case 'image': return pendingImageOf(node) ? t('ui.pictureNeededTag') : '[Picture]'
     default: return childrenOf(node).map(inlineText).join('')
   }
 }
@@ -456,7 +457,7 @@ function nodeText(node: ProseMirrorJSON): string[] {
     case 'heading':
       return [childrenOf(node).map(inlineText).join('')]
     case 'image-block':
-      return [pendingImageOf(node) ? '[Picture needed]' : '[Picture]']
+      return [pendingImageOf(node) ? t('ui.pictureNeededTag') : '[Picture]']
     case 'code_block':
       return isDisplayMath(node) ? [`$$${sourceOf(node)}$$`] : sourceOf(node).split('\n')
     case 'hr':

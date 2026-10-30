@@ -24,6 +24,7 @@ import {
   type ShuffleOptions,
 } from './export-versions'
 import { pendingImageOf, type ProseMirrorJSON } from './question-doc'
+import { t } from './i18n'
 
 export type ExportFormat = 'pdf' | 'docx'
 
@@ -303,11 +304,11 @@ function versionsToPrint({
 export class PicturesNeededError extends Error {
   constructor(readonly questionNumbers: readonly string[]) {
     const [last, ...rest] = [...questionNumbers].reverse()
-    const named = rest.length ? `${rest.reverse().join(', ')} and ${last}` : last
+    const named = rest.length ? `${rest.reverse().join(', ')} ${t('common.andWord')} ${last}` : last
     super(
       questionNumbers.length === 1
-        ? `Question ${named} still needs a picture. Resolve it before exporting.`
-        : `Questions ${named} still need pictures. Resolve them before exporting.`,
+        ? t('ui.pictureNeededOne', { named })
+        : t('ui.pictureNeededMany', { named }),
     )
     this.name = 'PicturesNeededError'
   }
@@ -352,7 +353,7 @@ export function prepareExport({
   onProgress,
 }: PreparationRequest): PreparedExport {
   if (exam.questions.length === 0) {
-    throw new Error('Add at least one question to the Exam before exporting.')
+    throw new Error(t('ui.needQuestionBeforeExport'))
   }
   if (!configuration.selection.test && !configuration.selection.answerKey) {
     throw new Error('Choose the student test, the answer key, or both.')

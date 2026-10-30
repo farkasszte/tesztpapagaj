@@ -564,7 +564,7 @@ export function QuestionBankPane({
                       <button
                         type="button"
                         className="toolbar-icon-button question-bank-reading-edit"
-                        aria-label={`Edit ${name}`}
+                        aria-label={t('ui.editName', { name })}
                         title="Edit"
                         onClick={(event) => {
                           event.stopPropagation()
@@ -637,7 +637,7 @@ export function QuestionBankPane({
                       <DifficultyBadge difficulty={question.difficulty} />
                     )}
                     {inExamWorkingCopy && (
-                      <span className="question-bank-row-badge">In exam</span>
+                      <span className="question-bank-row-badge">{t('ui.inExam')}</span>
                     )}
                   </span>
                   <span className="question-bank-row-stem">
@@ -664,7 +664,7 @@ export function QuestionBankPane({
                   <button
                     type="button"
                     className="question-bank-action"
-                    aria-label={`Edit ${name}`}
+                    aria-label={t('ui.editName', { name })}
                     title="Edit"
                     onClick={() => onEdit(question.id)}
                   >
@@ -772,8 +772,8 @@ export function QuestionBankPane({
               <Plus aria-hidden="true" />
               {layout === 'page' && t('bank.newQuestion')}
             </button>}
-            {onExport && bank.questions.length === 0 && <span id="empty-bank-export-help" className="sr-only">At least one Question is required.</span>}
-            {onExport && exportBlocked && <span id="editing-bank-export-help" className="sr-only">Save or cancel the open Question edit before exporting.</span>}
+            {onExport && bank.questions.length === 0 && <span id="empty-bank-export-help" className="sr-only">{t('ui.needOneQuestion')}</span>}
+            {onExport && exportBlocked && <span id="editing-bank-export-help" className="sr-only">{t('ui.finishEditFirst')}</span>}
           </div>
         </header>
         {layout === 'rows' && filterBar}

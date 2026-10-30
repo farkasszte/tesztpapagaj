@@ -1320,7 +1320,7 @@ export function QuestionBankImportDialog({
                   </label>
                   {chosen.target.kind === 'new' && <input
                     className="bank-import-target-name"
-                    aria-label={`New Question Bank name for ${name}`}
+                    aria-label={t('ui.newBankNameFor', { name })}
                     value={targetName}
                     onChange={(event) => {
                       setNames({ ...names, [bank.id]: event.target.value })

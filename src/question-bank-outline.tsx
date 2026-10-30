@@ -14,6 +14,7 @@ import { AlignLeft, BookOpenText, Library, Link2, ListChecks, TextCursorInput, T
 import { TopicSwatch } from './badges'
 import { SECTION_LABELS, SECTION_ORDER, topicsOf, type Question, type QuestionType } from './exam'
 import { topicOptions, type QuestionBankFilter } from './question-bank-view'
+import { t } from './i18n'
 
 const TYPE_ICONS: Record<QuestionType, ComponentType<{ 'aria-hidden'?: boolean }>> = {
   'multiple-choice': ListChecks,
@@ -76,7 +77,7 @@ export function QuestionBankOutline({
     <section>
       <h3>Topics</h3>
       {topics.length === 0
-        ? <p className="bank-outline-empty">No topics yet. Topics added to a Question are listed here.</p>
+        ? <p className="bank-outline-empty">{t('ui.noTopicsYet')}</p>
         : topics.map((topic) => (
           <button
             type="button"

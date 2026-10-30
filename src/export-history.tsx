@@ -48,7 +48,7 @@ export function ExportHistoryDrawer({
     >
       <header className="export-history-header">
         <div>
-          <h2>Export History</h2>
+          <h2>{t('ui.exportHistory')}</h2>
           <p>Everything exported from this Exam, kept in this browser.</p>
         </div>
         <button

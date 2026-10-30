@@ -164,7 +164,7 @@ describe('Export Record preparation', () => {
       ...request(),
       exam: { title: 'Empty', questions: [] },
       arrangement: { id: 'working-copy', letter: '', questionOrder: [], choiceOrder: {} },
-    })).toThrow('Add at least one question to the Exam before exporting.')
+    })).toThrow('Exportálás előtt vegyél fel legalább egy kérdést a dolgozatba.')
 
     expect(() => prepareExport(request({
       format: 'pdf',
@@ -656,10 +656,10 @@ describe('an Exam with Pending Images', () => {
     ]
     expect(() => prepareExport(exportOf(questions))).toThrow(PicturesNeededError)
     expect(() => prepareExport(exportOf(questions))).toThrow(
-      'Questions 2 and 3 still need pictures. Resolve them before exporting.',
+      'A(z) 2 és 3 kérdésekhez még kép kell. Oldd fel őket exportálás előtt.',
     )
     expect(() => prepareExport(exportOf(questions.slice(0, 2)))).toThrow(
-      'Question 2 still needs a picture. Resolve it before exporting.',
+      'A(z) 2 kérdéshez még kép kell. Oldd fel exportálás előtt.',
     )
   })
 
@@ -679,7 +679,7 @@ describe('an Exam with Pending Images', () => {
       },
     }
     expect(() => prepareExport(shuffled)).toThrow(
-      'Question 3 still needs a picture. Resolve it before exporting.',
+      'A(z) 3 kérdéshez még kép kell. Oldd fel exportálás előtt.',
     )
   })
 

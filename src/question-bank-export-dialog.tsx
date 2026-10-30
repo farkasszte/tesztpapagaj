@@ -441,7 +441,7 @@ function RecordQuestion({
             {question.difficulty
               ? question.difficulty[0]!.toUpperCase() +
                 question.difficulty.slice(1)
-              : 'Unspecified'}
+              : t('ui.unspecified')}
           </dd>
         </div>
         <div>

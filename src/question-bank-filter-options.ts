@@ -9,6 +9,7 @@ import {
   type QuestionType,
 } from './exam'
 import type { DifficultyFilter, QuestionBankSort } from './question-bank-view'
+import { t } from './i18n'
 
 export type FilterOption<T extends string> = { value: T; label: string }
 
@@ -21,7 +22,7 @@ export const TYPE_OPTIONS: FilterOption<QuestionType>[] = SECTION_ORDER.map((typ
 export const DIFFICULTY_OPTIONS: FilterOption<DifficultyFilter>[] = [
   ...DIFFICULTIES.map((value) => ({ value, label: DIFFICULTY_LABELS[value] })),
   // Optional classification must never put a question out of reach.
-  { value: 'unspecified', label: 'Unspecified' },
+  { value: 'unspecified', label: t('ui.unspecified') },
 ]
 
 export const SORT_OPTIONS: readonly FilterOption<QuestionBankSort>[] = [
@@ -29,5 +30,5 @@ export const SORT_OPTIONS: readonly FilterOption<QuestionBankSort>[] = [
   { value: 'oldest', label: 'Oldest' },
   { value: 'type', label: 'Question Type' },
   { value: 'difficulty', label: 'Difficulty' },
-  { value: 'topic', label: 'Topic' },
+  { value: 'topic', label: t('ui.topic') },
 ]

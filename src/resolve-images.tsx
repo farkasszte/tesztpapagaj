@@ -35,9 +35,9 @@ function statusOf(occurrence: PendingImageOccurrence, picture: ResolvedPicture |
   if (picture) return originName(picture, source)
   const { pending } = occurrence
   if ('image' in pending && source && !source.tags.some(({ tag }) => tag === pending.image)) {
-    return `Picture needed: ${source.fileName} has no IMG ${pending.image}`
+    return t('ui.pictureNeededNoTag', { file: source.fileName, n: pending.image })
   }
-  return `Picture needed (${pendingName(pending)})`
+  return t('ui.pictureNeededShort', { name: pendingName(pending) })
 }
 
 export function TagChooser({
@@ -73,7 +73,7 @@ export function TagChooser({
             <button
               key={tag.tag}
               type="button"
-              aria-label={`Use IMG ${tag.tag}`}
+              aria-label={t('ui.useTag', { tag: tag.tag })}
               aria-pressed={current === tag.tag}
               onClick={() => onChoose(tag)}
             >
@@ -169,8 +169,8 @@ export function PageCropper({
     </div>
     <div className="resolve-image-cropper-bar">
       <button type="button" className="secondary-button" onClick={onCancel}>Cancel</button>
-      <button type="button" className="secondary-button" onClick={() => onCrop(page, { left: 0, top: 0, right: 1000, bottom: 1000 })}>Use the whole page</button>
-      <button type="button" className="primary-button" disabled={!usable} onClick={() => box && onCrop(page, box)}>Use this crop</button>
+      <button type="button" className="secondary-button" onClick={() => onCrop(page, { left: 0, top: 0, right: 1000, bottom: 1000 })}>{t('ui.useWholePage')}</button>
+      <button type="button" className="primary-button" disabled={!usable} onClick={() => box && onCrop(page, box)}>{t('ui.useThisCrop')}</button>
     </div>
   </div>
 }
@@ -270,7 +270,7 @@ export function PictureChoices({
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/*"
-          aria-label={`Upload a picture for ${name}`}
+          aria-label={t('ui.uploadFor', { name })}
           onChange={(event) => {
             const file = event.target.files?.[0]
             event.target.value = ''
@@ -352,7 +352,7 @@ export function ResolveImages({
           <div className="resolve-image-picture">
             {picture
               ? <img src={pictureSource(picture.asset)} alt={occurrence.alt ?? `Picture for ${name}`} />
-              : <span className="picture-needed">Picture needed<small>{pendingName(occurrence.pending)}</small></span>}
+              : <span className="picture-needed">{t('ui.pictureNeeded')}<small>{pendingName(occurrence.pending)}</small></span>}
           </div>
           <div className="resolve-image-body">
             <h4>{name}</h4>

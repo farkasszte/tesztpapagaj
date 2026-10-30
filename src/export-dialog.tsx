@@ -62,7 +62,7 @@ function VersionLine({
             {included && (
               <input
                 type="checkbox"
-                aria-label={`Re-export ${name}`}
+                aria-label={t('ui.reExportNamed', { name })}
                 checked={included.includes(name)}
                 disabled={disabled}
                 onChange={(event) => onIncludedChange?.(name, event.target.checked)}
@@ -515,7 +515,7 @@ export function ReExportDialog({
 
   return (
     <ExportDialogFrame
-      title="Re-export"
+      title={t('ui.reExport')}
       eyebrow={t('export.recordImmutable')}
       previewPlans={plans}
       settings={(disabled) => (
@@ -539,7 +539,7 @@ export function ReExportDialog({
       notes={names.length > 0 && included.length === 0 && (
         <p className="export-error" role="alert">Choose at least one Version to re-export.</p>
       )}
-      submitLabel={`Re-export ${configuration.format.toUpperCase()}`}
+      submitLabel={t('ui.reExportFormat', { format: configuration.format.toUpperCase() })}
       submitDisabled={names.length > 0 && included.length === 0}
       onSubmit={(onProgress) => onSubmit(names.length > 0 ? included : undefined, onProgress)}
       onCancel={onCancel}

@@ -130,7 +130,7 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
 
   return (
     <section className="site-card account-settings" aria-labelledby="settings-backup">
-      <h2 id="settings-backup">Back up your work</h2>
+      <h2 id="settings-backup">{t('ui.backupTitle')}</h2>
       <p>
         Exams, Question Banks, Working Copies, and Export History are saved in this browser. Download
         a backup now and then, and restore it here or in another browser.

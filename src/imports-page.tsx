@@ -99,7 +99,7 @@ function ImportCard({
     : []
   const items: MenuItem[] = entry.stage === 'waiting'
     ? [
-        { kind: 'action', label: 'Continue', icon: <FolderOpen />, onSelect: () => window.location.assign(importHref(entry.id)) },
+        { kind: 'action', label: t('ui.continue'), icon: <FolderOpen />, onSelect: () => window.location.assign(importHref(entry.id)) },
         { kind: 'separator' },
         { kind: 'action', label: 'Discard', icon: <Trash2 />, destructive: true, onSelect: onDiscard },
       ]
@@ -128,7 +128,7 @@ function ImportCard({
   const first = opens[0]
   return <li className="import-card" aria-label={entry.fileName} data-stage={entry.stage}>
     {entry.stage === 'waiting'
-      ? <Link href={importHref(entry.id)} className="import-card-main" aria-label={`Continue ${entry.fileName}`}>{caption}</Link>
+      ? <Link href={importHref(entry.id)} className="import-card-main" aria-label={t('ui.continueFile', { file: entry.fileName })}>{caption}</Link>
       : first
         ? <a href={first.href} className="import-card-main" aria-label={`Open ${first.label}`}>{caption}</a>
         : <div className="import-card-main">{caption}</div>}
@@ -209,7 +209,7 @@ export function ImportsPage({
           </div>
         : <>
             {waiting.length > 0 && <section className="import-section" aria-labelledby="imports-waiting">
-              <h2 id="imports-waiting">Pending</h2>
+              <h2 id="imports-waiting">{t('ui.pending')}</h2>
               <ul className="collection-grid collection-grid--exams import-grid">
                 {waiting.map((entry) => (
                   <ImportCard
@@ -222,7 +222,7 @@ export function ImportsPage({
               </ul>
             </section>}
             {finished.length > 0 && <section className="import-section" aria-labelledby="imports-history">
-              <h2 id="imports-history">History</h2>
+              <h2 id="imports-history">{t('ui.history')}</h2>
               <ul className="collection-grid collection-grid--exams import-grid">
                 {finished.map((entry) => (
                   <ImportCard key={entry.id} entry={entry} picturesNeeded={needed.get(entry.id)} onDiscard={() => undefined} />

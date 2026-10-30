@@ -371,7 +371,7 @@ export function QuestionBankCard({
         <p className="bank-card-usage">
           {bank.usage.length === 0
             ? t('card.notUsed')
-            : `Used in ${bank.usage.length} ${bank.usage.length === 1 ? 'Exam' : 'Exams'}`}
+            : t('ui.usedIn', { count: bank.usage.length })}
         </p>
         <time dateTime={bank.lastUpdatedAt}>
           {relativeTime('Updated', bank.lastUpdatedAt)}

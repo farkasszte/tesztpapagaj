@@ -1656,7 +1656,7 @@ function QuestionBankTabsPane({
             >{bank.name}</button>
             <button
               type="button"
-              aria-label={`Close ${bank.name}`}
+              aria-label={t('ui.closeName', { name: bank.name })}
               onClick={() => void close(id)}
             ><X /></button>
           </div>

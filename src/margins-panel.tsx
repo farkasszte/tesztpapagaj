@@ -39,6 +39,7 @@ import {
   type PageMargins,
 } from './page-margins'
 import { scrubRaw, scrubValue, startsScrub, steppedValue, type ScrubRange } from './scrub-number'
+import { t } from './i18n'
 
 const SIDE_ICONS: Record<MarginSide, ReactNode> = {
   top: <PanelTop />,
@@ -293,7 +294,7 @@ export function MarginsPanel({
         <button
           type="button"
           className="margins-panel-close"
-          aria-label="Close margins"
+          aria-label={t('ui.closeMargins')}
           onClick={onClose}
         >
           <X aria-hidden="true" />

@@ -14,6 +14,7 @@ import { keptAspect, legacyRatioOf, pictureCropOf, pictureKey as pictureKeyOf, p
 import { SheetPicture } from './sheet-pieces'
 import { PictureSlotContext } from './picture-slot'
 import { BLANK_LINE } from './blank'
+import { t } from './i18n'
 
 function attrsOf(node: ProseMirrorJSON): Record<string, unknown> {
   const attrs = node.attrs
@@ -265,7 +266,7 @@ function Slot({ pictureKey, inline = false, children }: { pictureKey: unknown; i
 export function PictureNeeded({ pending, inline = false }: { pending: PendingImageReference; inline?: boolean }) {
   const named = 'image' in pending ? `IMG ${pending.image}` : `page ${pending.page}`
   return (
-    <span className="picture-needed" data-inline={inline ? 'true' : undefined} role="img" aria-label={`Picture needed: ${named}`}>
+    <span className="picture-needed" data-inline={inline ? 'true' : undefined} role="img" aria-label={t('ui.pictureNeededNamed', { named })}>
       Picture needed
       <small>{named}</small>
     </span>

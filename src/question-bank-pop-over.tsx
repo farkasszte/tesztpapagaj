@@ -295,7 +295,7 @@ function QuestionBankPopOver({
                 commit(openBankTab(workspace, id))
               }}
             >{bank.name}</button>
-            <button type="button" aria-label={`Close ${bank.name}`} onClick={() => close(id)}><X /></button>
+            <button type="button" aria-label={t('ui.closeName', { name: bank.name })} onClick={() => close(id)}><X /></button>
           </div>
         })}
       </div>

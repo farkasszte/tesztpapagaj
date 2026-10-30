@@ -7,6 +7,7 @@ import type { EditorView, NodeViewConstructor } from '@milkdown/kit/prose/view'
 import { $viewAsync } from '@milkdown/kit/utils'
 import { pictureView } from './picture-view'
 import { pendingImageOf, type PendingImageReference, type ProseMirrorJSON } from './question-doc'
+import { t } from './i18n'
 
 /**
  * Pending Images in the question editor. Both image nodes declare a `pending`
@@ -46,15 +47,15 @@ function pendingView(node: ProseMirrorNode, view: EditorView, getPos: () => numb
   if (inline) dom.dataset.inline = 'true'
   dom.contentEditable = 'false'
   dom.setAttribute('role', 'group')
-  dom.setAttribute('aria-label', `Picture needed: ${named}`)
-  dom.append('Picture needed')
+  dom.setAttribute('aria-label', t('ui.pictureNeededNamed', { named }))
+  dom.append(t('ui.pictureNeeded'))
   const small = document.createElement('small')
   small.textContent = named
   dom.append(small)
   const resolve = document.createElement('button')
   resolve.type = 'button'
   resolve.className = 'secondary-button'
-  resolve.textContent = 'Resolve'
+  resolve.textContent = t('ui.resolve')
   resolve.addEventListener('click', (event) => {
     event.preventDefault()
     const detail: ResolveImageRequest = {

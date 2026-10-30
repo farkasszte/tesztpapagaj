@@ -14,6 +14,7 @@
 // Exam that never changed it.
 
 import type { QuestionType } from './exam'
+import { t } from './i18n'
 
 // The section headings and directions a school test carries. The `'open'`
 // question type prints under "Short Answer".
@@ -54,9 +55,9 @@ export const HEADING_SIZES: readonly HeadingSize[] = ['small', 'normal', 'large'
 export const DEFAULT_HEADING_SIZE: HeadingSize = 'normal'
 
 export const HEADING_SIZE_LABELS: Record<HeadingSize, string> = {
-  small: 'Small',
+  small: t('ui.small'),
   normal: 'Normal',
-  large: 'Large',
+  large: t('ui.large'),
 }
 
 /** One section's heading as it prints on this Exam. */

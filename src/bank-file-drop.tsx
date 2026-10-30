@@ -116,7 +116,7 @@ export function BankFileDropTarget({
           <strong>{t('bank.dropToAdd', { target: target.name || t('bank.thisBank') })}</strong>
           <span>Its Questions are added to this bank, and any Exams come too</span>
         </> : tests ? <>
-          <strong>Drop your test here</strong>
+          <strong>{t('ui.dropTest')}</strong>
           <span>Its PDF or Word document, a photo of it, or the file your AI gave back</span>
         </> : <>
           <strong>Drop to import</strong>
