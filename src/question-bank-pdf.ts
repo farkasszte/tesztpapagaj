@@ -55,7 +55,7 @@ import {
 import { topicTint } from './topic-tint'
 import { mathPieces, type TypesetMath } from './pdf-math'
 import { MATH_SIZE, drawTypesetMath, mathTypesetter, type MathTypesetter } from './pdf-math-draw'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 /** Whether any Question holds an equation, so MathJax loads only for one. */
 const holdsMath = (questions: readonly QuestionBankRecordQuestion[]) =>
@@ -731,7 +731,6 @@ function drawIndentedDocument(
   }
 }
 
-const plural = (count: number, word: string) => `${count} ${count === 1 ? word : `${word}s`}`
 
 /** `text`, shortened with an ellipsis until it fits `width`. */
 function fitted(context: Context, font: QuestionBankPdfFontStyle, text: string, size: number, width: number): string {
@@ -842,7 +841,7 @@ function drawFrontMatter(context: Context, prepared: PreparedQuestionBankExport,
   context.y -= 6
   const { difficulties } = outline
   const counts = [
-    plural(bank.questions.length, 'Question'),
+    countOf(bank.questions.length, 'question'),
     ...(difficulties.easy ? [`${difficulties.easy} ${t('difficulty.easy')}`] : []),
     ...(difficulties.medium ? [`${difficulties.medium} Medium`] : []),
     ...(difficulties.hard ? [`${difficulties.hard} Hard`] : []),
@@ -935,7 +934,7 @@ function drawSectionHeading(context: Context, section: QuestionBankFileOutline['
   markDestination(context, sectionKey(section.type))
   context.page.drawRectangle({ x: MARGIN, y: context.y - 38, width: 4, height: 38, color: ACCENT })
   drawText(context, RECORD_TYPE_LABELS[section.type], { x: MARGIN + 14, font: 'bold', size: 20, line: 25 })
-  drawText(context, plural(section.count, 'Question'), { x: MARGIN + 14, size: 10, color: MUTED, line: 14 })
+  drawText(context, countOf(section.count, 'question'), { x: MARGIN + 14, size: 10, color: MUTED, line: 14 })
   context.y -= 10
   if (hasTopics(section)) {
     drawBubbles(context, section, MARGIN, CONTENT_WIDTH)
@@ -961,7 +960,7 @@ function drawTopicHeading(
     context,
     [
       { text: group.topic ?? NO_TOPIC_LABEL, font: 'bold', size: 13, color: tint.ink },
-      { text: `   ${plural(group.questions.length, 'Question')}`, font: 'regular', size: 9.5, color: MUTED },
+      { text: `   ${countOf(group.questions.length, 'question')}`, font: 'regular', size: 9.5, color: MUTED },
     ],
     { x: MARGIN + 16, width: CONTENT_WIDTH - 16, line: 18 },
   )

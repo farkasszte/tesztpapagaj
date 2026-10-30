@@ -1,6 +1,7 @@
 import { AlertTriangle, Info, XCircle } from 'lucide-react'
 import type { QuestionFileSummary } from './question-formats'
 import type { ImportIssue } from './question-formats/types'
+import { countOf, t } from './i18n'
 
 /**
  * What reading a question file from another tool found, shown above its
@@ -12,7 +13,6 @@ import type { ImportIssue } from './question-formats/types'
 
 const ICONS: Record<ImportIssue['severity'], typeof Info> = { error: XCircle, warning: AlertTriangle, info: Info }
 
-const plural = (count: number, singular: string, plural = `${singular}s`) => `${count} ${count === 1 ? singular : plural}`
 
 export function QuestionFileReport({
   reading,
@@ -31,7 +31,7 @@ export function QuestionFileReport({
   return <section className="question-file-report" aria-label="How your file was read">
     <div className="question-file-report-head">
       <p role="status">
-        {plural(reading.found, 'question')} found · <strong>{reading.imported} coming in</strong>
+        {countOf(reading.found, 'question')} found · <strong>{reading.imported} coming in</strong>
         {leftOut > 0 && <> · <span className="question-file-report-left-out">{leftOut} left out</span></>}
       </p>
       {onConvertInstead && (
@@ -44,8 +44,8 @@ export function QuestionFileReport({
       <details className="question-file-report-issues" open={errors.length > 0}>
         <summary>
           {[
-            errors.length ? plural(errors.length, 'question left out', 'questions left out') : '',
-            others.length ? plural(others.length, 'note') : '',
+            errors.length ? t('report.leftOut', { count: errors.length }) : '',
+            others.length ? t('report.notes', { count: others.length }) : '',
           ].filter(Boolean).join(' · ')}
         </summary>
         <ul>

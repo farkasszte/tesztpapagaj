@@ -16,7 +16,7 @@ import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { SourceDocumentSteps } from './source-document-steps'
 import { ImportError } from './import-error'
 import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 /**
  * The Imports section: every import this browser has started. Those still
@@ -32,7 +32,6 @@ const KIND_LABELS: Record<ImportFileKind, string> = {
   questions: t('imports.questionFile'),
 }
 
-const plural = (count: number, singular: string) => `${count} ${count === 1 ? singular : `${singular}s`}`
 
 const when = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -112,16 +111,16 @@ function ImportCard({
       <span className="import-card-facts">
         {entry.stage === 'waiting'
           ? <>
-              {entry.tags > 0 ? `${plural(entry.tags, 'picture')} detected · ` : ''}
+              {entry.tags > 0 ? `${countOf(entry.tags, 'picture')} detected · ` : ''}
               {timeLeft(entry.createdAt, new Date())}
             </>
           : entry.stage === 'imported'
-            ? `${plural(entry.imported.questions, 'Question')} · ${when(entry.importedAt)}`
+            ? `${countOf(entry.imported.questions, 'question')} · ${when(entry.importedAt)}`
             : `Not imported within seven days`}
       </span>
       {needed > 0 && (
         <span className="import-pictures-needed">
-          <ImageIcon aria-hidden="true" />{plural(needed, 'picture')} still needed
+          <ImageIcon aria-hidden="true" />{countOf(needed, 'picture')} still needed
         </span>
       )}
     </span>

@@ -25,7 +25,7 @@ import {
 } from './question-bank-file-outline'
 import type { QuestionBankResource } from './question-bank-workspaces'
 import { topicTint } from './topic-tint'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 /** How many rows of the preview are drawn at a time. A bank of thousands of
  *  Questions is drawn a batch at a time as the teacher scrolls, rather than
@@ -53,7 +53,6 @@ function previewRows(outline: QuestionBankFileOutline): PreviewRow[] {
   })
 }
 
-const plural = (count: number, word: string) => `${count.toLocaleString()} ${count === 1 ? word : `${word}s`}`
 
 export function QuestionBankExportDialog({
   bank,
@@ -199,7 +198,7 @@ export function QuestionBankExportDialog({
             <progress max={progress.total} value={progress.drawn} />
             <span>
               {progress.drawn < progress.total
-                ? `Drawing ${plural(progress.drawn, 'Question')} of ${progress.total.toLocaleString()}…`
+                ? `Drawing ${countOf(progress.drawn, 'question')} of ${progress.total.toLocaleString()}…`
                 : t('bankExport.finishing')}
             </span>
           </div>
@@ -273,7 +272,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
   const previewNodes = (document: SemanticDocument) =>
     recordDocumentToEditorNodes(document, record.media)
   const counts = [
-    plural(bank.questions.length, 'Question'),
+    countOf(bank.questions.length, 'question'),
     ...(outline.difficulties.easy ? [`${outline.difficulties.easy} ${t('difficulty.easy')}`] : []),
     ...(outline.difficulties.medium ? [`${outline.difficulties.medium} Medium`] : []),
     ...(outline.difficulties.hard ? [`${outline.difficulties.hard} Hard`] : []),
@@ -328,7 +327,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
           return (
             <section key={row.key} data-outline-key={row.key} className="question-bank-file-section">
               <h2>{RECORD_TYPE_LABELS[row.section.type]}</h2>
-              <p>{plural(row.section.count, 'Question')}</p>
+              <p>{countOf(row.section.count, 'question')}</p>
               <TopicBubbles section={row.section} onJump={jump} />
             </section>
           )
@@ -342,7 +341,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
               data-tint={row.topic === null ? undefined : topicTint(row.topic)}
             >
               {row.topic ?? NO_TOPIC_LABEL}
-              <span>{plural(row.count, 'Question')}</span>
+              <span>{countOf(row.count, 'question')}</span>
             </h3>
           )
         }

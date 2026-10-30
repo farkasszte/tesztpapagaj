@@ -73,7 +73,7 @@ import { bestWaitingImport } from './import-file-route'
 import { SourceDocumentSteps } from './source-document-steps'
 import { TEST_FILE_TYPES, kindOfFile, readSourceDocument, startWaitingImport } from './source-file'
 import { useModalScrollLock } from './use-modal-scroll-lock'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -81,8 +81,6 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-const plural = (count: number, singular: string) =>
-  `${count} ${count === 1 ? singular : `${singular}s`}`
 
 /**
  * The two kinds of thing a file can bring in, each with one icon and one
@@ -281,7 +279,7 @@ function BankPreview({
   return <div className="bank-import-reading">
     <header className="bank-import-preview-head">
       <h3>{record.bank.name || 'Untitled Question Bank'}</h3>
-      <p>{plural(questions.length, 'Question')}</p>
+      <p>{countOf(questions.length, 'question')}</p>
       {record.bank.description && (
         <p className="bank-import-preview-description">{record.bank.description}</p>
       )}
@@ -1183,7 +1181,7 @@ export function QuestionBankImportDialog({
                 proposal.banks.map((bank) => ({
                   focus: { kind: 'bank', id: bank.id },
                   name: bank.record.bank.name || 'Untitled Question Bank',
-                  detail: plural(bank.record.bank.questions.length, 'Question'),
+                  detail: countOf(bank.record.bank.questions.length, 'question'),
                   allowed: selection.banks[bank.id]!.allowed,
                   onAllow: (allowed) => setSelection(setBankAllowed(proposal, selection, bank.id, allowed)),
                 })),
@@ -1199,7 +1197,7 @@ export function QuestionBankImportDialog({
                   // on its own row, where the checkbox that fixes it is.
                   detail: deniedBanksOf(proposal, selection, exam.key).length > 0
                     ? `Needs ${deniedBanksOf(proposal, selection, exam.key).map(bankName).join(' and ')}`
-                    : plural(exam.positions.length, 'Question'),
+                    : countOf(exam.positions.length, 'question'),
                   allowed: selection.exams[exam.key]!.allowed,
                   onAllow: (allowed) => setSelection(setExamAllowed(proposal, selection, exam.key, allowed)),
                 })),
@@ -1219,8 +1217,8 @@ export function QuestionBankImportDialog({
                     {filling
                       ? `Finding your pictures in ${resolvingSource?.fileName ?? t('import.yourTest')}…`
                       : detected > 0
-                        ? `${detected === occurrences.length ? `All ${plural(detected, 'picture')}` : `${detected} of ${plural(occurrences.length, 'picture')}`} detected from ${resolvingSource?.fileName ?? t('import.yourTest')}. Click a picture to change it.`
-                        : `${plural(occurrences.length, 'picture')} needed. Click one to add it, or add them after importing.`}
+                        ? `${detected === occurrences.length ? `All ${countOf(detected, 'picture')}` : `${detected} of ${countOf(occurrences.length, 'picture')}`} detected from ${resolvingSource?.fileName ?? t('import.yourTest')}. Click a picture to change it.`
+                        : `${countOf(occurrences.length, 'picture')} needed. Click one to add it, or add them after importing.`}
                   </span>
                 </p>
               )}
@@ -1395,9 +1393,9 @@ export function QuestionBankImportDialog({
                       kind="bank"
                       onShow={() => showItem({ kind: 'bank', id }, true)}
                       name={bankName(id)}
-                      detail={plural(
+                      detail={countOf(
                         exam.positions.filter(({ question }) => question.bank === id).length,
-                        'Question',
+                        'question',
                       )}
                     />
                   ))}

@@ -461,6 +461,10 @@ const en = {
   'imports.helpSuffix': 'and we’ll help.',
   'imports.imageUsedElsewhere': 'This picture appears elsewhere too:',
   'imports.imageUsedElsewhereMany': 'This picture appears in {count} other places too:',
+  'common.question': 'Question',
+  'common.picture': 'picture',
+  'report.leftOut': '{count} question(s) left out',
+  'report.notes': '{count} note(s)',
 } as const
 
 export type TextKey = keyof typeof en
@@ -908,6 +912,10 @@ const hu: Record<TextKey, string> = {
   'imports.helpSuffix': 'és segítünk.',
   'imports.imageUsedElsewhere': 'Ez a kép más helyen is szerepel:',
   'imports.imageUsedElsewhereMany': 'Ez a kép {count} más helyen is szerepel:',
+  'common.question': 'kérdés',
+  'common.picture': 'kép',
+  'report.leftOut': '{count} kérdés kimaradt',
+  'report.notes': '{count} megjegyzés',
 }
 
 const LANGUAGES = { en, hu } as const
@@ -980,3 +988,14 @@ export function useT(): typeof t {
   useSyncExternalStore(subscribe, getLanguage, getLanguage)
   return t
 }
+
+/**
+ * Egy darabszám és a dolga, nyelvhelyesen: `3 kérdés`, nem `3 Question`s.
+ * A magyar nem tesz többesjelet a szám után, az angol igen.
+ */
+export function countOf(count: number, thing: 'question' | 'picture'): string {
+  const word = t(thing === 'question' ? 'common.question' : 'common.picture')
+  const suffix = current === 'hu' ? '' : count === 1 ? '' : 's'
+  return `${count.toLocaleString()} ${word}${suffix}`
+}
+
