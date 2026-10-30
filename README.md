@@ -17,13 +17,15 @@ egy helyen élnek: `src/i18n/index.ts`.
 
 | Terület | Állapot |
 |---|---|
-| Nyelvi réteg (`t()`, `useT()`, nyelvválasztás, `<html lang>`) | kész |
+| Nyelvi réteg (`t()`, `useT()`, `countOf()`, nyelvválasztás, `<html lang>`) | kész |
 | Héj: navigáció, morzsamenü, súgó, lábléc | kész |
-| Kezdőlap, nyitóoldal, első indítás | kész |
+| Kezdőlap, nyitóoldal, első indítás, gyűjtőoldalak | kész |
 | Indításkori hibaüzenetek | kész |
-| Szerkesztő (dolgozat-oldal, eszköztár, szakaszok) | folyamatban |
-| Kérdésbank-felületek, import, beállítások, fiók | folyamatban |
-| Nyomtatott feladatlap, válaszkulcs, PDF/Word export | folyamatban |
+| Szerkesztő (dolgozat-oldal, eszköztár, szakaszok, formázás) | kész |
+| Kérdésbank-felületek, import, beállítások, fiók, A projektről, Adatvédelem | kész |
+| Accessible name-ek (aria-label, title, placeholder) | kész |
+| Nyomtatott feladatlap, válaszkulcs, PDF/Word export | **nyitott**: a válaszkulcs fejléce és a fájlnevek még angolok |
+| e2e tesztek (40 szkript, 175 teszt) | a szelektorok és állítások magyarok; a teljes futás eredménye a repóban követhető |
 
 ## Futtatás
 
