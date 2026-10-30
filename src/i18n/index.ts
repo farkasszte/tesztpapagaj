@@ -288,7 +288,7 @@ const en = {
   'bank.removeFromExam': 'Remove from the exam',
   'bank.addToExam': 'Add to the exam',
   'bank.export': 'Export Question Bank',
-  'bank.newQuestion': 'New question',
+  'bank.newQuestion': 'Add Question',
   'bank.popOverTitle': 'Question Bank Pop-over',
   'bank.openSuffix': ' · open',
   'bank.copyForDocs': 'For Google Docs, and anywhere else.',
@@ -643,6 +643,17 @@ const en = {
   'common.exams': 'Exams',
   'common.bankOne': 'Question bank',
   'common.banks': 'Question banks',
+  'bank.popOver': 'Pop-over',
+  'bank.filterNewest': 'Newest',
+  'bank.filterOldest': 'Oldest',
+  'bank.filterDifficulty': 'Difficulty',
+  'bank.importInto': 'Import into this Question Bank',
+  'card.justNow': '{prefix} just now',
+  'card.minutesAgo': '{prefix} {count} minutes ago',
+  'card.hoursAgo': '{prefix} {count} hours ago',
+  'card.daysAgo': '{prefix} {count} days ago',
+  'card.updatedPrefix': 'Updated',
+  'card.createdPrefix': 'Created',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1272,6 +1283,17 @@ const hu: Record<TextKey, string> = {
   'common.exams': 'dolgozat',
   'common.bankOne': 'kérdésbank',
   'common.banks': 'kérdésbank',
+  'bank.popOver': 'Előugró ablak',
+  'bank.filterNewest': 'Legújabb',
+  'bank.filterOldest': 'Legrégebbi',
+  'bank.filterDifficulty': 'Nehézség',
+  'bank.importInto': 'Importálás ebbe a kérdésbankba',
+  'card.justNow': '{prefix} most',
+  'card.minutesAgo': '{prefix} {count} perce',
+  'card.hoursAgo': '{prefix} {count} órája',
+  'card.daysAgo': '{prefix} {count} napja',
+  'card.updatedPrefix': 'Frissítve:',
+  'card.createdPrefix': 'Létrehozva:',
 };
 
 const LANGUAGES = { en, hu } as const

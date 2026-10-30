@@ -175,13 +175,15 @@ function relativeTime(prefix: string, iso: string) {
     0,
     Math.floor((Date.now() - new Date(iso).getTime()) / 60_000),
   )
-  if (minutes === 0) return `${prefix} just now`
-  if (minutes < 60)
-    return `${prefix} ${minutes} minute${minutes === 1 ? '' : 's'} ago`
+  // A magyar időhatározó a szám után áll: `Frissítve: 3 perce`.
+  const say = (key: 'card.justNow' | 'card.minutesAgo' | 'card.hoursAgo' | 'card.daysAgo', count = 0) =>
+    count > 0 ? t(key, { prefix, count }) : t(key, { prefix })
+  if (minutes === 0) return say('card.justNow')
+  if (minutes < 60) return say('card.minutesAgo', minutes)
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${prefix} ${hours} hour${hours === 1 ? '' : 's'} ago`
+  if (hours < 24) return say('card.hoursAgo', hours)
   const days = Math.floor(hours / 24)
-  return `${prefix} ${days} day${days === 1 ? '' : 's'} ago`
+  return say('card.daysAgo', days)
 }
 
 export function ExamCard({
@@ -377,7 +379,7 @@ export function QuestionBankCard({
             : t('ui.usedIn', { count: bank.usage.length })}
         </p>
         <time dateTime={bank.lastUpdatedAt}>
-          {relativeTime('Updated', bank.lastUpdatedAt)}
+          {relativeTime(t('card.updatedPrefix'), bank.lastUpdatedAt)}
         </time>
       </button>
       <button

@@ -1936,11 +1936,11 @@ function QuestionBankPage({
             onClick={() => popOver.open(bank.id)}
           >
             <PictureInPicture2 aria-hidden="true" />
-            Pop-over
+            {t('bank.popOver')}
           </button>}
           <button type="button" className="secondary-button" aria-haspopup="dialog" onClick={() => onImportInto(bank.id)}>
             <Import aria-hidden="true" />
-            Import
+            {t('bank.import')}
           </button>
         </>}
         service={bankWorkspaces}
