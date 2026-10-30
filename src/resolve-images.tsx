@@ -262,11 +262,11 @@ export function PictureChoices({
           aria-expanded={onCrop ? undefined : cropping}
           onClick={() => (onCrop ? onCrop() : setCropping(!cropping))}
         >
-          <Crop aria-hidden="true" />Crop from a page
+          <Crop aria-hidden="true" />{t('ui.cropFromPage')}
         </button>
       )}
       <label className="secondary-button resolve-image-upload">
-        <Upload aria-hidden="true" />Upload a file
+        <Upload aria-hidden="true" />{t('ui.uploadFile')}
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/*"

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 async function seed(page: Page) {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -130,11 +130,11 @@ test('teacher exports the complete active Question Bank without Exam or history 
 
   // A visible filter must not change the authoritative stored order or scope.
   await page
-    .getByRole('searchbox', { name: 'Search question stems' })
+    .getByRole('searchbox', { name: 'Kérdésszöveg keresése' })
     .fill('neutral')
-  await page.getByRole('button', { name: 'Export Question Bank' }).click()
+  await page.getByRole('button', { name: 'Kérdésbank exportálása' }).click()
 
-  const preview = page.getByRole('dialog', { name: 'Export Question Bank' })
+  const preview = page.getByRole('dialog', { name: 'Kérdésbank exportálása' })
   await expect(preview).toContainText(
     'Teacher Question Bank containing answers',
   )
@@ -146,7 +146,7 @@ test('teacher exports the complete active Question Bank without Exam or history 
   await expect(preview).toContainText('Correct answer')
 
   const downloadPromise = page.waitForEvent('download')
-  await preview.getByRole('button', { name: 'Download PDF' }).click()
+  await preview.getByRole('button', { name: 'PDF letöltése' }).click()
   const download = await downloadPromise
   expect(download.suggestedFilename()).toBe(
     'chemistry-review-1.question-bank.pdf',
@@ -160,17 +160,17 @@ test('teacher exports the complete active Question Bank without Exam or history 
 test('export dialog traps focus and cancellation produces no download', async ({ page }) => {
   const bankId = await seed(page)
   await page.goto(`/question-bank?id=${bankId}`)
-  const trigger = page.getByRole('button', { name: 'Export Question Bank' })
+  const trigger = page.getByRole('button', { name: 'Kérdésbank exportálása' })
   await trigger.focus()
   await trigger.click()
-  const dialog = page.getByRole('dialog', { name: 'Export Question Bank' })
-  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
+  const dialog = page.getByRole('dialog', { name: 'Kérdésbank exportálása' })
+  await expect(dialog.getByRole('button', { name: 'Mégsem' })).toBeFocused()
   const downloads: string[] = []
   page.on('download', (download) => downloads.push(download.suggestedFilename()))
   await page.keyboard.press('Shift+Tab')
-  await expect(dialog.getByRole('button', { name: 'Download PDF' })).toBeFocused()
+  await expect(dialog.getByRole('button', { name: 'PDF letöltése' })).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
+  await expect(dialog.getByRole('button', { name: 'Mégsem' })).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(trigger).toBeFocused()
@@ -181,7 +181,7 @@ test('empty bank explains why export is unavailable and an open edit must be res
   page,
 }) => {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
   const emptyId = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -193,9 +193,9 @@ test('empty bank explains why export is unavailable and an open edit must be res
     ).id
   })
   await page.goto(`/question-bank?id=${emptyId}`)
-  await expect(page.getByRole('button', { name: 'Export Question Bank' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Kérdésbank exportálása' })).toBeDisabled()
   await expect(
-    page.getByText('At least one Question is required.'),
+    page.getByText('Legalább egy kérdés kell.'),
   ).toBeVisible()
 
   const bankId = await seed(page)
@@ -204,12 +204,12 @@ test('empty bank explains why export is unavailable and an open edit must be res
     .getByRole('button', { name: /Edit Explain conservation of mass/ })
     .click()
   await expect(
-    page.getByRole('dialog', { name: 'Question editor' }),
+    page.getByRole('dialog', { name: 'Kérdésszerkesztő' }),
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Export Question Bank' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Kérdésbank exportálása' })).toBeDisabled()
   await expect(
-    page.getByText('Save or cancel the open Question edit before exporting.'),
+    page.getByText('Exportálás előtt mentsd vagy vond vissza a nyitott kérdésszerkesztést.'),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Cancel' }).click()
-  await expect(page.getByRole('button', { name: 'Export Question Bank' })).toBeVisible()
+  await page.getByRole('button', { name: 'Mégsem' }).click()
+  await expect(page.getByRole('button', { name: 'Kérdésbank exportálása' })).toBeVisible()
 })

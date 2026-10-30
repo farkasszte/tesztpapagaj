@@ -40,8 +40,8 @@ test('column formatting applies to a large multi-page selection', async ({ page 
   await expect(page.locator('.exam-question--selected')).toHaveCount(ids.length)
 
   await questions.last().click({ button: 'right' })
-  await page.getByRole('menuitem', { name: 'Answer columns' }).hover()
-  await page.getByRole('menuitemradio', { name: '2 columns' }).click()
+  await page.getByRole('menuitem', { name: 'Válaszoszlopok' }).hover()
+  await page.getByRole('menuitemradio', { name: '2 oszlop' }).click()
 
   await expect(page.locator('.choice-grid[data-columns="2"]')).toHaveCount(ids.length)
 })

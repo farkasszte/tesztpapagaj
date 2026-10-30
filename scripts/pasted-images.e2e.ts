@@ -69,11 +69,11 @@ test('pasted image files render and persist with a question', async ({
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().fill('Question with a pasted image')
   await editor.locator('> p').first().press('End')
@@ -87,13 +87,13 @@ test('pasted image files render and persist with a question', async ({
     )
     .toBeGreaterThan(0)
 
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
 
   await question.dblclick()
   await expect(dialog.locator('img[src^="/local-images/"]')).toHaveCount(1)
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Mégsem' }).click()
 
   await page.reload()
   const reloadedImage = page
@@ -112,11 +112,11 @@ test('pasted image files render and persist with a question', async ({
 
 test('images paste through the native browser clipboard', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await writePngToClipboard(page)
@@ -129,11 +129,11 @@ test('copied web images are captured and persist with a question', async ({
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, '<img src="/logo.png" alt="Crepe">')
@@ -184,7 +184,7 @@ test('copied web images are captured and persist with a question', async ({
   expect(media?.width).toBeGreaterThan(0)
   expect(media?.height).toBeGreaterThan(0)
 
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
   await expect(question.locator('img[src="/logo.png"]')).toHaveCount(0)
@@ -210,11 +210,11 @@ test('copied web images are captured and persist with a question', async ({
 
 test('identical image bytes share one Media Asset', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
+  const editor = page.getByRole('dialog', { name: 'Kérdésszerkesztő' }).locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pastePng(editor)
   await pastePng(editor)
@@ -242,11 +242,11 @@ test('identical image bytes share one Media Asset', async ({ page }) => {
 
 test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
+  const editor = page.getByRole('dialog', { name: 'Kérdésszerkesztő' }).locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, '<img src="/does-not-exist.png">')
   await expect(editor).toContainText('[Image could not be captured.]')
@@ -255,11 +255,11 @@ test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
 
 test('a nonexistent internal media reference is visibly unresolved', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
+  const editor = page.getByRole('dialog', { name: 'Kérdésszerkesztő' }).locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, `<img src="/local-images/${'a'.repeat(64)}">`)
   await expect(editor).toContainText('[Image could not be captured.]')
@@ -272,15 +272,15 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
     await route.fulfill({ path: 'public/logo.png', contentType: 'image/png' })
   })
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, '<img src="/slow-logo.png">')
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
   await expect(question).not.toContainText('[Image could not be captured.]')
@@ -288,11 +288,11 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
 
 test('mixed HTML keeps every image and surrounding text', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
+  const editor = page.getByRole('dialog', { name: 'Kérdésszerkesztő' }).locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, 'before <img src="/logo.png"> middle <img src="/logo.png"> after')
   await expect(editor).toContainText('before')
@@ -305,11 +305,11 @@ test('copied web images with a clipboard file use a resizable block', async ({
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await pasteHtmlImageWithFile(editor, '<img src="/logo.png" alt="Crepe">')
@@ -321,17 +321,17 @@ test('copied web images with a clipboard file use a resizable block', async ({
 
 test('image files paste into answer choices', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const firstChoice = dialog.locator('.mc-choice-body').first()
   await firstChoice.locator('p').click()
   await pastePng(firstChoice)
 
   await expect(firstChoice.locator('img[src^="/local-images/"]')).toHaveCount(1)
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   const question = page.locator('.exam-question').first()
   await expect(
     question.locator('.choice-body img[src^="/local-images/"]'),

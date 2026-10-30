@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 async function seedBanks(page: Page) {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -33,32 +33,32 @@ async function seedBanks(page: Page) {
   })
 }
 
-const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
-const search = (page: Page) => page.getByRole('searchbox', { name: 'Search question stems' })
+const bank = (page: Page) => page.getByRole('region', { name: 'Kérdésbank' })
+const search = (page: Page) => page.getByRole('searchbox', { name: 'Kérdésszöveg keresése' })
 
 /** The editor edits an Exam, so every tab test starts by opening one. */
 async function newExam(page: Page) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
 }
 
 async function openBankTab(page: Page, name: RegExp) {
-  await page.getByRole('button', { name: 'Open Question Bank' }).click()
-  await page.getByRole('dialog', { name: 'Open Question Bank' }).getByRole('button', { name }).click()
+  await page.getByRole('button', { name: 'Kérdésbank megnyitása' }).click()
+  await page.getByRole('dialog', { name: 'Kérdésbank megnyitása' }).getByRole('button', { name }).click()
 }
 
 test('opening a Question Bank goes to its own page and creates no Exam', async ({ page }) => {
   const ids = await seedBanks(page)
   await page.goto(`/question-bank?id=${ids.biology}`)
 
-  await expect(page.getByRole('textbox', { name: 'Question Bank name' })).toHaveValue('Biology')
-  await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('Question Banks')
+  await expect(page.getByRole('textbox', { name: 'Kérdésbank neve' })).toHaveValue('Biology')
+  await expect(page.getByRole('navigation', { name: 'Morzsamenü' })).toContainText('Question Banks')
   await expect(bank(page)).toContainText('Describe mitosis.')
   // No Exam, and therefore no tabs and nothing to add a Question to.
-  await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveCount(0)
   await expect(page.getByRole('tab')).toHaveCount(0)
-  await expect(bank(page).getByRole('button', { name: 'Add Describe mitosis. to the exam' })).toHaveCount(0)
+  await expect(bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' })).toHaveCount(0)
 
   const exams = await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(
@@ -79,28 +79,28 @@ test('the Question Bank page filters and opens a Question for editing', async ({
   await expect(bank(page)).toContainText('Describe mitosis.')
 
   await bank(page).getByRole('listitem').filter({ hasText: 'Describe mitosis.' }).dblclick()
-  await expect(page.getByRole('dialog', { name: 'Question' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Kérdés' })).toBeVisible()
 })
 
 test('an Exam with no bank tabs offers opening or creating a Question Bank', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
 
-  await expect(page.getByRole('button', { name: 'Open Question Bank' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Kérdésbank megnyitása' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Create new Question Bank' })).toBeVisible()
   await page.getByRole('button', { name: 'Create new Question Bank' }).click()
 
   await expect(page.getByRole('tab', { name: 'Untitled Question Bank' })).toHaveAttribute('aria-selected', 'true')
   await expect(bank(page)).toContainText('No questions yet')
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
 })
 
 test('the bank picker owns focus and restores it when dismissed', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
-  const openBank = page.getByRole('button', { name: 'Open Question Bank' })
+  const openBank = page.getByRole('button', { name: 'Kérdésbank megnyitása' })
   await openBank.click()
-  const closePicker = page.getByRole('button', { name: 'Close Question Bank picker' })
+  const closePicker = page.getByRole('button', { name: 'Kérdésbank-választó bezárása' })
   await expect(closePicker).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(openBank).toBeFocused()
@@ -140,18 +140,18 @@ test('search, difficulty, and topic filters remain independent per bank tab', as
   const biologyTab = page.getByRole('tab', { name: 'Biology' })
   await biologyTab.click()
   await search(page).fill('mitosis')
-  await bank(page).getByRole('button', { name: 'Difficulty' }).click()
-  await page.getByRole('group', { name: 'Difficulty' }).getByText('Hard').click()
-  await bank(page).getByRole('button', { name: 'Topic' }).click()
-  await page.getByRole('group', { name: 'Topic' }).getByText('Cells').click()
+  await bank(page).getByRole('button', { name: 'Nehézség' }).click()
+  await page.getByRole('group', { name: 'Nehézség' }).getByText('Nehéz').click()
+  await bank(page).getByRole('button', { name: 'Téma' }).click()
+  await page.getByRole('group', { name: 'Téma' }).getByText('Cells').click()
 
   await chemistryTab.click()
   await expect(chemistryTab).toHaveAttribute('aria-selected', 'true')
   await expect(search(page)).toHaveValue('oxygen')
   await biologyTab.click()
   await expect(search(page)).toHaveValue('mitosis')
-  await expect(bank(page).getByRole('button', { name: 'Difficulty' })).toContainText('1')
-  await expect(bank(page).getByRole('button', { name: 'Topic' })).toContainText('1')
+  await expect(bank(page).getByRole('button', { name: 'Nehézség' })).toContainText('1')
+  await expect(bank(page).getByRole('button', { name: 'Téma' })).toContainText('1')
 })
 
 test('a bare editor refresh restores open tabs, the active bank, and its filter', async ({ page }) => {
@@ -174,36 +174,36 @@ test('opening and closing bank tabs does not touch the Exam', async ({ page }) =
   await newExam(page)
   await openBankTab(page, /Biology/)
   await openBankTab(page, /Chemistry/)
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Close Chemistry' }).click()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Chemistry bezárása' }).click()
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveCount(0)
   await expect(page.getByRole('tab', { name: 'Biology' })).toHaveAttribute('aria-selected', 'true')
-  await page.getByRole('button', { name: 'Close Biology' }).click()
+  await page.getByRole('button', { name: 'Biology bezárása' }).click()
   await expect(page.getByRole('tab')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Open Question Bank' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Kérdésbank megnyitása' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Create new Question Bank' })).toBeVisible()
-  await expect(page.getByText('Drag or add a Question from an open Question Bank')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
+  await expect(page.getByText('Húzz ide kérdést egy megnyitott kérdésbankból')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
 })
 
 test('opening an Exam inside the editor carries the current tabs and external reopening restores them', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
-  await page.getByRole('textbox', { name: 'Exam name' }).fill('Destination Exam')
-  await page.getByRole('button', { name: 'Save', exact: true }).click()
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await page.getByRole('textbox', { name: 'Dolgozat neve' }).fill('Destination Exam')
+  await page.getByRole('button', { name: 'Mentés', exact: true }).click()
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
 
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await openBankTab(page, /Biology/)
   await openBankTab(page, /Chemistry/)
-  await page.getByRole('button', { name: 'File' }).click()
-  await page.getByRole('menuitem', { name: 'Open Exam' }).click()
-  await page.getByRole('dialog', { name: 'Open Exam' }).getByRole('button', { name: /Destination Exam/ }).click()
+  await page.getByRole('button', { name: 'Fájl' }).click()
+  await page.getByRole('menuitem', { name: 'Dolgozat megnyitása' }).click()
+  await page.getByRole('dialog', { name: 'Dolgozat megnyitása' }).getByRole('button', { name: /Destination Exam/ }).click()
 
   await expect(page.getByRole('tab', { name: 'Biology' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveAttribute('aria-selected', 'true')
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
   await page.getByRole('button', { name: 'Open Destination Exam' }).click()
   await expect(page.getByRole('tab', { name: 'Biology' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveAttribute('aria-selected', 'true')
@@ -213,28 +213,28 @@ test('one Exam composes Questions from multiple banks without duplicate identity
   await seedBanks(page)
   await newExam(page)
   await openBankTab(page, /Biology/)
-  await bank(page).getByRole('button', { name: 'Add Describe mitosis. to the exam' }).click()
+  await bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' }).click()
   await openBankTab(page, /Chemistry/)
-  await bank(page).getByRole('button', { name: 'Add Describe oxygen. to the exam' }).click()
+  await bank(page).getByRole('button', { name: 'Describe oxygen. felvétele a dolgozatba' }).click()
 
   await expect(page.locator('.exam-question')).toHaveCount(2)
   await expect(page.locator('.exam-question')).toContainText(['Describe mitosis.', 'Describe oxygen.'])
-  await expect(bank(page).getByRole('button', { name: 'Add Describe oxygen. to the exam' })).toHaveCount(0)
-  await expect(bank(page).getByRole('button', { name: 'Remove Describe oxygen. from the exam' })).toBeVisible()
+  await expect(bank(page).getByRole('button', { name: 'Describe oxygen. felvétele a dolgozatba' })).toHaveCount(0)
+  await expect(bank(page).getByRole('button', { name: 'Describe oxygen. eltávolítása a dolgozatból' })).toBeVisible()
 })
 
 test('adding a bank Question raises the Working Copy and Discard puts it back', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
   await openBankTab(page, /Biology/)
-  await bank(page).getByRole('button', { name: 'Add Describe mitosis. to the exam' }).click()
+  await bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' }).click()
 
   await expect(page.locator('.exam-question')).toContainText('Describe mitosis.')
-  await expect(page.getByLabel('Working Copy status')).toHaveText('Unsaved changes · backed up locally')
-  await page.getByRole('button', { name: 'File' }).click()
-  await page.getByRole('menuitem', { name: 'Discard changes' }).click()
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Unsaved changes · backed up locally')
+  await page.getByRole('button', { name: 'Fájl' }).click()
+  await page.getByRole('menuitem', { name: 'Módosítások elvetése' }).click()
   await expect(page.locator('.exam-question')).toHaveCount(0)
-  await expect(page.getByLabel('Working Copy status')).toHaveText('Saved')
+  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Saved')
 })
 
 test('an Exam offers composition from banks but not direct creation or automatic Replace', async ({ page }) => {
@@ -243,7 +243,7 @@ test('an Exam offers composition from banks but not direct creation or automatic
   await openBankTab(page, /Biology/)
 
   await expect(page.getByRole('button', { name: 'Add Question' })).toBeVisible()
-  await bank(page).getByRole('button', { name: 'Add Describe mitosis. to the exam' }).click()
+  await bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' }).click()
   await page.locator('.exam-question').click({ button: 'right' })
   await expect(page.getByRole('menuitem', { name: 'Replace with equivalents' })).toHaveCount(0)
 })
@@ -251,42 +251,42 @@ test('an Exam offers composition from banks but not direct creation or automatic
 test('an Exam can browse bank tabs without changing its saved state or Undo', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Export' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Export', exact: true }).click()
-  const previewBefore = await page.getByLabel('Export Preview').innerText()
-  await expect(page.getByLabel('Export Preview')).not.toContainText('Describe mitosis.')
-  await page.getByRole('dialog', { name: 'Export' }).getByRole('button', { name: 'Cancel' }).click()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Exportálás' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
+  const previewBefore = await page.getByLabel('Export előnézete').innerText()
+  await expect(page.getByLabel('Export előnézete')).not.toContainText('Describe mitosis.')
+  await page.getByRole('dialog', { name: 'Exportálás' }).getByRole('button', { name: 'Mégsem' }).click()
 
-  await page.getByRole('button', { name: 'Open Question Bank' }).click()
-  const picker = page.getByRole('dialog', { name: 'Open Question Bank' })
+  await page.getByRole('button', { name: 'Kérdésbank megnyitása' }).click()
+  const picker = page.getByRole('dialog', { name: 'Kérdésbank megnyitása' })
   await expect(picker).toContainText('Biology')
   await picker.getByRole('button', { name: /Biology/ }).click()
   await expect(picker).toBeHidden()
   await expect(page.getByRole('tab', { name: 'Biology' })).toHaveAttribute('aria-selected', 'true')
   await expect(bank(page)).toContainText('Describe mitosis.')
   await search(page).fill('mitosis')
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Export' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Export', exact: true }).click()
-  await expect(page.getByLabel('Export Preview')).toHaveText(previewBefore)
-  await expect(page.getByLabel('Export Preview')).not.toContainText('Describe mitosis.')
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Exportálás' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
+  await expect(page.getByLabel('Export előnézete')).toHaveText(previewBefore)
+  await expect(page.getByLabel('Export előnézete')).not.toContainText('Describe mitosis.')
 })
 
 test('closing an Exam bank tab leaves Questions referenced by the Exam unchanged', async ({ page }) => {
   await seedBanks(page)
   await newExam(page)
   await openBankTab(page, /Biology/)
-  await bank(page).getByRole('button', { name: 'Add Describe mitosis. to the exam' }).click()
-  await page.getByRole('button', { name: 'Save', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
+  await bank(page).getByRole('button', { name: 'Describe mitosis. felvétele a dolgozatba' }).click()
+  await page.getByRole('button', { name: 'Mentés', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
 
-  await page.getByRole('button', { name: 'Close Biology' }).click()
+  await page.getByRole('button', { name: 'Biology bezárása' }).click()
 
   await expect(page.locator('.exam-question')).toContainText('Describe mitosis.')
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeDisabled()
 })
 
 test('a missing bank address reports the problem and returns to the collection', async ({ page }) => {

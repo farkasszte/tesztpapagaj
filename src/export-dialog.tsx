@@ -128,14 +128,14 @@ function ExportSettings({
       </fieldset>
 
       <fieldset className="export-field" disabled={locked}>
-        <legend>Content selection</legend>
+        <legend>{t('export.contentSelection')}</legend>
         <label>
           <input
             type="checkbox"
             checked={selection.test}
             onChange={(event) => change({ selection: { ...selection, test: event.target.checked } })}
           />
-          Student test
+          {t('export.studentTest')}
         </label>
         <label>
           <input
@@ -143,12 +143,12 @@ function ExportSettings({
             checked={selection.answerKey}
             onChange={(event) => change({ selection: { ...selection, answerKey: event.target.checked } })}
           />
-          Answer key
+          {t('export.answerKey')}
         </label>
       </fieldset>
 
       <fieldset className="export-field" disabled={locked} aria-describedby={`${id}-version-hint`}>
-        <legend>Shuffled Versions</legend>
+        <legend>{t('export.shuffledVersions')}</legend>
         <label>
           <input
             type="checkbox"

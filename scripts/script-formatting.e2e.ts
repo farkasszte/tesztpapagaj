@@ -61,19 +61,19 @@ async function pasteContent(
 
 test('authors can apply and persist semantic script formatting', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().fill('H2O and cm2')
 
   await selectText(editor, '2')
-  await page.getByRole('button', { name: 'Subscript' }).click()
+  await page.getByRole('button', { name: 'Alsó index' }).click()
   await expect(editor.locator('sub')).toHaveText('2')
 
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('.question-stem sub')).toHaveText('2')
 
@@ -81,16 +81,16 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   await expect(dialog.locator('.ProseMirror sub')).toHaveText('2')
 
   await selectText(editor, '2')
-  await page.getByRole('button', { name: 'Superscript' }).click()
+  await page.getByRole('button', { name: 'Felső index' }).click()
   await expect(editor.locator('sup')).toHaveText('2')
   await expect(editor.locator('sub')).toHaveCount(0)
 
   await selectText(editor, 'H2O')
-  await page.getByRole('button', { name: 'Superscript' }).click()
+  await page.getByRole('button', { name: 'Felső index' }).click()
   await expect(editor.locator('sup')).toHaveText('H2O')
 
   await selectText(editor, 'H2O')
-  await page.getByRole('button', { name: 'Superscript' }).click()
+  await page.getByRole('button', { name: 'Felső index' }).click()
   await expect(editor.locator('sup')).toHaveCount(0)
 
   await editor.locator('> p').first().click()
@@ -118,10 +118,10 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   const firstChoice = editor.locator('.mc-choice-body').first()
   await firstChoice.locator('p').fill('CO2 answer')
   await selectText(firstChoice, '2')
-  const subscript = page.getByRole('button', { name: 'Subscript' })
+  const subscript = page.getByRole('button', { name: 'Alsó index' })
   await expect(subscript).toHaveAttribute('title', 'Subscript (Ctrl+,)')
   await expect(subscript).toHaveAttribute('aria-keyshortcuts', 'Control+,')
-  await expect(page.getByRole('button', { name: 'Superscript' })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: 'Felső index' })).toHaveAttribute(
     'title',
     'Superscript (Ctrl+.)',
   )
@@ -181,7 +181,7 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   await fourthChoice.locator('p').click()
   await page.keyboard.press('Home')
   await page.keyboard.press('Shift+End')
-  await page.getByRole('button', { name: 'Subscript' }).click()
+  await page.getByRole('button', { name: 'Alsó index' }).click()
   await expect(fourthChoice.locator('sub [data-type="math_inline"]')).toHaveCount(0)
   await expect(inlineMath).toHaveCount(1)
 
@@ -197,7 +197,7 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   await subscript.hover()
   await expect(subscript).toHaveCSS('background-color', 'rgb(242, 230, 216)')
 
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
   await expect(question.locator('.choice-body').first().locator('sub')).toHaveText('2')
   await expect(
     question.locator('.choice-body').filter({ hasText: 'code plus x' }).locator('code'),
@@ -206,10 +206,10 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   // Reopened, the formatting is still in the document it was written into.
   await question.dblclick()
   await expect(editor.locator('.mc-choice-body').first().locator('sub')).toHaveText('2')
-  await page.getByRole('button', { name: 'Save question' }).click()
+  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
 
   await question.click({ button: 'right' })
-  await page.getByRole('menuitem', { name: 'Duplicate' }).click()
+  await page.getByRole('menuitem', { name: 'Duplikálás' }).click()
   const questions = page.locator('.exam-question')
   await expect(questions).toHaveCount(2)
   await expect(questions.nth(1).locator('.choice-body').first().locator('sub')).toHaveText('2')

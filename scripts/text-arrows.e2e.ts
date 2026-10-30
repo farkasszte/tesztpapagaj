@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test'
 
 test('typed -> and <- become real arrows', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
   const editor = dialog.locator('.ProseMirror')
   await editor.locator('> p').first().click()
   await page.keyboard.type('solid -> liquid <- gas')

@@ -11,7 +11,7 @@ import { assistantPackage, picture, sourceDocument, wordSourceDocument } from '.
 /** The instructions a step downloads, as the teacher's AI reads them. */
 async function downloadedInstructions(page: Page, steps: Locator) {
   const download = page.waitForEvent('download')
-  await steps.getByRole('button', { name: 'Download the instructions' }).click()
+  await steps.getByRole('button', { name: 'Az utasítások letöltése' }).click()
   return readFile(await (await download).path(), 'utf8')
 }
 
@@ -26,15 +26,15 @@ test('the convert page asks only for the test, then opens its import with the pa
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/get-started/convert')
   await expect(page.getByText('Drop your test here to get started')).toBeVisible()
-  const steps = page.getByRole('region', { name: 'Convert your test' })
+  const steps = page.getByRole('region', { name: 'Dolgozat átalakítása' })
   await expect(steps).toHaveCount(0)
 
   // A PDF with pictures starts an import, opened in Imports, and goes to the
   // AI as a labeled copy.
-  await page.getByLabel('Your test, a question file, or the file your AI gave back').setInputFiles({ name: 'unit-test.pdf', mimeType: 'application/pdf', buffer: await sourceDocument() })
+  await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'unit-test.pdf', mimeType: 'application/pdf', buffer: await sourceDocument() })
   await expect(page).toHaveURL(/\/import\?id=/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Converting unit-test.pdf')
-  await expect(page.getByLabel('About this import')).toContainText('Pictures detected2')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected2')
   await expect(steps.getByRole('button', { name: 'Download the labeled PDF' })).toBeVisible()
   await expect(steps).toContainText('Attach both downloads and send.')
   await expect(steps).not.toContainText('seven days')
@@ -45,21 +45,21 @@ test('the convert page asks only for the test, then opens its import with the pa
 
   // A PDF that has no pictures needs no labeled copy.
   await page.goto('/get-started/convert')
-  await page.getByLabel('Your test, a question file, or the file your AI gave back').setInputFiles({ name: 'planets.pdf', mimeType: 'application/pdf', buffer: await textOnlyPdf() })
+  await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'planets.pdf', mimeType: 'application/pdf', buffer: await textOnlyPdf() })
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Converting planets.pdf')
-  await expect(page.getByLabel('About this import')).toContainText('Pictures detected0')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected0')
   await expect(steps.getByRole('button', { name: 'Download the labeled PDF' })).toHaveCount(0)
   expect(await downloadedInstructions(page, steps)).toContain('found no pictures to tag in this document')
-  await expect(steps.getByRole('button', { name: 'Downloaded' })).toBeVisible()
+  await expect(steps.getByRole('button', { name: 'Letöltve' })).toBeVisible()
 
   // A photo is converted as it is, and its pictures are cropped after.
   await page.goto('/get-started/convert')
-  await page.getByLabel('Your test, a question file, or the file your AI gave back').setInputFiles({ name: 'quiz-photo.png', mimeType: 'image/png', buffer: Buffer.from(picture(600, 800, 3)) })
-  await expect(page.getByLabel('About this import')).toContainText('Pictures detectedCropped after importing')
+  await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({ name: 'quiz-photo.png', mimeType: 'image/png', buffer: Buffer.from(picture(600, 800, 3)) })
+  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detectedCropped after importing')
   await expect(steps).toContainText('Attach the instructions and your photo')
   // The whole step opens the list of assistants.
-  await steps.getByRole('button', { name: 'Open your AI' }).click()
-  await expect(steps.getByRole('menu', { name: 'Open an AI assistant' }).getByRole('menuitem')).toHaveText(['ChatGPT', 'Claude', 'Gemini'])
+  await steps.getByRole('button', { name: 'Nyisd meg az AI-t' }).click()
+  await expect(steps.getByRole('menu', { name: 'AI-asszisztens megnyitása' }).getByRole('menuitem')).toHaveText(['ChatGPT', 'Claude', 'Gemini'])
   await page.keyboard.press('Escape')
   await expect(steps.getByRole('menu')).toHaveCount(0)
   expect(await downloadedInstructions(page, steps)).toContain('There is no labeled copy of this source')
@@ -73,30 +73,30 @@ test('the convert page asks only for the test, then opens its import with the pa
   photoPackage.exams[0].positions = [{ question: { bank: 'history', question: 'q1' } }]
   // The step itself chooses the file, as the drop below it does.
   const chooser = page.waitForEvent('filechooser')
-  await steps.getByRole('button', { name: 'Drop the file it gives back' }).click()
+  await steps.getByRole('button', { name: 'Húzd ide a visszakapott fájlt' }).click()
   expect((await chooser).isMultiple()).toBe(false)
-  await steps.getByLabel('File from your AI').setInputFiles({ name: 'quiz.parrot.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(photoPackage)) })
-  const dialog = page.getByRole('dialog', { name: 'Import' })
-  const photoPicture = dialog.getByLabel('Test preview').getByRole('button', { name: /^Question 1: / })
+  await steps.getByLabel('Fájl az AI-tól').setInputFiles({ name: 'quiz.parrot.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(photoPackage)) })
+  const dialog = page.getByRole('dialog', { name: 'Importálás' })
+  const photoPicture = dialog.getByLabel('Dolgozat előnézete').getByRole('button', { name: /^Question 1: / })
   await expect(photoPicture).toHaveAccessibleName('Question 1: picture needed. Change picture')
   await photoPicture.click()
-  await dialog.getByRole('complementary', { name: 'Picture for Question 1' }).getByRole('button', { name: 'Crop from a page' }).click()
-  const cropper = dialog.getByRole('group', { name: 'Crop a picture from a page' })
+  await dialog.getByRole('complementary', { name: 'Kép a(z) 1. kérdéshez' }).getByRole('button', { name: 'Kivágás az oldalról' }).click()
+  const cropper = dialog.getByRole('group', { name: 'Kép kivágása az oldalról' })
   await expect(cropper).toContainText('Page 1 of 1')
-  await cropper.getByRole('button', { name: 'Use the whole page' }).click()
+  await cropper.getByRole('button', { name: 'Az egész oldal' }).click()
   await expect(photoPicture).toContainText('Cropped from page 1')
 })
 
 test('a Word document goes to the AI as a labeled copy, and its pictures come from the document', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/get-started/convert')
-  const steps = page.getByRole('region', { name: 'Convert your test' })
-  await page.getByLabel('Your test, a question file, or the file your AI gave back').setInputFiles({
+  const steps = page.getByRole('region', { name: 'Dolgozat átalakítása' })
+  await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({
     name: 'unit-test.docx',
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     buffer: await wordSourceDocument(),
   })
-  await expect(page.getByLabel('About this import')).toContainText('Pictures detected2')
+  await expect(page.getByLabel('Erről az importról')).toContainText('Pictures detected2')
   await expect(steps).toContainText('Attach both downloads and send.')
 
   const download = page.waitForEvent('download')
@@ -105,10 +105,10 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
   const instructions = await downloadedInstructions(page, steps)
   expect(instructions).toContain('This is a labeled Word document. Test Parrot put 2 tags in it, each just before its picture:\n\n- IMG 1, IMG 2')
 
-  await steps.getByLabel('File from your AI').setInputFiles({ name: 'unit-test.parrot.json', mimeType: 'application/json', buffer: assistantPackage() })
-  const dialog = page.getByRole('dialog', { name: 'Import' })
+  await steps.getByLabel('Fájl az AI-tól').setInputFiles({ name: 'unit-test.parrot.json', mimeType: 'application/json', buffer: assistantPackage() })
+  const dialog = page.getByRole('dialog', { name: 'Importálás' })
   await expect(dialog.getByRole('alert')).toHaveCount(0)
-  const preview = dialog.getByLabel('Test preview')
+  const preview = dialog.getByLabel('Dolgozat előnézete')
   await expect(preview.getByRole('status').filter({ hasText: /picture/ }))
     .toHaveText('3 of 5 pictures detected from unit-test.docx. Click a picture to change it.', { timeout: 30000 })
   const map = preview.getByRole('button', { name: /^Question 1: / })
@@ -117,15 +117,15 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
   // A picture Word does not store as an image is uploaded: there is no page
   // to crop it from.
   await preview.getByRole('button', { name: /^Question 4: / }).click()
-  const circuit = dialog.getByRole('complementary', { name: 'Picture for Question 4' })
-  await expect(circuit.getByRole('button', { name: 'Crop from a page' })).toHaveCount(0)
+  const circuit = dialog.getByRole('complementary', { name: 'Kép a(z) 4. kérdéshez' })
+  await expect(circuit.getByRole('button', { name: 'Kivágás az oldalról' })).toHaveCount(0)
   await circuit.getByLabel('Upload a picture for Question 4').setInputFiles({ name: 'circuit.png', mimeType: 'image/png', buffer: Buffer.from(picture(90, 60, 4)) })
   await expect(preview.getByRole('button', { name: /^Question 4: / })).toContainText('Uploaded')
 })
 
 test('a file from an AI that matches no import in progress, and needs its test’s pictures, is refused', async ({ page }) => {
   await page.goto('/get-started/convert')
-  await page.getByLabel('Your test, a question file, or the file your AI gave back').setInputFiles({
+  await page.getByLabel('A dolgozatod, egy kérdésfájl vagy az AI-tól visszakapott fájl').setInputFiles({
     name: 'unit-test.parrot.json',
     mimeType: 'application/json',
     buffer: assistantPackage(),

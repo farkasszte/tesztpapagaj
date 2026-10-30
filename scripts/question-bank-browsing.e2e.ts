@@ -80,13 +80,13 @@ const QUESTIONS: Question[] = [
   }),
 ]
 
-const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
+const bank = (page: Page) => page.getByRole('region', { name: 'Kérdésbank' })
 const rows = (page: Page) => bank(page).getByRole('listitem')
 const row = (page: Page, stem: string) =>
   bank(page).getByRole('listitem').filter({ hasText: stem })
 const search = (page: Page) =>
-  page.getByRole('searchbox', { name: 'Search question stems' })
-const dialog = (page: Page) => page.getByRole('dialog', { name: 'Question editor' })
+  page.getByRole('searchbox', { name: 'Kérdésszöveg keresése' })
+const dialog = (page: Page) => page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
 
 async function openBank(page: Page, questionIds: string[] = ['q1', 'q2']) {
   await seedAuthoringState(page, {
@@ -140,13 +140,13 @@ test('a click selects a row while a double-click, Enter or Edit opens the popup'
   await row(page, 'Mitosis and meiosis').dblclick()
   await expect(dialog(page)).toBeVisible()
   await expect(dialog(page)).toContainText('Mitosis and meiosis')
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Mégsem' }).click()
 
   await row(page, 'Photosynthesis at night').focus()
   await page.keyboard.press('Enter')
   await expect(dialog(page)).toBeVisible()
   await expect(dialog(page)).toContainText('Photosynthesis at night')
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Mégsem' }).click()
 
   await row(page, 'Read the graph').getByRole('button', { name: /^Edit / }).click()
   await expect(dialog(page)).toBeVisible()
@@ -221,7 +221,7 @@ test('Add all composes only the filtered questions as one action', async ({ page
 
 test('browsing the Question Bank is not an authoring action', async ({ page }) => {
   await openBank(page)
-  const undo = page.getByRole('button', { name: 'Undo' })
+  const undo = page.getByRole('button', { name: 'Visszavonás' })
   await expect(undo).toBeDisabled()
 
   await search(page).fill('photosynthesis')
@@ -239,7 +239,7 @@ test('browsing the Question Bank is not an authoring action', async ({ page }) =
 
 test('an empty Question Bank reads differently from one nothing matches', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
   await expect(bank(page)).toContainText('No questions yet')
 
   await openBank(page)
@@ -259,7 +259,7 @@ test('a highlighted row is let go of by pressing Escape or by pressing elsewhere
 
   await row(page, 'Photosynthesis at night').click()
   await expect(row(page, 'Photosynthesis at night')).toHaveAttribute('aria-current', 'true')
-  await bank(page).getByRole('heading', { name: 'Question Bank' }).click()
+  await bank(page).getByRole('heading', { name: 'Kérdésbank' }).click()
   await expect(row(page, 'Photosynthesis at night')).not.toHaveAttribute('aria-current', 'true')
 })
 
@@ -270,8 +270,8 @@ test('a filter list stays over the bank rather than the sheet beside it', async 
   // last of them is the one that would hang over the divider and the rendered
   // page — which paint over it, because the bank pane is its own stacking
   // context. Geometry is the claim, so it is measured.
-  await bank(page).getByRole('button', { name: 'Difficulty', exact: true }).click()
-  const list = page.getByRole('group', { name: 'Difficulty' })
+  await bank(page).getByRole('button', { name: 'Nehézség', exact: true }).click()
+  const list = page.getByRole('group', { name: 'Nehézség' })
   await expect(list).toBeVisible()
 
   const bankBox = (await bank(page).boundingBox())!
@@ -280,6 +280,6 @@ test('a filter list stays over the bank rather than the sheet beside it', async 
   expect(listBox.x + listBox.width).toBeLessThanOrEqual(bankBox.x + bankBox.width)
 
   // Over the bank, not under it: every option is hittable.
-  await page.getByRole('checkbox', { name: 'Unspecified', exact: true }).check()
-  await expect(page.getByRole('checkbox', { name: 'Unspecified', exact: true })).toBeChecked()
+  await page.getByRole('checkbox', { name: 'Nincs megadva', exact: true }).check()
+  await expect(page.getByRole('checkbox', { name: 'Nincs megadva', exact: true })).toBeChecked()
 })

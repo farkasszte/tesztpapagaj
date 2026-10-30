@@ -44,9 +44,9 @@ async function open(page: Page, authoring = AUTHORING) {
   await page.locator('.exam-page').first().waitFor()
 }
 
-const dialogOf = (page: Page) => page.getByRole('dialog', { name: 'Export' })
+const dialogOf = (page: Page) => page.getByRole('dialog', { name: 'Exportálás' })
 async function openDialog(page: Page) {
-  await page.getByRole('button', { name: 'Export', exact: true }).click()
+  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
   await expect(dialogOf(page)).toBeVisible()
   return dialogOf(page)
 }
@@ -73,19 +73,19 @@ test('Export defaults to PDF with both selected documents and a clean preview', 
   await open(page)
   const dialog = await openDialog(page)
   await expect(dialog.getByRole('radio', { name: 'PDF' })).toBeChecked()
-  await expect(dialog.getByRole('checkbox', { name: 'Student test' })).toBeChecked()
-  await expect(dialog.getByRole('checkbox', { name: 'Answer key' })).toBeChecked()
-  await expect(dialog.getByLabel('Export Preview').locator('.exam-page')).toHaveCount(2)
-  await expect(dialog.getByLabel('Export Preview')).toContainText('Which is a mammal?')
-  await expect(dialog.getByLabel('Export Preview').locator('.choice-correctness-marker')).toHaveCount(0)
+  await expect(dialog.getByRole('checkbox', { name: 'Tanulói feladatlap' })).toBeChecked()
+  await expect(dialog.getByRole('checkbox', { name: 'Válaszkulcs' })).toBeChecked()
+  await expect(dialog.getByLabel('Export előnézete').locator('.exam-page')).toHaveCount(2)
+  await expect(dialog.getByLabel('Export előnézete')).toContainText('Which is a mammal?')
+  await expect(dialog.getByLabel('Export előnézete').locator('.choice-correctness-marker')).toHaveCount(0)
 })
 
 test('format and Content Selection control the artifact and record', async ({ page }) => {
   await open(page)
   const dialog = await openDialog(page)
   await dialog.getByRole('radio', { name: 'DOCX' }).check()
-  await dialog.getByRole('checkbox', { name: 'Student test' }).uncheck()
-  await expect(dialog.getByLabel('Export Preview').locator('.exam-page')).toHaveCount(1)
+  await dialog.getByRole('checkbox', { name: 'Tanulói feladatlap' }).uncheck()
+  await expect(dialog.getByLabel('Export előnézete').locator('.exam-page')).toHaveCount(1)
   const file = page.waitForEvent('download')
   await dialog.getByRole('button', { name: 'Download DOCX' }).click()
   expect((await file).suggestedFilename()).toBe('Biology Quiz.docx')
@@ -98,9 +98,9 @@ test('format and Content Selection control the artifact and record', async ({ pa
 
 test('identical exports append distinct records without saving the Working Copy', async ({ page }) => {
   await open(page)
-  const title = page.getByRole('textbox', { name: 'Exam name' })
+  const title = page.getByRole('textbox', { name: 'Dolgozat neve' })
   await title.fill('Unsaved Biology Quiz')
-  await expect(page.getByLabel('Working Copy status')).toContainText('Unsaved changes')
+  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Unsaved changes')
 
   expect((await download(page)).suggestedFilename()).toBe('Unsaved Biology Quiz.pdf')
   expect((await download(page)).suggestedFilename()).toBe('Unsaved Biology Quiz.pdf')
@@ -108,7 +108,7 @@ test('identical exports append distinct records without saving the Working Copy'
   const records = (await historyOf(page)).records
   expect(records[0]!.id).not.toBe(records[1]!.id)
   expect(records.every((record) => record.capturedName === 'Unsaved Biology Quiz')).toBe(true)
-  await expect(page.getByLabel('Working Copy status')).toContainText('Unsaved changes')
+  await expect(page.getByLabel('Munkapéldány állapota')).toContainText('Unsaved changes')
 })
 
 test('Export History is newest-first, and its frozen Re-export appends an event', async ({ page }) => {
@@ -116,23 +116,23 @@ test('Export History is newest-first, and its frozen Re-export appends an event'
   await download(page, 'PDF')
   await download(page, 'DOCX')
 
-  await page.getByRole('button', { name: 'Export History' }).click()
-  const history = page.getByRole('complementary', { name: 'Export History' })
+  await page.getByRole('button', { name: 'Exportelőzmények' }).click()
+  const history = page.getByRole('complementary', { name: 'Exportelőzmények' })
   await expect(history.locator('.export-history-item')).toHaveCount(2)
   await expect(history.locator('.export-history-item').first()).toContainText('DOCX')
   await history.locator('.export-history-item').first().click()
 
-  const reExport = page.getByRole('dialog', { name: 'Re-export' })
+  const reExport = page.getByRole('dialog', { name: 'Újraexportálás' })
   await expect(reExport).toContainText('Export Record, Immutable')
   await expect(reExport).toContainText('#2')
   // Every setting is frozen as it was exported.
   await expect(reExport.getByRole('radio', { name: 'DOCX' })).toBeChecked()
   await expect(reExport.getByRole('radio', { name: 'DOCX' })).toBeDisabled()
-  await expect(reExport.getByRole('checkbox', { name: 'Student test' })).toBeDisabled()
+  await expect(reExport.getByRole('checkbox', { name: 'Tanulói feladatlap' })).toBeDisabled()
   await expect(reExport.getByRole('button', { name: /Use as draft/i })).toHaveCount(0)
 
   const file = page.waitForEvent('download')
-  await reExport.getByRole('button', { name: 'Re-export DOCX' }).click()
+  await reExport.getByRole('button', { name: 'Újraexportálás: DOCX' }).click()
   expect((await file).suggestedFilename()).toBe('Biology Quiz.docx')
   await expect(reExport).toBeHidden()
   await expect.poll(async () => (await historyOf(page)).records.length).toBe(3)
@@ -141,11 +141,11 @@ test('Export History is newest-first, and its frozen Re-export appends an event'
 
 test('Escape closes Export History and restores focus', async ({ page }) => {
   await open(page)
-  const button = page.getByRole('button', { name: 'Export History' })
+  const button = page.getByRole('button', { name: 'Exportelőzmények' })
   await button.click()
-  await expect(page.getByRole('complementary', { name: 'Export History' })).toBeVisible()
+  await expect(page.getByRole('complementary', { name: 'Exportelőzmények' })).toBeVisible()
   await page.keyboard.press('Escape')
-  await expect(page.getByRole('complementary', { name: 'Export History' })).toBeHidden()
+  await expect(page.getByRole('complementary', { name: 'Exportelőzmények' })).toBeHidden()
   await expect(button).toBeFocused()
 })
 
@@ -153,8 +153,8 @@ test('empty Exams cannot export and Cmd/Ctrl+P opens Export for non-empty Exams'
   await open(page, { questionBank: { questions: [] }, workingCopy: { title: 'Empty', questionIds: [] }, dirty: false })
   const dialog = await openDialog(page)
   await expect(dialog.getByText('Add at least one question', { exact: false }).first()).toBeVisible()
-  await expect(dialog.getByRole('button', { name: 'Download PDF' })).toBeDisabled()
-  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(dialog.getByRole('button', { name: 'PDF letöltése' })).toBeDisabled()
+  await dialog.getByRole('button', { name: 'Mégsem' }).click()
 
   await open(page)
   await page.keyboard.press('ControlOrMeta+P')
@@ -176,7 +176,7 @@ test('a Short Answer question sits close to its number, and its Suggested Answer
   expect(await stemLeft('o1')).toBeLessThan(await stemLeft('m1') - 40)
 
   const dialog = await openDialog(page)
-  const [testPage, keyPage] = await dialog.getByLabel('Export Preview').locator('.exam-page').all()
+  const [testPage, keyPage] = await dialog.getByLabel('Export előnézete').locator('.exam-page').all()
   await expect(testPage!).toContainText('Explain why.')
   await expect(testPage!).not.toContainText('Because whales breathe air.')
   await expect(keyPage!.locator('.answer-key-suggested')).toHaveText('Because whales breathe air.')
@@ -217,7 +217,7 @@ test('a matching set too long for one page continues on the next, its Word Bank 
   })
 
   const dialog = await openDialog(page)
-  const pages = dialog.getByLabel('Export Preview').locator('.exam-page:has(.matching-set)')
+  const pages = dialog.getByLabel('Export előnézete').locator('.exam-page:has(.matching-set)')
   await expect(pages).toHaveCount(2)
 
   // Every item prints once, in order, across the pages.

@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function seedDeletion(page: Page) {
   await page.goto("/about");
-  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "A projektről" })).toBeVisible();
   return page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
       /* @vite-ignore */ "/src/exam-workspaces.ts"
@@ -61,44 +61,44 @@ test("full Question editor discloses impact, cancels safely, and permanently del
 }) => {
   const { examId } = await seedDeletion(page);
   await page.goto(`/editor?exam=${examId}`);
-  await page.getByRole("button", { name: "Export", exact: true }).click();
-  const exportDialog = page.getByRole("dialog", { name: "Export" });
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  const exportDialog = page.getByRole("dialog", { name: "Exportálás" });
   const initialDownload = page.waitForEvent("download");
-  await exportDialog.getByRole("button", { name: "Download PDF" }).click();
+  await exportDialog.getByRole("button", { name: "PDF letöltése" }).click();
   await initialDownload;
-  await page.getByRole("textbox", { name: "Exam name" }).fill("Unsaved biology final");
-  await expect(page.getByRole("button", { name: "Delete Question" })).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Dolgozat neve" }).fill("Unsaved biology final");
+  await expect(page.getByRole("button", { name: "Kérdés törlése" })).toHaveCount(0);
   await page.locator(".exam-question").dblclick();
-  const editor = page.getByRole("dialog", { name: "Question editor" });
-  await editor.getByRole("button", { name: "Delete Question" }).click();
+  const editor = page.getByRole("dialog", { name: "Kérdésszerkesztő" });
+  await editor.getByRole("button", { name: "Kérdés törlése" }).click();
   const confirmation = page.getByRole("dialog", {
-    name: "Permanently delete this Question?",
+    name: "Véglegesen törlöd ezt a kérdést?",
   });
   await expect(confirmation).toContainText("Unsaved biology final");
-  await expect(confirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await expect(confirmation.getByRole("button", { name: "Mégsem" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(confirmation.getByRole("button", { name: "Delete and remove from 1 Exam" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(editor).toBeVisible();
-  await editor.getByRole("button", { name: "Delete Question" }).click();
+  await editor.getByRole("button", { name: "Kérdés törlése" }).click();
   await confirmation
     .getByRole("button", { name: "Delete and remove from 1 Exam" })
     .click();
   await expect(editor).toBeHidden();
   await expect(page.locator(".exam-question")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
-  await expect(page.getByLabel("Working Copy status")).toContainText("Unsaved changes");
-  await page.getByRole("button", { name: "File" }).click();
-  await page.getByRole("menuitem", { name: "Discard changes" }).click();
-  await expect(page.getByRole("textbox", { name: "Exam name" })).toHaveValue("Biology final");
+  await expect(page.getByRole("button", { name: "Visszavonás" })).toBeDisabled();
+  await expect(page.getByLabel("Munkapéldány állapota")).toContainText("Unsaved changes");
+  await page.getByRole("button", { name: "Fájl" }).click();
+  await page.getByRole("menuitem", { name: "Módosítások elvetése" }).click();
+  await expect(page.getByRole("textbox", { name: "Dolgozat neve" })).toHaveValue("Biology final");
   await expect(page.locator(".exam-question")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Export History" }).click();
-  await page.getByLabel("Export History").locator(".export-history-item").click();
-  const reExport = page.getByRole("dialog", { name: "Re-export" });
-  await expect(reExport.getByLabel("Export Preview")).toContainText("Shared cell question");
+  await page.getByRole("button", { name: "Exportelőzmények" }).click();
+  await page.getByLabel("Exportelőzmények").locator(".export-history-item").click();
+  const reExport = page.getByRole("dialog", { name: "Újraexportálás" });
+  await expect(reExport.getByLabel("Export előnézete")).toContainText("Shared cell question");
   const historicalDownload = page.waitForEvent("download");
-  await reExport.getByRole("button", { name: "Re-export PDF", exact: true }).click();
+  await reExport.getByRole("button", { name: "Újraexportálás: PDF", exact: true }).click();
   await historicalDownload;
 });
 
@@ -107,24 +107,24 @@ test("unused Question uses a lightweight irreversible confirmation", async ({
 }) => {
   const { bankId } = await seedDeletion(page);
   await page.goto(`/question-bank?id=${bankId}`);
-  await page.getByRole("button", { name: "Edit Unused cell question" }).click();
-  const editor = page.getByRole("dialog", { name: "Question editor" });
-  await editor.getByRole("button", { name: "Delete Question" }).click();
+  await page.getByRole("button", { name: "Unused cell question szerkesztése" }).click();
+  const editor = page.getByRole("dialog", { name: "Kérdésszerkesztő" });
+  await editor.getByRole("button", { name: "Kérdés törlése" }).click();
   const confirmation = page.getByRole("dialog", {
-    name: "Permanently delete this Question?",
+    name: "Véglegesen törlöd ezt a kérdést?",
   });
   await expect(confirmation).toContainText("not used in any Exams");
   await expect(
-    confirmation.getByRole("button", { name: "Delete Question" }),
+    confirmation.getByRole("button", { name: "Kérdés törlése" }),
   ).toBeVisible();
 });
 
 test("failed deletion leaves canonical and visible state unchanged", async ({ page }) => {
   const { bankId } = await seedDeletion(page);
   await page.goto(`/question-bank?id=${bankId}`);
-  await page.getByRole("button", { name: "Edit Shared cell question" }).click();
-  const editor = page.getByRole("dialog", { name: "Question editor" });
-  await editor.getByRole("button", { name: "Delete Question" }).click();
+  await page.getByRole("button", { name: "Shared cell question szerkesztése" }).click();
+  const editor = page.getByRole("dialog", { name: "Kérdésszerkesztő" });
+  await editor.getByRole("button", { name: "Kérdés törlése" }).click();
   await page.evaluate(() => {
     const original = IDBObjectStore.prototype.delete;
     IDBObjectStore.prototype.delete = function (key) {
@@ -138,35 +138,35 @@ test("failed deletion leaves canonical and visible state unchanged", async ({ pa
   await page.getByRole("button", { name: "Delete and remove from 1 Exam" }).click();
   await expect(page.getByRole("alert")).toContainText("Injected transaction abort");
   await expect(editor).toBeVisible();
-  await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Kérdésbank" }).getByText("Shared cell question")).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
-  await page.getByRole("button", { name: "Test Parrot home" }).click();
+  await expect(page.getByRole("region", { name: "Kérdésbank" }).getByText("Shared cell question")).toBeVisible();
+  await page.getByRole("button", { name: "Tesztpapagáj kezdőlap" }).click();
   await page.getByRole("button", { name: /^Open Biology final/ }).click();
   await expect(page.locator(".exam-question")).toContainText("Shared cell question");
 });
 
 test("a named bank remains after its final Question is deleted", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "New Question Bank" }).first().click();
-  const name = page.getByRole("textbox", { name: "Question Bank name" });
+  await page.getByRole("button", { name: "Új kérdésbank" }).first().click();
+  const name = page.getByRole("textbox", { name: "Kérdésbank neve" });
   await name.fill("Keep Biology");
   await name.press("Enter");
   await page.getByRole("button", { name: "Add Question" }).click();
-  await page.getByRole("menuitem", { name: "Short answer" }).click();
+  await page.getByRole("menuitem", { name: "Rövid válasz" }).click();
   await page.keyboard.type("Only question");
   await page.keyboard.press("Control+Enter");
-  await page.getByRole("button", { name: "Edit Only question" }).click();
-  const editor = page.getByRole("dialog", { name: "Question editor" });
-  await editor.getByRole("button", { name: "Delete Question" }).click();
-  await page.getByRole("dialog", { name: "Permanently delete this Question?" }).getByRole("button", { name: "Delete Question" }).click();
+  await page.getByRole("button", { name: "Only question szerkesztése" }).click();
+  const editor = page.getByRole("dialog", { name: "Kérdésszerkesztő" });
+  await editor.getByRole("button", { name: "Kérdés törlése" }).click();
+  await page.getByRole("dialog", { name: "Véglegesen törlöd ezt a kérdést?" }).getByRole("button", { name: "Kérdés törlése" }).click();
   await expect(name).toHaveValue("Keep Biology");
-  await expect(page.getByRole("region", { name: "Question Bank" })).toContainText("No questions yet");
+  await expect(page.getByRole("region", { name: "Kérdésbank" })).toContainText("No questions yet");
 });
 
 test("deleting the final Question from a pristine bank falls back without creating an Exam", async ({ page }) => {
   await page.goto("/about");
-  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "A projektről" })).toBeVisible();
   const activeId = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ "/src/question-bank-workspaces.ts") as typeof import("../src/question-bank-workspaces");
     const service = createQuestionBankWorkspaceService();
@@ -182,11 +182,11 @@ test("deleting the final Question from a pristine bank falls back without creati
   // Deleting the only Question of an Untitled bank disposes of the bank too,
   // so its page has nothing left to be: it returns to the collection.
   await page.goto(`/question-bank?id=${activeId}`);
-  await page.getByRole("button", { name: "Edit Delete me" }).click();
-  await page.getByRole("dialog", { name: "Question editor" }).getByRole("button", { name: "Delete Question" }).click();
-  await page.getByRole("dialog", { name: "Permanently delete this Question?" }).getByRole("button", { name: "Delete Question" }).click();
+  await page.getByRole("button", { name: "Delete me szerkesztése" }).click();
+  await page.getByRole("dialog", { name: "Kérdésszerkesztő" }).getByRole("button", { name: "Kérdés törlése" }).click();
+  await page.getByRole("dialog", { name: "Véglegesen törlöd ezt a kérdést?" }).getByRole("button", { name: "Kérdés törlése" }).click();
   await expect(page).toHaveURL(/\/question-banks$/);
-  await expect(page.getByRole("heading", { name: "Question Banks" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kérdésbankok" })).toBeVisible();
   expect(await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(/* @vite-ignore */ "/src/exam-workspaces.ts") as typeof import("../src/exam-workspaces");
     return (await createExamWorkspaceService().recent()).length;
@@ -197,7 +197,7 @@ test("empty named bank uses a lighter irreversible confirmation", async ({
   page,
 }) => {
   await page.goto("/about");
-  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "A projektről" })).toBeVisible();
   await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ "/src/question-bank-workspaces.ts"
@@ -207,7 +207,7 @@ test("empty named bank uses a lighter irreversible confirmation", async ({
     await service.commit(bank.id, { kind: "rename", name: "Empty Biology" });
   });
   await page.goto("/question-banks");
-  await page.locator(".question-bank-card").filter({ hasText: "Empty Biology" }).getByRole("button", { name: "Empty Biology actions" }).click();
+  await page.locator(".question-bank-card").filter({ hasText: "Empty Biology" }).getByRole("button", { name: "Empty Biology műveletei" }).click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
   const confirmation = page.getByRole("dialog", {
     name: "Permanently delete “Empty Biology”?",
@@ -218,7 +218,7 @@ test("empty named bank uses a lighter irreversible confirmation", async ({
   await expect(confirmation).not.toContainText(
     "Export History remains unchanged",
   );
-  await confirmation.getByRole("button", { name: "Cancel" }).click();
+  await confirmation.getByRole("button", { name: "Mégsem" }).click();
   await expect(page.getByRole("button", { name: "Open Empty Biology" })).toBeVisible();
 });
 
@@ -242,13 +242,13 @@ test("Home deletes a populated bank after disclosing per-Exam losses and Export 
   );
   await expect(confirmation).toContainText("Export History remains unchanged");
   await confirmation
-    .getByRole("button", { name: "Delete Question Bank" })
+    .getByRole("button", { name: "Kérdésbank törlése" })
     .click();
   await expect(card).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Create your first Question Bank" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Készítsd el az első kérdésbankodat" })).toBeVisible();
   await page.getByRole("button", { name: /^Open Biology final/ }).click();
   await expect(page.locator(".exam-question")).toHaveCount(0);
-  await page.getByRole("button", { name: "Test Parrot home" }).click();
+  await page.getByRole("button", { name: "Tesztpapagáj kezdőlap" }).click();
 
   expect(
     await page.evaluate(async (id) => {

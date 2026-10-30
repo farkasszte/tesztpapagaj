@@ -44,24 +44,24 @@ test('the menu offers counts and nothing that decides for itself', async ({ page
   await openExam(page, 1)
 
   await page.locator('.exam-question').first().click({ button: 'right' })
-  const answerColumns = page.getByRole('menuitem', { name: 'Answer columns' })
+  const answerColumns = page.getByRole('menuitem', { name: 'Válaszoszlopok' })
   await answerColumns.press('ArrowRight')
-  await expect(page.getByRole('menuitemradio', { name: '1 column' })).toBeVisible()
-  await expect(page.getByRole('menuitemradio', { name: '2 columns' })).toBeVisible()
-  await expect(page.getByRole('menuitemradio', { name: '4 columns' })).toBeVisible()
+  await expect(page.getByRole('menuitemradio', { name: '1 oszlop' })).toBeVisible()
+  await expect(page.getByRole('menuitemradio', { name: '2 oszlop' })).toBeVisible()
+  await expect(page.getByRole('menuitemradio', { name: '4 oszlop' })).toBeVisible()
   await expect(page.getByRole('menuitemradio', { name: 'Auto' })).toHaveCount(0)
 
-  await page.getByRole('menuitem', { name: 'Edit question' }).hover()
-  await expect(page.getByRole('menuitemradio', { name: '1 column' })).toHaveCount(0)
+  await page.getByRole('menuitem', { name: 'Kérdés szerkesztése' }).hover()
+  await expect(page.getByRole('menuitemradio', { name: '1 oszlop' })).toHaveCount(0)
 })
 
 test('a slow pointer crosses from the row to its submenu without the submenu closing', async ({ page }) => {
   await openExam(page, 1)
 
   await page.locator('.exam-question').first().click({ button: 'right' })
-  const answerColumns = page.getByRole('menuitem', { name: 'Answer columns' })
+  const answerColumns = page.getByRole('menuitem', { name: 'Válaszoszlopok' })
   await answerColumns.hover()
-  const fourColumns = page.getByRole('menuitemradio', { name: '4 columns' })
+  const fourColumns = page.getByRole('menuitemradio', { name: '4 oszlop' })
   await expect(fourColumns).toBeVisible()
 
   // Walk the pointer from the row's middle to the option in small steps, the
@@ -81,11 +81,11 @@ test('an inserted bank Question inherits its visual neighbor Working Copy layout
   await openExam(page, 2)
 
   await page.locator('.exam-question').first().click({ button: 'right' })
-  await page.getByRole('menuitem', { name: 'Answer columns' }).press('ArrowRight')
-  await page.getByRole('menuitemradio', { name: '1 column' }).click()
+  await page.getByRole('menuitem', { name: 'Válaszoszlopok' }).press('ArrowRight')
+  await page.getByRole('menuitemradio', { name: '1 oszlop' }).click()
   await expect(page.locator('.choice-grid[data-columns="1"]')).toHaveCount(1)
 
-  await page.getByRole('button', { name: 'Add Question q2 to the exam' }).click()
+  await page.getByRole('button', { name: 'Question q2 felvétele a dolgozatba' }).click()
 
   // Both, not just the seeded one: insertion inherited the visible layout.
   await expect(page.locator('.choice-grid')).toHaveCount(2)
@@ -98,7 +98,7 @@ test('the first Multiple Choice Question in an empty section uses one column', a
     workingCopy: { title: 'Answer columns', questionIds: [] },
     dirty: false,
   })
-  await page.getByRole('button', { name: 'Add Question q1 to the exam' }).click()
+  await page.getByRole('button', { name: 'Question q1 felvétele a dolgozatba' }).click()
 
   await expect(page.locator('.choice-grid[data-columns="1"]')).toHaveCount(1)
 })

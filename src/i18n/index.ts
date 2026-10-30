@@ -541,6 +541,12 @@ const en = {
   'ui.questionActions': 'Question {n} actions',
   'ui.removeFromExam': 'Remove {name} from the exam',
   'ui.addToExam': 'Add {name} to the exam',
+  'export.contentSelection': 'Content selection',
+  'export.shuffledVersions': 'Shuffled Versions',
+  'export.studentTest': 'Student test',
+  'export.answerKey': 'Answer key',
+  'ui.cropFromPage': 'Crop from a page',
+  'ui.uploadFile': 'Upload a file',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1068,6 +1074,12 @@ const hu: Record<TextKey, string> = {
   'ui.questionActions': 'A(z) {n}. kérdés műveletei',
   'ui.removeFromExam': '{name} eltávolítása a dolgozatból',
   'ui.addToExam': '{name} felvétele a dolgozatba',
+  'export.contentSelection': 'Tartalom kiválasztása',
+  'export.shuffledVersions': 'Kevert változatok',
+  'export.studentTest': 'Tanulói feladatlap',
+  'export.answerKey': 'Válaszkulcs',
+  'ui.cropFromPage': 'Kivágás az oldalról',
+  'ui.uploadFile': 'Fájl feltöltése',
 };
 
 const LANGUAGES = { en, hu } as const

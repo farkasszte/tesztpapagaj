@@ -5,41 +5,41 @@ async function createQuestion(page: Page, stem: string, type = 'Multiple choice'
   await page.getByRole('menuitem', { name: type }).click()
   await page.keyboard.type(stem)
   await page.keyboard.press('Control+Enter')
-  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
+  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeHidden()
 }
 
 test('Home creates and independently reopens durable Question Banks', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('region', { name: 'Question Banks' }).getByRole('button', { name: 'New Question Bank' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Kérdésbankok' }).getByRole('button', { name: 'Új kérdésbank' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
-  const name = page.getByRole('textbox', { name: 'Question Bank name' })
+  await page.getByRole('button', { name: 'Új kérdésbank' }).first().click()
+  const name = page.getByRole('textbox', { name: 'Kérdésbank neve' })
   await expect(name).toHaveValue('Untitled Question Bank')
   await name.fill('Biology')
   await createQuestion(page, 'Which animal is a mammal?')
-  await expect(page.getByRole('region', { name: 'Question Bank' }).getByRole('listitem')).toContainText('Which animal is a mammal?')
+  await expect(page.getByRole('region', { name: 'Kérdésbank' }).getByRole('listitem')).toContainText('Which animal is a mammal?')
   // The Question Bank page is not the Exam editor: nothing here composes an Exam.
   await expect(page.getByRole('button', { name: /^Add .* to the exam$/ })).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveCount(0)
 
   await page.reload()
   await expect(name).toHaveValue('Biology')
-  await expect(page.getByRole('region', { name: 'Question Bank' })).toContainText('Which animal is a mammal?')
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await expect(page.getByRole('region', { name: 'Kérdésbank' })).toContainText('Which animal is a mammal?')
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
   await expect(page.getByRole('button', { name: 'Biology' })).toContainText('1 Question')
 
-  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
+  await page.getByRole('button', { name: 'Új kérdésbank' }).first().click()
   await name.fill('Chemistry')
   await createQuestion(page, 'What is the symbol for oxygen?', 'Short answer')
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
-  const bankCards = page.getByRole('region', { name: 'Question Banks' }).locator('.question-bank-card')
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
+  const bankCards = page.getByRole('region', { name: 'Kérdésbankok' }).locator('.question-bank-card')
   await expect(bankCards).toHaveCount(2)
   await expect(bankCards.nth(0)).toContainText('Chemistry')
   await expect(bankCards.nth(1)).toContainText('Biology')
 
   await page.getByRole('button', { name: 'Biology' }).click()
   await expect(name).toHaveValue('Biology')
-  await expect(page.getByRole('region', { name: 'Question Bank' })).toContainText('Which animal is a mammal?')
+  await expect(page.getByRole('region', { name: 'Kérdésbank' })).toContainText('Which animal is a mammal?')
   await expect(page).toHaveURL(/\/question-bank\?id=/)
 })
 
@@ -47,7 +47,7 @@ test('IndexedDB enforces one bank owner and substantive update timestamps', asyn
   // About loads the same browser storage adapter without Home's intentional
   // placeholder sweep racing these deliberately incremental adapter calls.
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -118,14 +118,14 @@ test('IndexedDB enforces one bank owner and substantive update timestamps', asyn
 
 test('an abandoned placeholder bank is removed, while a renamed empty bank remains', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
-  await expect(page.getByRole('region', { name: 'Question Banks' }).getByRole('button', { name: 'New Question Bank' })).toBeVisible()
+  await page.getByRole('button', { name: 'Új kérdésbank' }).first().click()
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
+  await expect(page.getByRole('region', { name: 'Kérdésbankok' }).getByRole('button', { name: 'Új kérdésbank' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
-  const name = page.getByRole('textbox', { name: 'Question Bank name' })
+  await page.getByRole('button', { name: 'Új kérdésbank' }).first().click()
+  const name = page.getByRole('textbox', { name: 'Kérdésbank neve' })
   await name.fill('Empty but intentional')
   await name.press('Enter')
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await page.getByRole('button', { name: 'Tesztpapagáj kezdőlap' }).click()
   await expect(page.getByRole('button', { name: 'Empty but intentional' })).toContainText('0 Questions')
 })

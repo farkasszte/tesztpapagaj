@@ -47,8 +47,8 @@ const directions = (page: Page) => page.getByRole('textbox', { name: 'Multiple C
 
 /** What the Export Preview prints for the test's first section. */
 async function previewSection(page: Page) {
-  await page.getByRole('button', { name: 'Export', exact: true }).click()
-  const preview = page.getByRole('dialog', { name: 'Export' }).getByLabel('Export Preview')
+  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
+  const preview = page.getByRole('dialog', { name: 'Exportálás' }).getByLabel('Export előnézete')
   await expect(preview).toBeVisible()
   return preview.locator('.exam-page').first().locator('.exam-section')
 }
@@ -62,7 +62,7 @@ test('a heading and its directions are reworded where they print, and the output
   await directions(page).press('Enter')
 
   // Reworded Exam presentation is an unsaved change, like the title.
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeEnabled()
 
   const section = await previewSection(page)
   await expect(section.locator('.section-title')).toHaveText('Choose One')
@@ -73,7 +73,7 @@ test('the wording survives a reload', async ({ page }) => {
   await openExam(page)
   await heading(page).fill('Choose One')
   await heading(page).press('Enter')
-  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Mentés', exact: true })).toBeEnabled()
 
   await page.reload()
   await expect(heading(page)).toHaveValue('Choose One')
@@ -141,16 +141,16 @@ test('Format → Heading size sets how large the Exam’s section headings print
   }
   const normal = await printedSize()
 
-  await page.getByRole('button', { name: 'Format' }).click()
-  await page.getByRole('menuitem', { name: 'Heading size' }).hover()
-  await page.getByRole('menuitemradio', { name: 'Large' }).click()
+  await page.getByRole('button', { name: 'Formázás' }).click()
+  await page.getByRole('menuitem', { name: 'Cím mérete' }).hover()
+  await page.getByRole('menuitemradio', { name: 'Nagy' }).click()
 
   expect(await printedSize()).toBeGreaterThan(normal)
 
-  await page.getByRole('button', { name: 'Format' }).click()
-  await page.getByRole('menuitem', { name: 'Heading size' }).hover()
-  await expect(page.getByRole('menuitemradio', { name: 'Large' })).toHaveAttribute('aria-checked', 'true')
-  await page.getByRole('menuitemradio', { name: 'Small' }).click()
+  await page.getByRole('button', { name: 'Formázás' }).click()
+  await page.getByRole('menuitem', { name: 'Cím mérete' }).hover()
+  await expect(page.getByRole('menuitemradio', { name: 'Nagy' })).toHaveAttribute('aria-checked', 'true')
+  await page.getByRole('menuitemradio', { name: 'Kicsi' }).click()
 
   expect(await printedSize()).toBeLessThan(normal)
 })

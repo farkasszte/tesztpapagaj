@@ -61,7 +61,7 @@ test('keyboard Shuffle answer order varies selected Multiple Choice questions an
   expect(await answerContent(1)).not.toEqual(beforeSecond)
   await expect(page.getByRole('status')).toHaveText('Shuffled answer order.')
 
-  await page.getByRole('button', { name: 'Undo' }).click()
+  await page.getByRole('button', { name: 'Visszavonás' }).click()
   await expect.poll(() => answerContent(0)).toEqual(beforeFirst)
   await expect.poll(() => answerContent(1)).toEqual(beforeSecond)
 })
