@@ -87,7 +87,7 @@ test("full Question editor discloses impact, cancels safely, and permanently del
   await expect(editor).toBeHidden();
   await expect(page.locator(".exam-question")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Visszavonás" })).toBeDisabled();
-  await expect(page.getByLabel("Munkapéldány állapota")).toContainText("Mentetlen módosítások"));
+  await expect(page.getByLabel("Munkapéldány állapota")).toContainText("Mentetlen módosítások");
   await page.getByRole("button", { name: "Fájl" }).click();
   await page.getByRole("menuitem", { name: "Módosítások elvetése" }).click();
   await expect(page.getByRole("textbox", { name: "Dolgozat neve" })).toHaveValue("Biology final");

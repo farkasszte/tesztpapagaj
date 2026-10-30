@@ -69,8 +69,7 @@ test('the fresh generation ignores earlier browser authoring data', async ({
     page.getByRole('region', { name: 'Kérdésbank' }).getByRole('listitem'),
   ).toHaveCount(0)
   await expect(page.locator('.exam-question')).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Untitled Exam'),
-  )
+  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Untitled Exam')
   expect(
     await page.evaluate(() => localStorage.getItem('exam-authoring-v2')),
   ).toBe(JSON.stringify(legacy))
