@@ -101,7 +101,7 @@ function ImportCard({
     ? [
         { kind: 'action', label: t('ui.continue'), icon: <FolderOpen />, onSelect: () => window.location.assign(importHref(entry.id)) },
         { kind: 'separator' },
-        { kind: 'action', label: 'Discard', icon: <Trash2 />, destructive: true, onSelect: onDiscard },
+        { kind: 'action', label: t('imports.discard'), icon: <Trash2 />, destructive: true, onSelect: onDiscard },
       ]
     : opens.map(({ label, href, Icon }) => ({ kind: 'action', label: `Open ${label}`, icon: <Icon />, onSelect: () => window.location.assign(href) }))
   const caption = <>
@@ -383,7 +383,7 @@ export function WaitingImportPage({
   })
   const name = waiting && waiting !== 'loading' ? waiting.fileName : 'Import'
   return <AppShell
-    crumbs={[{ label: 'Home', href: '/' }, { label: 'Imports', href: '/imports' }, { label: name }]}
+    crumbs={[{ label: t('shell.home'), href: '/' }, { label: t('shell.imports'), href: '/imports' }, { label: name }]}
     persistentStorage={persistentStorage}
   >
     {waiting === 'loading'

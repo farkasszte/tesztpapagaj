@@ -322,14 +322,14 @@ export function QuestionBankCard({
   const items: MenuItem[] = [
     { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(bank.id) },
     ...(popOver.supported
-      ? [{ kind: 'action' as const, label: 'Pop-over', icon: <PictureInPicture2 />, onSelect: () => popOver.open(bank.id) }]
+      ? [{ kind: 'action' as const, label: t('bank.popOver'), icon: <PictureInPicture2 />, onSelect: () => popOver.open(bank.id) }]
       : []),
     // Sharing a bank starts here as well as inside it: teachers looking for a
     // way to share a bank look at the bank, not in it.
     ...(onExport
       ? [{
           kind: 'action' as const,
-          label: 'Export',
+          label: t('bank.exportAction'),
           icon: <Upload />,
           disabled: bank.questionCount === 0,
           onSelect: () => onExport(bank),
@@ -340,7 +340,7 @@ export function QuestionBankCard({
           { kind: 'separator' } as const,
           {
             kind: 'action' as const,
-            label: 'Delete',
+            label: t('bank.deleteAction'),
             icon: <Trash2 />,
             destructive: true,
             onSelect: () => onDelete(bank),

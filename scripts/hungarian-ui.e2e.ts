@@ -55,6 +55,26 @@ test('a szerkesztő magyar címkékkel nyílik', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Exportálás', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Visszavonás', exact: true })).toBeDisabled()
 
+  // A Szerkesztés menü visszavonás/újra, a Formázás menü a magyar stílusneveket.
+  await page.getByRole('button', { name: 'Szerkesztés', exact: true }).click()
+  const editMenu = page.getByRole('menu')
+  await expect(editMenu).toContainText('Visszavonás')
+  await expect(editMenu).toContainText('Újra')
+  await expect(editMenu).not.toContainText('Undo')
+  await page.keyboard.press('Escape')
+
+  await page.getByRole('button', { name: 'Formázás', exact: true }).click()
+  const formatMenu = page.getByRole('menu')
+  await expect(formatMenu).toContainText('Papír stílusa')
+  await expect(formatMenu).toContainText('Alap')
+  await expect(formatMenu).not.toContainText('Standard')
+  // A stílusok almenüje is magyar neveket kínál.
+  await formatMenu.getByRole('menuitem', { name: /Papír stílusa/ }).click()
+  await expect(page.getByRole('menu').last()).toContainText('Klasszikus')
+  await expect(page.getByRole('menu').last()).toContainText('Tömör')
+  await page.keyboard.press('Escape')
+  await page.keyboard.press('Escape')
+
   // A Fájl menü a magyar műveleteket kínálja.
   await page.getByRole('button', { name: 'Fájl', exact: true }).click()
   const fileMenu = page.getByRole('menu')

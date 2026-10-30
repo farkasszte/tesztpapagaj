@@ -751,6 +751,20 @@ const en = {
   'export.recordExported': 'Exported',
   'export.chooseOneVersion': 'Choose at least one Version to re-export.',
   'export.format': 'Format',
+  'menu.undo': 'Undo',
+  'menu.redo': 'Redo',
+  'menu.vary': 'Vary',
+  'paper.standard': 'Standard',
+  'paper.classic': 'Classic',
+  'paper.condensed': 'Condensed',
+  'paper.standardHint': 'Circle the letter or T/F; no blanks before numbers.',
+  'paper.classicHint': 'A blank before each objective number; ruled lines for written answers.',
+  'paper.condensedHint': 'Saves paper: tighter spacing, answers across where they fit, closer-ruled lines.',
+  'paper.examBoardHint': 'A4: 1 (a) (i) labels, dotted lines, points in brackets at the right.',
+  'imports.discard': 'Discard',
+  'popOver.noLines': 'No lines',
+  'bank.copyPictures': 'Pictures',
+  'bank.deleteAction': 'Delete',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1488,6 +1502,20 @@ const hu: Record<TextKey, string> = {
   'export.recordExported': 'Exportálva',
   'export.chooseOneVersion': 'Válassz legalább egy változatot az újraexportáláshoz.',
   'export.format': 'Formátum',
+  'menu.undo': 'Visszavonás',
+  'menu.redo': 'Újra',
+  'menu.vary': 'Változatok',
+  'paper.standard': 'Alap',
+  'paper.classic': 'Klasszikus',
+  'paper.condensed': 'Tömör',
+  'paper.standardHint': 'A betű vagy az I/H bekarikázása; a számok előtt nincs üres hely.',
+  'paper.classicHint': 'Üres hely minden zárt kérdés száma előtt; vonalazott sorok az írásbeli válaszokhoz.',
+  'paper.condensedHint': 'Papírt spórol: sűrűbb térköz, a válaszok egymás mellett, ahol elférnek, sűrűbben vonalazott sorok.',
+  'paper.examBoardHint': 'A4: 1 (a) (i) jelölés, pontozott vonalak, jobbra, zárójelben a pontszám.',
+  'imports.discard': 'Elvetés',
+  'popOver.noLines': 'Nincs vonal',
+  'bank.copyPictures': 'Képek',
+  'bank.deleteAction': 'Törlés',
 };
 
 const LANGUAGES = { en, hu } as const

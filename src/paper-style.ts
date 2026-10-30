@@ -38,20 +38,20 @@ export function isPaperStyle(value: unknown): value is PaperStyle {
 /** How each Paper Style is named, and said in a line, in the Format menu. */
 export const PAPER_STYLE_LABELS: Record<PaperStyle, { label: string; description: string }> = {
   standard: {
-    label: 'Standard',
-    description: 'Circle the letter or T/F; no blanks before numbers.',
+    get label() { return t('paper.standard') },
+    get description() { return t('paper.standardHint') },
   },
   classic: {
-    label: 'Classic',
-    description: 'A blank before each objective number; ruled lines for written answers.',
+    get label() { return t('paper.classic') },
+    get description() { return t('paper.classicHint') },
   },
   condensed: {
-    label: 'Condensed',
-    description: 'Saves paper: tighter spacing, answers across where they fit, closer-ruled lines.',
+    get label() { return t('paper.condensed') },
+    get description() { return t('paper.condensedHint') },
   },
   'exam-board': {
-    label: t('paper.examBoard'),
-    description: 'A4: 1 (a) (i) labels, dotted lines, points in brackets at the right.',
+    get label() { return t('paper.examBoard') },
+    get description() { return t('paper.examBoardHint') },
   },
 }
 

@@ -513,7 +513,7 @@ function questionMenuItems({
   }
   items.push(
     { kind: 'separator' },
-    { kind: 'label', label: 'Vary' },
+    { kind: 'label', label: t('menu.vary') },
     // Both shuffles sit side by side under one heading, each with its own
     // icon: crossed arrows for reordering questions across the sheet, a list
     // with a return arrow for reordering the answers inside each question.

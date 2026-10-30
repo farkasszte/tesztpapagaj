@@ -454,7 +454,7 @@ function ChoiceChip<T extends string>({
 }
 
 const MATH_MODES: readonly { value: CopyMathMode; label: string; detail: string }[] = [
-  { value: 'picture', label: 'Pictures', detail: t('bank.copyForDocs') },
+  { value: 'picture', label: t('bank.copyPictures'), detail: t('bank.copyForDocs') },
   { value: 'word', label: t('bank.wordEquations'), detail: t('bank.wordEquationsHint') },
 ]
 

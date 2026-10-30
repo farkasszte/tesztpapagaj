@@ -2770,14 +2770,14 @@ function ExamEditor({
         ] : [
           {
             kind: 'action',
-            label: 'Undo',
+            label: t('menu.undo'),
             icon: <Undo2 />,
             disabled: isHistoricalBrowsing || !store.canUndo(),
             onSelect: () => store.undo(),
           },
           {
             kind: 'action',
-            label: 'Redo',
+            label: t('menu.redo'),
             icon: <Redo2 />,
             disabled: isHistoricalBrowsing || !store.canRedo(),
             onSelect: () => store.redo(),
