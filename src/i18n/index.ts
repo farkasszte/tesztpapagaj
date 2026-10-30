@@ -135,7 +135,7 @@ const en = {
   'bank.detailsTitle': 'Question Bank details',
   'bank.detailsHint': 'Only details you enter are included when this Question Bank is shared.',
   'exam.workingCopyStatus': 'Working Copy status',
-  'exam.home': 'Test Parrot home',
+  'exam.home': 'Tesztpapagáj home',
   'exam.name': 'Exam name',
   'exam.untitled': 'Untitled Exam',
   'exam.menus': 'Exam menus',
@@ -632,6 +632,11 @@ const en = {
   'imports.dragBox': 'Drag a box around the picture.',
   'common.delete': 'Delete',
   'card.emptyExam': 'Empty Exam',
+  'errors.notABackup': 'This file is not a Tesztpapagáj account backup.',
+  'errors.backupDamaged': 'This account backup is damaged, it cannot be read.',
+  'errors.backupDamagedImage': 'This account backup is damaged: an image is missing.',
+  'errors.backupNewer': 'This backup was made by a newer Tesztpapagáj. Reload the page, then try again.',
+  'errors.backupOlder': 'This backup was made by an older Tesztpapagáj whose storage this version cannot read.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1250,6 +1255,11 @@ const hu: Record<TextKey, string> = {
   'imports.dragBox': 'Húzz egy téglalapot a kép köré.',
   'common.delete': 'Törlés',
   'card.emptyExam': 'Üres dolgozat',
+  'errors.notABackup': 'Ez a fájl nem Tesztpapagáj-fiókmentés.',
+  'errors.backupDamaged': 'Ez a fiókmentés sérült, nem olvasható.',
+  'errors.backupDamagedImage': 'Ez a fiókmentés sérült: hiányzik egy kép.',
+  'errors.backupNewer': 'Ezt a mentést a Tesztpapagáj újabb változata készítette. Töltsd újra az oldalt, majd próbáld újra.',
+  'errors.backupOlder': 'Ezt a mentést a Tesztpapagáj régebbi változata készítette, aminek a tárolását ez a verzió nem olvassa.',
 };
 
 const LANGUAGES = { en, hu } as const

@@ -141,7 +141,7 @@ test("failed deletion leaves canonical and visible state unchanged", async ({ pa
   await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
   await page.reload();
   await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
-  await page.getByRole("button", { name: "Test Parrot home" }).click();
+  await page.getByRole("button", { name: "Tesztpapagáj home" }).click();
   await page.getByRole("button", { name: /^Open Biology final/ }).click();
   await expect(page.locator(".exam-question")).toContainText("Shared cell question");
 });
@@ -248,7 +248,7 @@ test("Home deletes a populated bank after disclosing per-Exam losses and Export 
   await expect(page.getByRole("button", { name: "Create your first Question Bank" })).toBeVisible();
   await page.getByRole("button", { name: /^Open Biology final/ }).click();
   await expect(page.locator(".exam-question")).toHaveCount(0);
-  await page.getByRole("button", { name: "Test Parrot home" }).click();
+  await page.getByRole("button", { name: "Tesztpapagáj home" }).click();
 
   expect(
     await page.evaluate(async (id) => {

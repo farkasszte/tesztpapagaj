@@ -277,28 +277,28 @@ export async function readAccountBackup(file: Blob): Promise<AccountSnapshot> {
   try {
     zip = await JSZip.loadAsync(await file.arrayBuffer())
   } catch {
-    throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
+    throw new AccountBackupError(t('errors.notABackup'))
   }
   const manifestFile = zip.file(MANIFEST_PATH)
-  if (!manifestFile) throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
+  if (!manifestFile) throw new AccountBackupError(t('errors.notABackup'))
   let manifest: AccountManifest
   try {
     manifest = JSON.parse(await manifestFile.async('string')) as AccountManifest
   } catch {
-    throw new AccountBackupError('Ez a fiókmentés sérült, nem olvasható.')
+    throw new AccountBackupError(t('errors.backupDamaged'))
   }
   if (manifest.format !== ACCOUNT_BACKUP_FORMAT || !Array.isArray(manifest.databases)) {
-    throw new AccountBackupError('Ez a fájl nem Tesztpapagáj-fiókmentés.')
+    throw new AccountBackupError(t('errors.notABackup'))
   }
   if (manifest.version > ACCOUNT_BACKUP_VERSION || manifest.storageVersion > STORAGE_VERSION) {
-    throw new AccountBackupError('Ezt a mentést a Tesztpapagáj újabb változata készítette. Töltsd újra az oldalt, majd próbáld újra.')
+    throw new AccountBackupError(t('errors.backupNewer'))
   }
   if (manifest.storageVersion !== STORAGE_VERSION
     || manifest.databases.some((database) => database.version !== STORAGE_VERSION)) {
-    throw new AccountBackupError('Ezt a mentést a Tesztpapagáj régebbi változata készítette, aminek a tárolását ez a verzió nem olvassa.')
+    throw new AccountBackupError(t('errors.backupOlder'))
   }
   if (manifest.databases.some((database) => !isAccountDatabase(database.name))) {
-    throw new AccountBackupError('Ez a fiókmentés sérült, nem olvasható.')
+    throw new AccountBackupError(t('errors.backupDamaged'))
   }
   const binaries = new Map<string, Uint8Array>()
   const reads: Promise<void>[] = []

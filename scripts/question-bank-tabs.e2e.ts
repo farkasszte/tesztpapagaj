@@ -192,7 +192,7 @@ test('opening an Exam inside the editor carries the current tabs and external re
   await newExam(page)
   await page.getByRole('textbox', { name: 'Exam name' }).fill('Destination Exam')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
 
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await openBankTab(page, /Biology/)
@@ -203,7 +203,7 @@ test('opening an Exam inside the editor carries the current tabs and external re
 
   await expect(page.getByRole('tab', { name: 'Biology' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveAttribute('aria-selected', 'true')
-  await page.getByRole('button', { name: 'Test Parrot home' }).click()
+  await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
   await page.getByRole('button', { name: 'Open Destination Exam' }).click()
   await expect(page.getByRole('tab', { name: 'Biology' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveAttribute('aria-selected', 'true')
