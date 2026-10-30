@@ -69,6 +69,11 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
       >
         <CloudOff aria-hidden="true" />
       </button>
+      {status === 'denied' && (
+        <span className="sr-only" role="alert">
+          {t('account.storageDenied')}
+        </span>
+      )}
       {open && (
         <div className="account-panel" id={panelId} role="region" aria-label={t('account.storage')}>
           <strong>{t('account.savedInBrowser')}</strong>

@@ -99,6 +99,11 @@ export function HomePage({
           <h2 id="question-banks-heading" className="shelf-label">
             {t('home.questionBanks')}
           </h2>
+          {banks.length === 0 && (
+            <button type="button" className="link-button shelf-new" onClick={onNewBank}>
+              {t('home.newBank')}
+            </button>
+          )}
         </div>
         {banks.length === 0 ? (
           <CreateFirstCard label={t('home.createFirstBank')} onClick={onNewBank} />

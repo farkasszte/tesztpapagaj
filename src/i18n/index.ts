@@ -462,7 +462,9 @@ const en = {
   'imports.imageUsedElsewhere': 'This picture appears elsewhere too:',
   'imports.imageUsedElsewhereMany': 'This picture appears in {count} other places too:',
   'common.question': 'Question',
+  'common.questions': 'Questions',
   'common.picture': 'picture',
+  'common.pictures': 'pictures',
   'report.leftOut': '{count} question(s) left out',
   'report.notes': '{count} note(s)',
   'imports.pasteHint': 'Written for the Blackboard Test Generator, Blackboard, Aiken, GIFT, Respondus or another format the app reads. Leave a blank line between questions.',
@@ -637,6 +639,10 @@ const en = {
   'errors.backupDamagedImage': 'This account backup is damaged: an image is missing.',
   'errors.backupNewer': 'This backup was made by a newer Tesztpapagáj. Reload the page, then try again.',
   'errors.backupOlder': 'This backup was made by an older Tesztpapagáj whose storage this version cannot read.',
+  'common.examOne': 'Exam',
+  'common.exams': 'Exams',
+  'common.bankOne': 'Question bank',
+  'common.banks': 'Question banks',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1085,7 +1091,9 @@ const hu: Record<TextKey, string> = {
   'imports.imageUsedElsewhere': 'Ez a kép más helyen is szerepel:',
   'imports.imageUsedElsewhereMany': 'Ez a kép {count} más helyen is szerepel:',
   'common.question': 'kérdés',
+  'common.questions': 'kérdés',
   'common.picture': 'kép',
+  'common.pictures': 'kép',
   'report.leftOut': '{count} kérdés kimaradt',
   'report.notes': '{count} megjegyzés',
   'imports.pasteHint': 'Blackboard Test Generator, Blackboard, Aiken, GIFT, Respondus vagy más olvasható formátum. A kérdések közé tegyél egy üres sort.',
@@ -1260,6 +1268,10 @@ const hu: Record<TextKey, string> = {
   'errors.backupDamagedImage': 'Ez a fiókmentés sérült: hiányzik egy kép.',
   'errors.backupNewer': 'Ezt a mentést a Tesztpapagáj újabb változata készítette. Töltsd újra az oldalt, majd próbáld újra.',
   'errors.backupOlder': 'Ezt a mentést a Tesztpapagáj régebbi változata készítette, aminek a tárolását ez a verzió nem olvassa.',
+  'common.examOne': 'dolgozat',
+  'common.exams': 'dolgozat',
+  'common.bankOne': 'kérdésbank',
+  'common.banks': 'kérdésbank',
 };
 
 const LANGUAGES = { en, hu } as const
@@ -1337,9 +1349,20 @@ export function useT(): typeof t {
  * Egy darabszám és a dolga, nyelvhelyesen: `3 kérdés`, nem `3 Question`s.
  * A magyar nem tesz többesjelet a szám után, az angol igen.
  */
-export function countOf(count: number, thing: 'question' | 'picture'): string {
-  const word = t(thing === 'question' ? 'common.question' : 'common.picture')
-  const suffix = current === 'hu' ? '' : count === 1 ? '' : 's'
-  return `${count.toLocaleString()} ${word}${suffix}`
+const COUNTED = {
+  question: ['common.question', 'common.questions'],
+  picture: ['common.picture', 'common.pictures'],
+  exam: ['common.examOne', 'common.exams'],
+  bank: ['common.bankOne', 'common.banks'],
+} as const
+
+export function countOf(
+  count: number,
+  thing: keyof typeof COUNTED,
+): string {
+  const [one, many] = COUNTED[thing]
+  // A magyar nem tesz többesjelet a szám után: `3 kérdés`.
+  const word = t(current === 'hu' || count === 1 ? one : many)
+  return `${count.toLocaleString()} ${word}`
 }
 

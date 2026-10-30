@@ -272,7 +272,9 @@ test('Home reports a remembered persistent-storage denial', async ({
     })
   })
   await page.goto('/')
-  await expect(page.getByRole('status')).toContainText(
+  // A tárolási figyelmeztetés riasztásként szólal meg (a darabszám élő
+  // állapot mellett), hogy a kettő ne ütközzön a képernyőolvasón.
+  await expect(page.getByRole('alert')).toContainText(
     'Persistent storage was denied',
   )
 })

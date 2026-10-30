@@ -8,7 +8,7 @@ import {
   type QuestionBankCollectionItem,
 } from './resource-collections'
 import { AppShell } from './app-shell'
-import { t } from './i18n'
+import { countOf, t } from './i18n'
 
 export function ResourceCollectionPage({
   kind,
@@ -49,7 +49,6 @@ export function ResourceCollectionPage({
   const isExams = kind === 'exams'
   const resources = isExams ? shownExams : shownBanks
   const resourceName = isExams ? t('coll.exams') : t('coll.banks')
-  const oneName = isExams ? t('coll.examOne') : t('coll.bankOne')
   const create = isExams ? onNewExam : onNewBank
 
   return (
@@ -87,14 +86,14 @@ export function ResourceCollectionPage({
           />
         </label>
         <p className="collection-count" role="status" aria-live="polite">
-          {t('coll.count', { count: resources.length, name: oneName })}
+          {countOf(resources.length, isExams ? 'exam' : 'bank')}
         </p>
       </div>
       {resources.length === 0 ? (
         <section aria-label={t('coll.results', { name: resourceName })}>
           {query ? (
             <div className="home-empty">
-              <h2>{t('coll.noMatch', { query: query.trim() })}</h2>
+              <h2>{t('coll.noMatch', { name: resourceName, query: query.trim() })}</h2>
               <p>{t('coll.tryAnother')}</p>
             </div>
           ) : (
@@ -109,7 +108,7 @@ export function ResourceCollectionPage({
       ) : (
         <section
           className={isExams ? 'collection-grid collection-grid--exams' : 'collection-grid'}
-          aria-label={`${resourceName} search results`}
+          aria-label={t('coll.results', { name: resourceName })}
         >
           {isExams
             ? shownExams.map((exam) => (
