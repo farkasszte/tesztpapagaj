@@ -739,6 +739,18 @@ const en = {
   'paste.pasted': 'Pasted {what}',
   'paste.skipped': '{count} already on this exam',
   'paste.missing': '{count} no longer in this browser',
+  'export.shuffleQuestions': 'Shuffle question order',
+  'export.shuffleAnswers': 'Shuffle answer order',
+  'export.versions': 'Versions',
+  'export.historyShort': 'Export History is stored only in this browser. It is useful for local re-export, but it is not an archival backup.',
+  'ui.downloadFormat': 'Download {format}',
+  'export.versionsAria': 'Versions',
+  'export.versionCount': '{count} Versions',
+  'export.recordExport': 'Export',
+  'export.recordTitle': 'Title',
+  'export.recordExported': 'Exported',
+  'export.chooseOneVersion': 'Choose at least one Version to re-export.',
+  'export.format': 'Format',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1464,6 +1476,18 @@ const hu: Record<TextKey, string> = {
   'paste.pasted': 'Beillesztve: {what}',
   'paste.skipped': '{count} már rajta van ezen a dolgozaton',
   'paste.missing': '{count} már nincs ebben a böngészőben',
+  'export.shuffleQuestions': 'Kérdések sorrendjének keverése',
+  'export.shuffleAnswers': 'Válaszok sorrendjének keverése',
+  'export.versions': 'Változatok',
+  'export.historyShort': 'Az exportelőzmények csak ebben a böngészőben tárolódnak. Helyi újraexportálásra jók, archiválási biztonsági másolatnak nem.',
+  'ui.downloadFormat': '{format} letöltése',
+  'export.versionsAria': 'Változatok',
+  'export.versionCount': '{count} változat',
+  'export.recordExport': 'Export',
+  'export.recordTitle': 'Cím',
+  'export.recordExported': 'Exportálva',
+  'export.chooseOneVersion': 'Válassz legalább egy változatot az újraexportáláshoz.',
+  'export.format': 'Formátum',
 };
 
 const LANGUAGES = { en, hu } as const

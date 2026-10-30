@@ -54,8 +54,8 @@ function VersionLine({
   disabled: boolean
 }) {
   return (
-    <section className="export-version-line" aria-label="Versions">
-      <h3>{names.length === 1 ? t('export.oneVersion') : `${names.length} Versions`}</h3>
+    <section className="export-version-line" aria-label={t('export.versionsAria')}>
+      <h3>{names.length === 1 ? t('export.oneVersion') : t('export.versionCount', { count: names.length })}</h3>
       <ul>
         {names.map((name) => (
           <li key={name}>
@@ -112,7 +112,7 @@ function ExportSettings({
   return (
     <>
       <fieldset className="export-field" disabled={locked}>
-        <legend>Format</legend>
+        <legend>{t('export.format')}</legend>
         {(['pdf', 'docx'] as const).map((format) => (
           <label key={format}>
             <input
@@ -155,7 +155,7 @@ function ExportSettings({
             checked={shuffle.questions}
             onChange={(event) => change({ shuffle: { ...shuffle, questions: event.target.checked } })}
           />
-          Shuffle question order
+          {t('export.shuffleQuestions')}
         </label>
         <label>
           <input
@@ -163,10 +163,10 @@ function ExportSettings({
             checked={shuffle.answers}
             onChange={(event) => change({ shuffle: { ...shuffle, answers: event.target.checked } })}
           />
-          Shuffle answer order
+          {t('export.shuffleAnswers')}
         </label>
         <label className="export-count">
-          Versions
+          {t('export.versions')}
           <input
             type="number"
             min={1}
@@ -393,7 +393,7 @@ function ExportDialogFrame({
             disabled={preparing}
             onClick={close}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -466,8 +466,7 @@ export function ExportDialog({
       notes={
         <>
           <p className="export-durability-note">
-            Export History is stored only in this browser. It is useful for
-            local re-export, but it is not an archival backup.
+            {t('export.historyShort')}
           </p>
           {problem && (
             <p className="export-error" role="alert">
@@ -476,7 +475,7 @@ export function ExportDialog({
           )}
         </>
       }
-      submitLabel={`Download ${configuration.format.toUpperCase()}`}
+      submitLabel={t('ui.downloadFormat', { format: configuration.format.toUpperCase() })}
       submitDisabled={problem !== null}
       initialError={initialError}
       onSubmit={(onProgress) => onSubmit(configuration, onProgress)}
@@ -521,9 +520,9 @@ export function ReExportDialog({
       settings={(disabled) => (
         <>
           <dl className="export-record-identity">
-            <div><dt>Export</dt><dd>#{number}</dd></div>
-            <div><dt>Title</dt><dd>{name}</dd></div>
-            <div><dt>Exported</dt><dd><time dateTime={createdAt}>{exportTime(createdAt)}</time></dd></div>
+            <div><dt>{t('export.recordExport')}</dt><dd>#{number}</dd></div>
+            <div><dt>{t('export.recordTitle')}</dt><dd>{name}</dd></div>
+            <div><dt>{t('export.recordExported')}</dt><dd><time dateTime={createdAt}>{exportTime(createdAt)}</time></dd></div>
           </dl>
           <ExportSettings configuration={configuration} frozen disabled={disabled} />
         </>
@@ -537,7 +536,7 @@ export function ReExportDialog({
           }
         : undefined}
       notes={names.length > 0 && included.length === 0 && (
-        <p className="export-error" role="alert">Choose at least one Version to re-export.</p>
+        <p className="export-error" role="alert">{t('export.chooseOneVersion')}</p>
       )}
       submitLabel={t('ui.reExportFormat', { format: configuration.format.toUpperCase() })}
       submitDisabled={names.length > 0 && included.length === 0}

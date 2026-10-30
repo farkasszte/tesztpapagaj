@@ -114,3 +114,26 @@ test('a kérdéspárbeszéd fejléce és a válaszgomb magyarul szól', async ({
   await expect(dialog).toContainText('Válasz hozzáadása')
   await expect(dialog).not.toContainText('Add answer')
 })
+
+test('az exportálás párbeszéd magyar beállításokat kínál', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
+  await expect(page).toHaveURL(/\/editor$/)
+
+  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+
+  // A beállítások és a műveletek magyarul, angol törmelék nélkül.
+  await expect(dialog).toContainText('Formátum')
+  await expect(dialog).toContainText('Tartalom kiválasztása')
+  await expect(dialog).toContainText('Kevert változatok')
+  await expect(dialog).toContainText('Kérdések sorrendjének keverése')
+  await expect(dialog).toContainText('Válaszok sorrendjének keverése')
+  await expect(dialog).toContainText('Változatok')
+  await expect(dialog).toContainText('Az exportelőzmények csak ebben a böngészőben tárolódnak')
+  await expect(dialog.getByRole('button', { name: 'Mégsem', exact: true })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'PDF letöltése', exact: true })).toBeVisible()
+  await expect(dialog).not.toContainText('Shuffle')
+  await expect(dialog).not.toContainText('Download')
+})
