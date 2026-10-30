@@ -66,7 +66,7 @@ const question = (page: Page, text: string) =>
 
 async function chooseWorkSpace(page: Page, text: string, option: string) {
   await question(page, text).click({ button: 'right' })
-  await page.getByRole('menuitem', { name: 'Munkaterület' }).press('ArrowRight')
+  await page.getByRole('menuitem', { name: 'Work space' }).press('ArrowRight')
   await page.getByRole('menuitemradio', { name: option }).click()
 }
 
@@ -89,9 +89,9 @@ test('work space is a Short Answer setting, absent from other questions', async 
   await openExam(page)
 
   await question(page, 'Pick one.').click({ button: 'right' })
-  await expect(page.getByRole('menuitem', { name: 'Válaszoszlopok' })).toBeVisible()
-  await expect(page.getByRole('menuitem', { name: 'Munkaterület' })).toHaveCount(0)
-  await expect(page.getByRole('menuitemcheckbox', { name: 'Az oldal hátralévő része' })).toHaveCount(0)
+  await expect(page.getByRole('menuitem', { name: 'Answer columns' })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: 'Work space' })).toHaveCount(0)
+  await expect(page.getByRole('menuitemcheckbox', { name: 'Fill rest of page' })).toHaveCount(0)
   await page.keyboard.press('Escape')
 
   await expect(question(page, 'Pick one.').getByRole('separator', { name: /Work space/ })).toHaveCount(0)
@@ -106,7 +106,7 @@ test('dragging the bar under a question opens room the next question moves down 
   const nextTopBefore = (await next.boundingBox())!.y
 
   await first.hover()
-  const bar = page.getByRole('separator', { name: 'Munkaterület: 2. kérdés' })
+  const bar = page.getByRole('separator', { name: 'Work space for question 2' })
   const box = (await bar.boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
@@ -126,7 +126,7 @@ test('dragging the bar under a question opens room the next question moves down 
 
 test('the bar takes the keyboard a line at a time', async ({ page }) => {
   await openExam(page, { q1: { height: 64, style: 'lines', fill: false } })
-  const bar = page.getByRole('separator', { name: 'Munkaterület: 2. kérdés' })
+  const bar = page.getByRole('separator', { name: 'Work space for question 2' })
 
   await bar.focus()
   await page.keyboard.press('ArrowDown')
@@ -139,7 +139,7 @@ test('filling the rest of the page runs the room to its foot and moves the next 
   await openExam(page, { q1: { height: 64, style: 'lines', fill: false } })
 
   await question(page, 'Explain your reasoning.').click({ button: 'right' })
-  await page.getByRole('menuitemcheckbox', { name: 'Az oldal hátralévő része' }).click()
+  await page.getByRole('menuitemcheckbox', { name: 'Fill rest of page' }).click()
 
   const pages = page.locator('.exam-page')
   await expect(pages.nth(0).locator('.exam-question', { hasText: 'Describe the result.' })).toHaveCount(0)
@@ -154,7 +154,7 @@ test('filling the rest of the page runs the room to its foot and moves the next 
   expect(leftOver).toBeLessThan(26 + 32)
 
   await question(page, 'Explain your reasoning.').click({ button: 'right' })
-  await expect(page.getByRole('menuitemcheckbox', { name: 'Az oldal hátralévő része' })).toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByRole('menuitemcheckbox', { name: 'Fill rest of page' })).toHaveAttribute('aria-checked', 'true')
 })
 
 test('work space survives a reload', async ({ page }) => {

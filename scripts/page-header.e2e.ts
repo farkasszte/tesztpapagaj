@@ -29,7 +29,7 @@ async function openExam(page: Page) {
 
 const firstHeader = (page: Page) =>
   page.locator('.exam-workspace .exam-page').first().locator('.page-identity')
-const field = (page: Page) => page.getByRole('textbox', { name: 'A dolgozatra nyomtatott fejléc' })
+const field = (page: Page) => page.getByRole('textbox', { name: 'Header printed on the exam' })
 
 test('the header line is reworded where it prints, with no Version label unshuffled', async ({ page }) => {
   await openExam(page)
@@ -42,8 +42,8 @@ test('the header line is reworded where it prints, with no Version label unshuff
   await expect(field(page)).toHaveValue('Student: ________  Period: ____')
   await expect(header.locator('.page-id')).toHaveText('')
 
-  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
-  const preview = page.getByRole('dialog', { name: 'Exportálás' }).getByLabel('Export előnézete')
+  await page.getByRole('button', { name: 'Export', exact: true }).click()
+  const preview = page.getByRole('dialog', { name: 'Export' }).getByLabel('Export Preview')
   const printed = preview.locator('.exam-page').first().locator('.page-identity')
   await expect(printed).toContainText('Student: ________  Period: ____')
   await expect(printed).not.toContainText('Class:')
@@ -96,6 +96,6 @@ test('the margin restores the default header', async ({ page }) => {
   await expect(header.locator('.page-id')).toHaveText('')
 
   await header.hover()
-  await page.getByRole('button', { name: 'Alapértelmezett fejléc visszaállítása' }).click()
+  await page.getByRole('button', { name: 'Restore the default header' }).click()
   await expect(field(page)).toHaveValue(/^Name: .*Date: _+$/)
 })

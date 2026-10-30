@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test'
 
 async function openEditor(page: import('@playwright/test').Page) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
 }
 
 test('in-app navigation warns only while a Working Copy backup is pending', async ({ page }) => {
@@ -23,17 +23,17 @@ test('in-app navigation warns only while a Working Copy backup is pending', asyn
     }
   })
 
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).fill('Backup fails')
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('A mentés nem sikerült')
-  await page.getByRole('link', { name: 'a projektről' }).click()
+  await page.getByRole('textbox', { name: 'Exam name' }).fill('Backup fails')
+  await expect(page.getByLabel('Working Copy status')).toHaveText('Backup failed')
+  await page.getByRole('link', { name: 'about' }).click()
   expect(await page.evaluate(() =>
     (window as unknown as { confirmCalls: string[] }).confirmCalls,
   )).toHaveLength(1)
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Exam name' })).toBeVisible()
 
   // A healthy backed-up copy changes routes without a confirmation.
   await page.reload()
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
-  await page.getByRole('link', { name: 'a projektről' }).click()
-  await expect(page.getByRole('link', { name: 'Kezdőlap' })).toBeVisible()
+  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
+  await page.getByRole('link', { name: 'about' }).click()
+  await expect(page.getByRole('link', { name: 'Home' })).toBeVisible()
 })

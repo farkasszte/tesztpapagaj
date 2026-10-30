@@ -44,7 +44,7 @@ export function CreateFirstCard({
   onClick: () => void
 }) {
   return (
-    <button type="button" className="create-first" onClick={onClick}>
+    <button type="button" className="create-first" aria-label={label} onClick={onClick}>
       <span>{label}</span>
       {hint && <small className="create-first-hint">{hint}</small>}
       <Plus aria-hidden="true" />

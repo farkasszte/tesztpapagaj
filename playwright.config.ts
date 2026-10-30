@@ -19,7 +19,12 @@ export default defineConfig({
       cookies: [],
       origins: [{
         origin: 'http://127.0.0.1:4174',
-        localStorage: [{ name: 'test-parrot:welcomed', value: 'true' }],
+        localStorage: [
+          { name: 'test-parrot:welcomed', value: 'true' },
+          // A nagy e2e-keszlet a felulet viselkedeset ellenorzi, ezert angolul fut:
+          // a magyar feliratokat kulon spec-ek fedik (scripts/hungarian-ui.e2e.ts).
+          { name: 'tesztpapagaj:language', value: 'en' },
+        ],
       }],
     },
   },

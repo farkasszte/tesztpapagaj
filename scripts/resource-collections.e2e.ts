@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 async function seedResources(page: Page, count = 8) {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async (amount) => {
     const { createExamWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/exam-workspaces.ts'
@@ -72,17 +72,18 @@ test('Home empty state explains local storage without creating resources', async
     })
   })
   await page.goto('/')
-  const storage = page.getByRole('button', { name: 'Hol tárolódik a munkád' })
+  const storage = page.getByRole('button', { name: 'Where your work is stored' })
   await expect(storage).toBeVisible()
   await storage.click()
-  await expect(page.getByRole('region', { name: 'Hol tárolódik a munkád' })).toContainText('A munkád a böngésződben van elmentve.',
+  await expect(page.getByRole('region', { name: 'Where your work is stored' })).toContainText(
+    'Your work is saved in your browser.',
   )
   await storage.click()
   await expect(
-    page.getByRole('button', { name: 'Készítsd el az első dolgozatodat' }),
+    page.getByRole('button', { name: 'Create your first Exam' }),
   ).toBeVisible()
   await expect(
-    page.getByRole('button', { name: 'Készítsd el az első kérdésbankodat' }),
+    page.getByRole('button', { name: 'Create your first Question Bank' }),
   ).toBeVisible()
 
   const counts = await page.evaluate(async () => {
@@ -106,12 +107,12 @@ test('Home provides keyboard-operable horizontal previews and full collections',
   await seedResources(page)
   await page.goto('/')
 
-  const exams = page.getByRole('list', { name: 'Legutóbbi dolgozatok' })
-  const banks = page.getByRole('region', { name: 'Kérdésbankok' })
+  const exams = page.getByRole('list', { name: 'Recent Exams' })
+  const banks = page.getByRole('region', { name: 'Question Banks' })
   await expect(exams.getByRole('listitem')).toHaveCount(6)
   await expect(banks.locator('.question-bank-card')).toHaveCount(8)
-  await expect(exams.getByText('Mentetlen módosítások')).toBeVisible()
-  await expect(banks.getByText('1 dolgozatban')).toBeVisible()
+  await expect(exams.getByText('Unsaved changes')).toBeVisible()
+  await expect(banks.getByText('Used in 1 Exam')).toBeVisible()
   expect(
     await exams.evaluate(
       (element) => element.scrollWidth > element.clientWidth,
@@ -123,20 +124,20 @@ test('Home provides keyboard-operable horizontal previews and full collections',
     .poll(() => exams.evaluate((element) => element.scrollLeft))
     .toBeGreaterThan(0)
 
-  await page.getByRole('link', { name: 'Dolgozatok', exact: true }).focus()
+  await page.getByRole('link', { name: 'Exams', exact: true }).focus()
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/exams$/)
   await expect(
     page
-      .getByRole('region', { name: 'Exams – találatok' })
+      .getByRole('region', { name: 'Exams search results' })
       .getByRole('button', { name: /^Open / }),
   ).toHaveCount(8)
   const search = page.getByRole('searchbox', { name: 'Search Exams' })
   await search.fill('special algebra')
-  await expect(page.getByRole('status')).toHaveText('1 dolgozat')
+  await expect(page.getByRole('status')).toHaveText('1 Exam')
   await search.press('Tab')
   await page.keyboard.press('Enter')
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue(
+  await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue(
     'Special Algebra Exam',
   )
 })
@@ -148,7 +149,7 @@ test('Question Bank search matches names and Topics, not Question Content', asyn
   await page.goto('/question-banks')
   const search = page.getByRole('searchbox', { name: 'Search Question Banks' })
   const results = page.getByRole('region', {
-    name: 'Question Banks – találatok',
+    name: 'Question Banks search results',
   })
 
   await search.fill('cell division')
@@ -168,18 +169,18 @@ test('a Question Bank card states how many Exams depend on it', async ({
   const search = page.getByRole('searchbox', { name: 'Search Question Banks' })
   await search.fill('Special Biology')
   const results = page.getByRole('region', {
-    name: 'Question Banks – találatok',
+    name: 'Question Banks search results',
   })
-  await expect(results.getByText('1 dolgozatban')).toBeVisible()
+  await expect(results.getByText('Used in 1 Exam')).toBeVisible()
   await search.fill('Question Bank 1')
-  await expect(results.getByText('Egyetlen dolgozat sem használja')).toBeVisible()
+  await expect(results.getByText('Not used in any Exams')).toBeVisible()
 })
 
 test('meaningful Question Bank changes update recency while browsing, composition, and formatting do not', async ({
   page,
 }) => {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/exam-workspaces.ts'

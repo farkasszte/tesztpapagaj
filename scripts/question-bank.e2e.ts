@@ -8,11 +8,11 @@
 
 import { expect, test, type Page } from '@playwright/test'
 
-const bank = (page: Page) => page.getByRole('region', { name: 'Kérdésbank' })
+const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
 const bankRows = (page: Page) => bank(page).getByRole('listitem')
 const addToExam = (page: Page) =>
   page.getByRole('button', { name: /^Add .* to the exam$/ })
-const inExamMarkers = (page: Page) => bank(page).getByText('Dolgozatban')
+const inExamMarkers = (page: Page) => bank(page).getByText('In exam')
 // The rendered Working Copy is addressed the way the existing browser tests
 // address it, so this suite and the interaction regressions stay one harness.
 const examQuestions = (page: Page) => page.locator('.exam-question')
@@ -26,15 +26,15 @@ async function newBankQuestion(page: Page, type = 'Multiple choice') {
 }
 
 async function writeQuestion(page: Page, stem: string) {
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeVisible()
   await page.keyboard.type(stem)
   await page.keyboard.press('Control+Enter')
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeHidden()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
 }
 
 test('the Question Bank opens beside the Working Copy as the narrower pane', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await expect(bank(page)).toBeVisible()
 
@@ -47,7 +47,7 @@ test('the Question Bank opens beside the Working Copy as the narrower pane', asy
 
 test('a question written in the bank stays off the exam until it is added', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await newBankQuestion(page)
   await writeQuestion(page, 'Which is a mammal?')
@@ -69,7 +69,7 @@ test('a question written in the bank stays off the exam until it is added', asyn
 
 test('the slot that says a question is on the exam is also how it comes off', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await newBankQuestion(page)
   await writeQuestion(page, 'Which is a mammal?')
@@ -89,24 +89,24 @@ test('the slot that says a question is on the exam is also how it comes off', as
 
 test('cancelling the popup leaves the Question Bank and the Working Copy alone', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await newBankQuestion(page)
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeVisible()
   await page.keyboard.type('Abandoned question')
-  await page.getByRole('button', { name: 'Mégsem' }).click()
+  await page.getByRole('button', { name: 'Cancel' }).click()
 
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeHidden()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
   await expect(bankRows(page)).toHaveCount(0)
   await expect(examQuestions(page)).toHaveCount(0)
 })
 
 test('a refresh restores the Question Bank, the Working Copy and its order', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
+  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
   await writeQuestion(page, 'On the exam')
   await newBankQuestion(page)
   await writeQuestion(page, 'Kept in the bank')
@@ -126,10 +126,10 @@ test('a refresh restores the Question Bank, the Working Copy and its order', asy
 
 test('editing canonical Question Content updates the rendered Working Copy', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   await page.getByRole('button', { name: 'Insert your first question' }).click()
-  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
+  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
   await writeQuestion(page, 'Original wording')
   await expect(examQuestions(page).first()).toContainText('Original wording')
 

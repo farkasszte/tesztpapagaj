@@ -59,17 +59,19 @@ test('the fresh generation ignores earlier browser authoring data', async ({
   }, legacy)
 
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   await page.evaluate(
     () => (window as unknown as { legacySetup: Promise<unknown> }).legacySetup,
   )
 
   await expect(
-    page.getByRole('region', { name: 'Kérdésbank' }).getByRole('listitem'),
+    page.getByRole('region', { name: 'Question Bank' }).getByRole('listitem'),
   ).toHaveCount(0)
   await expect(page.locator('.exam-question')).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toHaveValue('Névtelen dolgozat')
+  await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue(
+    'Untitled Exam',
+  )
   expect(
     await page.evaluate(() => localStorage.getItem('exam-authoring-v2')),
   ).toBe(JSON.stringify(legacy))
@@ -104,8 +106,8 @@ test('failed normalized write and Save transactions expose no partial state', as
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
+  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   const baseline = legacyAuthoringState()
   baseline.workingCopy.title = 'Last complete write'
 
@@ -157,29 +159,29 @@ test('Question Metadata and bank-only content survive a user-visible reload', as
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('button', { name: 'Add Question', exact: true }).click()
-  await page.getByRole('menuitem', { name: 'Feleletválasztós' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
+  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Question editor' })
   await dialog.waitFor()
   await page.keyboard.type('Which gas do plants take in?')
-  await dialog.getByRole('button', { name: 'Nehézség', exact: true }).click()
-  await page.getByRole('button', { name: 'Nehéz', exact: true }).click()
-  await dialog.getByRole('button', { name: 'Témák', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Difficulty', exact: true }).click()
+  await page.getByRole('button', { name: 'Hard', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Topics', exact: true }).click()
   const topic = dialog.getByRole('textbox', { name: 'Filter Topics' })
   await topic.fill('Photosynthesis')
   await topic.press('Enter')
-  await page.getByRole('button', { name: 'Kérdés mentése' }).click()
+  await page.getByRole('button', { name: 'Save question' }).click()
   await expect(page.locator('.exam-question')).toHaveCount(0)
 
   await page.reload()
 
   const row = page
-    .getByRole('region', { name: 'Kérdésbank' })
+    .getByRole('region', { name: 'Question Bank' })
     .getByRole('listitem')
   await expect(row).toHaveCount(1)
   await expect(row).toContainText('Which gas do plants take in?')
-  await expect(row).toContainText('Nehéz')
+  await expect(row).toContainText('Hard')
   await expect(row).toContainText('Photosynthesis')
   await expect(page.locator('.exam-question')).toHaveCount(0)
 })
@@ -188,11 +190,11 @@ test('publication aborts every store when a required Media Asset is absent', asy
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Új dolgozat' }).first().click()
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
   // A first visit registers the image service worker, which may reload once
   // before it takes control. Wait for application startup rather than running
   // the IndexedDB probe in the navigation that registration replaces.
-  await page.getByRole('textbox', { name: 'Dolgozat neve' }).waitFor()
+  await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   const result = await page.evaluate(async () => {
     const authoringPath = '/src/indexeddb-authoring.ts'
     const preparationPath = '/src/export-preparation.ts'

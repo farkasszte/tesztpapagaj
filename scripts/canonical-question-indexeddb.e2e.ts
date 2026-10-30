@@ -15,7 +15,7 @@ const sharedQuestion = {
 
 test('IndexedDB projection preserves stable arrangements and resets changed choice sets', async ({ page }) => {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
     const modulePath = '/src/exam-workspaces.ts'
     const { createExamWorkspaceService } = await import(/* @vite-ignore */ modulePath) as typeof import('../src/exam-workspaces')
@@ -58,7 +58,7 @@ test('IndexedDB projection preserves stable arrangements and resets changed choi
 
 test('a failed cross-resource save restores the canonical Question and every Exam', async ({ page }) => {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
     const bankPath = '/src/question-bank-workspaces.ts'
     const examPath = '/src/exam-workspaces.ts'

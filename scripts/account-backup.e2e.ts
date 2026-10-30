@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 /** Creates a Question Bank holding one Question with an image in it. */
 async function seedAccount(page: Page, bankName: string) {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (name) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -71,29 +71,29 @@ async function renameOnlyBank(page: Page, name: string) {
 }
 
 function panel(page: Page) {
-  return page.getByRole('region', { name: 'Hol tárolódik a munkád' })
+  return page.getByRole('region', { name: 'Where your work is stored' })
 }
 
 async function openPanel(page: Page) {
-  await page.getByRole('button', { name: 'Hol tárolódik a munkád' }).click()
+  await page.getByRole('button', { name: 'Where your work is stored' }).click()
   await expect(panel(page)).toBeVisible()
 }
 
 function backupCard(page: Page) {
-  return page.getByRole('region', { name: 'Mentsd el a munkádat' })
+  return page.getByRole('region', { name: 'Back up your work' })
 }
 
 test('a downloaded account backup restores every Question Bank and image', async ({ page }) => {
   await seedAccount(page, 'Biology Bank')
   await page.goto('/question-banks')
   await openPanel(page)
-  await expect(panel(page)).toContainText('A munkád a böngésződben van elmentve.')
-  await expect(panel(page)).toContainText('Az adataid exportálásához nyisd meg a Beállításokat.')
-  await panel(page).getByRole('button', { name: 'Beállítások' }).click()
+  await expect(panel(page)).toContainText('Your work is saved in your browser.')
+  await expect(panel(page)).toContainText('Go to Settings to export your data.')
+  await panel(page).getByRole('button', { name: 'Settings' }).click()
   await expect(page).toHaveURL(/\/settings$/)
 
   const downloading = page.waitForEvent('download')
-  await backupCard(page).getByRole('button', { name: 'Biztonsági másolat letöltése' }).click()
+  await backupCard(page).getByRole('button', { name: 'Download backup' }).click()
   const download = await downloading
   expect(download.suggestedFilename()).toMatch(/^test-parrot-account-\d{4}-\d{2}-\d{2}\.zip$/)
   const backup = await readFile((await download.path())!)
@@ -106,13 +106,13 @@ test('a downloaded account backup restores every Question Bank and image', async
 
   // Settings is also a destination in the left nav.
   await page.goto('/question-banks')
-  await page.getByRole('link', { name: 'Beállítások', exact: true }).click()
-  await page.getByLabel('Válassz visszaállítandó biztonsági másolatot').setInputFiles({
+  await page.getByRole('link', { name: 'Settings', exact: true }).click()
+  await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'test-parrot-account.zip', mimeType: 'application/zip', buffer: backup,
   })
-  const confirm = page.getByRole('dialog', { name: 'Visszaállítod ezt a biztonsági másolatot?' })
-  await expect(confirm).toContainText('minden dolgozatot, kérdésbankot')
-  await confirm.getByRole('button', { name: 'Csere és újratöltés' }).click()
+  const confirm = page.getByRole('dialog', { name: 'Restore this backup?' })
+  await expect(confirm).toContainText('replaces every Exam, Question Bank')
+  await confirm.getByRole('button', { name: 'Replace and reload' }).click()
 
   await expect(backupCard(page)).toBeVisible()
   await page.goto('/question-banks')
@@ -125,10 +125,10 @@ test('a downloaded account backup restores every Question Bank and image', async
 test('a file that is not a backup is refused without changing anything', async ({ page }) => {
   await seedAccount(page, 'Keep me')
   await page.goto('/settings')
-  await page.getByLabel('Válassz visszaállítandó biztonsági másolatot').setInputFiles({
+  await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'notes.zip', mimeType: 'application/zip', buffer: Buffer.from('not a zip'),
   })
-  await expect(backupCard(page).getByRole('alert')).toHaveText('Ez a fájl nem Tesztpapagáj-fiókmentés.')
-  await expect(page.getByRole('dialog', { name: 'Visszaállítod ezt a biztonsági másolatot?' })).toHaveCount(0)
+  await expect(backupCard(page).getByRole('alert')).toHaveText('This file is not a Test Parrot account backup.')
+  await expect(page.getByRole('dialog', { name: 'Restore this backup?' })).toHaveCount(0)
   expect(await bankNames(page)).toEqual(['Keep me'])
 })

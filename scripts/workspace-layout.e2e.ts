@@ -24,9 +24,9 @@ const QUESTIONS: Question[] = [
 ]
 
 const workspace = (page: Page) => page.locator('.authoring-workspace')
-const bank = (page: Page) => page.getByRole('region', { name: 'Kérdésbank' })
+const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
 const sheet = (page: Page) => page.locator('.exam-page').first()
-const divider = (page: Page) => page.getByRole('separator', { name: 'Kérdésbank átméretezése' })
+const divider = (page: Page) => page.getByRole('separator', { name: 'Resize the Question Bank' })
 
 async function openWorkspace(page: Page) {
   await seedAuthoringState(page, {
@@ -128,7 +128,7 @@ test('a pane too narrow for the sheet scrolls rather than shrinking it', async (
 
 test('pane width is restorable workspace state, not authoring data', async ({ page }) => {
   await openWorkspace(page)
-  const undo = page.getByRole('button', { name: 'Visszavonás' })
+  const undo = page.getByRole('button', { name: 'Undo' })
   await expect(undo).toBeDisabled()
 
   await divider(page).focus()
@@ -157,10 +157,10 @@ test('focus, selection, the modal and the workspace shortcuts survive the split'
   await expect(question).not.toHaveClass(/exam-question--selected/)
 
   await question.dblclick()
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeVisible()
   await page.keyboard.type(' now')
   await page.keyboard.press('Control+Enter')
-  await expect(page.getByRole('dialog', { name: 'Kérdésszerkesztő' })).toBeHidden()
+  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
   await expect(question).toContainText('now')
 
   await page.keyboard.press('Control+z')

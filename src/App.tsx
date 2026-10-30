@@ -2624,7 +2624,7 @@ function ExamEditor({
             type="button"
             className="toolbar-icon-button"
             aria-label={t('exam.exportHistory')}
-            title="Export History"
+            title={t('exam.exportHistory')}
             aria-expanded={historyOpen}
             aria-controls="export-history"
             onClick={() => setHistoryOpen((open) => !open)}
@@ -2719,14 +2719,14 @@ function ExamEditor({
         ] : documentMenu.kind === 'file' ? [
           {
             kind: 'action',
-            label: 'Open Exam',
+            label: t('exam.open'),
             icon: <FolderOpen />,
             onSelect: () => setChoosingExam(true),
           },
           { kind: 'separator' },
           {
             kind: 'action',
-            label: 'Save',
+            label: t('exam.save'),
             icon: <Save />,
             disabled: isHistoricalBrowsing || !state.dirty || backupStatus === 'failed',
             onSelect: () => { void store.save() },
@@ -2755,7 +2755,7 @@ function ExamEditor({
           },
           {
             kind: 'action',
-            label: 'Export History',
+            label: t('exam.exportHistory'),
             icon: <History />,
             onSelect: () => setHistoryOpen(true),
           },
@@ -2795,7 +2795,7 @@ function ExamEditor({
       />}
 
       {choosingExam && <ResourcePicker
-        title="Open Exam"
+        title={t('exam.open')}
         closeLabel={t('exam.closePicker')}
         emptyMessage={t('exam.noneOther')}
         resources={exams

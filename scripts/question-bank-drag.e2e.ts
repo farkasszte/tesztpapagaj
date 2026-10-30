@@ -42,7 +42,7 @@ const QUESTIONS: Question[] = [
   question('saSpare', 'Spare short answer', 'open'),
 ]
 
-const bank = (page: Page) => page.getByRole('region', { name: 'Kérdésbank' })
+const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
 const bankRow = (page: Page, stem: string) =>
   bank(page).getByRole('listitem').filter({ hasText: stem })
 // Only real rendered questions: the off-screen measuring host and the drag
@@ -116,7 +116,7 @@ test('the bottom edge of a rendered question Inserts after it', async ({ page })
   // Referenced, not copied: still five bank records, and the incoming one is
   // marked as being on the exam.
   await expect(bank(page).getByRole('listitem')).toHaveCount(QUESTIONS.length)
-  await expect(bankRow(page, 'Spare choice question')).toContainText('Dolgozatban')
+  await expect(bankRow(page, 'Spare choice question')).toContainText('In exam')
 })
 
 test('Shift-selected bank rows drag into the Working Copy together', async ({ page }) => {
@@ -228,7 +228,7 @@ test('feedback shows the landing line while dragging, and a release outside the 
   // Releasing there changes nothing at all — not the exam, and not the history.
   await page.mouse.up()
   expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
-  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
   await expect(preview).toHaveCount(0)
 })
 
@@ -245,7 +245,7 @@ test('a Question Bank question already on the exam offers no gesture', async ({ 
   await page.mouse.up()
 
   expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
-  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 })
 
 const newSectionTarget = (page: Page) => page.locator('[data-new-section-after]')
@@ -271,7 +271,7 @@ test('a question of a type the Exam has no Section for starts one from the targe
 
   expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
   await expect(newSectionTarget(page)).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Rövid válasz')
+  await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Short Answer')
 })
 
 test('an empty Working Copy offers its placeholder as the first-question drop target', async ({ page }) => {
@@ -279,7 +279,7 @@ test('an empty Working Copy offers its placeholder as the first-question drop ta
 
   // A blank sheet already draws where the first question goes, so that is what
   // a gesture aims at — not a second offer pinned somewhere else.
-  const placeholder = page.getByText('Húzz ide kérdést egy megnyitott kérdésbankból')
+  const placeholder = page.getByText('Drag or add a Question from an open Question Bank')
   await expect(placeholder).toBeVisible()
 
   const box = (await bankRow(page, 'Spare choice question').boundingBox())!
@@ -299,7 +299,7 @@ test('an empty Working Copy offers its placeholder as the first-question drop ta
 
 test('a bank-to-draft drop is exactly one undoable action, and redoes', async ({ page }) => {
   await openWorkspace(page)
-  const undo = page.getByRole('button', { name: 'Visszavonás' })
+  const undo = page.getByRole('button', { name: 'Undo' })
   await expect(undo).toBeDisabled()
 
   await dragBankRowOnto(page, 'Spare choice question', rendered(page, 'mc1'), 'bottom')
@@ -332,7 +332,7 @@ test('dragging inside the Working Copy reorders and never Replaces', async ({ pa
 
   expect(await renderedIds(page)).toEqual(['mc2', 'mc1', 'sa1'])
   // A reorder, not a composition: the same three questions on the exam.
-  await expect(bank(page).getByText('Dolgozatban')).toHaveCount(3)
+  await expect(bank(page).getByText('In exam')).toHaveCount(3)
 })
 
 test('a reordering drag stays inside its own Question Section', async ({ page }) => {

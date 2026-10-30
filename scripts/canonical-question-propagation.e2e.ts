@@ -9,7 +9,7 @@ const question = {
 
 test('a canonical edit propagates to clean and dirty Exams without manufacturing Exam activity', async ({ page }) => {
   await page.goto('/about')
-  await expect(page.getByRole('heading', { name: 'A projektről' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const setup = await page.evaluate(async (shared) => {
     const banksModule = '/src/question-bank-workspaces.ts'
     const examsModule = '/src/exam-workspaces.ts'
@@ -57,25 +57,25 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
   }, question)
 
   await page.goto(`/editor?exam=${setup.cleanId}`)
-  await expect(page.getByRole('textbox', { name: 'Dolgozat neve' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Exam name' })).toBeVisible()
   const recentBefore = await page.evaluate(async () => {
     const examsModule = '/src/exam-workspaces.ts'
     const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam-workspaces')
     return createExamWorkspaceService().recent()
   })
   await page.locator('.exam-question').dblclick()
-  const dialog = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
+  const dialog = page.getByRole('dialog', { name: 'Question editor' })
   await expect(dialog.locator('.front-matter-field').filter({ hasText: 'Question Bank' })).toContainText('Biology')
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByRole('tab', { name: 'Biology' })).toHaveCount(0)
   await dialog.locator('.milkdown').click()
   await page.keyboard.press('Control+A')
   await page.keyboard.type('Edited everywhere')
-  await dialog.getByRole('button', { name: 'Kérdés mentése' }).click()
+  await dialog.getByRole('button', { name: 'Save question' }).click()
   await expect(dialog).toBeHidden()
   await expect(page.locator('.exam-question')).toContainText('Edited everywhere')
-  await expect(page.getByLabel('Munkapéldány állapota')).toHaveText('Elmentve')
-  await expect(page.getByRole('button', { name: 'Visszavonás' })).toBeDisabled()
+  await expect(page.getByLabel('Working Copy status')).toHaveText('Saved')
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 
   const result = await page.evaluate(async ({ cleanId, dirtyId, bankId }) => {
     const examsModule = '/src/exam-workspaces.ts'

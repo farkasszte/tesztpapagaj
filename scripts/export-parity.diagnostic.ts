@@ -257,7 +257,7 @@ for (const fixture of fixtures) {
     await configureExport(page, { ...configuration, format: 'pdf' })
     const [pdfDownload] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByRole('button', { name: 'PDF letöltése' }).click(),
+      page.getByRole('button', { name: 'Download PDF' }).click(),
     ])
     const exportedPdf = join(directory, 'export.pdf')
     await pdfDownload.saveAs(exportedPdf)
@@ -292,12 +292,12 @@ for (const fixture of fixtures) {
       }
       await expect(liveQuestions).toHaveCount(0)
 
-      await page.getByRole('button', { name: 'Exportelőzmények' }).click()
-      const history = page.getByLabel('Exportelőzmények')
+      await page.getByRole('button', { name: 'Export History' }).click()
+      const history = page.getByLabel('Export History')
       await history.locator('.export-history-item').first().click()
       const [historicalDownload] = await Promise.all([
         page.waitForEvent('download'),
-        page.getByRole('button', { name: 'Újraexportálás: DOCX', exact: true }).click(),
+        page.getByRole('button', { name: 'Re-export DOCX', exact: true }).click(),
       ])
       const historical = join(directory, 'historical-export.docx')
       await historicalDownload.saveAs(historical)
@@ -433,17 +433,17 @@ async function configureExport(
   page: import('@playwright/test').Page,
   configuration: ExportConfiguration,
 ): Promise<void> {
-  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'Exportálás' })
+  await page.getByRole('button', { name: 'Export', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Export' })
   await dialog.waitFor()
   await dialog.getByRole('radio', {
     name: configuration.format.toUpperCase(),
   }).check()
   await dialog
-    .getByRole('checkbox', { name: 'Tanulói feladatlap' })
+    .getByRole('checkbox', { name: 'Student test' })
     .setChecked(configuration.selection.test)
   await dialog
-    .getByRole('checkbox', { name: 'Válaszkulcs' })
+    .getByRole('checkbox', { name: 'Answer key' })
     .setChecked(configuration.selection.answerKey)
 }
 

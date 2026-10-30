@@ -59,7 +59,7 @@ async function openExam(page: Page, count = 1, textSize?: 'small' | 'large') {
 }
 
 async function choose(page: Page, menu: 'Text size' | 'Heading size', size: string) {
-  await page.getByRole('button', { name: 'Formázás' }).click()
+  await page.getByRole('button', { name: 'Format' }).click()
   await page.getByRole('menuitem', { name: menu }).hover()
   await page.getByRole('menuitemradio', { name: size }).click()
 }
@@ -76,8 +76,8 @@ test('Format → Text size sets how large the questions print, and not the heade
   expect(await fontSize(page, '.exam-workspace .page-identity')).toBe('15px')
   expect(await fontSize(page, '.exam-workspace .section-instructions')).toBe('15px')
 
-  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
-  const preview = page.getByRole('dialog', { name: 'Exportálás' }).getByLabel('Export előnézete')
+  await page.getByRole('button', { name: 'Export', exact: true }).click()
+  const preview = page.getByRole('dialog', { name: 'Export' }).getByLabel('Export Preview')
   await expect(preview).toBeVisible()
   expect(await preview.locator('.question-stem').first().evaluate(
     (element) => getComputedStyle(element).fontSize,
@@ -96,11 +96,11 @@ test('Format → Heading size sets the Exam’s title with its section headings'
 for (const size of ['small', 'large'] as const) {
   test(`a long Exam at ${size} text exports to PDF within the pages it was planned on`, async ({ page }) => {
     await openExam(page, 18, size)
-    await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Exportálás' })
+    await page.getByRole('button', { name: 'Export', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Export' })
     await expect(dialog).toBeVisible()
     const pending = page.waitForEvent('download')
-    await dialog.getByRole('button', { name: 'PDF letöltése' }).click()
+    await dialog.getByRole('button', { name: 'Download PDF' }).click()
     const download = await pending
     expect(download.suggestedFilename()).toMatch(/\.pdf$/)
     await expect(page.getByRole('alert')).toHaveCount(0)

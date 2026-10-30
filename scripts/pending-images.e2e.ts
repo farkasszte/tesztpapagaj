@@ -14,22 +14,22 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   // Home's one button is Import, which opens the Import dialog; a test
   // dropped there starts an import that waits on its own page.
   await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Kérdésbank importálása' })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Importálás', exact: true }).click()
-  await page.getByRole('dialog', { name: 'Importálás' }).getByLabel('A dolgozatod, egy kérdésfájl vagy egy Tesztpapagáj-fájl').setInputFiles({
+  await expect(page.getByRole('button', { name: 'Import Question Bank' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Import' }).getByLabel('Your test, a question file, or a Test Parrot file').setInputFiles({
     name: 'unit-test.pdf',
     mimeType: 'application/pdf',
     buffer: await sourceDocument(),
   })
   await expect(page).toHaveURL(/\/import\?id=/)
-  await expect(page.getByRole('heading', { name: 'Átalakítás unit-test.pdf' })).toBeVisible()
-  const steps = page.getByRole('region', { name: 'Dolgozat átalakítása' })
+  await expect(page.getByRole('heading', { name: 'Converting unit-test.pdf' })).toBeVisible()
+  const steps = page.getByRole('region', { name: 'Convert your test' })
 
   const saved = page.waitForEvent('download')
-  await steps.getByRole('button', { name: 'Az utasítások letöltése' }).click()
+  await steps.getByRole('button', { name: 'Download the instructions' }).click()
   const instructionsFile = await saved
   expect(instructionsFile.suggestedFilename()).toBe('unit-test (instructions).txt')
-  await expect(steps.getByRole('button', { name: 'Letöltve' })).toBeVisible()
+  await expect(steps.getByRole('button', { name: 'Downloaded' })).toBeVisible()
   const instructions = await readFile(await instructionsFile.path(), 'utf8')
   expect(instructions).toContain('- page 1: IMG 1\n- page 2: IMG 2')
   expect(instructions).not.toContain('{{IMAGE_TAGS}}')
@@ -41,50 +41,50 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   // The import waits while the teacher is in their AI chat, reload and all.
   // Import again is a new import: it does not pick the waiting one up.
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Átalakítás unit-test.pdf' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Converting unit-test.pdf' })).toBeVisible()
   await page.goto('/imports')
-  await page.getByRole('button', { name: 'Importálás', exact: true }).click()
-  await expect(page.getByRole('dialog', { name: 'Importálás' }).getByLabel('A dolgozatod, egy kérdésfájl vagy egy Tesztpapagáj-fájl')).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Dolgozat átalakítása' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Import' }).getByLabel('Your test, a question file, or a Test Parrot file')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Convert your test' })).toHaveCount(0)
   await page.keyboard.press('Escape')
 
   // It waits in Imports, and is continued from there.
-  await page.getByRole('navigation', { name: 'Szakaszok' }).getByRole('link', { name: 'Importok' }).click()
-  const waitingRow = page.getByRole('region', { name: 'Folyamatban' }).getByRole('listitem', { name: 'unit-test.pdf' })
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Imports' }).click()
+  const waitingRow = page.getByRole('region', { name: 'Pending' }).getByRole('listitem', { name: 'unit-test.pdf' })
   await expect(waitingRow).toBeVisible()
   await expect(waitingRow).toContainText('2 pictures detected')
   // Its card shows the test's own first page.
   await expect(waitingRow.locator('.import-sheet img')).toHaveAttribute('src', /^blob:/)
-  await waitingRow.getByRole('link', { name: 'Folytatás: unit-test.pdf' }).click()
-  await expect(page.getByRole('heading', { name: 'Átalakítás unit-test.pdf' })).toBeVisible()
+  await waitingRow.getByRole('link', { name: 'Continue unit-test.pdf' }).click()
+  await expect(page.getByRole('heading', { name: 'Converting unit-test.pdf' })).toBeVisible()
   // Beside the steps: its pages as the AI sees them, labeled, and what is
   // known — the pictures counted there, not above the steps.
   await expect(page.getByRole('status').filter({ hasText: 'pictures detected' })).toHaveCount(0)
   await expect(page.getByRole('img', { name: 'Page 1 of the labeled copy' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Előző oldal' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Previous page' })).toBeDisabled()
   await page.getByRole('img', { name: 'Page 1 of the labeled copy' }).hover()
-  await page.getByRole('button', { name: 'Következő oldal' }).click()
+  await page.getByRole('button', { name: 'Next page' }).click()
   await expect(page.getByRole('img', { name: 'Page 2 of the labeled copy' })).toBeVisible()
   await expect(page.getByText('Page 2 of 2, labeled')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Következő oldal' })).toBeDisabled()
-  await expect(page.getByLabel('Erről az importról')).toContainText('Pages2')
-  await expect(page.getByLabel('Erről az importról')).toContainText('Észlelt képek2')
-  await expect(page.getByRole('button', { name: 'Kezdd újra egy másik fájllal' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled()
+  await expect(page.getByLabel('About this import')).toContainText('Pages2')
+  await expect(page.getByLabel('About this import')).toContainText('Pictures detected2')
+  await expect(page.getByRole('button', { name: 'Start over with another file' })).toHaveCount(0)
 
   // The file the AI gives back, dropped on a new import, finds the import it
   // answers and continues it.
-  await page.getByRole('link', { name: 'Importok', exact: true }).first().click()
-  await page.getByRole('button', { name: 'Importálás', exact: true }).click()
-  await page.getByRole('dialog', { name: 'Importálás' }).getByLabel('A dolgozatod, egy kérdésfájl vagy egy Tesztpapagáj-fájl').setInputFiles({
+  await page.getByRole('link', { name: 'Imports', exact: true }).first().click()
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Import' }).getByLabel('Your test, a question file, or a Test Parrot file').setInputFiles({
     name: 'bus-routes.parrot.json',
     mimeType: 'application/json',
     buffer: assistantPackage(),
   })
-  const dialog = page.getByRole('dialog', { name: 'Importálás' })
+  const dialog = page.getByRole('dialog', { name: 'Import' })
   await expect(dialog.getByRole('alert')).toHaveCount(0)
 
   // The tagged pictures are already in the Test, in place; the rest say so.
-  const preview = dialog.getByLabel('Dolgozat előnézete')
+  const preview = dialog.getByLabel('Test preview')
   const hint = preview.getByRole('status').filter({ hasText: /picture/ })
   await expect(hint).toHaveText('3 of 5 pictures detected from unit-test.pdf. Click a picture to change it.', { timeout: 30000 })
   const pictureIn = (question: string) => preview.getByRole('button', { name: new RegExp(`^${question}: `) })
@@ -98,7 +98,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   // Clicking a picture opens its choices in the rail. Question 2 shares IMG 1
   // with Question 1; it can take another picture on its own.
   await pictureIn('Question 2').click()
-  const rail = dialog.getByRole('complementary', { name: 'Kép a(z) 2. kérdéshez' })
+  const rail = dialog.getByRole('complementary', { name: 'Picture for Question 2' })
   await expect(rail).toContainText('IMG 1 from unit-test.pdf')
   await rail.getByLabel('Change the other place that uses IMG 1 too').uncheck()
   await expect(rail.getByRole('button', { name: 'Use IMG 1' })).toHaveAttribute('aria-pressed', 'true')
@@ -112,9 +112,9 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   // The line-drawn circuit has no tag: crop it from the page it is on, which
   // opens where the Test was, large enough to crop.
   await pictureIn('Question 4').click()
-  const circuit = dialog.getByRole('complementary', { name: 'Kép a(z) 4. kérdéshez' })
-  await circuit.getByRole('button', { name: 'Kivágás az oldalról' }).click()
-  const cropper = dialog.getByRole('group', { name: 'Kép kivágása az oldalról' })
+  const circuit = dialog.getByRole('complementary', { name: 'Picture for Question 4' })
+  await circuit.getByRole('button', { name: 'Crop from a page' }).click()
+  const cropper = dialog.getByRole('group', { name: 'Crop a picture from a page' })
   await expect(cropper).toContainText('Page 2 of 2')
   const pageImage = cropper.getByRole('img', { name: 'Page 2' })
   await expect(pageImage.locator('img')).toBeVisible()
@@ -124,26 +124,26 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await page.mouse.down()
   await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.76, { steps: 5 })
   await page.mouse.up()
-  await cropper.getByRole('button', { name: 'Ez a kivágás' }).click()
+  await cropper.getByRole('button', { name: 'Use this crop' }).click()
   await expect(cropper).toBeHidden()
   await expect(pictureIn('Question 4')).toContainText('Cropped from page 2')
   await expect(hint).toHaveText('4 of 5 pictures detected from unit-test.pdf. Click a picture to change it.')
   await circuit.getByRole('button', { name: 'Done' }).click()
   await expect(circuit).toBeHidden()
 
-  await dialog.getByRole('button', { name: 'Importálás', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click()
   await expect(page).toHaveURL(/\/editor\?exam=/)
 
   // Imports now lists it as imported, with what it brought in and the
   // picture it still needs; its Test opens from there.
   await page.goto('/imports')
-  await expect(page.getByRole('region', { name: 'Folyamatban' })).toHaveCount(0)
-  const importedRow = page.getByRole('region', { name: 'Előzmények' }).getByRole('listitem', { name: 'unit-test.pdf' })
+  await expect(page.getByRole('region', { name: 'Pending' })).toHaveCount(0)
+  const importedRow = page.getByRole('region', { name: 'History' }).getByRole('listitem', { name: 'unit-test.pdf' })
   await expect(importedRow).toContainText('Imported')
   await expect(importedRow).toContainText('5 Questions')
   await expect(importedRow).toContainText('1 picture still needed')
-  await importedRow.getByRole('button', { name: 'unit-test.pdf műveletei' }).click()
-  await expect(page.getByRole('menu', { name: 'unit-test.pdf műveletei' }).getByRole('menuitem'))
+  await importedRow.getByRole('button', { name: 'unit-test.pdf actions' }).click()
+  await expect(page.getByRole('menu', { name: 'unit-test.pdf actions' }).getByRole('menuitem'))
     .toHaveText(['Open Bus Routes Quiz', 'Open Bus Routes'])
   await page.keyboard.press('Escape')
   // The card itself opens the Test it brought in.
@@ -166,20 +166,20 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await expect(page.getByRole('img', { name: /^Picture needed/ })).toHaveCount(1)
 
   // The Exam cannot be exported with a hole in it, and says which Question.
-  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
-  const exporting = page.getByRole('dialog', { name: 'Exportálás' })
+  await page.getByRole('button', { name: 'Export', exact: true }).click()
+  const exporting = page.getByRole('dialog', { name: 'Export' })
   await expect(exporting.getByRole('alert')).toHaveText('Question 5 still needs a picture. Resolve it before exporting.')
   await expect(exporting.getByRole('button', { name: /^Download / })).toBeDisabled()
-  await exporting.getByRole('button', { name: 'Mégsem' }).click()
+  await exporting.getByRole('button', { name: 'Cancel' }).click()
 
   // In the question editor it is a “picture needed” block, and saving keeps it.
   await needed.dblclick()
-  const editor = page.getByRole('dialog', { name: 'Kérdésszerkesztő' })
+  const editor = page.getByRole('dialog', { name: 'Question editor' })
   await expect(editor.getByRole('group', { name: 'Picture needed: page 2' })).toBeVisible()
   await editor.locator('.milkdown').getByText('Label the parts of the cell').click()
   await page.keyboard.press('End')
   await page.keyboard.type(' carefully')
-  await editor.getByRole('button', { name: 'Kérdés mentése' }).click()
+  await editor.getByRole('button', { name: 'Save question' }).click()
   await expect(editor).toBeHidden()
   await page.reload()
   await expect(needed).toContainText('carefully')
@@ -187,23 +187,23 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
 
   // Resolved later from that block with an uploaded file, the Exam exports.
   await needed.dblclick()
-  await editor.getByRole('group', { name: 'Picture needed: page 2' }).getByRole('button', { name: 'Feloldás' }).click()
-  const later = page.getByRole('dialog', { name: 'Képek feloldása' })
+  await editor.getByRole('group', { name: 'Picture needed: page 2' }).getByRole('button', { name: 'Resolve' }).click()
+  const later = page.getByRole('dialog', { name: 'Resolve Images' })
   await later.getByLabel('Upload a picture for This picture').setInputFiles({
     name: 'cell.png',
     mimeType: 'image/png',
     buffer: Buffer.from(picture(90, 60, 5)),
   })
-  await expect(later.getByRole('listitem', { name: 'Ez a kép' })).toContainText('Uploaded cell.png')
-  await later.getByRole('button', { name: 'Ezeket a képeket használom' }).click()
+  await expect(later.getByRole('listitem', { name: 'This picture' })).toContainText('Uploaded cell.png')
+  await later.getByRole('button', { name: 'Use these pictures' }).click()
   await expect(later).toBeHidden()
   await expect(editor.getByRole('group', { name: 'Picture needed: page 2' })).toHaveCount(0)
-  await editor.getByRole('button', { name: 'Kérdés mentése' }).click()
+  await editor.getByRole('button', { name: 'Save question' }).click()
   await expect(editor).toBeHidden()
   await expect(page.getByRole('img', { name: /^Picture needed/ })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Exportálás', exact: true }).click()
+  await page.getByRole('button', { name: 'Export', exact: true }).click()
   await expect(exporting.getByRole('button', { name: /^Download / })).toBeEnabled()
-  await exporting.getByRole('button', { name: 'Mégsem' }).click()
+  await exporting.getByRole('button', { name: 'Cancel' }).click()
 
   // With its last picture added, the import needs nothing more.
   await page.goto('/imports')
