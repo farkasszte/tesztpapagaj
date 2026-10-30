@@ -74,7 +74,7 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
           <strong>{t('account.savedInBrowser')}</strong>
           <p>{t('account.goToSettings')}</p>
           {status === 'denied' && (
-            <p className="account-warning">
+            <p className="account-warning" role="status">
               {t('account.storageDenied')}
             </p>
           )}

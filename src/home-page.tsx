@@ -66,8 +66,11 @@ export function HomePage({
                 {t('home.pickUp')}
               </h1>
               {importLink}
+              <button type="button" className="link-button shelf-new" onClick={onNewExam}>
+                {t('home.newExam')}
+              </button>
             </div>
-            <CreateFirstCard label={t('home.newExam')} hint={t('home.createFirstExam')} onClick={onNewExam} />
+            <CreateFirstCard label={t('home.createFirstExam')} onClick={onNewExam} />
           </>
         ) : (
           <ResourceCarousel
@@ -84,7 +87,7 @@ export function HomePage({
                 <ExamCard exam={exam} onOpen={onOpen} onDelete={onDeleteExam} />
               </div>
             ))}
-            <div role="listitem">
+            <div role="presentation">
               <NewResourceCard label={t('home.newExam')} shape="sheet" onClick={onNewExam} />
             </div>
           </ResourceCarousel>
@@ -98,7 +101,7 @@ export function HomePage({
           </h2>
         </div>
         {banks.length === 0 ? (
-          <CreateFirstCard label={t('home.newBank')} hint={t('home.createFirstBank')} onClick={onNewBank} />
+          <CreateFirstCard label={t('home.createFirstBank')} onClick={onNewBank} />
         ) : (
           <div className="collection-grid">
             {banks.map((bank) => (

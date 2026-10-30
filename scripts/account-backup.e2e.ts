@@ -128,7 +128,7 @@ test('a file that is not a backup is refused without changing anything', async (
   await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'notes.zip', mimeType: 'application/zip', buffer: Buffer.from('not a zip'),
   })
-  await expect(backupCard(page).getByRole('alert')).toHaveText('This file is not a Test Parrot account backup.')
+  await expect(backupCard(page).getByRole('alert')).toHaveText('This file is not a Tesztpapagáj account backup.')
   await expect(page.getByRole('dialog', { name: 'Restore this backup?' })).toHaveCount(0)
   expect(await bankNames(page)).toEqual(['Keep me'])
 })
