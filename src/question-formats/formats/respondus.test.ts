@@ -46,8 +46,9 @@ describe('Respondus Standard Format', () => {
 
     expect(text(order!.suggestedAnswer).replace(/\n+/g, '\n')).toBe('George Washington\nJohn Adams\nThomas Jefferson')
 
-    // Multiple Answer: comes in with none marked, and the teacher is told which were.
-    expect(several!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
+    // Multiple Answer: both answers the guide stars are marked.
+    expect(several!.type).toBe('multiple-answer')
+    expect(several!.choices!.filter((choice) => choice.correct)).toHaveLength(2)
 
     expect(text(blanks!.stem)).toBe('A _____ by any other _____ would smell as\n_____.')
     expect(blankAnswers(blanks!.stem.content)).toEqual(['rose / red flower', 'name', 'sweet / good'])
@@ -74,7 +75,7 @@ describe('Respondus Standard Format', () => {
       'In 1887, Albert Michelson and Edward Morely carried out experiments to detect the change in speed of light.',
     )
     expect(text(blank!.suggestedAnswer)).toBe('Zworykin / Vladimir Zworykin')
-    expect(several!.type).toBe('multiple-choice')
+    expect(several!.type).toBe('multiple-answer')
     expect(gas!.choices!.map((choice) => choice.correct)).toEqual([false, true])
 
     const missing = reading.issues.find((issue) => issue.code === 'no-correct-answer')

@@ -39,7 +39,7 @@ describe('text2qti', () => {
     expect(dinosaurs!.choices!.map((choice) => text(choice.content))).toEqual([
       'Woolly mammoth', 'Tyrannosaurus rex', 'Triceratops', 'Smilodon fatalis',
     ])
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(b, c)')
+    expect(dinosaurs!.type).toBe('multiple-answer')
 
     expect(text(root2!.suggestedAnswer)).toBe('1.4142 (± 0.0001)')
     expect(text(root3!.suggestedAnswer)).toBe('1.2598 to 1.2600')

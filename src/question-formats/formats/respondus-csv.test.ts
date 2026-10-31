@@ -24,7 +24,7 @@ describe('Respondus CSV', () => {
     // The header row is not a question.
     expect(reading.found).toBe(7)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice','true-false','multiple-choice','fill-in-the-blank','short-answer','multiple-answer','true-false',])
+      'multiple-choice','true-false','multiple-answer','fill-in-the-blank','short-answer','multiple-choice','true-false',])
     const [capital, sun, primes, water, essay, planets, moon] = questions
     // The Points column gives each question's Points.
     expect(questions.map((question) => question.points)).toEqual([1, 1, 2, 1, 5, 1, 1])
@@ -33,9 +33,9 @@ describe('Respondus CSV', () => {
       ['London', false], ['Berlin', false], ['Paris', true], ['Madrid', false],
     ])
     expect(sun!.choices!.map((choice) => choice.correct)).toEqual([true, false])
-    // MR with two answers comes in unmarked, and says which they were.
-    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
+    // MR with two answers: both marked, as Multiple Answer.
+    expect(primes!.type).toBe('multiple-answer')
+    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(2)
     // Its own underscores are where its Blank goes.
     expect(text(water!.stem)).toBe('The chemical formula for water is _____.')
     expect(blankAnswers(water!.stem.content)).toEqual(['H2O / H₂O'])

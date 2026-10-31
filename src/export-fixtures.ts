@@ -88,6 +88,20 @@ function multipleChoice(
   }
 }
 
+/** A Multiple Answer question: the same grid as Multiple Choice, with more
+ *  than one answer marked. */
+function multipleAnswer(
+  id: string,
+  columns: Question['columns'],
+  stem: ProseMirrorJSON[],
+  choices: ProseMirrorJSON[],
+): Question {
+  return {
+    ...multipleChoice(id, columns, stem, choices),
+    type: 'multiple-answer',
+  }
+}
+
 function trueFalse(
   id: string,
   stem: ProseMirrorJSON[],
@@ -809,6 +823,17 @@ export const FIXTURES: readonly Fixture[] = [
             choice('m1-b', true, paragraph(text('Neutron'))),
           ],
         ),
+        multipleAnswer(
+          'a1',
+          2,
+          [paragraph(text('Which of these are noble gases?'))],
+          [
+            choice('a1-a', true, paragraph(text('Helium'))),
+            choice('a1-b', false, paragraph(text('Oxygen'))),
+            choice('a1-c', true, paragraph(text('Argon'))),
+            choice('a1-d', false, paragraph(text('Nitrogen'))),
+          ],
+        ),
       ],
     },
     arrangement(['o1', 't1', 'x1', 'm1']),
@@ -849,12 +874,13 @@ export const FIXTURES: readonly Fixture[] = [
       ],
       sectionHeadings: {
         'multiple-choice': { title: 'Choose One', instructions: '' },
+        'multiple-answer': { title: 'Choose Every One That Fits', instructions: '' },
         open: { title: '', instructions: '' },
         matching: { instructions: 'Write the letter of the matching definition.' },
       },
       headingSize: 'large',
     },
-    arrangement(['o1', 'x1', 'm1']),
+    arrangement(['o1', 'x1', 'm1', 'a1']),
     { answerKey: true },
   ),
 

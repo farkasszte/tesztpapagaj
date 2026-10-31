@@ -42,8 +42,7 @@ describe('Blackboard Test Generator pool download', () => {
     expect(reading.found).toBe(6)
     expect(reading.record.bank.name).toBe('test quiz')
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'fill-in-the-blank', 'matching',
-    ])
+      'multiple-answer','multiple-choice','true-false','short-answer','fill-in-the-blank','matching',])
     expect(questions.map((question) => text(question.stem))).toEqual([
       'Which of the following is a prime number?',
       'Which of the following is a prime number?',
@@ -52,10 +51,10 @@ describe('Blackboard Test Generator pool download', () => {
       'Two plus two equals _____.',
       'Match the number with it\'s spelling. :)',
     ])
-    // Question 1 is Multiple Answer: keeps the first answer it marks, and names the rest.
+    // Question 1 is Multiple Answer: every answer the source marks is kept.
+    expect(questions[0]!.type).toBe('multiple-answer')
     expect(questions[0]!.choices!.map((choice) => text(choice.content))).toEqual(['2', '3', '4', '5', '6', '7'])
-    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
-    expect(reading.issues.map((issue) => issue.code)).toContain('multiple-answer')
+    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(4)
     expect(questions[1]!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([
       ['4', false], ['5', true], ['6', false],
     ])
@@ -108,9 +107,7 @@ describe('Blackboard QTI pool and test export', () => {
     expect(reading.record.bank.name).toBe('Astronomy basics')
     expect(reading.found).toBe(10)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'matching',
-      'fill-in-the-blank', 'short-answer', 'short-answer', 'fill-in-the-blank',
-    ])
+      'multiple-choice','multiple-answer','true-false','short-answer','matching','fill-in-the-blank','short-answer','short-answer','fill-in-the-blank',])
 
     const [choice, multiple, trueFalse, essay, matching, blank, numeric, ordering, blanks] = questions
     // Each item's qmd_absolutescore_max of 10 is its Points, the Matching set's for the set.
@@ -125,8 +122,8 @@ describe('Blackboard QTI pool and test export', () => {
     expect(reading.record.media.map((asset) => asset.id)).toContain(picture.asset)
 
     expect(text(multiple!.stem)).toBe('Select all the prime numbers.')
-    expect(multiple!.choices!.filter((each) => each.correct)).toHaveLength(1)
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
+    expect(multiple!.type).toBe('multiple-answer')
+    expect(multiple!.choices!.filter((each) => each.correct)).toHaveLength(2)
 
     expect(trueFalse!.choices!.map((each) => each.correct)).toEqual([true, false])
     expect(text(essay!.suggestedAnswer)).toBe('The tilt of its axis.')

@@ -128,6 +128,7 @@ describe('public Question Bank Record 0.11.0 contract', () => {
       'media-rich.json',
       'minimal-multiple-choice.json',
       'multipart.json',
+      'multiple-answer.json',
       'pending-images.json',
       'points.json',
       'provenance-and-links.json',
@@ -1553,6 +1554,7 @@ describe('retained Question Bank Record 0.1.0 contract', () => {
     ])
     expect(typeEnum(publicSchema)).toEqual([
       'multiple-choice',
+      'multiple-answer',
       'true-false',
       'matching',
       'fill-in-the-blank',

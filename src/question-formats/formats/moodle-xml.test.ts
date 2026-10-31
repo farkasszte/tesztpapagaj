@@ -40,9 +40,9 @@ describe('Moodle XML', () => {
     expect(reading.record.media).toHaveLength(1)
     expect(JSON.stringify(cell!.stem)).toContain(reading.record.media[0]!.id)
 
-    // `<single>false` with two answers worth 50 each: Multiple Answer.
-    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, b)')
+    // `<single>false` with two answers worth 50 each: Multiple Answer, both marked.
+    expect(primes!.type).toBe('multiple-answer')
+    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(2)
 
     expect(sun!.choices!.map((choice) => choice.correct)).toEqual([false, true])
     expect(text(capital!.suggestedAnswer)).toBe('Paris / paris, France')

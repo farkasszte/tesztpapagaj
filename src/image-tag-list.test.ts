@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { join } from 'node:path'
 import { IMAGE_TAGS_SLOT, NO_LABELED_COPY, fillImageTags } from './image-tag-list'
+import { QUESTION_BANK_FORMAT_VERSION } from './question-bank-export'
 import type { ImageTag } from './source-document'
 
 const instructions = await Bun.file(join(import.meta.dir, '..', 'public', 'extract.md')).text()
@@ -18,7 +19,7 @@ describe('the instructions an assistant is given', () => {
     expect(instructions).toContain('"pending": { "image": 3 }')
     expect(instructions).toContain('Do not create Media Assets, and never write base64.')
     expect(instructions).not.toContain('does not describe it yet')
-    expect(instructions).toContain('./formats/question-bank/0.10.0/schema.json')
+    expect(instructions).toContain(`./formats/question-bank/${QUESTION_BANK_FORMAT_VERSION}/schema.json`)
   })
 
   test('ask for a test’s own Sections in printed order, linking an example that exists', async () => {

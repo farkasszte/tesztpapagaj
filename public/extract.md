@@ -155,7 +155,7 @@ Completeness means accounting for every source question, not pretending every qu
 
 ### During conversion
 
-1. Classify a question as `multiple-choice`, `true-false`, `matching`, `fill-in-the-blank`, `short-answer` or `multipart` only when the source supports that classification. Version `0.11.0` supports only those six types. If its type is uncertain or it cannot be represented without material loss, leave it out and report it explicitly; never coerce it into the closest supported type.
+1. Classify a question as `multiple-choice`, `multiple-answer`, `true-false`, `matching`, `fill-in-the-blank`, `short-answer` or `multipart` only when the source supports that classification. Version `0.11.0` supports only those seven types. If its type is uncertain or it cannot be represented without material loss, leave it out and report it explicitly; never coerce it into the closest supported type.
 2. Preserve the exact wording, punctuation, capitalization, symbols, units, and meaningful whitespace. A Question's stem is what the source prints at its number, and nothing more: never add the directions printed above a group of questions to each one, and take out a mark printed beside it, such as `[2]`, which becomes its `points` (see [Points](#points)). Under “Write the capital of each country below.”, the item `18. Peru` has the stem “Peru”.
 3. Preserve authored question and choice order.
 4. Preserve paragraphs, headings, blockquotes, lists, code, rules, tables, equations, hard breaks, links, images, captions, content printed side by side, figures, tables and captions printed centred, and text formatting when present (see [Page layout: boxes and side-by-side content](#page-layout-boxes-and-side-by-side-content)).
@@ -207,7 +207,7 @@ If any check fails, fix the record or disclose the precise limitation. Never say
 
 ## Question types
 
-Version `0.11.0` supports `multiple-choice`, `true-false`, `matching`, `fill-in-the-blank`, `short-answer`, and `multipart` Questions. Do not use any of them as a fallback for an unknown, mixed, or unsupported Question Type. In particular, do not turn an uncertain question into Short Answer merely because it has no clearly detected choices, do not turn a two-choice question into True/False unless those two choices really are true and false, do not turn a matching section into Multiple Choice questions that each repeat the word bank, and do not turn a passage and its questions into separate questions that each repeat the passage — or that leave it out. Leave it unconverted and warn the user instead.
+Version `0.11.0` supports `multiple-choice`, `multiple-answer`, `true-false`, `matching`, `fill-in-the-blank`, `short-answer`, and `multipart` Questions. Do not use any of them as a fallback for an unknown, mixed, or unsupported Question Type. In particular, do not turn an uncertain question into Short Answer merely because it has no clearly detected choices, do not turn a two-choice question into True/False unless those two choices really are true and false, do not turn a matching section into Multiple Choice questions that each repeat the word bank, and do not turn a passage and its questions into separate questions that each repeat the passage — or that leave it out. Leave it unconverted and warn the user instead.
 
 ### Multiple Choice
 
@@ -223,6 +223,14 @@ A Multiple Choice Question:
 Zero correct choices is valid and means the source did not identify a correct answer. Do not guess one.
 
 Write no `locked` member on a choice. Test Parrot keeps an answer such as “All of the above” or “Both A and B” in its printed place by itself whenever it shuffles a test's answers.
+
+### Multiple Answer
+
+A Multiple Answer Question is a question whose source marks more than one answer as correct, such as “Select all that apply”, “Tick every correct answer”, or a choice list with two or more circled or starred answers. It is the same shape as a Multiple Choice Question — an ID, at least two choices in authored order, choice IDs, no `suggestedAnswer` — with one difference:
+
+- it has **one or more** choices whose `correct` value is `true`, and at least one is required.
+
+Use it only when the source itself marks several answers. A question that offers several answers but marks one is Multiple Choice; a question whose marks you cannot read is left unconverted and reported. Test Parrot prints every correct answer's letter in the answer key, such as `A, C`.
 
 ```json
 {

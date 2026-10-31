@@ -59,9 +59,11 @@ describe('Kahoot spreadsheet', () => {
     expect(capital!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([
       ['London', false], ['Paris', true], ['Rome', false], ['Berlin', false],
     ])
-    // Two correct answers: unmarked, with a note naming them.
-    expect(prime!.choices!.map((choice) => text(choice.content))).toEqual(['2', '4', '5'])
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
+    // Two correct answers: a Multiple Answer question, both marked.
+    expect(prime!.type).toBe('multiple-answer')
+    expect(prime!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([
+      ['2', true], ['4', false], ['5', true],
+    ])
     expect(flat!.choices!.map((choice) => choice.correct)).toEqual([false, true])
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',

@@ -31,9 +31,9 @@ describe('Spreadsheet of questions', () => {
       ['3', false], ['4', true], ['5', false], ['6', false],
     ])
     expect(sum!.topics).toEqual(['Arithmetic'])
-    // A list: two correct answers, unmarked, with a note naming them.
-    expect(even!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
+    // A list: two correct answers, both marked, as a Multiple Answer question.
+    expect(even!.type).toBe('multiple-answer')
+    expect(even!.choices!.filter((choice) => choice.correct)).toHaveLength(2)
     // True, with no options: True/False.
     expect(water!.choices!.map((choice) => choice.correct)).toEqual([true, false])
     // An answer with no options is accepted.

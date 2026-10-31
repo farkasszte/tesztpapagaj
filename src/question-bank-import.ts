@@ -428,19 +428,19 @@ type CopyContext = {
 
 /** The versions whose `authoredSize` is a share of the picture's container,
  *  and which know the Picture Crop — both added in 0.7.0. */
-const SHARE_SIZE_VERSIONS: ReadonlySet<string> = new Set(['0.7.0', '0.8.0', '0.9.0', '0.10.0'])
+const SHARE_SIZE_VERSIONS: ReadonlySet<string> = new Set(['0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that know the Locked Answer, added in 0.9.0. */
-const LOCKED_ANSWER_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
+const LOCKED_ANSWER_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that let a Part hold Subparts, added in 0.9.0. */
-const SUBPART_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
+const SUBPART_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that know Points, added in 0.9.0. */
-const POINTS_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
+const POINTS_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that know a Centred block, added in 0.9.0. */
-const ALIGN_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
+const ALIGN_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that know Fill in the Blank and its Blanks, added in 0.10.0. */
 const BLANK_VERSIONS: ReadonlySet<string> = new Set(['0.10.0', '0.11.0'])
@@ -628,7 +628,7 @@ function misplacedContent(value: unknown): string | undefined {
 }
 
 /** The versions that know the Pending Image, added in 0.5.0. */
-const PENDING_IMAGE_VERSIONS: ReadonlySet<string> = new Set(['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0'])
+const PENDING_IMAGE_VERSIONS: ReadonlySet<string> = new Set(['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
 
 /** The versions that know the Side-by-Side, added in 0.6.0. */
 const SIDE_BY_SIDE_VERSIONS: ReadonlySet<string> = new Set(['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])

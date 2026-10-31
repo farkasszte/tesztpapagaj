@@ -220,6 +220,7 @@ describe('question ordering', () => {
   test('matching prints after true/false, then fill in the blank before short answer, and a multipart prints last', () => {
     expect(SECTION_ORDER).toEqual([
       'multiple-choice',
+      'multiple-answer',
       'true-false',
       'matching',
       'fill-in-the-blank',

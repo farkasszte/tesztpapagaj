@@ -23,8 +23,7 @@ describe('Brightspace (D2L) question CSV', () => {
     expect(proposal.banks).toHaveLength(1)
     expect(reading.found).toBe(7)
     expect(questions.map((question) => question.type)).toEqual([
-      'short-answer', 'short-answer', 'matching', 'multiple-choice', 'true-false', 'multiple-choice', 'short-answer',
-    ])
+      'short-answer','short-answer','matching','multiple-choice','true-false','multiple-answer','short-answer',])
     const [written, short, matching, choice, trueFalse, multiSelect, ordering] = questions
 
     // Each question's Points row gives its Points, the Matching set's for the set.
@@ -55,9 +54,9 @@ describe('Brightspace (D2L) question CSV', () => {
     ])
     expect(trueFalse!.choices!.map((option) => option.correct)).toEqual([true, false])
 
-    // Multi-Select with two right answers keeps the first answer it marks, and says which.
-    expect(multiSelect!.choices!.filter((option) => option.correct)).toHaveLength(1)
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
+    // Multi-Select with two right answers: both are marked, as Multiple Answer.
+    expect(multiSelect!.type).toBe('multiple-answer')
+    expect(multiSelect!.choices!.filter((option) => option.correct)).toHaveLength(2)
 
     expect(text(ordering!.suggestedAnswer).split(/\n+/)).toEqual(['This is the text for item 1', 'This is the text for item 2'])
 

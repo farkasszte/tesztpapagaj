@@ -42,12 +42,10 @@ describe('Blackboard Test Generator text', () => {
     expect(reading.format).toBe('bb-generator')
     expect(reading.found).toBe(6)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'fill-in-the-blank', 'matching',
-    ])
-    // Question 1 is Multiple Answer: the first answer the source marks is kept,
-    // so the question can be graded, and the note names the rest.
-    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
-    expect(reading.issues.map((issue) => issue.code)).toContain('multiple-answer')
+      'multiple-answer','multiple-choice','true-false','short-answer','fill-in-the-blank','matching',])
+    // Question 1 is Multiple Answer: every answer the source marks is kept.
+    expect(questions[0]!.type).toBe('multiple-answer')
+    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(4)
     expect(questions[2]!.choices!.map((choice) => choice.correct)).toEqual([true, false])
     // The teacher's own underscores are where its one Blank goes.
     expect(text(questions[4]!.stem)).toBe('Two plus two equals _____.')
@@ -63,9 +61,9 @@ describe('what a teacher is told', () => {
   test('a note names the question by its place in the whole file', async () => {
     const pasted = 'MC\nNo star here.\nyes\nno\n\nMA\nPick two.\n*one\n*two\nthree\n'
     const { reading } = await read('pasted.txt', new TextEncoder().encode(pasted))
+    // A Multiple Answer question needs no note: it is a type of its own now.
     expect(reading.issues.map((issue) => issue.message.split(':')[0])).toEqual([
       'Question 1 (line 1)',
-      'Question 2 (line 6)',
     ])
   })
 })
