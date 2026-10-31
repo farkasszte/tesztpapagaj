@@ -27,18 +27,26 @@ export const multipleChoiceFixedCtx = createSlice(false, 'multipleChoiceFixed')
 // its controls stay radios and picking one clears the rest.
 export const multipleChoiceSeveralCtx = createSlice(false, 'multipleChoiceSeveral')
 
+// Whether the list is an Ordering question's items: nothing is marked correct,
+// because the order they stand in is the answer, so each row shows its place
+// rather than a button.
+export const multipleChoiceOrderingCtx = createSlice(false, 'multipleChoiceOrdering')
+
 export const multipleChoiceMode = (
   editable: boolean,
   fixedChoices = false,
   severalCorrect = false,
+  ordering = false,
 ): MilkdownPlugin => (ctx) => {
   ctx.inject(multipleChoiceEditableCtx, editable)
   ctx.inject(multipleChoiceFixedCtx, fixedChoices)
   ctx.inject(multipleChoiceSeveralCtx, severalCorrect)
+  ctx.inject(multipleChoiceOrderingCtx, ordering)
   return () => () => {
     ctx.remove(multipleChoiceEditableCtx)
     ctx.remove(multipleChoiceFixedCtx)
     ctx.remove(multipleChoiceSeveralCtx)
+    ctx.remove(multipleChoiceOrderingCtx)
   }
 }
 
@@ -534,10 +542,17 @@ export const multipleChoiceChoiceView = $view(
       // something that changes under it.
       const fixed = ctx.get(multipleChoiceFixedCtx)
       const several = ctx.get(multipleChoiceSeveralCtx)
+      const ordering = ctx.get(multipleChoiceOrderingCtx)
 
       const dom = document.createElement('div')
       dom.className = fixed ? 'mc-choice mc-choice--fixed' : 'mc-choice'
       dom.dataset.type = 'multiple-choice-choice'
+      // An Ordering question holds items, not answers: its empty row says so,
+      // in the language the teacher reads.
+      if (ordering) {
+        dom.dataset.ordering = 'true'
+        dom.style.setProperty('--mc-placeholder', `"${t('editor.orderingItem')}"`)
+      }
 
       const control = document.createElement('label')
       control.className = 'mc-choice-control'
@@ -549,7 +564,12 @@ export const multipleChoiceChoiceView = $view(
       radio.type = several ? 'checkbox' : 'radio'
       radio.className = several ? 'mc-choice-radio mc-choice-checkbox' : 'mc-choice-radio'
       radio.setAttribute('aria-label', several ? t('editor.markCorrectSeveral') : t('editor.markCorrect'))
-      control.append(radio)
+      // An Ordering question's row shows its place: the order is the answer, so
+      // there is nothing to mark.
+      const position = document.createElement('span')
+      position.className = 'mc-choice-position'
+      position.contentEditable = 'false'
+      control.append(ordering ? position : radio)
 
       // A fixed answer is drawn rather than edited: with no contentDOM,
       // ProseMirror has nowhere to put a cursor, so the pair cannot be
@@ -633,6 +653,11 @@ export const multipleChoiceChoiceView = $view(
 
       let drawnLock: boolean | undefined
       const render = () => {
+        if (ordering) {
+          const pos = getPos()
+          const place = pos == null ? 0 : view.state.doc.resolve(pos).index() + 1
+          if (position.textContent !== `${place}.`) position.textContent = `${place}.`
+        }
         radio.checked = node.attrs.correct === true
         radio.disabled = !editable()
         dom.dataset.correct = String(node.attrs.correct === true)

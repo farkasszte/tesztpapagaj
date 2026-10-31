@@ -260,6 +260,7 @@ describe('hostile Question Bank File inspection', () => {
       '0.9.0',
       '0.10.0',
       '0.11.0',
+      '0.12.0',
     ])
     expect(DEFAULT_QUESTION_BANK_IMPORT_LIMITS).toEqual({
       pdfBytes: 100 * 1024 * 1024,
@@ -293,12 +294,12 @@ describe('hostile Question Bank File inspection', () => {
 
   test('reports the file version and exact supported versions before semantic validation', async () => {
     const source = baseRecord() as QuestionBankRecord & Record<string, unknown>
-    source.formatVersion = '0.12.0'
+    source.formatVersion = '0.13.0'
     source.requiredFeatures = ['also-unknown']
     await rejected(
       inspectQuestionBankRecord(bytesOf(source)),
       'unsupported-version',
-      '0.12.0',
+      '0.13.0',
     )
     await rejected(
       inspectQuestionBankRecord(bytesOf(source)),

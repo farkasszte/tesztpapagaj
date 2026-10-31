@@ -34,7 +34,8 @@ const fixture = FIXTURES.find((item) => item.name.startsWith('fill in the blank'
 
 describe('a Fill in the Blank question', () => {
   test('is listed after Matching and before Short Answer, with its own Section wording', () => {
-    expect(SECTION_ORDER.indexOf('fill-in-the-blank')).toBe(SECTION_ORDER.indexOf('matching') + 1)
+    expect(SECTION_ORDER.indexOf('ordering')).toBe(SECTION_ORDER.indexOf('matching') + 1)
+    expect(SECTION_ORDER.indexOf('fill-in-the-blank')).toBe(SECTION_ORDER.indexOf('ordering') + 1)
     expect(SECTION_ORDER.indexOf('open')).toBe(SECTION_ORDER.indexOf('fill-in-the-blank') + 1)
     expect(SECTION_TITLE['fill-in-the-blank']).toBe('Szövegkiegészítés')
     expect(SECTION_INSTRUCTIONS['fill-in-the-blank']).toContain('hiányzó szó')

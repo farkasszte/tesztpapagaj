@@ -26,6 +26,7 @@
 // never leaving a bare question number at the foot of a page.
 
 import {
+  arrangedChoices,
   columnsOf,
   orderedChoices,
   orderedPartChoices,
@@ -44,6 +45,7 @@ import {
   workSpaceRowsOf,
   type Difficulty,
   type Exam,
+  type Choice,
   type Question,
   type QuestionType,
   type Arrangement,
@@ -447,6 +449,10 @@ export type PlannedQuestion = {
   /** A Short Answer question's Suggested Answer, as top-level blocks. Never
    *  printed on the test; the Answer Key prints it under the question's line. */
   suggestedAnswer?: ProseMirrorJSON[]
+  /** An Ordering question's answer: the letters of its items in the order they
+   *  belong, which is the order they were authored in, as the Answer Key
+   *  writes them — `C, A, D, B`. The test prints them scrambled. */
+  orderingAnswer?: string
   /** A Multipart question's Parts, lettered, in authored order; `null` for every other
    *  Question Type. A Multipart question's `stem` is the shared material its Parts are asked about. */
   parts: PlannedPart[] | null
@@ -1277,7 +1283,9 @@ function deriveQuestion(
     ? []
     : question.type === 'multiple-choice'
       ? shownChoices(question, arrangement)
-      : orderedChoices(question, arrangement)
+      : question.type === 'ordering'
+        ? scrambledItems(question, arrangement)
+        : orderedChoices(question, arrangement)
   const answerVisibility = question.type === 'multiple-choice'
     ? answerVisibilityOf(question, arrangement)
     : undefined
@@ -1297,9 +1305,13 @@ function deriveQuestion(
     number,
     marks: trueFalse
       ? rules.trueFalseMarks
-      : question.type === 'multiple-choice' || question.type === 'multiple-answer'
-        ? rules.multipleChoiceMarks
-        : [],
+      : question.type === 'ordering'
+        // An Ordering question prints a line before every item: the number the
+        // student puts there is the answer, whatever style prints.
+        ? [ANSWER_BLANK]
+        : question.type === 'multiple-choice' || question.type === 'multiple-answer'
+          ? rules.multipleChoiceMarks
+          : [],
     // A Multipart question whose stem is only empty paragraphs has none: its
     // Part (a) opens on its number's line (`partsOpenNumberLine`).
     stem: multipart && blankBlocks(stemNodesOf(question.doc)) ? [] : stemNodesOf(question.doc),
@@ -1309,7 +1321,7 @@ function deriveQuestion(
     // they write one on.
     grid: trueFalse || matching || multipart
       ? null
-      : layOutGrid(printedChoices(choices, rules), columnsOf(question)),
+      : layOutGrid(printedChoices(choices, rules), question.type === 'ordering' ? 1 : columnsOf(question)),
     matching: matching
       ? deriveMatching(question, arrangement, number, rules, wordBankLayoutOf(exam, question))
       : null,
@@ -1323,6 +1335,7 @@ function deriveQuestion(
     ...(question.type === 'open' && suggestedAnswerOf(question).length > 0
       ? { suggestedAnswer: suggestedAnswerOf(question) }
       : {}),
+    ...(question.type === 'ordering' ? { orderingAnswer: orderingAnswerOf(question, choices) } : {}),
     // A Fill in the Blank question's answers are its Blanks', which the key
     // prints on one line where a Suggested Answer goes (ADR-0049).
     ...(question.type === 'fill-in-the-blank' && blankAnswerBlocks(question.doc).length > 0
@@ -1335,6 +1348,44 @@ function deriveQuestion(
     ...(multipart ? {} : pointsAfterOf(rules, totalPoints)),
     ...closingPointsOf(rules, multipart, totalPoints),
   }
+}
+
+/** The items of an Ordering question as this paper prints them: a stored
+ *  scramble when the teacher shuffled them, otherwise one derived from the
+ *  Exam and the question, so the same paper prints the same order every time
+ *  and never the order the answer key gives. */
+function scrambledItems(question: Question, arrangement: Arrangement): Choice[] {
+  const stored = arrangement.choiceOrder[question.id]
+  const items = choicesOf(question)
+  if (stored && stored.length > 0) return arrangedChoices(items, stored)
+  return seededShuffle(items, `${arrangement.id}:${question.id}`)
+}
+
+/** A Fisher–Yates shuffle driven by a hash of `seed`, so it is the same every
+ *  time it runs — a paper that changed its order between printings would not
+ *  be the same paper. */
+function seededShuffle<T>(items: readonly T[], seed: string): T[] {
+  let state = 2166136261
+  for (let index = 0; index < seed.length; index += 1) {
+    state ^= seed.charCodeAt(index)
+    state = Math.imul(state, 16777619) >>> 0
+  }
+  const shuffled = [...items]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0
+    const swap = state % (index + 1)
+    ;[shuffled[index], shuffled[swap]] = [shuffled[swap]!, shuffled[index]!]
+  }
+  return shuffled
+}
+
+/** An Ordering question's answer as the key writes it: its items in the order
+ *  they were authored, lettered as this paper prints them. */
+function orderingAnswerOf(question: Question, printed: readonly PlannedChoice[]): string {
+  return choicesOf(question)
+    .map((item) => printed.find((choice) => choice.id === item.id)?.letter)
+    .filter((letter): letter is string => letter !== undefined)
+    .join(', ')
 }
 
 function printedNumberBy(rules: PaperStyleRules, number: number): { printedNumber: string } | Record<string, never> {
@@ -2029,7 +2080,9 @@ function deriveAnswerKey(testItems: readonly PageItem[]): PageItem[] {
       number: item.question.number,
       // A Multiple Answer question marks several answers, and the key writes
       // them all, in the order they print: `a, c`.
-      letter: correctLettersOf(item.question).join(', ') || null,
+      letter: item.question.type === 'ordering'
+        ? (item.question.orderingAnswer ?? null)
+        : correctLettersOf(item.question).join(', ') || null,
       ...metadata,
       ...points,
       ...(item.question.suggestedAnswer

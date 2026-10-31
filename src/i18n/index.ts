@@ -895,6 +895,10 @@ const en = {
   'section.multipleAnswerHint': 'Tick every correct answer.',
   'editor.markCorrect': 'Mark this answer correct',
   'editor.markCorrectSeveral': 'Mark this answer correct (several may be correct)',
+  'type.ordering': 'Ordering',
+  'bankType.ordering': 'Ordering',
+  'section.orderingHint': 'Number the items in the order they belong.',
+  'editor.orderingItem': 'Item',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1776,6 +1780,10 @@ const hu: Record<TextKey, string> = {
   'section.multipleAnswerHint': 'Jelöld meg az összes helyes választ.',
   'editor.markCorrect': 'Jelöld meg helyes válaszként',
   'editor.markCorrectSeveral': 'Jelöld meg helyes válaszként (több is lehet helyes)',
+  'type.ordering': 'Sorba rendezés',
+  'bankType.ordering': 'Sorba rendezés',
+  'section.orderingHint': 'Számozd meg az elemeket a helyes sorrendben.',
+  'editor.orderingItem': 'Elem',
 };
 
 const LANGUAGES = { en, hu } as const

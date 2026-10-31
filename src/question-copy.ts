@@ -136,6 +136,7 @@ export function copyBlocksOf(question: Question, format: CopyFormat = {}): CopyB
       // The pair is never printed as answers; a student circles T or F.
       return [line(stem, TRUE_FALSE_LEAD)]
     case 'multiple-answer':
+    case 'ordering':
     case 'multiple-choice':
       return [
         ...(stem.length > 0 ? [line(stem)] : []),

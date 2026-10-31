@@ -36,7 +36,9 @@ describe('a Multiple Answer question', () => {
     })
     const entries = plan.pages.flatMap((page) => page.items)
       .filter((item) => item.kind === 'answer-key-entry')
-    const several = entries.filter((item) => item.kind === 'answer-key-entry' && (item.letter ?? '').includes(','))
+    const several = entries.filter(
+      (item) => item.kind === 'answer-key-entry' && (item.letter ?? '') === 'A, C',
+    )
     expect(several).toHaveLength(1)
     // Helium and Argon are marked: A and C, and never just the first.
     expect(several[0]).toMatchObject({ letter: 'A, C' })

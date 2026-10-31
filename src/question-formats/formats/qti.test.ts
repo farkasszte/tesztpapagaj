@@ -136,8 +136,9 @@ describe('QTI 2.1 and 2.2 items', () => {
     expect(blankAnswers(entry.questions[0]!.stem.content)).toEqual(['Ottawa'])
 
     const order = await read('order.xml', fixture('qti21-order.xml'))
-    expect(order.questions[0]!.type).toBe('short-answer')
-    expect(text(order.questions[0]!.suggestedAnswer).split(/\n+/)).toEqual([
+    expect(order.questions[0]!.type).toBe('ordering')
+    // The steps come in as the Ordering question's items, in the order they belong.
+    expect(order.questions[0]!.choices!.map((choice) => text(choice.content))).toEqual([
       'Ask a question', 'Test the hypothesis', 'Draw a conclusion',
     ])
   })

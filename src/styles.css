@@ -1807,6 +1807,15 @@ body.margins-guides .exam-page::after {
   height: 1.5em; user-select: none;
 }
 .mc-choice-radio { margin: 0; accent-color: #9f5037; }
+/* An Ordering question's row shows its place instead of a button. */
+.mc-choice-position {
+  min-width: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875em;
+  color: var(--fg-muted, #6b7280);
+  text-align: right;
+  user-select: none;
+}
 .mc-choice-radio:not(:disabled) { cursor: pointer; }
 .mc-choice-body { position: relative; flex: 1 1 auto; min-width: 0; outline: none; }
 /* Crepe gives paragraphs `padding: 4px 0`, which drops the first line below the
@@ -1819,7 +1828,7 @@ body.margins-guides .exam-page::after {
 .milkdown .mc-choice-body .crepe-placeholder::before { content: none; }
 .mc-choice-body:has(> p:only-child > br.ProseMirror-trailingBreak)::before,
 .mc-choice-body:has(> p:only-child:empty)::before {
-  content: 'Answer';
+  content: var(--mc-placeholder, 'Answer');
   position: absolute; inset: 0 auto auto 0;
   color: #a8988c; pointer-events: none;
 }

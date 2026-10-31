@@ -23,7 +23,9 @@ describe('Respondus Standard Format', () => {
     expect(proposal.banks[0]!.summary).toBeDefined()
     expect(reading.found).toBe(10)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice','true-false','short-answer','short-answer','matching','short-answer','multiple-answer','fill-in-the-blank','multiple-choice',])
+      'multiple-choice', 'true-false', 'short-answer', 'short-answer', 'matching', 'ordering',
+      'multiple-answer', 'fill-in-the-blank', 'multiple-choice',
+    ])
     const [speed, trueFalse, essay, blank, matching, order, several, blanks, planet] = questions
 
     // Its `Points: 2.5` is not a whole number, so no question has Points.
@@ -44,7 +46,11 @@ describe('Respondus Standard Format', () => {
     expect(matching!.prompts!.map((prompt) => text(prompt.content))).toEqual(['Michelson-Morely', 'Einstein', 'Marconi'])
     expect(matching!.wordBank!.map((answer) => text(answer.content))).toEqual(['Speed of light', 'Theory of Relativity', 'radio waves'])
 
-    expect(text(order!.suggestedAnswer).replace(/\n+/g, '\n')).toBe('George Washington\nJohn Adams\nThomas Jefferson')
+    // The names come in as the Ordering question's items, in the order they belong.
+    expect(order!.type).toBe('ordering')
+    expect(order!.choices!.map((choice) => text(choice.content))).toEqual([
+      'George Washington', 'John Adams', 'Thomas Jefferson',
+    ])
 
     // Multiple Answer: both answers the guide stars are marked.
     expect(several!.type).toBe('multiple-answer')

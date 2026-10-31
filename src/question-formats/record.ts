@@ -251,11 +251,22 @@ function convertQuestion(question: ForeignQuestion, id: string, report: Report):
       return shortAnswer(answers.length ? plainBlocks(answers.join(' / ')) : undefined)
     }
     case 'ordering': {
-      report('warning', 'ordering', t('errors.orderingAsShortAnswer'))
       const items = question.items.filter((item) => !isBlank(item))
-      return shortAnswer(items.length
-        ? [{ type: 'ordered-list', content: items.map((item) => ({ type: 'list-item', content: item })) }]
-        : undefined)
+      if (items.length < 2) {
+        report('error', 'too-few-choices', `an ordering question needs at least two items, and this one has ${items.length}, so it was left out.`)
+        return null
+      }
+      // The items come in the order they belong, which is the order the source
+      // gives them: the paper prints them scrambled, and the key reads this.
+      return {
+        ...base,
+        type: 'ordering',
+        choices: items.map((item, index) => ({
+          id: `${base.id}-c${index + 1}`,
+          content: document(item),
+          correct: false,
+        })),
+      }
     }
   }
 }

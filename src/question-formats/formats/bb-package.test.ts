@@ -107,7 +107,9 @@ describe('Blackboard QTI pool and test export', () => {
     expect(reading.record.bank.name).toBe('Astronomy basics')
     expect(reading.found).toBe(10)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice','multiple-answer','true-false','short-answer','matching','fill-in-the-blank','short-answer','short-answer','fill-in-the-blank',])
+      'multiple-choice', 'multiple-answer', 'true-false', 'short-answer', 'matching', 'fill-in-the-blank',
+      'short-answer', 'ordering', 'fill-in-the-blank',
+    ])
 
     const [choice, multiple, trueFalse, essay, matching, blank, numeric, ordering, blanks] = questions
     // Each item's qmd_absolutescore_max of 10 is its Points, the Matching set's for the set.
@@ -138,7 +140,9 @@ describe('Blackboard QTI pool and test export', () => {
     expect(text(blank!.stem)).toBe('Water is made of hydrogen and _____.')
     expect(blankAnswers(blank!.stem.content)).toEqual(['oxygen / O'])
     expect(text(numeric!.suggestedAnswer)).toBe('3.14 (± 0.01)')
-    expect(text(ordering!.suggestedAnswer).split(/\n+/)).toEqual(['Mercury', 'Earth', 'Mars'])
+    // The items come in as an Ordering question's choices, in the order they belong.
+    expect(ordering!.type).toBe('ordering')
+    expect(ordering!.choices!.map((choice) => text(choice.content))).toEqual(['Mercury', 'Earth', 'Mars'])
     // Each `[name]` in the text is its blank's place.
     expect(text(blanks!.stem)).toBe('Roses are _____ and violets are _____.')
     expect(blankAnswers(blanks!.stem.content)).toEqual(['red / crimson', 'blue'])

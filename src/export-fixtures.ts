@@ -88,6 +88,18 @@ function multipleChoice(
   }
 }
 
+/** An Ordering question: items in the order they belong, printed scrambled. */
+function ordering(
+  id: string,
+  stem: ProseMirrorJSON[],
+  items: ProseMirrorJSON[],
+): Question {
+  return {
+    ...multipleChoice(id, 1, stem, items),
+    type: 'ordering',
+  }
+}
+
 /** A Multiple Answer question: the same grid as Multiple Choice, with more
  *  than one answer marked. */
 function multipleAnswer(
@@ -823,6 +835,16 @@ export const FIXTURES: readonly Fixture[] = [
             choice('m1-b', true, paragraph(text('Neutron'))),
           ],
         ),
+        ordering(
+          'd1',
+          [paragraph(text('Put these steps of the water cycle in order.'))],
+          [
+            choice('d1-a', false, paragraph(text('The sun heats the water.'))),
+            choice('d1-b', false, paragraph(text('The water vapour cools.'))),
+            choice('d1-c', false, paragraph(text('Clouds form.'))),
+            choice('d1-d', false, paragraph(text('Rain falls.'))),
+          ],
+        ),
         multipleAnswer(
           'a1',
           2,
@@ -875,12 +897,13 @@ export const FIXTURES: readonly Fixture[] = [
       sectionHeadings: {
         'multiple-choice': { title: 'Choose One', instructions: '' },
         'multiple-answer': { title: 'Choose Every One That Fits', instructions: '' },
+        ordering: { title: 'Put In Order', instructions: 'Number the steps.' },
         open: { title: '', instructions: '' },
         matching: { instructions: 'Write the letter of the matching definition.' },
       },
       headingSize: 'large',
     },
-    arrangement(['o1', 'x1', 'm1', 'a1']),
+    arrangement(['o1', 'x1', 'm1', 'a1', 'd1']),
     { answerKey: true },
   ),
 

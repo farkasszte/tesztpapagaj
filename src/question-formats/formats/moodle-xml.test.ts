@@ -27,7 +27,9 @@ describe('Moodle XML', () => {
     // Ten questions; the description is not one, and drag-and-drop is left out.
     expect(reading.found).toBe(10)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice','multiple-answer','true-false','short-answer','matching','short-answer','short-answer','fill-in-the-blank','short-answer',])
+      'multiple-choice', 'multiple-answer', 'true-false', 'short-answer', 'matching', 'short-answer',
+      'short-answer', 'fill-in-the-blank', 'ordering',
+    ])
 
     const [cell, primes, sun, capital, matching, essay, pi, cloze, ordering] = questions
     // A <defaultgrade> of 1.0000000 is one point; a question with none is unpointed.
@@ -56,7 +58,9 @@ describe('Moodle XML', () => {
     // right choice, and the teacher is told.
     expect(blankAnswers(cloze!.stem.content)).toEqual(['Paris', 'Rome / Roma', '3.14 (± 0.01)'])
     expect(reading.issues.find((issue) => issue.code === 'dropdown-blank')?.message).toMatch(/^Question \d+ \(line \d+\): Test Parrot has no drop-down blanks/)
-    expect(text(ordering!.suggestedAnswer).split(/\n+/)).toEqual(['Mercury', 'Venus', 'Earth'])
+    // The items come in as an Ordering question's choices, in the order they belong.
+    expect(ordering!.type).toBe('ordering')
+    expect(ordering!.choices!.map((choice) => text(choice.content))).toEqual(['Mercury', 'Venus', 'Earth'])
 
     const codes = reading.issues.map((issue) => [issue.severity, issue.code])
     expect(codes).toContainEqual(['info', 'description-skipped'])

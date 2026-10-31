@@ -237,6 +237,7 @@ import { countOf, t, useT } from './i18n'
 const QUESTION_TYPE_ICONS: Record<QuestionType, ReactNode> = {
   'multiple-choice': <ListChecks />,
   'multiple-answer': <SquareCheckBig />,
+  ordering: <ListOrdered />,
   'true-false': <ToggleLeft />,
   matching: <Link2 />,
   'fill-in-the-blank': <TextCursorInput />,
@@ -493,6 +494,8 @@ function CrepeQuestion({
   fixedChoices = false,
   /** A Multiple Answer question: several of its answers may be correct. */
   severalCorrect = false,
+  /** An Ordering question: its items' order is the answer. */
+  orderingItems = false,
   matching = false,
   multipart = false,
   blanks = false,
@@ -505,6 +508,7 @@ function CrepeQuestion({
    *  teacher chooses between rather than writes. */
   fixedChoices?: boolean
   severalCorrect?: boolean
+  orderingItems?: boolean
   /** Whether the question is a matching set, whose prompts and Word Bank are
    *  kept on the page the way a Suggested Answer block is. */
   matching?: boolean
@@ -641,7 +645,7 @@ function CrepeQuestion({
       },
     })
     crepe.editor
-      .use(multipleChoiceMode(true, fixedChoices, severalCorrect))
+      .use(multipleChoiceMode(true, fixedChoices, severalCorrect, orderingItems))
       .use(suggestedAnswerMode(suggestedAnswer))
       .use(matchingMode(matching))
       .use(multipartMode(multipart))
@@ -1057,6 +1061,7 @@ function QuestionDialog({
             suggestedAnswer={type === 'open'}
             fixedChoices={type === 'true-false'}
             severalCorrect={type === 'multiple-answer'}
+            orderingItems={type === 'ordering'}
             matching={type === 'matching'}
             multipart={type === 'multipart'}
             blanks={type === 'fill-in-the-blank'}

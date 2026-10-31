@@ -13,6 +13,7 @@ import questionBankSchema080 from './question-bank-record-0.8.0.schema.json'
 import questionBankSchema090 from './question-bank-record-0.9.0.schema.json'
 import questionBankSchema0100 from './question-bank-record-0.10.0.schema.json'
 import questionBankSchema0110 from './question-bank-record-0.11.0.schema.json'
+import questionBankSchema0120 from './question-bank-record-0.12.0.schema.json'
 import {
   QUESTION_BANK_ATTACHMENT_DESCRIPTION,
   QUESTION_BANK_FORMAT,
@@ -177,6 +178,7 @@ export type QuestionBankImportProposal = {
 export const LOCAL_TYPES: Record<QuestionBankRecordQuestionType, QuestionType> = {
   'multiple-choice': 'multiple-choice',
   'multiple-answer': 'multiple-answer',
+  ordering: 'ordering',
   'true-false': 'true-false',
   matching: 'matching',
   'fill-in-the-blank': 'fill-in-the-blank',
@@ -393,6 +395,7 @@ const validate080 = ajv.compile(questionBankSchema080)
 const validate090 = ajv.compile(questionBankSchema090)
 const validate0100 = ajv.compile(questionBankSchema0100)
 const validate0110 = ajv.compile(questionBankSchema0110)
+const validate0120 = ajv.compile(questionBankSchema0120)
 
 function schemaMessage(errors: ErrorObject[] | null | undefined): string {
   const first = errors?.[0]
@@ -428,22 +431,22 @@ type CopyContext = {
 
 /** The versions whose `authoredSize` is a share of the picture's container,
  *  and which know the Picture Crop — both added in 0.7.0. */
-const SHARE_SIZE_VERSIONS: ReadonlySet<string> = new Set(['0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
+const SHARE_SIZE_VERSIONS: ReadonlySet<string> = new Set(['0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that know the Locked Answer, added in 0.9.0. */
-const LOCKED_ANSWER_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
+const LOCKED_ANSWER_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that let a Part hold Subparts, added in 0.9.0. */
-const SUBPART_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
+const SUBPART_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that know Points, added in 0.9.0. */
-const POINTS_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
+const POINTS_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that know a Centred block, added in 0.9.0. */
-const ALIGN_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0'])
+const ALIGN_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that know Fill in the Blank and its Blanks, added in 0.10.0. */
-const BLANK_VERSIONS: ReadonlySet<string> = new Set(['0.10.0', '0.11.0'])
+const BLANK_VERSIONS: ReadonlySet<string> = new Set(['0.10.0', '0.11.0', '0.12.0'])
 
 /** The record nodes that may be centred. */
 const CENTRABLE_RECORD_NODES: ReadonlySet<string> = new Set(['paragraph', 'block-image', 'table'])
@@ -628,10 +631,10 @@ function misplacedContent(value: unknown): string | undefined {
 }
 
 /** The versions that know the Pending Image, added in 0.5.0. */
-const PENDING_IMAGE_VERSIONS: ReadonlySet<string> = new Set(['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
+const PENDING_IMAGE_VERSIONS: ReadonlySet<string> = new Set(['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** The versions that know the Side-by-Side, added in 0.6.0. */
-const SIDE_BY_SIDE_VERSIONS: ReadonlySet<string> = new Set(['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
+const SIDE_BY_SIDE_VERSIONS: ReadonlySet<string> = new Set(['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0', '0.12.0'])
 
 /** Where a Side-by-Side may stand: a top-level block of a Question's stem or
  *  of a Multipart Part's stem, and nowhere else. */
@@ -1018,6 +1021,7 @@ const parser090: Parser = (value) => parseWith(validate090, '0.9.0', value)
 
 const parser0100: Parser = (value) => parseWith(validate0100, '0.10.0', value)
 const parser0110: Parser = (value) => parseWith(validate0110, '0.11.0', value)
+const parser0120: Parser = (value) => parseWith(validate0120, '0.12.0', value)
 
 /** Exact versions only: adding compatibility requires adding an explicit parser or migration. */
 export const SUPPORTED_QUESTION_BANK_VERSIONS: Readonly<Record<string, Parser>> =
@@ -1033,6 +1037,7 @@ export const SUPPORTED_QUESTION_BANK_VERSIONS: Readonly<Record<string, Parser>> 
     '0.9.0': parser090,
     '0.10.0': parser0100,
     '0.11.0': parser0110,
+    '0.12.0': parser0120,
   })
 
 const utf8 = new TextDecoder('utf-8', { fatal: true })
@@ -1290,6 +1295,7 @@ async function validateSemantics(
     'multiple-choice': 0,
     'multiple-answer': 0,
     'true-false': 0,
+    ordering: 0,
     matching: 0,
     'fill-in-the-blank': 0,
     'short-answer': 0,

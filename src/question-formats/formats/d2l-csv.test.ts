@@ -23,7 +23,9 @@ describe('Brightspace (D2L) question CSV', () => {
     expect(proposal.banks).toHaveLength(1)
     expect(reading.found).toBe(7)
     expect(questions.map((question) => question.type)).toEqual([
-      'short-answer','short-answer','matching','multiple-choice','true-false','multiple-answer','short-answer',])
+      'short-answer', 'short-answer', 'matching', 'multiple-choice', 'true-false', 'multiple-answer',
+      'ordering',
+    ])
     const [written, short, matching, choice, trueFalse, multiSelect, ordering] = questions
 
     // Each question's Points row gives its Points, the Matching set's for the set.
@@ -58,7 +60,9 @@ describe('Brightspace (D2L) question CSV', () => {
     expect(multiSelect!.type).toBe('multiple-answer')
     expect(multiSelect!.choices!.filter((option) => option.correct)).toHaveLength(2)
 
-    expect(text(ordering!.suggestedAnswer).split(/\n+/)).toEqual(['This is the text for item 1', 'This is the text for item 2'])
+    // The items come in as an Ordering question's choices, in the order they belong.
+    expect(ordering!.type).toBe('ordering')
+    expect(ordering!.choices!.map((choice) => text(choice.content))).toEqual(['This is the text for item 1', 'This is the text for item 2'])
 
     // Every question names a picture outside the file (O's too).
     expect(reading.issues.filter((issue) => issue.code === 'picture-not-imported')).toHaveLength(7)

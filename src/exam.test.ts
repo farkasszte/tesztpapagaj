@@ -223,6 +223,7 @@ describe('question ordering', () => {
       'multiple-answer',
       'true-false',
       'matching',
+      'ordering',
       'fill-in-the-blank',
       'open',
       'multipart',

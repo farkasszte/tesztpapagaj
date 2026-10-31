@@ -34,7 +34,7 @@ import {
 import { t } from './i18n'
 
 export const QUESTION_BANK_FORMAT = 'test-parrot/question-bank'
-export const QUESTION_BANK_FORMAT_VERSION = '0.11.0'
+export const QUESTION_BANK_FORMAT_VERSION = '0.12.0'
 export const QUESTION_BANK_ATTACHMENT_NAME = 'pdfcx.json'
 export const QUESTION_BANK_ATTACHMENT_DESCRIPTION = 'pdf-canonical-extraction'
 
@@ -139,6 +139,8 @@ export type QuestionBankRecordQuestionType =
   | 'multiple-choice'
   /** Several correct answers: added in 0.11.0. */
   | 'multiple-answer'
+  /** Items a student puts in order: added in 0.12.0. */
+  | 'ordering'
   | 'true-false'
   | 'matching'
   | 'fill-in-the-blank'
@@ -153,6 +155,9 @@ export const RECORD_TYPE_LABELS: Record<QuestionBankRecordQuestionType, string> 
   },
   get 'multiple-answer'(): string {
     return t('bankType.multipleAnswer')
+  },
+  get ordering(): string {
+    return t('bankType.ordering')
   },
   get 'true-false'(): string {
     return t('bankType.trueFalse')
@@ -177,6 +182,7 @@ export const RECORD_TYPE_ORDER: readonly QuestionBankRecordQuestionType[] = [
   'multiple-choice',
   'multiple-answer',
   'true-false',
+  'ordering',
   'matching',
   'fill-in-the-blank',
   'short-answer',
@@ -605,6 +611,7 @@ function semanticStem(
 export const RECORD_TYPES: Record<QuestionType, QuestionBankRecordQuestionType> = {
   'multiple-choice': 'multiple-choice',
   'multiple-answer': 'multiple-answer',
+  ordering: 'ordering',
   'true-false': 'true-false',
   matching: 'matching',
   'fill-in-the-blank': 'fill-in-the-blank',

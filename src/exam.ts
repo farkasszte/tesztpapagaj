@@ -52,6 +52,9 @@ export type QuestionType =
   | 'true-false'
   | 'matching'
   | 'fill-in-the-blank'
+  /** The items print in an order of their own, and a student numbers them in
+   *  the order they belong: the authored order is the answer. */
+  | 'ordering'
   | 'open'
   | 'multipart'
 
@@ -66,7 +69,10 @@ export type PartType = 'multiple-choice' | 'open'
  *  one of these: its Word Bank answers are never correct on their own, only
  *  named by a prompt. */
 export function hasChoices(type: QuestionType): boolean {
-  return type === 'multiple-choice' || type === 'multiple-answer' || type === 'true-false'
+  return type === 'multiple-choice'
+    || type === 'multiple-answer'
+    || type === 'true-false'
+    || type === 'ordering'
 }
 
 /** Whether more than one of a question's choices may be correct. Only the
@@ -110,6 +116,9 @@ export const SECTION_LABELS: Record<QuestionType, string> = {
   },
   get 'multiple-answer'(): string {
     return t('type.multipleAnswer')
+  },
+  get ordering(): string {
+    return t('type.ordering')
   },
   get 'true-false'(): string {
     return t('type.trueFalse')
@@ -437,6 +446,7 @@ export const SECTION_ORDER: readonly QuestionType[] = [
   'multiple-answer',
   'true-false',
   'matching',
+  'ordering',
   'fill-in-the-blank',
   'open',
   'multipart',
@@ -1190,7 +1200,7 @@ function withLockedInPlace(authored: readonly Choice[], ordered: readonly Choice
 
 /** Answers in `authored` order, arranged by `order` around their Locked
  *  Answers. */
-function arrangedChoices(authored: readonly Choice[], order: readonly string[]): Choice[] {
+export function arrangedChoices(authored: readonly Choice[], order: readonly string[]): Choice[] {
   const byId = new Map(authored.map((choice) => [choice.id, choice]))
   return withLockedInPlace(
     authored,
