@@ -139,7 +139,7 @@ export function AppShell({
     <div className="app-shell">
       <aside className="app-nav">
         <Link href="/" className="site-wordmark app-nav-brand">
-          <img className="app-logo" src="/logo.png" alt="" width={36} height={36} />
+          <img className="app-logo" src="/logo.svg" alt="" width={36} height={36} />
           {APP_NAME}
         </Link>
         <nav aria-label={t('shell.sections')}>

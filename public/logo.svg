@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- H: kis méretre rajzolt változat — csempén, vastag formákkal -->
+  <defs>
+    <clipPath id="h-head">
+      <circle cx="29" cy="34" r="19"/>
+    </clipPath>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="#FBF7EF"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#00000022" stroke-width="1"/>
+  <g clip-path="url(#h-head)">
+    <rect x="0" y="0" width="64" height="26" fill="#CE2939"/>
+    <rect x="0" y="26" width="64" height="14" fill="#FFFFFF"/>
+    <rect x="0" y="40" width="64" height="24" fill="#477050"/>
+  </g>
+  <path d="M44 22 C51 22 59 27 60 33 C60.6 37.6 56 42 50 42.6 C45.6 43 43 39 43 35 Z"
+        fill="#CE2939" stroke="#1B1B1B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M46 34 C50 34.8 55 35 59 34.2" fill="none" stroke="#1B1B1B" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="29" cy="34" r="19" fill="none" stroke="#1B1B1B" stroke-width="3"/>
+  <circle cx="34" cy="32" r="4" fill="#1B1B1B"/>
+</svg>

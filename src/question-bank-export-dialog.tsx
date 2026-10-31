@@ -284,7 +284,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
       aria-label={t('bankExport.preview')}
     >
       <p className="question-bank-file-brand">
-        <img src="/logo.png" alt="" width={28} height={28} />
+        <img src="/logo.svg" alt="" width={28} height={28} />
         {t('bankExport.fileHeader')}
       </p>
       <h1>{bank.name || 'Untitled Question Bank'}</h1>

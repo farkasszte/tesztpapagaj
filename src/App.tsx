@@ -2554,7 +2554,7 @@ function ExamEditor({
             title={t('nav.home')}
             onClick={onHome}
           >
-            <img className="app-logo" src="/logo.png" alt="" width={36} height={36} />
+            <img className="app-logo" src="/logo.svg" alt="" width={36} height={36} />
           </button>
           <div className="document-title-stack">
             <input

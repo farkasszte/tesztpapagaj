@@ -51,7 +51,7 @@ export function LandingHeader({ children }: { children?: ReactNode }) {
   return (
     <header className="landing-header">
       <Link href="/welcome" className="site-wordmark">
-        <img className="app-logo" src="/logo.png" alt="" width={36} height={36} />
+        <img className="app-logo" src="/logo.svg" alt="" width={36} height={36} />
         {APP_NAME}
       </Link>
       <nav className="landing-nav" aria-label={t('landing.siteNav')}>
