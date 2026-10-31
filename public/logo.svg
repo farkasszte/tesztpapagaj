@@ -1,20 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- H: kis méretre rajzolt változat — csempén, vastag formákkal -->
+  <!-- G: papagájfej profilban, horgas csőrrel, bóbitával -->
   <defs>
-    <clipPath id="h-head">
-      <circle cx="29" cy="34" r="19"/>
+    <clipPath id="g-head">
+      <path d="M31 14
+               C21 14 14 21 14 31
+               C14 41 21 48 31 48
+               C41 48 47 41 47 31
+               C47 21 41 14 31 14 Z"/>
+      <path d="M26 16 C22 9 22 4 25 2 C28 6 29 11 30 15 Z"/>
+      <path d="M32 15 C31 8 33 3 36 2 C37 7 36 12 34 16 Z"/>
+      <path d="M38 17 C40 11 44 7 47 7 C46 12 43 16 40 18 Z"/>
     </clipPath>
   </defs>
-  <rect x="1" y="1" width="62" height="62" rx="13" fill="#FBF7EF"/>
-  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#00000022" stroke-width="1"/>
-  <g clip-path="url(#h-head)">
+  <g clip-path="url(#g-head)">
     <rect x="0" y="0" width="64" height="26" fill="#CE2939"/>
-    <rect x="0" y="26" width="64" height="14" fill="#FFFFFF"/>
-    <rect x="0" y="40" width="64" height="24" fill="#477050"/>
+    <rect x="0" y="26" width="64" height="10" fill="#FFFFFF"/>
+    <rect x="0" y="36" width="64" height="28" fill="#477050"/>
   </g>
-  <path d="M44 22 C51 22 59 27 60 33 C60.6 37.6 56 42 50 42.6 C45.6 43 43 39 43 35 Z"
-        fill="#CE2939" stroke="#1B1B1B" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M46 34 C50 34.8 55 35 59 34.2" fill="none" stroke="#1B1B1B" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="29" cy="34" r="19" fill="none" stroke="#1B1B1B" stroke-width="3"/>
-  <circle cx="34" cy="32" r="4" fill="#1B1B1B"/>
+  <path d="M45 24 C51 24 57 28 58 32 C58.6 35 56 37.6 52 38.4 C49 39 46 37 45.4 34 Z" fill="#CE2939"/>
+  <path d="M45 24 C51 24 57 28 58 32 C58.6 35 56 37.6 52 38.4 C49 39 46 37 45.4 34 Z" fill="none" stroke="#1B1B1B" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M47.5 33.5 C50 34 53 34.4 56 34" fill="none" stroke="#1B1B1B" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M31 14 C21 14 14 21 14 31 C14 41 21 48 31 48 C41 48 47 41 47 31 C47 21 41 14 31 14 Z"
+        fill="none" stroke="#1B1B1B" stroke-width="2.4"/>
+  <path d="M26 16 C22 9 22 4 25 2 C28 6 29 11 30 15" fill="none" stroke="#1B1B1B" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M32 15 C31 8 33 3 36 2 C37 7 36 12 34 16" fill="none" stroke="#1B1B1B" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M38 17 C40 11 44 7 47 7 C46 12 43 16 40 18" fill="none" stroke="#1B1B1B" stroke-width="2.2" stroke-linejoin="round"/>
+  <circle cx="36" cy="27" r="3.4" fill="#1B1B1B"/>
 </svg>
