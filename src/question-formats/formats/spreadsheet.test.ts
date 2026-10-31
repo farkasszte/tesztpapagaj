@@ -24,8 +24,7 @@ describe('Spreadsheet of questions', () => {
     expect(proposal.banks).toHaveLength(1)
     expect(reading.found).toBe(6)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'multiple-choice',
-    ])
+      'multiple-choice','multiple-answer','true-false','short-answer','multiple-choice',])
     const [sum, even, water, ocean, gas] = questions
     // A letter.
     expect(sum!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([

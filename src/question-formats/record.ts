@@ -66,8 +66,6 @@ const where = (question: ForeignQuestion, index: number) => {
   return question.line ? `Question ${number} (line ${question.line})` : `Question ${number}`
 }
 
-const letter = (index: number) => String.fromCharCode(97 + (index % 26))
-
 export async function toRecord(result: ParseResult, options: ConvertOptions): Promise<ConvertedRecord> {
   const issues: ImportIssue[] = [...result.issues]
   const questions: QuestionBankRecordQuestion[] = []
@@ -152,23 +150,13 @@ function convertQuestion(question: ForeignQuestion, id: string, report: Report):
         report('warning', 'no-correct-answer', t('record.noCorrect'))
         return { ...base, type: 'multiple-choice', choices: choicesOf(choices, () => false) }
       }
-      if (correct.length === 1) {
-        return { ...base, type: 'multiple-choice', choices: choicesOf(choices, (choice) => choice.correct) }
+      // Several correct answers are a question type of their own: they come in
+      // as one, with every answer the source marks still marked.
+      return {
+        ...base,
+        type: correct.length > 1 ? 'multiple-answer' : 'multiple-choice',
+        choices: choicesOf(choices, (choice) => choice.correct),
       }
-      const letters = choices.flatMap((choice, index) => (choice.correct ? [letter(index)] : []))
-      report(
-        'warning',
-        'multiple-answer',
-        t('record.severalCorrect', {
-          count: correct.length,
-          letters: letters.join(', '),
-          kept: letter(choices.indexOf(correct[0]!)),
-        }),
-      )
-      // The first answer the source marks is kept: a question with no answer
-      // marked cannot be graded at all, and the note names the rest, so the
-      // teacher can change it rather than discover it after printing.
-      return { ...base, type: 'multiple-choice', choices: choicesOf(choices, (choice) => choice === correct[0]) }
     }
     case 'true-false': {
       if (question.answer === null) report('warning', 'no-correct-answer', 'it does not say whether it is true or false. Mark one after importing.')

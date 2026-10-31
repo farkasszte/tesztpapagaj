@@ -143,6 +143,7 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
 } {
   const stem = <DocView className="pop-over-stem" content={stemNodesOf(question.doc)} />
   switch (question.type) {
+    case 'multiple-answer':
     case 'multiple-choice': {
       const columns = format.columns ?? question.columns
       return {

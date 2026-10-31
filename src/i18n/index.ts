@@ -890,6 +890,11 @@ const en = {
   'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
   'record.noCorrect': 'no answer is marked correct. Mark one after importing.',
   'record.severalCorrect': 'it has {count} correct answers ({letters}). Test Parrot keeps one, so {kept} is marked: check it.',
+  'type.multipleAnswer': 'Multiple Answer',
+  'bankType.multipleAnswer': 'Multiple Answer',
+  'section.multipleAnswerHint': 'Tick every correct answer.',
+  'editor.markCorrect': 'Mark this answer correct',
+  'editor.markCorrectSeveral': 'Mark this answer correct (several may be correct)',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1766,6 +1771,11 @@ const hu: Record<TextKey, string> = {
   'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
   'record.noCorrect': 'egy válasz sincs helyesként megjelölve. Importálás után jelölj meg egyet.',
   'record.severalCorrect': 'a forrás {count} helyes választ jelöl ({letters}). A Tesztpapagáj egyet tart meg, ezért {kept} van megjelölve: ellenőrizd.',
+  'type.multipleAnswer': 'Többszörös választás',
+  'bankType.multipleAnswer': 'Többszörös választás',
+  'section.multipleAnswerHint': 'Jelöld meg az összes helyes választ.',
+  'editor.markCorrect': 'Jelöld meg helyes válaszként',
+  'editor.markCorrectSeveral': 'Jelöld meg helyes válaszként (több is lehet helyes)',
 };
 
 const LANGUAGES = { en, hu } as const

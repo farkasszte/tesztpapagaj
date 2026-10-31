@@ -24,8 +24,7 @@ describe('Respondus CSV', () => {
     // The header row is not a question.
     expect(reading.found).toBe(7)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'true-false', 'multiple-choice', 'fill-in-the-blank', 'short-answer', 'multiple-choice', 'true-false',
-    ])
+      'multiple-choice','true-false','multiple-choice','fill-in-the-blank','short-answer','multiple-answer','true-false',])
     const [capital, sun, primes, water, essay, planets, moon] = questions
     // The Points column gives each question's Points.
     expect(questions.map((question) => question.points)).toEqual([1, 1, 2, 1, 5, 1, 1])

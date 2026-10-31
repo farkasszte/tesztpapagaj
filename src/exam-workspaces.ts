@@ -201,7 +201,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
         workingCopy: {
           ...createWorkingCopy(untitledExam()),
           questionIds: firstQuestion ? [firstQuestion.id] : [],
-          ...(firstQuestion?.type === 'multiple-choice'
+          ...(firstQuestion?.type === 'multiple-choice' || firstQuestion?.type === 'multiple-answer'
             ? { columns: { [firstQuestion.id]: 1 as const } }
             : {}),
         },

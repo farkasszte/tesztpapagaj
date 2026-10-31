@@ -26,9 +26,7 @@ describe('text2qti', () => {
     expect(reading.found).toBe(10)
     expect(reading.issues.filter((issue) => issue.severity === 'error')).toEqual([])
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'short-answer', 'short-answer', 'short-answer', 'short-answer',
-      'short-answer', 'short-answer', 'multiple-choice', 'short-answer',
-    ])
+      'multiple-choice','multiple-answer','short-answer','short-answer','short-answer','short-answer','short-answer','short-answer','multiple-choice','short-answer',])
     const [addition, dinosaurs, root2, root3, five, santa, essay, upload, wrapped, solution] = questions
     // `Points: 2` is the first question's Points alone; the rest give none.
     expect(questions.map((question) => question.points)).toEqual([2, ...questions.slice(1).map(() => undefined)])

@@ -27,9 +27,7 @@ describe('Moodle XML', () => {
     // Ten questions; the description is not one, and drag-and-drop is left out.
     expect(reading.found).toBe(10)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'matching',
-      'short-answer', 'short-answer', 'fill-in-the-blank', 'short-answer',
-    ])
+      'multiple-choice','multiple-answer','true-false','short-answer','matching','short-answer','short-answer','fill-in-the-blank','short-answer',])
 
     const [cell, primes, sun, capital, matching, essay, pi, cloze, ordering] = questions
     // A <defaultgrade> of 1.0000000 is one point; a question with none is unpointed.

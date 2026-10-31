@@ -719,7 +719,7 @@ function withInsertedColumns(
   const adding = new Set(added.map(({ id }) => id))
   const { exam, arrangement } = selectedExam(bank, workingCopy)
   const printed = orderedQuestions(exam, arrangement).filter(
-    ({ type }) => type === 'multiple-choice',
+    ({ type }) => type === 'multiple-choice' || type === 'multiple-answer',
   )
   for (const [index, question] of printed.entries()) {
     if (!adding.has(question.id)) continue

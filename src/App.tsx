@@ -143,6 +143,7 @@ import {
   History,
   Library,
   ListChecks,
+  SquareCheckBig,
   ListOrdered,
   ToggleLeft,
   Link2,
@@ -235,6 +236,7 @@ import { countOf, t, useT } from './i18n'
  *  it is named — the picker that chooses one, and the dialog that states it. */
 const QUESTION_TYPE_ICONS: Record<QuestionType, ReactNode> = {
   'multiple-choice': <ListChecks />,
+  'multiple-answer': <SquareCheckBig />,
   'true-false': <ToggleLeft />,
   matching: <Link2 />,
   'fill-in-the-blank': <TextCursorInput />,
@@ -489,6 +491,8 @@ function CrepeQuestion({
   onReady,
   suggestedAnswer = false,
   fixedChoices = false,
+  /** A Multiple Answer question: several of its answers may be correct. */
+  severalCorrect = false,
   matching = false,
   multipart = false,
   blanks = false,
@@ -500,6 +504,7 @@ function CrepeQuestion({
   /** Whether the answer list is a True/False question's fixed pair, which the
    *  teacher chooses between rather than writes. */
   fixedChoices?: boolean
+  severalCorrect?: boolean
   /** Whether the question is a matching set, whose prompts and Word Bank are
    *  kept on the page the way a Suggested Answer block is. */
   matching?: boolean
@@ -636,7 +641,7 @@ function CrepeQuestion({
       },
     })
     crepe.editor
-      .use(multipleChoiceMode(true, fixedChoices))
+      .use(multipleChoiceMode(true, fixedChoices, severalCorrect))
       .use(suggestedAnswerMode(suggestedAnswer))
       .use(matchingMode(matching))
       .use(multipartMode(multipart))
@@ -1051,6 +1056,7 @@ function QuestionDialog({
             value={doc}
             suggestedAnswer={type === 'open'}
             fixedChoices={type === 'true-false'}
+            severalCorrect={type === 'multiple-answer'}
             matching={type === 'matching'}
             multipart={type === 'multipart'}
             blanks={type === 'fill-in-the-blank'}

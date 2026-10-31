@@ -45,6 +45,10 @@ import { t } from './i18n'
 
 export type QuestionType =
   | 'multiple-choice'
+  /** Several choices are correct: a student ticks all that apply. The same
+   *  grid as Multiple Choice, so everything that cares about choices asks
+   *  `hasChoices` rather than naming a type. */
+  | 'multiple-answer'
   | 'true-false'
   | 'matching'
   | 'fill-in-the-blank'
@@ -62,7 +66,14 @@ export type PartType = 'multiple-choice' | 'open'
  *  one of these: its Word Bank answers are never correct on their own, only
  *  named by a prompt. */
 export function hasChoices(type: QuestionType): boolean {
-  return type === 'multiple-choice' || type === 'true-false'
+  return type === 'multiple-choice' || type === 'multiple-answer' || type === 'true-false'
+}
+
+/** Whether more than one of a question's choices may be correct. Only the
+ *  Multiple Answer type says yes: everything else marks one, and a matching
+ *  set marks none. */
+export function allowsSeveralCorrect(type: QuestionType): boolean {
+  return type === 'multiple-answer'
 }
 
 /** Whether Vary may shuffle a question's answers. Multiple Choice answers
@@ -70,7 +81,7 @@ export function hasChoices(type: QuestionType): boolean {
  *  follows the answer it names, so the key changes while the matches do not.
  *  True/False is fixed, and a Short Answer question has nothing to shuffle. */
 export function variesAnswers(type: QuestionType): boolean {
-  return type === 'multiple-choice' || type === 'matching'
+  return type === 'multiple-choice' || type === 'multiple-answer' || type === 'matching'
 }
 
 // How many columns a multiple-choice question's answers lay out in. A plain
@@ -96,6 +107,9 @@ export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard']
 export const SECTION_LABELS: Record<QuestionType, string> = {
   get 'multiple-choice'(): string {
     return t('type.multipleChoice')
+  },
+  get 'multiple-answer'(): string {
+    return t('type.multipleAnswer')
   },
   get 'true-false'(): string {
     return t('type.trueFalse')
@@ -1052,7 +1066,7 @@ export function choicesOf(question: Question): Choice[] {
     }))
   }
   // A True/False pair never moves, so neither of its answers needs a lock.
-  const lockable = question.type === 'multiple-choice'
+  const lockable = question.type === 'multiple-choice' || question.type === 'multiple-answer'
   return choiceNodesOf(question.doc).map((node) => ({
     id: choiceIdOf(node),
     correct: choiceIsCorrect(node),

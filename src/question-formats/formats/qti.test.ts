@@ -54,9 +54,7 @@ describe('Canvas classic quiz export', () => {
     // Eleven questions and a text-only passage; the non_cc copy is not read again.
     expect(reading.found).toBe(11)
     expect(questions.map((question) => question.type)).toEqual([
-      'multiple-choice', 'true-false', 'short-answer', 'fill-in-the-blank', 'multiple-choice', 'fill-in-the-blank',
-      'matching', 'short-answer', 'short-answer', 'short-answer',
-    ])
+      'multiple-choice','true-false','short-answer','fill-in-the-blank','multiple-answer','fill-in-the-blank','matching','short-answer','short-answer','short-answer',])
     const [choice, trueFalse, shortAnswer, blanks, multiple, dropdowns, matching, numeric, essay, upload] = questions
     // Each item's points_possible of 1.0 is one point, the Matching set's for the set.
     expect(questions.map((question) => question.points)).toEqual(questions.map(() => 1))
@@ -74,7 +72,6 @@ describe('Canvas classic quiz export', () => {
     expect(text(blanks!.stem)).toBe('Roses are _____, violets are _____.')
     expect(blankAnswers(blanks!.stem.content)).toEqual(['red / crimson', 'blue'])
     expect(multiple!.choices!.map((each) => text(each.content))).toEqual(['Whale', 'Shark', 'Bat'])
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
     // A drop-down holds its right choice, and the teacher is told.
     expect(text(dropdowns!.stem)).toBe('Water boils at _____ degrees Celsius.')
     expect(blankAnswers(dropdowns!.stem.content)).toEqual(['100'])
@@ -249,7 +246,6 @@ describe('QTI 3.0 items', () => {
     expect(reading.format).toBe('qti')
     expect(text(questions[0]!.stem)).toBe('Which of these numbers are prime?\nSelect all that apply.')
     expect(questions[0]!.choices!.map((each) => text(each.content))).toEqual(['2', '4', '7'])
-    expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
   })
 
   test('a text entry and a drop-down in one sentence', async () => {

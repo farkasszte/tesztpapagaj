@@ -34,7 +34,7 @@ import {
 import { t } from './i18n'
 
 export const QUESTION_BANK_FORMAT = 'test-parrot/question-bank'
-export const QUESTION_BANK_FORMAT_VERSION = '0.10.0'
+export const QUESTION_BANK_FORMAT_VERSION = '0.11.0'
 export const QUESTION_BANK_ATTACHMENT_NAME = 'pdfcx.json'
 export const QUESTION_BANK_ATTACHMENT_DESCRIPTION = 'pdf-canonical-extraction'
 
@@ -137,6 +137,8 @@ export type SemanticDocument = { type: 'document'; content: SemanticNode[] }
  *  the local model calls it. `'fill-in-the-blank'` was added in 0.10.0. */
 export type QuestionBankRecordQuestionType =
   | 'multiple-choice'
+  /** Several correct answers: added in 0.11.0. */
+  | 'multiple-answer'
   | 'true-false'
   | 'matching'
   | 'fill-in-the-blank'
@@ -148,6 +150,9 @@ export type QuestionBankRecordQuestionType =
 export const RECORD_TYPE_LABELS: Record<QuestionBankRecordQuestionType, string> = {
   get 'multiple-choice'(): string {
     return t('bankType.multipleChoice')
+  },
+  get 'multiple-answer'(): string {
+    return t('bankType.multipleAnswer')
   },
   get 'true-false'(): string {
     return t('bankType.trueFalse')
@@ -170,6 +175,7 @@ export const RECORD_TYPE_LABELS: Record<QuestionBankRecordQuestionType, string> 
  *  prints its sections, so an import preview reads like the exam it will make. */
 export const RECORD_TYPE_ORDER: readonly QuestionBankRecordQuestionType[] = [
   'multiple-choice',
+  'multiple-answer',
   'true-false',
   'matching',
   'fill-in-the-blank',
@@ -598,6 +604,7 @@ function semanticStem(
  *  importer is its inverse. */
 export const RECORD_TYPES: Record<QuestionType, QuestionBankRecordQuestionType> = {
   'multiple-choice': 'multiple-choice',
+  'multiple-answer': 'multiple-answer',
   'true-false': 'true-false',
   matching: 'matching',
   'fill-in-the-blank': 'fill-in-the-blank',
@@ -729,10 +736,14 @@ function portableQuestion(
       `Question ${index + 1} is True/False and must have exactly two choices.`,
     )
   }
-  if (choices.filter((choice) => choice.correct).length > 1) {
-    throw new Error(
-      `Question ${index + 1} must have zero or one correct choice.`,
-    )
+  // Several correct answers belong to Multiple Answer alone: every other
+  // question marks one, so a second one there is a mistake worth refusing.
+  const correctChoices = choices.filter((choice) => choice.correct).length
+  const several = question.type === 'multiple-answer'
+  if (several ? correctChoices === 0 : correctChoices > 1) {
+    throw new Error(several
+      ? `Question ${index + 1} is Multiple Answer and must mark at least one correct choice.`
+      : `Question ${index + 1} must have zero or one correct choice.`)
   }
   return {
     ...base,
@@ -740,7 +751,7 @@ function portableQuestion(
       id: `q${index + 1}-c${choiceIndex + 1}`,
       content: semanticDocument(childNodes(choice.node), mediaIds),
       correct: choice.correct,
-      ...(question.type === 'multiple-choice' ? recordLockOf(choice) : {}),
+      ...(question.type === 'multiple-choice' || question.type === 'multiple-answer' ? recordLockOf(choice) : {}),
     })),
   }
 }

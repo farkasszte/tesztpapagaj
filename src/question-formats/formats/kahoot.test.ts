@@ -53,7 +53,7 @@ describe('Kahoot spreadsheet', () => {
     expect(proposal.banks).toHaveLength(1)
     // The template's numbered but empty rows are not questions.
     expect(reading.found).toBe(4)
-    expect(questions.map((question) => question.type)).toEqual(['multiple-choice', 'multiple-choice', 'true-false'])
+    expect(questions.map((question) => question.type)).toEqual(['multiple-choice','multiple-answer','true-false'])
     const [capital, prime, flat] = questions
     expect(text(capital!.stem)).toBe('What is the capital of France?')
     expect(capital!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([

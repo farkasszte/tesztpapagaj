@@ -20,8 +20,8 @@ import publicSchema080 from '../public/formats/question-bank/0.8.0/schema.json'
 import applicationSchema080 from './question-bank-record-0.8.0.schema.json'
 import publicSchema090 from '../public/formats/question-bank/0.9.0/schema.json'
 import applicationSchema090 from './question-bank-record-0.9.0.schema.json'
-import publicSchema from '../public/formats/question-bank/0.10.0/schema.json'
-import applicationSchema from './question-bank-record-0.10.0.schema.json'
+import publicSchema from '../public/formats/question-bank/0.11.0/schema.json'
+import applicationSchema from './question-bank-record-0.11.0.schema.json'
 import {
   QUESTION_BANK_FORMAT_VERSION,
   SUPPORTED_BLANK_CONTENT_TYPES,
@@ -96,10 +96,10 @@ function schemaEnum(definition: 'node' | 'mark', property: string): string[] {
   return schema.$defs[definition]!.properties[property]!.enum
 }
 
-describe('public Question Bank Record 0.10.0 contract', () => {
+describe('public Question Bank Record 0.11.0 contract', () => {
   test('canonical examples validate independently against the published schema', async () => {
     expect(publicSchema.$id).toBe(
-      'https://testparrot.com/formats/question-bank/0.10.0/schema.json',
+      'https://testparrot.com/formats/question-bank/0.11.0/schema.json',
     )
     expect(publicSchema.properties.formatVersion.const).toBe(QUESTION_BANK_FORMAT_VERSION)
     expect(
@@ -108,7 +108,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
           import.meta.dir,
           '..',
           'public',
-          'question-bank-record-0.10.0.schema.json',
+          'question-bank-record-0.11.0.schema.json',
         ),
       ).json(),
     ).toEqual(publicSchema)
@@ -173,7 +173,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
     const proposal = await inspectQuestionBankRecord(
       await Bun.file(join(exampleRoot, 'pending-images.json')).bytes(),
     )
-    expect(proposal.summary.formatVersion).toBe('0.10.0')
+    expect(proposal.summary.formatVersion).toBe(QUESTION_BANK_FORMAT_VERSION)
   })
 
   test('a True/False Question states its fixed pair and nothing else', async () => {
@@ -186,6 +186,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
       'fill-in-the-blank': 0,
       'short-answer': 0,
       multipart: 0,
+      'multiple-answer': 0,
     })
     expect(proposal.record.bank.questions[0]).toMatchObject({
       type: 'true-false',
@@ -204,6 +205,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
       'fill-in-the-blank': 0,
       'short-answer': 0,
       multipart: 0,
+      'multiple-answer': 0,
     })
     // The second set leaves an item unmatched; that is reported, not refused.
     expect(proposal.summary.questionsWithoutCorrectAnswer).toBe(1)
@@ -292,7 +294,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
     const prepared = await prepareQuestionBankExport(bank)
     const generated = JSON.parse(decoder.decode(prepared.recordBytes)) as QuestionBankRecord
 
-    expect(generated.formatVersion).toBe('0.10.0')
+    expect(generated.formatVersion).toBe(QUESTION_BANK_FORMAT_VERSION)
     expect(validate(generated), JSON.stringify(validate.errors)).toBe(true)
     expect(generated.bank.questions[0]).toEqual({
       id: 'q1',
@@ -351,6 +353,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
       'fill-in-the-blank': 0,
       'short-answer': 0,
       multipart: 3,
+      'multiple-answer': 0,
     })
     // The third Multipart question has no Parts yet; that is reported, not refused.
     expect(proposal.summary.questionsWithoutCorrectAnswer).toBe(1)
@@ -971,7 +974,7 @@ describe('public Question Bank Record 0.10.0 contract', () => {
     const prepared = await prepareQuestionBankExport(bank)
     const generated = JSON.parse(decoder.decode(prepared.recordBytes)) as QuestionBankRecord
 
-    expect(generated.formatVersion).toBe('0.10.0')
+    expect(generated.formatVersion).toBe(QUESTION_BANK_FORMAT_VERSION)
     expect(validate(generated), JSON.stringify(validate.errors)).toBe(true)
     expect(generated.bank.questions[0]!.parts![1]).toEqual({
       id: 'q1-s2',

@@ -22,23 +22,34 @@ export const multipleChoiceEditableCtx = createSlice(
 // picks which of them is correct and nothing else about the pair is editable.
 export const multipleChoiceFixedCtx = createSlice(false, 'multipleChoiceFixed')
 
+// Whether more than one answer may be correct, as a Multiple Answer question
+// asks. On for that type alone: every other answer list marks exactly one, so
+// its controls stay radios and picking one clears the rest.
+export const multipleChoiceSeveralCtx = createSlice(false, 'multipleChoiceSeveral')
+
 export const multipleChoiceMode = (
   editable: boolean,
   fixedChoices = false,
+  severalCorrect = false,
 ): MilkdownPlugin => (ctx) => {
   ctx.inject(multipleChoiceEditableCtx, editable)
   ctx.inject(multipleChoiceFixedCtx, fixedChoices)
+  ctx.inject(multipleChoiceSeveralCtx, severalCorrect)
   return () => () => {
     ctx.remove(multipleChoiceEditableCtx)
     ctx.remove(multipleChoiceFixedCtx)
+    ctx.remove(multipleChoiceSeveralCtx)
   }
 }
 
 // Mark one choice as correct and clear the rest, so the radios stay mutually
-// exclusive. `choicePosition` is the position directly before a choice node.
+// exclusive — or, when several may be correct, tick this one and leave the
+// others as they are. `choicePosition` is the position directly before a
+// choice node.
 export function selectCorrectChoice(
   view: Pick<EditorView, 'state' | 'dispatch'>,
   choicePosition: number,
+  severalCorrect = false,
 ) {
   const $choice = view.state.doc.resolve(choicePosition)
   const parent = $choice.parent
@@ -46,7 +57,9 @@ export function selectCorrectChoice(
   const tr = view.state.tr
   let pos = $choice.start()
   parent.forEach((child) => {
-    const correct = pos === choicePosition
+    const correct = severalCorrect
+      ? (pos === choicePosition ? child.attrs.correct !== true : child.attrs.correct === true)
+      : pos === choicePosition
     if (child.attrs.correct !== correct) {
       tr.setNodeMarkup(pos, undefined, { ...child.attrs, correct })
     }
@@ -520,6 +533,7 @@ export const multipleChoiceChoiceView = $view(
       // and the mode is a property of the question being edited rather than
       // something that changes under it.
       const fixed = ctx.get(multipleChoiceFixedCtx)
+      const several = ctx.get(multipleChoiceSeveralCtx)
 
       const dom = document.createElement('div')
       dom.className = fixed ? 'mc-choice mc-choice--fixed' : 'mc-choice'
@@ -530,9 +544,11 @@ export const multipleChoiceChoiceView = $view(
       control.contentEditable = 'false'
 
       const radio = document.createElement('input')
-      radio.type = 'radio'
-      radio.className = 'mc-choice-radio'
-      radio.setAttribute('aria-label', 'Mark this answer correct')
+      // A Multiple Answer question ticks several answers, so its control is a
+      // checkbox; every other list keeps the radios that make one choice.
+      radio.type = several ? 'checkbox' : 'radio'
+      radio.className = several ? 'mc-choice-radio mc-choice-checkbox' : 'mc-choice-radio'
+      radio.setAttribute('aria-label', several ? t('editor.markCorrectSeveral') : t('editor.markCorrect'))
       control.append(radio)
 
       // A fixed answer is drawn rather than edited: with no contentDOM,
@@ -646,7 +662,7 @@ export const multipleChoiceChoiceView = $view(
         if (pos == null) return
         // Stable choice ids let ProseMirror repaint the right radios in place,
         // so simply writing the doc is enough — no manual DOM juggling.
-        selectCorrectChoice(view, pos)
+        selectCorrectChoice(view, pos, several)
       }
 
       // Act on mousedown (the event ProseMirror uses for selection) and prevent

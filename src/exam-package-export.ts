@@ -140,8 +140,10 @@ export async function examPackage({
     return {
       question: { bank: ids.bank, question: ids.question },
       section: sectionIndex.get(sectionIdOf(exam, question))!,
-      ...(question.type === 'multiple-choice' ? { columns: columnsOf(question) } : {}),
-      ...(question.type === 'multiple-choice' || question.type === 'matching'
+      ...(question.type === 'multiple-choice' || question.type === 'multiple-answer'
+        ? { columns: columnsOf(question) }
+        : {}),
+      ...(question.type === 'multiple-choice' || question.type === 'multiple-answer' || question.type === 'matching'
         ? { answerOrder: orderedChoices(question, arrangement).map(({ id }) => ids.answers.get(id)!) }
         : {}),
       ...(hiddenAnswerIdsOf(question, arrangement).length > 0

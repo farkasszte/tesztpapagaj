@@ -20,6 +20,7 @@ import { t } from './i18n'
 // question type prints under "Short Answer".
 export const SECTION_TITLE: Record<QuestionType, string> = {
   get 'multiple-choice'() { return t('type.multipleChoice') },
+  get 'multiple-answer'() { return t('type.multipleAnswer') },
   get 'true-false'() { return t('type.trueFalse') },
   get matching() { return t('type.matching') },
   get 'fill-in-the-blank'() { return t('type.fillInTheBlank') },
@@ -29,6 +30,7 @@ export const SECTION_TITLE: Record<QuestionType, string> = {
 
 export const SECTION_INSTRUCTIONS: Record<QuestionType, string> = {
   get 'multiple-choice'() { return t('section.multipleChoiceHint') },
+  get 'multiple-answer'() { return t('section.multipleAnswerHint') },
   get 'true-false'() { return t('section.trueFalseHint') },
   get matching() { return t('section.matchingHint') },
   get 'fill-in-the-blank'() { return t('section.fillInHint') },

@@ -243,7 +243,7 @@ function readingOfRecordQuestion(
     topics: question.topics ?? [],
     stem: previewDocument(question.stem),
     ...(question.choices ? {
-      choices: question.choices.map((choice) => choiceOf(choice, question.type === 'multiple-choice')),
+      choices: question.choices.map((choice) => choiceOf(choice, question.type === 'multiple-choice' || question.type === 'multiple-answer')),
     } : {}),
     ...(question.prompts && question.wordBank ? {
       matching: {

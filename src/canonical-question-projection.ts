@@ -4,7 +4,7 @@ import type { AuthoringState, SavedState } from './exam-store'
 import type { ExamWorkingCopy, QuestionBank } from './question-bank'
 
 function choiceIds(question: Question | undefined): string[] {
-  if (!question || question.type !== 'multiple-choice') return []
+  if (!question || (question.type !== 'multiple-choice' && question.type !== 'multiple-answer')) return []
   return choiceNodesOf(question.doc).map(choiceIdOf)
 }
 

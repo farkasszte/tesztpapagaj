@@ -1297,7 +1297,9 @@ function deriveQuestion(
     number,
     marks: trueFalse
       ? rules.trueFalseMarks
-      : question.type === 'multiple-choice' ? rules.multipleChoiceMarks : [],
+      : question.type === 'multiple-choice' || question.type === 'multiple-answer'
+        ? rules.multipleChoiceMarks
+        : [],
     // A Multipart question whose stem is only empty paragraphs has none: its
     // Part (a) opens on its number's line (`partsOpenNumberLine`).
     stem: multipart && blankBlocks(stemNodesOf(question.doc)) ? [] : stemNodesOf(question.doc),
@@ -1930,6 +1932,13 @@ function paginate(
 }
 
 /** The Answer Key's line for a Part or Subpart that answers. */
+/** The letters an Answer Key writes for a question: one for a Multiple Choice
+ *  question, and every correct one — in the order they print — for a Multiple
+ *  Answer question. */
+function correctLettersOf(question: { choices: readonly { letter: string; correct: boolean }[] }): string[] {
+  return question.choices.filter((choice) => choice.correct).map((choice) => choice.letter)
+}
+
 function answerKeyPartLine(
   letter: string,
   part: Pick<PlannedSubpart, 'type' | 'choices' | 'suggestedAnswer' | 'points'>,
@@ -2018,7 +2027,9 @@ function deriveAnswerKey(testItems: readonly PageItem[]): PageItem[] {
     items.push({
       kind: 'answer-key-entry',
       number: item.question.number,
-      letter: item.question.choices.find((choice) => choice.correct)?.letter ?? null,
+      // A Multiple Answer question marks several answers, and the key writes
+      // them all, in the order they print: `a, c`.
+      letter: correctLettersOf(item.question).join(', ') || null,
       ...metadata,
       ...points,
       ...(item.question.suggestedAnswer

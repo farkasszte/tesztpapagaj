@@ -12,6 +12,7 @@ import questionBankSchema070 from './question-bank-record-0.7.0.schema.json'
 import questionBankSchema080 from './question-bank-record-0.8.0.schema.json'
 import questionBankSchema090 from './question-bank-record-0.9.0.schema.json'
 import questionBankSchema0100 from './question-bank-record-0.10.0.schema.json'
+import questionBankSchema0110 from './question-bank-record-0.11.0.schema.json'
 import {
   QUESTION_BANK_ATTACHMENT_DESCRIPTION,
   QUESTION_BANK_FORMAT,
@@ -175,6 +176,7 @@ export type QuestionBankImportProposal = {
  *  the exporter's `RECORD_TYPES`. */
 export const LOCAL_TYPES: Record<QuestionBankRecordQuestionType, QuestionType> = {
   'multiple-choice': 'multiple-choice',
+  'multiple-answer': 'multiple-answer',
   'true-false': 'true-false',
   matching: 'matching',
   'fill-in-the-blank': 'fill-in-the-blank',
@@ -341,7 +343,7 @@ export function importedQuestionIdentities(
                         attrs: {
                           id,
                           correct: choice.correct,
-                          ...(question.type === 'multiple-choice' ? lockAttrOf(choice) : {}),
+                          ...(question.type === 'multiple-choice' || question.type === 'multiple-answer' ? lockAttrOf(choice) : {}),
                         },
                         content: recordDocumentToEditorNodes(choice.content),
                       }
@@ -390,6 +392,7 @@ const validate070 = ajv.compile(questionBankSchema070)
 const validate080 = ajv.compile(questionBankSchema080)
 const validate090 = ajv.compile(questionBankSchema090)
 const validate0100 = ajv.compile(questionBankSchema0100)
+const validate0110 = ajv.compile(questionBankSchema0110)
 
 function schemaMessage(errors: ErrorObject[] | null | undefined): string {
   const first = errors?.[0]
@@ -440,7 +443,7 @@ const POINTS_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
 const ALIGN_VERSIONS: ReadonlySet<string> = new Set(['0.9.0', '0.10.0'])
 
 /** The versions that know Fill in the Blank and its Blanks, added in 0.10.0. */
-const BLANK_VERSIONS: ReadonlySet<string> = new Set(['0.10.0'])
+const BLANK_VERSIONS: ReadonlySet<string> = new Set(['0.10.0', '0.11.0'])
 
 /** The record nodes that may be centred. */
 const CENTRABLE_RECORD_NODES: ReadonlySet<string> = new Set(['paragraph', 'block-image', 'table'])
@@ -628,7 +631,7 @@ function misplacedContent(value: unknown): string | undefined {
 const PENDING_IMAGE_VERSIONS: ReadonlySet<string> = new Set(['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0'])
 
 /** The versions that know the Side-by-Side, added in 0.6.0. */
-const SIDE_BY_SIDE_VERSIONS: ReadonlySet<string> = new Set(['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0'])
+const SIDE_BY_SIDE_VERSIONS: ReadonlySet<string> = new Set(['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0', '0.11.0'])
 
 /** Where a Side-by-Side may stand: a top-level block of a Question's stem or
  *  of a Multipart Part's stem, and nowhere else. */
@@ -1014,6 +1017,7 @@ const parser080: Parser = (value) => parseWith(validate080, '0.8.0', value)
 const parser090: Parser = (value) => parseWith(validate090, '0.9.0', value)
 
 const parser0100: Parser = (value) => parseWith(validate0100, '0.10.0', value)
+const parser0110: Parser = (value) => parseWith(validate0110, '0.11.0', value)
 
 /** Exact versions only: adding compatibility requires adding an explicit parser or migration. */
 export const SUPPORTED_QUESTION_BANK_VERSIONS: Readonly<Record<string, Parser>> =
@@ -1028,6 +1032,7 @@ export const SUPPORTED_QUESTION_BANK_VERSIONS: Readonly<Record<string, Parser>> 
     '0.8.0': parser080,
     '0.9.0': parser090,
     '0.10.0': parser0100,
+    '0.11.0': parser0110,
   })
 
 const utf8 = new TextDecoder('utf-8', { fatal: true })
@@ -1283,6 +1288,7 @@ async function validateSemantics(
   let externalLinks = false
   const counts: Record<QuestionBankRecordQuestionType, number> = {
     'multiple-choice': 0,
+    'multiple-answer': 0,
     'true-false': 0,
     matching: 0,
     'fill-in-the-blank': 0,
@@ -1447,10 +1453,12 @@ async function validateSemantics(
         )
       }
       const correct = question.choices.filter((choice) => choice.correct).length
-      if (correct > 1) {
+      if (question.type === 'multiple-answer' ? correct === 0 : correct > 1) {
         throw new QuestionBankImportError(
           'invalid-question',
-          `${label} Question “${question.id}” may have at most one correct choice.`,
+          question.type === 'multiple-answer'
+            ? `${label} Question “${question.id}” is Multiple Answer and must mark at least one correct choice.`
+            : `${label} Question “${question.id}” may have at most one correct choice.`,
         )
       }
       if (correct === 0) questionsWithoutCorrectAnswer += 1
