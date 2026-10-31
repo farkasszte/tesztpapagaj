@@ -578,8 +578,9 @@ export const multipleChoiceChoiceView = $view(
       const body = contentDOM ?? document.createElement('div')
       body.className = 'mc-choice-body'
 
-      // A True/False pair never moves, so it has nothing to lock.
-      const lock = fixed ? undefined : document.createElement('button')
+      // A True/False pair never moves, so it has nothing to lock, and an
+      // Ordering question's order is its answer: there is no letter to keep.
+      const lock = fixed || ordering ? undefined : document.createElement('button')
       if (lock) {
         lock.type = 'button'
         lock.className = 'mc-choice-lock'
@@ -653,11 +654,6 @@ export const multipleChoiceChoiceView = $view(
 
       let drawnLock: boolean | undefined
       const render = () => {
-        if (ordering) {
-          const pos = getPos()
-          const place = pos == null ? 0 : view.state.doc.resolve(pos).index() + 1
-          if (position.textContent !== `${place}.`) position.textContent = `${place}.`
-        }
         radio.checked = node.attrs.correct === true
         radio.disabled = !editable()
         dom.dataset.correct = String(node.attrs.correct === true)
@@ -732,6 +728,7 @@ export const multipleChoiceView = $view(
       let node: ProseNode = initialNode
       const editable = () => ctx.get(multipleChoiceEditableCtx)
       const fixed = ctx.get(multipleChoiceFixedCtx)
+      const ordering = ctx.get(multipleChoiceOrderingCtx)
 
       const dom = document.createElement('div')
       dom.dataset.type = 'multiple-choice'
@@ -827,10 +824,19 @@ export const multipleChoiceView = $view(
         )
         rows.forEach((row, index) => {
           const { up, down } = rowMoveButtons.get(row)!
-          const letter = answerLetter(index)
+          // An Ordering question's rows are numbered, and the number is their
+          // place: a move changes it, so it is written here, after the rows are
+          // drawn in their new order.
+          if (ordering) {
+            const place = row.querySelector('.mc-choice-position')
+            if (place) place.textContent = `${index + 1}.`
+          }
+          const name = ordering ? String(index + 1) : answerLetter(index)
+          const upKey = ordering ? 'editor.moveItemUp' : 'editor.moveAnswerUp'
+          const downKey = ordering ? 'editor.moveItemDown' : 'editor.moveAnswerDown'
           for (const [button, text, atEnd] of [
-            [up, `Move answer ${letter} up`, index === 0],
-            [down, `Move answer ${letter} down`, index === rows.length - 1],
+            [up, t(upKey, { name }), index === 0],
+            [down, t(downKey, { name }), index === rows.length - 1],
           ] as const) {
             button.setAttribute('aria-label', text)
             button.title = `${text} (${direction(button)})`

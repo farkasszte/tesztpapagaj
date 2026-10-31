@@ -899,6 +899,10 @@ const en = {
   'bankType.ordering': 'Ordering',
   'section.orderingHint': 'Number the items in the order they belong.',
   'editor.orderingItem': 'Item',
+  'editor.moveAnswerUp': 'Move answer {name} up',
+  'editor.moveAnswerDown': 'Move answer {name} down',
+  'editor.moveItemUp': 'Move item {name} up',
+  'editor.moveItemDown': 'Move item {name} down',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1784,6 +1788,10 @@ const hu: Record<TextKey, string> = {
   'bankType.ordering': 'Sorba rendezés',
   'section.orderingHint': 'Számozd meg az elemeket a helyes sorrendben.',
   'editor.orderingItem': 'Elem',
+  'editor.moveAnswerUp': 'Válasz mozgatása felfelé: {name}',
+  'editor.moveAnswerDown': 'Válasz mozgatása lefelé: {name}',
+  'editor.moveItemUp': 'Elem mozgatása felfelé: {name}',
+  'editor.moveItemDown': 'Elem mozgatása lefelé: {name}',
 };
 
 const LANGUAGES = { en, hu } as const
