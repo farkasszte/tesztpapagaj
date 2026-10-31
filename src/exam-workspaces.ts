@@ -45,6 +45,15 @@ export type ForcedDeletionCommit = {
   finalize(): Promise<void>
 }
 
+/** The default title a new Exam gets, in the current language. The stored
+ *  English title stays recognised too, so an Exam made before the title
+ *  followed the language still counts as untitled. */
+export const untitledExam = (): string => t('exam.untitled')
+
+/** Whether an Exam still carries the title a new one starts with. */
+export const isUntitledExamTitle = (title: string): boolean =>
+  title === 'Untitled Exam' || title === untitledExam()
+
 export function resourceUsageOf(
   exam: ExamSummary,
   working: AuthoringState | null,
@@ -56,7 +65,7 @@ export function resourceUsageOf(
   if (!inWorkingCopy && !inSaved) return null
   return {
     examId: exam.id,
-    title: working?.workingCopy.title ?? saved?.workingCopy.title ?? 'Untitled Exam',
+    title: working?.workingCopy.title ?? saved?.workingCopy.title ?? untitledExam(),
     saved: inSaved,
     workingCopy: inWorkingCopy,
   }
@@ -73,9 +82,9 @@ export function isPristineExam(
     working
     && saved
     && !working.dirty
-    && working.workingCopy.title === 'Untitled Exam'
+    && isUntitledExamTitle(working.workingCopy.title)
     && working.workingCopy.questionIds.length === 0
-    && saved.workingCopy.title === 'Untitled Exam'
+    && isUntitledExamTitle(saved.workingCopy.title)
     && saved.workingCopy.questionIds.length === 0
     && history.records.length === 0,
   )
@@ -190,7 +199,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
       const initial: AuthoringState = {
         questionBank: { questions: firstQuestion ? [firstQuestion] : [] },
         workingCopy: {
-          ...createWorkingCopy('Untitled Exam'),
+          ...createWorkingCopy(untitledExam()),
           questionIds: firstQuestion ? [firstQuestion.id] : [],
           ...(firstQuestion?.type === 'multiple-choice'
             ? { columns: { [firstQuestion.id]: 1 as const } }
@@ -204,7 +213,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
       await backend.initialize(
         {
           questionBank: initial.questionBank,
-          workingCopy: createWorkingCopy('Untitled Exam'),
+          workingCopy: createWorkingCopy(untitledExam()),
         },
         initial,
       )
@@ -281,7 +290,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
         const state = await backendFor(exam.id).read()
         return {
           ...exam,
-          title: state?.workingCopy.title ?? 'Untitled Exam',
+          title: state?.workingCopy.title ?? untitledExam(),
           questionCount: state?.workingCopy.questionIds.length ?? 0,
           preview: state ? previewOf(state) : null,
           unsaved: state?.dirty ?? false,
@@ -414,7 +423,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
         ])
         return {
           examId: id,
-          title: working?.workingCopy.title ?? saved?.workingCopy.title ?? 'Untitled Exam',
+          title: working?.workingCopy.title ?? saved?.workingCopy.title ?? untitledExam(),
           exportCount: history.records.length,
         }
       } finally {

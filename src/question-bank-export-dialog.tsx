@@ -287,7 +287,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
         <img src="/logo.svg" alt="" width={28} height={28} />
         {t('bankExport.fileHeader')}
       </p>
-      <h1>{bank.name || 'Untitled Question Bank'}</h1>
+      <h1>{bank.name || t('bank.untitledName')}</h1>
       {bank.author && <p><strong>{t('import.declaredAuthor')}:</strong> {bank.author}</p>}
       {bank.license && <p><strong>{t('import.license')}:</strong> {bank.license.name}{bank.license.url ? ` — ${bank.license.url}` : ''}</p>}
       {bank.description && <p>{bank.description}</p>}

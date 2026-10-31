@@ -21,6 +21,15 @@ import {
 
 export const UNTITLED_QUESTION_BANK = 'Untitled Question Bank'
 
+/** The default name a new bank gets, in the current language. The stored
+ *  English name stays recognised too, so banks made before the language
+ *  followed still count as untitled. */
+export const untitledQuestionBank = (): string => t('bank.untitledName')
+
+/** Whether a bank still carries the name a new one starts with. */
+export const isUntitledQuestionBankName = (name: string): boolean =>
+  name === UNTITLED_QUESTION_BANK || name === untitledQuestionBank()
+
 export type QuestionBankProvenance = {
   description?: string
   author?: string
@@ -186,7 +195,7 @@ export function questionOf(stored: Question & { bankId?: string }): Question {
 export function isPristineQuestionBank(bank: QuestionBankResource | null): boolean {
   return Boolean(
     bank
-    && bank.name === UNTITLED_QUESTION_BANK
+    && isUntitledQuestionBankName(bank.name)
     && bank.questions.length === 0,
   )
 }
@@ -575,7 +584,7 @@ export function createQuestionBankWorkspaceService(
       const timestamp = now().toISOString()
       const bank: QuestionBankResource = {
         id: createId(),
-        name: UNTITLED_QUESTION_BANK,
+        name: untitledQuestionBank(),
         createdAt: timestamp,
         lastUpdatedAt: timestamp,
         questions: [],
@@ -642,7 +651,7 @@ export function createQuestionBankWorkspaceService(
       const timestamp = now().toISOString()
       try {
         const remainingIds = before.questions.map(({ id }) => id).filter((id) => id !== questionId)
-        const removeBank = before.name === UNTITLED_QUESTION_BANK && remainingIds.length === 0
+        const removeBank = isUntitledQuestionBankName(before.name) && remainingIds.length === 0
         await transact(
           [QUESTION_BANK_REGISTRY_STORE, CANONICAL_QUESTION_STORE, QUESTION_BANK_WORKSPACE_STORE, EDITOR_WORKSPACE_STORE],
           'readwrite',

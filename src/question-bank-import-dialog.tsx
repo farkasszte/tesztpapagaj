@@ -278,7 +278,7 @@ function BankPreview({
   const questions = record.bank.questions
   return <div className="bank-import-reading">
     <header className="bank-import-preview-head">
-      <h3>{record.bank.name || 'Untitled Question Bank'}</h3>
+      <h3>{record.bank.name || t('bank.untitledName')}</h3>
       <p>{countOf(questions.length, 'question')}</p>
       {record.bank.description && (
         <p className="bank-import-preview-description">{record.bank.description}</p>
@@ -851,7 +851,7 @@ export function QuestionBankImportDialog({
 
   const bankName = (id: string) => {
     const bank = proposal?.banks.find((item) => item.id === id)
-    return bank?.record.bank.name || 'Untitled Question Bank'
+    return bank?.record.bank.name || t('bank.untitledName')
   }
   const examName = (key: string) =>
     proposal?.exams.find((item) => item.key === key)?.name || 'Untitled Test'
@@ -1178,7 +1178,7 @@ export function QuestionBankImportDialog({
                 proposal.banks.length === 1 ? t('import.kindBankOne') : t('import.kindBank'),
                 proposal.banks.map((bank) => ({
                   focus: { kind: 'bank', id: bank.id },
-                  name: bank.record.bank.name || 'Untitled Question Bank',
+                  name: bank.record.bank.name || t('bank.untitledName'),
                   detail: countOf(bank.record.bank.questions.length, 'question'),
                   allowed: selection.banks[bank.id]!.allowed,
                   onAllow: (allowed) => setSelection(setBankAllowed(proposal, selection, bank.id, allowed)),
@@ -1273,7 +1273,7 @@ export function QuestionBankImportDialog({
             {!pickedOccurrence && focusedBank && (() => {
               const bank = focusedBank
               const chosen = selection.banks[bank.id]!
-              const name = bank.record.bank.name || 'Untitled Question Bank'
+              const name = bank.record.bank.name || t('bank.untitledName')
               const targetName = names[bank.id] ?? ''
               const fallbackExisting = targetBankId ?? existingBanks[0]?.id
               return <aside

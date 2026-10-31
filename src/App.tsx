@@ -1743,7 +1743,7 @@ function QuestionBankTabsPane({
             onClick={() => void createBank()}
           >
             <Plus aria-hidden="true" />
-            <span>{creatingBank ? t('common.creating') : 'New Question Bank'}</span>
+            <span>{creatingBank ? t('common.creating') : t('bank.newTitle')}</span>
           </button>
           {onImportBank && <button
             type="button"
@@ -2562,7 +2562,7 @@ function ExamEditor({
               className="document-title"
               value={state.workingCopy.title}
               disabled={isHistoricalBrowsing}
-              placeholder="Untitled Exam"
+              placeholder={t('exam.untitled')}
               onChange={(event) => store.setTitle(event.target.value)}
             />
             <nav className="document-menus" aria-label={t('exam.menus')}>

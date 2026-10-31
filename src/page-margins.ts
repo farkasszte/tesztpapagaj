@@ -11,15 +11,41 @@
 // all the default stores nothing, so every Exam made before stays as it was.
 
 /** One edge of the sheet, in the order CSS and the Format menu list them. */
+import { t } from './i18n'
+
 export type MarginSide = 'top' | 'right' | 'bottom' | 'left'
 
 export const MARGIN_SIDES: readonly MarginSide[] = ['top', 'right', 'bottom', 'left']
 
 export const MARGIN_SIDE_LABELS: Record<MarginSide, string> = {
-  top: 'Top',
-  right: 'Right',
-  bottom: 'Bottom',
-  left: 'Left',
+  get top() { return t('margins.top') },
+  get right() { return t('margins.right') },
+  get bottom() { return t('margins.bottom') },
+  get left() { return t('margins.left') },
+}
+
+/** The unit the panel shows margins in: inches in English, centimetres in
+ *  Hungarian. The stored value stays inches — the record format's own unit. */
+export type MarginUnit = {
+  /** What the field prints after the number. */
+  suffix: string
+  /** How many of this unit an inch is. */
+  perInch: number
+  /** A step in this unit, and a coarser one with Shift. */
+  step: number
+  coarseStep: number
+  /** Decimals the field shows. */
+  decimals: number
+}
+
+export function marginUnit(): MarginUnit {
+  const suffix = t('margins.unit')
+  if (suffix === 'in') {
+    return { suffix, perInch: 1, step: MARGIN_STEP, coarseStep: 0.1, decimals: 2 }
+  }
+  // 0.1 cm ≈ 0.04 in, close to the inch grid, so a typed value survives the
+  // round trip through the stored inches.
+  return { suffix, perInch: 2.54, step: 0.1, coarseStep: 0.5, decimals: 1 }
 }
 
 /** An Exam's margins, in inches, every side stated. */

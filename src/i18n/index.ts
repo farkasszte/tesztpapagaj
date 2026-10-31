@@ -864,6 +864,17 @@ const en = {
   'section.fillInHint': 'Complete each sentence by writing the missing word or words on each line.',
   'section.openHint': 'Answer the following questions in the space provided. Show all work.',
   'section.multipartHint': 'Answer every part of each question.',
+  'bank.untitledName': 'Untitled Question Bank',
+  'bank.newTitle': 'New Question Bank',
+  'margins.top': 'Top',
+  'margins.right': 'Right',
+  'margins.bottom': 'Bottom',
+  'margins.left': 'Left',
+  'margins.mixed': 'Mixed',
+  'margins.unit': 'in',
+  'margins.ariaLabel': '{side} margin in {unit}',
+  'margins.valueText': '{value} {unit}',
+  'margins.dragHint': 'Drag to change',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1714,6 +1725,17 @@ const hu: Record<TextKey, string> = {
   'section.fillInHint': 'Egészítsd ki minden mondatot a hiányzó szóval vagy szavakkal a vonalon.',
   'section.openHint': 'Válaszolj a következő kérdésekre a kijelölt helyen. Minden számítást mutass meg.',
   'section.multipartHint': 'Válaszolj minden kérdés minden részére.',
+  'bank.untitledName': 'Névtelen kérdésbank',
+  'bank.newTitle': 'Új kérdésbank',
+  'margins.top': 'Felső',
+  'margins.right': 'Jobb',
+  'margins.bottom': 'Alsó',
+  'margins.left': 'Bal',
+  'margins.mixed': 'Eltér',
+  'margins.unit': 'cm',
+  'margins.ariaLabel': '{side} margó ({unit})',
+  'margins.valueText': '{value} {unit}',
+  'margins.dragHint': 'Húzd a módosításhoz',
 };
 
 const LANGUAGES = { en, hu } as const

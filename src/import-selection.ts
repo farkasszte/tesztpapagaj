@@ -146,12 +146,12 @@ export function importSentence(
 
   const created = banks.flatMap(({ id }) => {
     const target = selection.banks[id]!.target
-    return target.kind === 'new' ? [target.name.trim() || 'Untitled Question Bank'] : []
+    return target.kind === 'new' ? [target.name.trim() || t('bank.untitledName')] : []
   })
   const merged = banks.flatMap(({ id, record }) => {
     const target = selection.banks[id]!.target
     return target.kind === 'existing'
-      ? [{ from: record.bank.name || 'Untitled Question Bank', into: existingName(target.bankId) }]
+      ? [{ from: record.bank.name || t('bank.untitledName'), into: existingName(target.bankId) }]
       : []
   })
 

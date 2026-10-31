@@ -168,3 +168,30 @@ test('a Beállítások biztonsági másolat szakasza magyarul szól', async ({ p
   await expect(card).not.toContainText('are saved in this browser')
   await expect(card).not.toContainText('Persistent browser storage is enabled')
 })
+
+test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Új kérdésbank', exact: true }).first().click()
+  await expect(page).toHaveURL(/\/question-bank/)
+
+  // A névtelen név a nyelven követi a felületet.
+  await expect(page.getByRole('textbox', { name: 'Kérdésbank neve' })).toHaveValue('Névtelen kérdésbank')
+
+  // A Formázás menü Margók panelje centiméterben mér.
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
+  await expect(page).toHaveURL(/\/editor$/)
+  await page.getByRole('button', { name: 'Formázás', exact: true }).click()
+  await page.getByRole('menuitem', { name: /Margók/ }).click()
+
+  const panel = page.locator('.margins-panel')
+  await expect(panel).toBeVisible()
+  await expect(panel.locator('.margins-unit').first()).toHaveText('cm')
+  const field = panel.locator('.margins-input').first()
+  await expect(field).toHaveValue(/^\d+([.,]\d)?$/)
+  await expect(field).toHaveAttribute('aria-label', /cm/)
+  // A beírt centiméter a hüvelykes tároláson át kerekítve jön vissza.
+  await field.fill('3')
+  await field.blur()
+  await expect(field).toHaveValue('3')
+})

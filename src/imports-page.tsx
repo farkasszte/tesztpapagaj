@@ -94,7 +94,7 @@ function ImportCard({
   const opens = entry.stage === 'imported'
     ? [
         ...entry.imported.exams.map((exam) => ({ label: exam.name || 'Untitled Test', href: `/editor?exam=${exam.id}`, Icon: FileText })),
-        ...entry.imported.banks.map((bank) => ({ label: bank.name || 'Untitled Question Bank', href: `/question-bank?id=${bank.id}`, Icon: Library })),
+        ...entry.imported.banks.map((bank) => ({ label: bank.name || t('bank.untitledName'), href: `/question-bank?id=${bank.id}`, Icon: Library })),
       ]
     : []
   const items: MenuItem[] = entry.stage === 'waiting'

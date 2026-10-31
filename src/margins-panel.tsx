@@ -29,7 +29,7 @@ import { MarginsIcon } from './format-icons'
 import {
   MARGIN_SIDES,
   MARGIN_SIDE_LABELS,
-  MARGIN_STEP,
+  marginUnit,
   MAX_MARGIN,
   MIN_MARGIN,
   clampMargin,
@@ -48,10 +48,6 @@ const SIDE_ICONS: Record<MarginSide, ReactNode> = {
   left: <PanelLeft />,
 }
 
-/** What a margin field scrubs and steps through: the margins' own range and
- *  step, and tenths of an inch with Shift. */
-const MARGIN_RANGE: ScrubRange = { min: MIN_MARGIN, max: MAX_MARGIN, step: MARGIN_STEP, coarseStep: 0.1 }
-
 /** Set on the page while a field scrubs, so the cursor stays a resize arrow
  *  wherever the pointer strays. */
 const SCRUBBING_CLASS = 'margins-scrubbing'
@@ -59,9 +55,10 @@ const SCRUBBING_CLASS = 'margins-scrubbing'
 /** Set on the page while the panel is open: every sheet draws its margins. */
 const MARGIN_GUIDES_CLASS = 'margins-guides'
 
-/** A margin as the field shows it: no trailing zeros, never a float's tail. */
-function formatInches(inches: number): string {
-  return String(Math.round(inches * 100) / 100)
+/** A margin as the field shows it, in the panel's unit: never a float's tail. */
+function formatMargin(value: number, decimals: number): string {
+  const factor = 10 ** decimals
+  return String(Math.round(value * factor) / factor)
 }
 
 const VIEWPORT_MARGIN = 8
@@ -103,17 +100,28 @@ function MarginControl({
   const input = useRef<HTMLInputElement | null>(null)
   const gesture = useRef<Gesture | null>(null)
   const [draft, setDraft] = useState<string | null>(null)
-  const shown = value === null ? '' : formatInches(value)
-  const current = value ?? from
+  // The stored value is inches; the field shows the panel's own unit, so every
+  // read crosses into it and every write comes back.
+  const unit = marginUnit()
+  const toUnit = (inches: number) => inches * unit.perInch
+  const fromUnit = (shown: number) => clampMargin(shown / unit.perInch)
+  const range: ScrubRange = {
+    min: MIN_MARGIN * unit.perInch,
+    max: MAX_MARGIN * unit.perInch,
+    step: unit.step,
+    coarseStep: unit.coarseStep,
+  }
+  const shown = value === null ? '' : formatMargin(toUnit(value), unit.decimals)
+  const current = toUnit(value ?? from)
 
   // A panel closed mid-drag leaves no resize cursor behind.
   useEffect(() => () => document.body.classList.remove(SCRUBBING_CLASS), [])
 
   const commit = (text: string) => {
     setDraft(null)
-    const inches = Number.parseFloat(text)
-    if (!Number.isFinite(inches)) return
-    onChange(clampMargin(inches), false)
+    const typed = Number.parseFloat(text)
+    if (!Number.isFinite(typed)) return
+    onChange(fromUnit(typed), false)
   }
 
   const endGesture = (event: ReactPointerEvent<HTMLElement>) => {
@@ -156,12 +164,12 @@ function MarginControl({
         setDraft(null)
         document.body.classList.add(SCRUBBING_CLASS)
       }
-      drag.raw = scrubRaw(drag.raw, event.clientX - drag.lastX, event.shiftKey, MARGIN_RANGE)
+      drag.raw = scrubRaw(drag.raw, event.clientX - drag.lastX, event.shiftKey, range)
       drag.lastX = event.clientX
-      const next = scrubValue(drag.raw, event.shiftKey, MARGIN_RANGE)
+      const next = scrubValue(drag.raw, event.shiftKey, range)
       if (next === drag.shown) return
       drag.shown = next
-      onChange(next, drag.changed)
+      onChange(fromUnit(next), drag.changed)
       drag.changed = true
     },
     onPointerUp: (event: ReactPointerEvent<HTMLElement>) => {
@@ -176,7 +184,7 @@ function MarginControl({
 
   return (
     <div className="margins-row" data-disabled={disabled || undefined}>
-      <span className="margins-row-label" title={`Drag to change ${label.toLowerCase()}`} {...scrubHandlers}>
+      <span className="margins-row-label" title={t('margins.dragHint')} {...scrubHandlers}>
         {label}
       </span>
       <span className="margins-field">
@@ -186,10 +194,12 @@ function MarginControl({
           type="text"
           inputMode="decimal"
           className="margins-input"
-          aria-label={`${label} margin in inches`}
-          aria-valuetext={value === null ? 'Mixed' : `${formatInches(value)} inches`}
+          aria-label={t('margins.ariaLabel', { side: label, unit: unit.suffix })}
+          aria-valuetext={value === null
+            ? t('margins.mixed')
+            : t('margins.valueText', { value: formatMargin(toUnit(value), unit.decimals), unit: unit.suffix })}
           value={draft ?? shown}
-          placeholder={value === null ? 'Mixed' : undefined}
+          placeholder={value === null ? t('margins.mixed') : undefined}
           disabled={disabled}
           {...scrubHandlers}
           onChange={(event) => setDraft(event.target.value)}
@@ -201,7 +211,7 @@ function MarginControl({
             } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
               event.preventDefault()
               setDraft(null)
-              onChange(steppedValue(current, event.key === 'ArrowUp' ? 1 : -1, event.shiftKey, MARGIN_RANGE), false)
+              onChange(fromUnit(steppedValue(current, event.key === 'ArrowUp' ? 1 : -1, event.shiftKey, range)), false)
             } else if (event.key === 'Escape' && draft !== null) {
               // The first Escape abandons what was typed; the next closes.
               event.stopPropagation()
@@ -209,7 +219,7 @@ function MarginControl({
             }
           }}
         />
-        {(value !== null || draft !== null) && <span className="margins-unit" aria-hidden="true">in</span>}
+        {(value !== null || draft !== null) && <span className="margins-unit" aria-hidden="true">{unit.suffix}</span>}
       </span>
     </div>
   )

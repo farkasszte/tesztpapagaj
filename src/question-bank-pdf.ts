@@ -819,7 +819,7 @@ function drawFrontMatter(context: Context, prepared: PreparedQuestionBankExport,
   } else {
     drawText(context, 'TEST PARROT  ·  QUESTION BANK FILE', { font: 'bold', size: 9, color: ACCENT, line: 18 })
   }
-  drawText(context, bank.name || 'Untitled Question Bank', { font: 'bold', size: 24, line: 30 })
+  drawText(context, bank.name || t('bank.untitledName'), { font: 'bold', size: 24, line: 30 })
   context.y -= 2
   if (bank.author) {
     drawPieces(context, [
