@@ -997,8 +997,8 @@ describe('Question Sections on the Working Copy', () => {
     store.setSectionHeading(second, { title: 'Bonus' })
 
     expect(sectionsOf(store.selectedExam().exam).map(({ title }) => title)).toEqual([
-      'Multiple Choice',
-      'Short Answer',
+      'Feleletválasztós',
+      'Rövid válasz',
       'Bonus',
     ])
   })

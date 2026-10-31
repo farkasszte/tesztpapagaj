@@ -1,6 +1,7 @@
 import JSZip from 'jszip'
 import { isZip, readZip, ZipLimitError } from './question-formats/zip'
 import type { ZipFiles } from './question-formats/types'
+import { t } from './i18n'
 
 /**
  * The zip a Test Parrot Package travels in (ADR-0036): `parrot.json` at its
@@ -70,7 +71,7 @@ export async function readPackageZip(
     if (reason instanceof ZipLimitError) throw new PackageZipError(reason.message, 'unsafe-archive')
     throw reason
   }
-  if (!files) throw new PackageZipError('This zip file could not be opened.', 'invalid-zip')
+  if (!files) throw new PackageZipError(t('errors.zipNotOpened'), 'invalid-zip')
   const json = files.get(PACKAGE_ZIP_ROOT)
   if (!json) {
     throw new PackageZipError(

@@ -33,6 +33,7 @@ import {
   type SemanticNode,
 } from './question-bank-export'
 import { subpartLabelAt } from './export-plan'
+import { t } from './i18n'
 
 export const DEFAULT_QUESTION_BANK_IMPORT_LIMITS = Object.freeze({
   pdfBytes: 100 * 1024 * 1024,
@@ -394,7 +395,7 @@ function schemaMessage(errors: ErrorObject[] | null | undefined): string {
   const first = errors?.[0]
   return first
     ? `Question Bank Record schema validation failed at ${first.instancePath || '/'}: ${first.message}.`
-    : 'Question Bank Record schema validation failed.'
+    : t('errors.schemaInvalid')
 }
 
 /** How one record's nodes are read: whether its `authoredSize` is Record
@@ -1162,7 +1163,7 @@ function validatedBase64Size(value: string): number {
   ) {
     throw new QuestionBankImportError(
       'invalid-media',
-      'A Media Asset contains malformed base64 bytes.',
+      t('errors.badBase64'),
     )
   }
   const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0
@@ -1176,7 +1177,7 @@ function decodeBase64(value: string): Uint8Array {
   } catch {
     throw new QuestionBankImportError(
       'invalid-media',
-      'A Media Asset contains malformed base64 bytes.',
+      t('errors.badBase64'),
     )
   }
 }
@@ -1624,7 +1625,7 @@ function packageFile(asset: DeclaredMediaAsset & { file: string }, files: Packag
       'missing-media',
       files
         ? `Media Asset “${asset.id}” names “${asset.file}”, which is not in this zip.`
-        : 'This file names pictures that travel beside it in a zip. Import the .parrot.zip or the PDF it came in instead.',
+        : t('errors.picturesInZip'),
     )
   }
   files!.used.add(asset.file)
@@ -1687,7 +1688,7 @@ export async function readCanonicalAttachment(
   } catch {
     throw new QuestionBankImportError(
       'invalid-pdf',
-      'The selected file is not a valid PDF.',
+      t('errors.notValidPdf'),
     )
   }
   const loadingTask = pdfjs.getDocument({ data: bytes.slice() })
@@ -1697,7 +1698,7 @@ export async function readCanonicalAttachment(
   } catch {
     throw new QuestionBankImportError(
       'invalid-pdf',
-      'The selected file is not a valid PDF.',
+      t('errors.notValidPdf'),
     )
   }
   try {
@@ -1711,13 +1712,13 @@ export async function readCanonicalAttachment(
     if (candidates.length === 0) {
       throw new QuestionBankImportError(
         'missing-attachment',
-        'This PDF was not exported from Test Parrot, so there is no Question Bank inside it to import.',
+        t('errors.pdfNotOurs'),
       )
     }
     if (candidates.length > 1) {
       throw new QuestionBankImportError(
         'ambiguous-attachments',
-        'This PDF contains several canonical Question Bank Records, so the application cannot choose one safely.',
+        t('errors.pdfManyRecords'),
       )
     }
     const attachment = candidates[0]!
@@ -1725,7 +1726,7 @@ export async function readCanonicalAttachment(
     if (!content) {
       throw new QuestionBankImportError(
         'invalid-json',
-        'The canonical attachment could not be decoded.',
+        t('errors.attachmentUndecodable'),
       )
     }
     // A package zip carries its pictures too, so it may be as large as the

@@ -1,4 +1,5 @@
 import type { ImageTag } from './source-document'
+import { t } from './i18n'
 
 /**
  * Every import this browser has started, newest first: the tests still
@@ -130,7 +131,7 @@ async function withStore<T>(
       if (request) request.onsuccess = () => { result = request.result }
       transaction.oncomplete = () => resolve(result)
       transaction.onabort = transaction.onerror = () =>
-        reject(transaction.error ?? new Error('The import history could not be saved.'))
+        reject(transaction.error ?? new Error(t('errors.importHistorySave')))
     })
   } finally {
     database.close()

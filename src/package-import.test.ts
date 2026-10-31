@@ -342,7 +342,7 @@ describe('rejecting a Test Parrot Package whole', () => {
   })
 
   test('an Exam Record on its own is not importable', async () => {
-    await rejected(examRecord('Alone', [at('chem', 'q1')]), 'unsupported-format', 'Exam Record on its own')
+    await rejected(examRecord('Alone', [at('chem', 'q1')]), 'unsupported-format', 'önálló dolgozat-rekord')
   })
 
   test('an unsupported required feature', async () => {
@@ -472,7 +472,7 @@ describe('Exam Record 0.3.0 Sections', () => {
     )
     const proposal = await inspectImportRecord(bytesOf(packageOf(
       [{ id: 'b', record: mixed() }],
-      [sectioned([worded('Multiple Choice'), worded('Short Answer')], [at('b', 'q1', { section: 1 })])],
+      [sectioned([worded('Feleletválasztós'), worded('Rövid válasz')], [at('b', 'q1', { section: 1 })])],
     )))
     expect(proposal.exams[0]!.positions).toEqual([at('b', 'q1', { section: 1 })])
   })
@@ -506,11 +506,11 @@ describe('Exam Record 0.3.0 Sections', () => {
 
   test('leave per-type section wording behind: in 0.3.0 it is an unknown member, and ignored', async () => {
     const proposal = await inspectImportRecord(bytesOf(packageOf([{ id: 'b', record: mixed() }], [{
-      ...sectioned([worded('Short Answer')], []),
+      ...sectioned([worded('Rövid válasz')], []),
       sectionHeadings: { 'short-answer': { title: 'Essays' } },
     }])))
     expect(proposal.exams[0]).not.toHaveProperty('sectionHeadings')
-    expect(proposal.exams[0]!.sections).toEqual([{ title: 'Short Answer', instructions: '' }])
+    expect(proposal.exams[0]!.sections).toEqual([{ title: 'Rövid válasz', instructions: '' }])
   })
 })
 

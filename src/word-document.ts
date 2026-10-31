@@ -1,6 +1,7 @@
 import JSZip from 'jszip'
 import { isPicture, type PageBox } from './picture-rules'
 import { SourceDocumentError, type ImageTag, type SourceDocumentAnalysis } from './source-document'
+import { t } from './i18n'
 
 /**
  * A Word document (.docx) as a Source Document. It is read for pictures the
@@ -62,10 +63,10 @@ async function readDocument(bytes: Uint8Array): Promise<ReadDocument> {
   try {
     zip = await JSZip.loadAsync(bytes)
   } catch {
-    throw new SourceDocumentError('This file is not a Word document Test Parrot can read. If it has a password, save it again without one.')
+    throw new SourceDocumentError(t('errors.wordUnreadableWithPassword'))
   }
   const body = zip.file(BODY)
-  if (!body) throw new SourceDocumentError('This file is not a Word document Test Parrot can read.')
+  if (!body) throw new SourceDocumentError(t('errors.wordUnreadable'))
   const xml = await body.async('string')
   const relationships = await zip.file(RELATIONSHIPS)?.async('string') ?? ''
   return { zip, xml, placements: placementsOf(xml, targetsOf(relationships)) }
@@ -181,7 +182,7 @@ async function pixelSize(picture: WordPicture): Promise<{ width: number; height:
 async function pictureAt(zip: JSZip, target: string): Promise<WordPicture> {
   const file = zip.file(target)
   const mimeType = typeOf(target)
-  if (!file || !mimeType) throw new SourceDocumentError('This picture is missing from the Word document.')
+  if (!file || !mimeType) throw new SourceDocumentError(t('errors.wordPictureMissing'))
   return { bytes: await file.async('uint8array'), mimeType }
 }
 

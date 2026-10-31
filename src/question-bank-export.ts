@@ -437,7 +437,7 @@ function recordSize(attrs: Record<string, unknown>, media: EmbeddedMedia | undef
   if (attrs.size !== null && attrs.size !== undefined) {
     const size = Number(attrs.size)
     if (!Number.isFinite(size) || size < MIN_SIZE || size > 1) {
-      throw new Error('Authored Image Size must be between 0.05 and 1.')
+      throw new Error(t('errors.imageSizeRange'))
     }
     return size
   }
@@ -564,16 +564,16 @@ function semanticSideBySide(
 ): SemanticNode {
   const panels = childNodes(node)
   if (panels.length < 2 || panels.length > 3) {
-    throw new Error('A Side-by-Side must hold two or three Panels.')
+    throw new Error(t('errors.sideBySideCount'))
   }
   return {
     type: 'side-by-side',
     content: panels.map((panel) => {
       if (panel.type !== 'sideBySidePanel') {
-        throw new Error('A Side-by-Side may hold only Panels.')
+        throw new Error(t('errors.sideBySidePanels'))
       }
       const blocks = childNodes(panel)
-      if (blocks.length === 0) throw new Error('A Panel must hold at least one block.')
+      if (blocks.length === 0) throw new Error(t('errors.panelEmpty'))
       return { type: 'panel', content: blocks.map((block) => semanticNode(block, mediaIds)) }
     }),
   }
@@ -913,7 +913,7 @@ export async function prepareQuestionBankExport(
 ): Promise<PreparedQuestionBankExport> {
   if (bank.questions.length === 0) {
     throw new Error(
-      'A Question Bank requires at least one Question before it can be exported.',
+      t('errors.bankNeedsQuestion'),
     )
   }
   const sources = bank.questions.flatMap((question) => [

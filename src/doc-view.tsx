@@ -267,7 +267,7 @@ export function PictureNeeded({ pending, inline = false }: { pending: PendingIma
   const named = 'image' in pending ? `IMG ${pending.image}` : `page ${pending.page}`
   return (
     <span className="picture-needed" data-inline={inline ? 'true' : undefined} role="img" aria-label={t('ui.pictureNeededNamed', { named })}>
-      Picture needed
+      {t('editor.pictureNeeded')}
       <small>{named}</small>
     </span>
   )

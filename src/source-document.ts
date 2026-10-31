@@ -3,6 +3,7 @@ import { PDFDocument, rgb } from 'pdf-lib'
 import type { PdfFontLoader } from './pdf-export'
 import { drawnFigures, type DrawnPath, type Words } from './drawn-figures'
 import { isPicture, type PageBox } from './picture-rules'
+import { t } from './i18n'
 
 /**
  * A Source Document is the teacher's own PDF, the test an assistant converts.
@@ -110,7 +111,7 @@ async function withDocument<T>(
   try {
     document = await task.promise
   } catch {
-    throw new SourceDocumentError('This file is not a PDF Test Parrot can read.')
+    throw new SourceDocumentError(t('errors.pdfUnreadable'))
   }
   try {
     return await read(document, pdfjs)
@@ -457,7 +458,7 @@ export async function labelSourceDocument(
   try {
     pdf = await PDFDocument.load(bytes, { updateMetadata: false })
   } catch {
-    throw new SourceDocumentError('This PDF could not be labeled. It may be protected or damaged.')
+    throw new SourceDocumentError(t('errors.pdfNotLabeled'))
   }
   pdf.registerFontkit(fontkit)
   const font = await pdf.embedFont(await fonts('bold'), { subset: true })
@@ -505,7 +506,7 @@ export async function photoSourceDocument(
   try {
     image = mimeType === 'image/png' ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes)
   } catch {
-    throw new SourceDocumentError('This picture could not be read.')
+    throw new SourceDocumentError(t('errors.pictureUnreadable'))
   }
   const scale = PHOTO_PAGE / Math.max(image.width, image.height)
   const width = image.width * scale

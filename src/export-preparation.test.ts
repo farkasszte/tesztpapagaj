@@ -169,7 +169,7 @@ describe('Export Record preparation', () => {
     expect(() => prepareExport(request({
       format: 'pdf',
       selection: { test: false, answerKey: false },
-    }))).toThrow('Choose the student test, the answer key, or both.')
+    }))).toThrow('Válaszd a tanulói feladatlapot, a válaszkulcsot, vagy mindkettőt.')
   })
 
   test('missing correctness and optional metadata never block export', () => {
@@ -538,7 +538,7 @@ describe('shuffled Versions', () => {
       selection: { test: true, answerKey: true },
       shuffle: { questions: true, answers: false },
       versionCount: 1,
-    }))).toThrow('Nothing on this Exam can be shuffled with these options.')
+    }))).toThrow('Ezen a dolgozaton semmit nem lehet keverni ezekkel a beállításokkal.')
 
     expect(() => prepareExport(shuffledRequest({ questions: true, answers: true }, 0)))
       .toThrow('Choose from 1 to 50 Versions for this Exam.')
@@ -613,9 +613,9 @@ describe('shuffled Versions', () => {
     const createdAt = '2026-09-12T09:00:00.000Z'
 
     expect(() => prepareHistoricalExport({ record: original, versions: ['Made Up'], createdAt }))
-      .toThrow('Choose at least one Version this export printed.')
+      .toThrow('Válassz legalább egy változatot, amit ez az export kinyomtatott.')
     expect(() => prepareHistoricalExport({ record: original, versions: [], createdAt }))
-      .toThrow('Choose at least one Version this export printed.')
+      .toThrow('Válassz legalább egy változatot, amit ez az export kinyomtatott.')
   })
 
   test('only the chosen Content Selection prints, for every Version', () => {

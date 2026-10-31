@@ -1,6 +1,7 @@
 import { plainBlocks } from '../rich-text'
 import { blocksOf, excerpt, plainStructure, type Line } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
+import { t } from '../../i18n'
 
 /**
  * The plain text teachers type or paste into the Blackboard Test Generator —
@@ -179,7 +180,7 @@ function parseTagged(block: Line[], active: Tag | null): { parsed: Parsed; activ
   const body = ownTag ? block.slice(1) : block
   if (!tag) {
     return {
-      parsed: { error: 'Test Parrot could not tell what kind of question this is. Number it (“1.”), or put its type — MC, MA, TF, ES or BL — on the line above it.' },
+      parsed: { error: t('errors.unknownQuestionKind') },
       active,
     }
   }

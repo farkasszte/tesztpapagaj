@@ -28,8 +28,7 @@ export function ImportError({ message, aiMade = false }: {
     <p>{message}</p>
     {aiMade && <div className="import-error-fix">
       <span>
-        <strong>Made by an AI?</strong> Copy this error, paste it into the same chat and ask it
-        to fix the file. Then drop the new file here.
+        <strong>{t('import.aiErrorTitle')}</strong> {t('import.aiErrorBody')}
       </span>
       <button
         type="button"

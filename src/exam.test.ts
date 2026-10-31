@@ -752,7 +752,7 @@ describe('stored Question Sections', () => {
     expect(
       rewordSection(back, arrangement, 'C', { instructions: 'Show your work.' })?.sections[2],
     ).toEqual({ id: 'C', title: 'Bonus', instructions: 'Show your work.' })
-    expect(rewordSection(exam, arrangement, 'C', { title: 'Multiple Choice' })).toBeNull()
+    expect(rewordSection(exam, arrangement, 'C', { title: 'Feleletválasztós' })).toBeNull()
   })
 
   test('making a legacy Exam\'s Sections explicit keeps each type\'s wording and changes nothing that prints', () => {

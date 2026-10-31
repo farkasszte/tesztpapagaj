@@ -90,7 +90,7 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
               onClick={() => { setOpen(false); navigate(SETTINGS_PATH) }}
             >
               <Settings aria-hidden="true" />
-              Settings
+              {t('ui.settingsMenu')}
             </button>
           </div>
         </div>
@@ -137,19 +137,18 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
     <section className="site-card account-settings" aria-labelledby="settings-backup">
       <h2 id="settings-backup">{t('ui.backupTitle')}</h2>
       <p>
-        Exams, Question Banks, Working Copies, and Export History are saved in this browser. Download
-        a backup now and then, and restore it here or in another browser.
+        {t('account.backupWhat')}
       </p>
       {status === 'denied' && (
         <p className="account-warning">
           {t('account.storageDenied')}
         </p>
       )}
-      {status === 'granted' && <p className="account-ok">Persistent browser storage is enabled.</p>}
+      {status === 'granted' && <p className="account-ok">{t('account.storageEnabled')}</p>}
       <div className="account-actions">
         <button type="button" className="secondary-button account-action" onClick={backup} disabled={busy !== null}>
           {busy === 'backup' ? <RefreshCw aria-hidden="true" className="account-spin" /> : <Download aria-hidden="true" />}
-          {busy === 'backup' ? 'Preparing…' : t('account.downloadBackup')}
+          {busy === 'backup' ? t('common.preparing') : t('account.downloadBackup')}
         </button>
         <button type="button" className="secondary-button account-action" onClick={() => fileInput.current?.click()} disabled={busy !== null}>
           <Upload aria-hidden="true" />

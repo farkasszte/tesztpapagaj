@@ -6,6 +6,7 @@ import { examDatabaseName } from './exam-workspaces'
 import { createIndexedDBAuthoringBackend } from './indexeddb-authoring'
 import { upgradeStoredQuestion } from './stored-upgrade'
 import { pointsOnQuestion, readPoints } from './points'
+import { t } from './i18n'
 import {
   CANONICAL_QUESTION_STORE,
   EDITOR_WORKSPACE_STORE,
@@ -500,7 +501,7 @@ export function createQuestionBankWorkspaceService(
                 } satisfies StoredBank)
               } else {
                 const existing = await requestOf(registryStore.get(bank.bankId)) as StoredBank | undefined
-                if (!existing) throw new Error('The Question Bank chosen to add to is no longer on this device.')
+                if (!existing) throw new Error(t('errors.targetBankGone'))
                 bankNames.set(bank.bankId, existing.name)
                 registryStore.put({
                   ...existing,
@@ -635,8 +636,8 @@ export function createQuestionBankWorkspaceService(
       cascade: DeletionCascade,
     ): Promise<QuestionBankResource | null> {
       const before = await readBank(await registry, bankId)
-      if (!before) throw new Error('That Question Bank is unavailable on this device.')
-      if (!before.questions.some(({ id }) => id === questionId)) throw new Error('That Question does not belong to this Question Bank.')
+      if (!before) throw new Error(t('errors.bankUnavailable'))
+      if (!before.questions.some(({ id }) => id === questionId)) throw new Error(t('errors.questionNotInBank'))
       const exams = await cascade([questionId])
       const timestamp = now().toISOString()
       try {
@@ -675,7 +676,7 @@ export function createQuestionBankWorkspaceService(
     },
     async permanentlyDeleteBank(bankId: string, cascade: DeletionCascade): Promise<void> {
       const before = await readBank(await registry, bankId)
-      if (!before) throw new Error('That Question Bank is unavailable on this device.')
+      if (!before) throw new Error(t('errors.bankUnavailable'))
       const exams = await cascade(before.questions.map(({ id }) => id))
       try {
         await transact(
@@ -701,9 +702,9 @@ export function createQuestionBankWorkspaceService(
       propagate: (question: Question) => Promise<void>,
     ): Promise<QuestionBankResource> {
       const before = await readBank(await registry, id)
-      if (!before) throw new Error('That Question Bank is unavailable on this device.')
+      if (!before) throw new Error(t('errors.bankUnavailable'))
       const previous = before.questions.find((candidate) => candidate.id === question.id)
-      if (!previous) throw new Error('That Question does not belong to this Question Bank.')
+      if (!previous) throw new Error(t('errors.questionNotInBank'))
       try {
         const updated = await service.commit(id, { kind: 'update-question', question }, false)
         await propagate(question)
@@ -742,7 +743,7 @@ export function createQuestionBankWorkspaceService(
           const banks = transaction.objectStore(QUESTION_BANK_REGISTRY_STORE)
           const questions = transaction.objectStore(CANONICAL_QUESTION_STORE)
           const bank = await requestOf(banks.get(id)) as StoredBank | undefined
-          if (!bank) throw new Error('That Question Bank is unavailable on this device.')
+          if (!bank) throw new Error(t('errors.bankUnavailable'))
 
           if (change.kind === 'rename') {
             if (change.name === bank.name) return
@@ -772,7 +773,7 @@ export function createQuestionBankWorkspaceService(
           if (change.kind === 'create-questions') {
             for (const question of change.questions) {
               const existing = await requestOf(questions.get(question.id)) as StoredQuestion | undefined
-              if (existing) throw new Error('That Question already belongs to a Question Bank.')
+              if (existing) throw new Error(t('errors.questionAlreadyInBank'))
               questions.add({ ...question, bankId: id } satisfies StoredQuestion)
             }
             if (change.questions.length === 0) return
@@ -786,7 +787,7 @@ export function createQuestionBankWorkspaceService(
 
           if (change.kind === 'create-question') {
             const existing = await requestOf(questions.get(change.question.id)) as StoredQuestion | undefined
-            if (existing) throw new Error('That Question already belongs to a Question Bank.')
+            if (existing) throw new Error(t('errors.questionAlreadyInBank'))
             questions.add({ ...change.question, bankId: id } satisfies StoredQuestion)
             banks.put({ ...bank, questionIds: [...bank.questionIds, change.question.id], lastUpdatedAt: timestamp })
             return
@@ -797,11 +798,11 @@ export function createQuestionBankWorkspaceService(
             : change.questionId
           const existing = await requestOf(questions.get(questionId)) as StoredQuestion | undefined
           if (!existing || existing.bankId !== id || !bank.questionIds.includes(questionId)) {
-            throw new Error('That Question does not belong to this Question Bank.')
+            throw new Error(t('errors.questionNotInBank'))
           }
           if (change.kind === 'update-question') {
             if (change.question.type !== existing.type) {
-              throw new Error('A Question Type cannot be changed after creation.')
+              throw new Error(t('errors.typeFixed'))
             }
             if (JSON.stringify(questionOf(existing)) === JSON.stringify(change.question)) return
             questions.put({ ...change.question, bankId: id } satisfies StoredQuestion)
@@ -817,7 +818,7 @@ export function createQuestionBankWorkspaceService(
         },
       )
       const updated = await readBank(await registry, id)
-      if (!updated) throw new Error('That Question Bank is unavailable on this device.')
+      if (!updated) throw new Error(t('errors.bankUnavailable'))
       if (requestDurability) void requestPersistentStorage()
       return updated
     },

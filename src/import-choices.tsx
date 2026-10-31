@@ -15,7 +15,7 @@ const CONVERTED_SOURCES = ['PDFs', t('imports.wordDocs'), 'Photos']
 
 export function SupportedSources() {
   return <div className="import-sources" aria-label={t('imports.supportedFiles')}>
-    <span>Supports</span>
+    <span>{t('import.supports')}</span>
     <ul>{[...CONVERTED_SOURCES, ...SUPPORTED_SOURCES].map((source) => <li key={source}>{source}</li>)}</ul>
   </div>
 }
@@ -61,7 +61,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
       <p className="convert-text-only">
         Only have it as text?{' '}
         <button type="button" className="link-button" disabled={busy} onClick={() => setPasting(true)}>
-          <ClipboardPaste aria-hidden="true" /> Paste your questions
+          <ClipboardPaste aria-hidden="true" /> {t('import.pasteQuestions')}
         </button>
       </p>
     )

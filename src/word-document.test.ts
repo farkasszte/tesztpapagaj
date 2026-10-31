@@ -68,7 +68,7 @@ describe('reading a Word document for pictures', () => {
   })
 
   test('refuses a file that is not a Word document', async () => {
-    await expect(analyzeWordDocument(new Uint8Array([37, 80, 68, 70]))).rejects.toThrow('not a Word document')
+    await expect(analyzeWordDocument(new Uint8Array([37, 80, 68, 70]))).rejects.toThrow('nem olyan Word-dokumentum')
   })
 })
 

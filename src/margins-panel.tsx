@@ -289,7 +289,7 @@ export function MarginsPanel({
       <div className="margins-panel-header">
         <span className="margins-panel-title">
           <MarginsIcon className="margins-panel-icon" />
-          Margins
+          {t('editor.margins')}
         </span>
         <button
           type="button"

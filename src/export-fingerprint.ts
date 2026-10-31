@@ -845,7 +845,7 @@ export function compareFingerprints(
     differences.push({
       page: null,
       what: 'metadata',
-      detail: 'document title differs',
+      detail: t('export.diffTitle'),
       expected: expected.title,
       actual: actual.title,
     })
@@ -869,7 +869,7 @@ export function compareFingerprints(
       differences.push({
         page: number,
         what: 'page-size',
-        detail: 'page dimensions differ',
+        detail: t('export.diffPage'),
         expected: `${reference.width}x${reference.height}`,
         actual: `${candidate.width}x${candidate.height}`,
       })
@@ -882,7 +882,7 @@ export function compareFingerprints(
       differences.push({
         page: number,
         what: 'page-size',
-        detail: 'page margins differ',
+        detail: t('export.diffMargins'),
         expected: marginsOf(reference),
         actual: marginsOf(candidate),
       })

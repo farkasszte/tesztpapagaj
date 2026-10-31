@@ -23,7 +23,7 @@ import { t } from './i18n'
 const SOURCE_FILE_TYPES = 'application/pdf,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx'
 
 /**
- * Resolve Images: where a teacher confirms or replaces the picture for each
+ * {t('pictures.resolveTitle')}: where a teacher confirms or replaces the picture for each
  * Pending Image — the tagged picture from their Source Document, another of
  * its pictures, a crop of any of its pages, or an uploaded file — or leaves it
  * for later. An import shows it beside the picture in its preview; afterwards
@@ -138,9 +138,9 @@ export function PageCropper({
   const usable = box && box.right - box.left > 5 && box.bottom - box.top > 5
   return <div className="resolve-image-cropper" role="group" aria-label={t('imports.cropFromPage')}>
     <div className="resolve-image-cropper-bar">
-      <button type="button" className="secondary-button" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous page</button>
+      <button type="button" className="secondary-button" disabled={page <= 1} onClick={() => setPage(page - 1)}>{t('pictures.previousPage')}</button>
       <span>Page {page} of {source.pageCount}</span>
-      <button type="button" className="secondary-button" disabled={page >= source.pageCount} onClick={() => setPage(page + 1)}>Next page</button>
+      <button type="button" className="secondary-button" disabled={page >= source.pageCount} onClick={() => setPage(page + 1)}>{t('pictures.nextPage')}</button>
     </div>
     <p className="resolve-image-note">{t('imports.dragBox')}</p>
     <div
@@ -168,7 +168,7 @@ export function PageCropper({
       />}
     </div>
     <div className="resolve-image-cropper-bar">
-      <button type="button" className="secondary-button" onClick={onCancel}>Cancel</button>
+      <button type="button" className="secondary-button" onClick={onCancel}>{t('common.cancel')}</button>
       <button type="button" className="secondary-button" onClick={() => onCrop(page, { left: 0, top: 0, right: 1000, bottom: 1000 })}>{t('ui.useWholePage')}</button>
       <button type="button" className="primary-button" disabled={!usable} onClick={() => box && onCrop(page, box)}>{t('ui.useThisCrop')}</button>
     </div>
@@ -228,7 +228,7 @@ export function PictureChoices({
     {!source && onSourceFile && (
       <label className="resolve-images-source">
         <ImagePlus aria-hidden="true" />
-        <span>Drop your original PDF or Word document here to take pictures from it, or upload this picture.</span>
+        <span>{t('pictures.dropOne')}</span>
         <input
           type="file"
           accept={SOURCE_FILE_TYPES}
@@ -280,7 +280,7 @@ export function PictureChoices({
       </label>
       {picture && (
         <button type="button" className="secondary-button" onClick={() => choice.set(occurrence, null)}>
-          <Trash2 aria-hidden="true" />Leave for later
+          <Trash2 aria-hidden="true" />{t('pictures.leaveForLater')}
         </button>
       )}
     </div>
@@ -318,7 +318,7 @@ export function ResolveImages({
   return <section className="resolve-images" aria-labelledby="resolve-images-heading">
     <header className="resolve-images-head">
       <div>
-        <h3 id="resolve-images-heading">Resolve Images</h3>
+        <h3 id="resolve-images-heading">{t('pictures.resolveTitle')}</h3>
         <p role="status">
           {filling
             ? t('imports.takingPictures')
@@ -330,7 +330,7 @@ export function ResolveImages({
     {!source && onSourceFile && (
       <label className="resolve-images-source">
         <ImagePlus aria-hidden="true" />
-        <span>Drop your original PDF or Word document here to take pictures from it, or upload each picture below.</span>
+        <span>{t('pictures.dropMany')}</span>
         <input
           type="file"
           accept={SOURCE_FILE_TYPES}

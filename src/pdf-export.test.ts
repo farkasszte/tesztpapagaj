@@ -284,7 +284,7 @@ describe('PDF Export Adapter', () => {
     const first = pages[0]!.map((item) => item.text)
     expect(first.slice(0, 2)).toEqual(['1', 'Név: __________________ Osztály: ___________ Dátum: ___________'])
     expect(first.indexOf('Plant Biology')).toBeLessThan(first.indexOf('The total mark for this paper is 16.'))
-    expect(first.indexOf('The total mark for this paper is 16.')).toBeLessThan(first.indexOf('Multiple Choice'))
+    expect(first.indexOf('The total mark for this paper is 16.')).toBeLessThan(first.indexOf('Feleletválasztós'))
     // Labels and Points on the question pages, each `[n]` at the right margin.
     const test = pages.slice(0, testPageCount).flat()
     const texts = test.map((item) => item.text)
@@ -429,7 +429,7 @@ describe('PDF Export Adapter', () => {
     } catch (error) {
       expect(isPdfUnsupportedCharacterError(error)).toBe(true)
       expect((error as Error).message).toContain('\u0378')
-      expect((error as Error).message).toContain('Remove or replace')
+      expect((error as Error).message).toContain('Távolítsd el vagy cseréld ki')
     }
   })
 
@@ -565,7 +565,7 @@ describe('PDF Export Adapter', () => {
         questions: [{ id: 'o1', type: 'open', columns: 2, doc: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Name a planet.' }] }] } }],
         sectionHeadings: {
           open: {
-            title: 'Short Answer',
+            title: 'Rövid válasz',
             instructions: 'Read every question carefully before you begin, write your answers in the spaces provided, show all of your working, and check each answer when you have finished the paper.',
           },
         },

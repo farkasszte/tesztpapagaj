@@ -40,7 +40,7 @@ export function ExportHistoryDrawer({
     <aside
       className="export-history-drawer"
       id="export-history"
-      aria-label="Export History"
+      aria-label={t('export.historyTitle')}
       aria-hidden={!open}
       hidden={!open}
       ref={drawer}

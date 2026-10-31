@@ -21,6 +21,7 @@ import {
 } from './exam'
 import type { LayoutPlan } from './export-plan'
 import { hiddenAnswerIdsOf, hideableAnswerIdsOf } from './hidden-answers'
+import { t } from './i18n'
 
 /** What an export may shuffle. Question order moves only within each Question
  *  Section; answer order covers Multiple Choice answers, a Multipart
@@ -40,7 +41,7 @@ export const DEFAULT_VERSION_COUNT = 2
 /** Why `count` Versions cannot print when the options allow `max`, or null
  *  when they can. The dialog and preparation share it, so they refuse alike. */
 export function versionCountError(count: number, max: number): string | null {
-  if (max < 1) return 'Nothing on this Exam can be shuffled with these options.'
+  if (max < 1) return t('errors.nothingToShuffle')
   if (!Number.isInteger(count) || count < 1 || count > max) {
     return `Choose from 1 to ${max} ${max === 1 ? 'Version' : 'Versions'} for this Exam.`
   }
@@ -213,7 +214,7 @@ export function shuffledArrangements({
   // source fails loudly rather than spinning.
   for (let attempt = 0; result.length < count; attempt += 1) {
     if (attempt > 1000 + count * 1000) {
-      throw new Error('The Versions could not be shuffled. Please try again.')
+      throw new Error(t('errors.shuffleFailed'))
     }
     const draws: GroupDraw[] = groups.map((group) => ({
       order: shuffled(group.order, random),
@@ -299,7 +300,7 @@ export function versionNames(
       }
     }
     if (name === undefined) {
-      throw new Error('This Exam has used every Version name. Save it as a new Exam to keep going.')
+      throw new Error(t('errors.versionNamesUsed'))
     }
     used.add(name)
     names.push(name)

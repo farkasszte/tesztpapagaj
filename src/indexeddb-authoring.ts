@@ -12,6 +12,7 @@ import type {
   SavedState,
 } from './exam-store'
 import type { ExportHistory, ExportRecord } from './export-preparation'
+import { t } from './i18n'
 import {
   EXAM_STORE,
   EXAM_WORKSPACE_STORE,
@@ -283,7 +284,7 @@ export function createIndexedDBAuthoringBackend(
         ))
         await completionOf(mediaTransaction)
         if (assets.some((asset) => asset === undefined)) {
-          throw new Error('Required media is missing or corrupt. Re-add the affected image and try again.')
+          throw new Error(t('errors.mediaMissing'))
         }
       } finally {
         mediaDatabase.close()

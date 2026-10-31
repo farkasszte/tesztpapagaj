@@ -178,8 +178,7 @@ export function QuestionBankExportDialog({
           <div>
             <h2 id={titleId}>{t('bank.export')}</h2>
             <p>
-              For teachers: this file contains correct answers and Suggested
-              Answers. It is separate from publishing an Exam.
+              {t('bankExport.teacherNote')}
             </p>
           </div>
         </header>
@@ -210,7 +209,7 @@ export function QuestionBankExportDialog({
             disabled={exporting}
             onClick={onClose}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -286,7 +285,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
     >
       <p className="question-bank-file-brand">
         <img src="/logo.png" alt="" width={28} height={28} />
-        Test Parrot · Question Bank File
+        {t('bankExport.fileHeader')}
       </p>
       <h1>{bank.name || 'Untitled Question Bank'}</h1>
       {bank.author && <p><strong>{t('import.declaredAuthor')}:</strong> {bank.author}</p>}

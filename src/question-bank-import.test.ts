@@ -778,13 +778,13 @@ describe('hostile Question Bank File inspection', () => {
   })
 
   test('rejects malformed PDFs, missing records, ambiguous records, and malformed JSON distinctly', async () => {
-    await rejected(inspectQuestionBankFile(encoder.encode('not a PDF')), 'invalid-pdf', 'valid PDF')
-    await rejected(inspectQuestionBankFile(await pdfWith()), 'missing-attachment', 'not exported from Test Parrot')
+    await rejected(inspectQuestionBankFile(encoder.encode('not a PDF')), 'invalid-pdf', 'érvényes PDF')
+    await rejected(inspectQuestionBankFile(await pdfWith()), 'missing-attachment', 'nem a Tesztpapagájból származik')
     const good = bytesOf(baseRecord() as QuestionBankRecord & Record<string, unknown>)
     await rejected(inspectQuestionBankFile(await pdfWith(
       { name: 'one.json', description: QUESTION_BANK_ATTACHMENT_DESCRIPTION, bytes: good },
       { name: 'two.json', description: QUESTION_BANK_ATTACHMENT_DESCRIPTION, bytes: good },
-    )), 'ambiguous-attachments', 'several')
+    )), 'ambiguous-attachments', 'több kérdésbank-rekordot')
     await rejected(inspectQuestionBankFile(await pdfWith(
       { name: QUESTION_BANK_ATTACHMENT_NAME, description: QUESTION_BANK_ATTACHMENT_DESCRIPTION, bytes: encoder.encode('{') },
     )), 'invalid-json', 'JSON')
@@ -863,7 +863,7 @@ describe('hostile Question Bank File inspection', () => {
   test('rejects malformed base64 without decoding it', async () => {
     const source = baseRecord() as QuestionBankRecord & Record<string, unknown>
     source.media = [{ id: `sha256:${'0'.repeat(64)}`, mimeType: 'image/png', width: 1, height: 1, bytes: '!!!!' }]
-    await rejected(inspectQuestionBankRecord(bytesOf(source)), 'invalid-media', 'malformed base64')
+    await rejected(inspectQuestionBankRecord(bytesOf(source)), 'invalid-media', 'hibás base64')
   })
 
   test('accepts a phone photo whose base64 runs to millions of characters', async () => {

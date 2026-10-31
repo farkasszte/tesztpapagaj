@@ -201,7 +201,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
       'heading:title Plant Biology',
     ])
     expect(testPages[0]!.content[0]).toBe('para The total mark for this paper is 16.')
-    expect(testPages[0]!.content[1]).toBe('heading:1 Multiple Choice')
+    expect(testPages[0]!.content[1]).toBe('heading:1 Feleletválasztós')
     expect(lines.filter((line) => line.startsWith('para The total mark'))).toHaveLength(1)
     // …and never part of the Answer Key.
     expect(layoutFingerprint([key!]).pages.flatMap((page) => page.content))
@@ -482,10 +482,10 @@ describe('the Export Document', () => {
     // shows, so it can never name a letter the paper does not.
     expect(fingerprint.answerKey).toEqual([
       'heading:1 Válaszkulcs',
-      'heading:2 Multiple Choice',
+      'heading:2 Feleletválasztós',
       'para 1. «strong»A«/»',
       'para 2. «strong»A«/»',
-      'heading:2 Short Answer',
+      'heading:2 Rövid válasz',
       'para 3.',
     ])
   })
@@ -520,7 +520,7 @@ describe('the Export Document', () => {
     )
     const lines = exportDocumentFingerprint(document).test
     expect(lines.filter((line) => line.startsWith('heading:1'))).toEqual([
-      'heading:1 Multiple Choice',
+      'heading:1 Feleletválasztós',
     ])
   })
 })

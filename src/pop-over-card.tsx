@@ -20,17 +20,17 @@ const childrenOf = (node: ProseMirrorJSON): ProseMirrorJSON[] =>
   Array.isArray(node.content) ? (node.content as ProseMirrorJSON[]) : []
 
 const COLUMN_OPTIONS: readonly { value: ColumnSetting; label: string }[] = [
-  { value: 1, label: '1 column' },
-  { value: 2, label: '2 columns' },
-  { value: 4, label: '4 columns' },
+  { value: 1, get label() { return t('popOver.columns', { count: 1 }) } },
+  { value: 2, get label() { return t('popOver.columns', { count: 2 }) } },
+  { value: 4, get label() { return t('popOver.columns', { count: 4 }) } },
 ]
 
 const LINE_OPTIONS: readonly { value: number; label: string }[] = [
   { value: 0, label: t('popOver.noLines') },
-  { value: 2, label: '2 lines' },
-  { value: 4, label: '4 lines' },
-  { value: 6, label: '6 lines' },
-  { value: 10, label: '10 lines' },
+  { value: 2, get label() { return t('popOver.lines', { count: 2 }) } },
+  { value: 4, get label() { return t('popOver.lines', { count: 4 }) } },
+  { value: 6, get label() { return t('popOver.lines', { count: 6 }) } },
+  { value: 10, get label() { return t('popOver.lines', { count: 10 }) } },
 ]
 
 /** A layout control. It belongs to the card but is not a click on it: using

@@ -223,14 +223,14 @@ describe('sections', () => {
       {
         kind: 'section-heading',
         sectionId: 'multiple-choice',
-        title: 'Multiple Choice',
+        title: 'Feleletválasztós',
         instructions: SECTION_INSTRUCTIONS['multiple-choice'],
         keepWithNext: true,
       },
       {
         kind: 'section-heading',
         sectionId: 'open',
-        title: 'Short Answer',
+        title: 'Rövid válasz',
         instructions: SECTION_INSTRUCTIONS.open,
         keepWithNext: true,
       },
@@ -256,7 +256,7 @@ describe('sections', () => {
     ])
     const pages = render(exam, arrangementOf(['q1', 'q2', 'q3']))
     expect(headings(pages).map((heading) => heading.kind === 'section-heading' && heading.title))
-      .toEqual(['Multiple Choice', 'True/False', 'Short Answer'])
+      .toEqual(['Feleletválasztós', 'Igaz/hamis', 'Rövid válasz'])
     expect(headings(pages)[1]).toMatchObject({
       instructions: SECTION_INSTRUCTIONS['true-false'],
     })
@@ -276,7 +276,7 @@ describe('sections', () => {
     ])
     const pages = render(exam, arrangementOf(['q1', 'x1', 'q2', 'q3']))
     expect(headings(pages).map((heading) => heading.kind === 'section-heading' && heading.title))
-      .toEqual(['Multiple Choice', 'True/False', 'Matching', 'Short Answer'])
+      .toEqual(['Feleletválasztós', 'Igaz/hamis', 'Párosítás', 'Rövid válasz'])
     expect(headings(pages)[2]).toMatchObject({
       instructions: SECTION_INSTRUCTIONS.matching,
     })
@@ -709,7 +709,7 @@ describe('answer key', () => {
     )
     expect(items).toEqual([
       { kind: 'answer-key-heading' },
-      { kind: 'answer-key-section', sectionId: 'true-false', title: 'True/False' },
+      { kind: 'answer-key-section', sectionId: 'true-false', title: 'Igaz/hamis' },
       { kind: 'answer-key-entry', number: 1, letter: 'I' },
       { kind: 'answer-key-entry', number: 2, letter: 'H' },
     ])
@@ -731,9 +731,9 @@ describe('answer key', () => {
     const items = keyItems(exam, arrangementOf(['m1', 'x1'], { x1: ['b', 'a'] }))
     expect(items).toEqual([
       { kind: 'answer-key-heading' },
-      { kind: 'answer-key-section', sectionId: 'multiple-choice', title: 'Multiple Choice' },
+      { kind: 'answer-key-section', sectionId: 'multiple-choice', title: 'Feleletválasztós' },
       { kind: 'answer-key-entry', number: 1, letter: 'B' },
-      { kind: 'answer-key-section', sectionId: 'matching', title: 'Matching' },
+      { kind: 'answer-key-section', sectionId: 'matching', title: 'Párosítás' },
       { kind: 'answer-key-entry', number: 2, letter: 'A' },
       { kind: 'answer-key-entry', number: 3, letter: null },
     ])
@@ -779,9 +779,9 @@ describe('answer key', () => {
     expect(keyPages.every((page) => isAnswerKeyHeader(page.header))).toBe(true)
     expect(keyPages[0]!.items).toEqual([
       { kind: 'answer-key-heading' },
-      { kind: 'answer-key-section', sectionId: 'multiple-choice', title: 'Multiple Choice' },
+      { kind: 'answer-key-section', sectionId: 'multiple-choice', title: 'Feleletválasztós' },
       { kind: 'answer-key-entry', number: 1, letter: 'A' },
-      { kind: 'answer-key-section', sectionId: 'open', title: 'Short Answer' },
+      { kind: 'answer-key-section', sectionId: 'open', title: 'Rövid válasz' },
       { kind: 'answer-key-entry', number: 2, letter: null },
     ])
   })
@@ -1558,8 +1558,8 @@ describe('section headings as the Exam words them', () => {
     expect(headingsOf(examOf([open('o1')]))).toEqual([{
       kind: 'section-heading',
       sectionId: 'open',
-      title: 'Short Answer',
-      instructions: 'Answer the following questions in the space provided. Show all work.',
+      title: 'Rövid válasz',
+      instructions: 'Válaszolj a következő kérdésekre a kijelölt helyen. Minden számítást mutass meg.',
       keepWithNext: true,
     }])
   })
@@ -1631,9 +1631,9 @@ describe('stored Question Sections', () => {
       ),
     ).toEqual([
       ['A', 'Warm Up'],
-      ['B', 'Short Answer'],
+      ['B', 'Rövid válasz'],
       ['C', ''],
-      ['D', 'True/False'],
+      ['D', 'Igaz/hamis'],
     ])
     expect(plannedQuestions(pages).map(({ id, number }) => [id, number])).toEqual([
       ['m1', 1],
@@ -1694,8 +1694,8 @@ describe('stored Question Sections', () => {
     expect(planned.filter(({ empty }) => empty).map(({ sectionId }) => sectionId)).toEqual(['D'])
     expect(planned.at(-1)).toMatchObject({
       sectionId: 'D',
-      title: 'True/False',
-      instructions: 'Circle T if the statement is true and F if it is false.',
+      title: 'Igaz/hamis',
+      instructions: 'Karikázd be az I-t, ha az állítás igaz, és a H-t, ha hamis.',
     })
   })
 
@@ -1705,7 +1705,7 @@ describe('stored Question Sections', () => {
       { kind: 'answer-key-heading' },
       { kind: 'answer-key-section', sectionId: 'A', title: 'Warm Up' },
       { kind: 'answer-key-entry', number: 1, letter: 'A' },
-      { kind: 'answer-key-section', sectionId: 'B', title: 'Short Answer' },
+      { kind: 'answer-key-section', sectionId: 'B', title: 'Rövid válasz' },
       { kind: 'answer-key-entry', number: 2, letter: null },
       { kind: 'answer-key-section', sectionId: 'C', title: 'Section 1' },
       { kind: 'answer-key-entry', number: 3, letter: 'B' },
@@ -1742,9 +1742,9 @@ describe('stored Question Sections', () => {
     const groups = buildExportDocument(adjacent, arrangement, WHOLE_DOCUMENT).answerKey
       .flatMap((item) => (item.kind === 'answer-key-section' ? [[item.sectionId, item.title]] : []))
     expect(groups).toEqual([
-      ['A', 'Multiple Choice'],
+      ['A', 'Feleletválasztós'],
       ['C', 'Bonus'],
-      ['B', 'Short Answer'],
+      ['B', 'Rövid válasz'],
     ])
   })
 })

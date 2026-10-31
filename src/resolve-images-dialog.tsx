@@ -83,7 +83,7 @@ export function ResolveImagesDialog({
           />
         </div>
         <footer className="dialog-actions">
-          <button type="button" className="secondary-button" disabled={saving} onClick={onClose}>Cancel</button>
+          <button type="button" className="secondary-button" disabled={saving} onClick={onClose}>{t('common.cancel')}</button>
           <button type="button" className="primary-button" disabled={saving || filling || chosen.size === 0} onClick={() => void done()}>
             {saving ? 'Saving…' : t('imports.usePictures')}
           </button>

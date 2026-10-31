@@ -36,7 +36,7 @@ export function QuestionFileReport({
       </p>
       {onConvertInstead && (
         <button type="button" className="link-button" disabled={busy} onClick={onConvertInstead}>
-          Convert it with your AI instead
+          {t('import.convertWithAi')}
         </button>
       )}
     </div>

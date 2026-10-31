@@ -12,6 +12,7 @@ import { readPoints } from '../question-doc'
 import { blocksText, isBlank, plainBlocks, textRun } from './rich-text'
 import { excerpt } from './text'
 import { BLANK_MARK, type Blocks, type ForeignBlank, type ForeignChoice, type ForeignImage, type ForeignQuestion, type ImportIssue, type ParseResult } from './types'
+import { t } from '../i18n'
 
 /**
  * Every format's questions become one Question Bank Record here, so a kind
@@ -255,7 +256,7 @@ function convertQuestion(question: ForeignQuestion, id: string, report: Report):
       return shortAnswer(answers.length ? plainBlocks(answers.join(' / ')) : undefined)
     }
     case 'ordering': {
-      report('warning', 'ordering', 'Test Parrot has no ordering questions, so it came in as Short Answer with the correct order as its suggested answer.')
+      report('warning', 'ordering', t('errors.orderingAsShortAnswer'))
       const items = question.items.filter((item) => !isBlank(item))
       return shortAnswer(items.length
         ? [{ type: 'ordered-list', content: items.map((item) => ({ type: 'list-item', content: item })) }]

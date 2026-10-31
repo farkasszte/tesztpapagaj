@@ -1,5 +1,6 @@
 import { saveWaitingImport, type WaitingImport } from './import-history'
 import { QUESTION_FILE_EXTENSIONS, isQuestionFileName } from './question-formats/catalog'
+import { t } from './i18n'
 
 /**
  * What a teacher dropped to start converting a test, and the import that
@@ -35,7 +36,7 @@ const OTHER_DOCUMENT = /\.(doc|odt|pages|rtf)$/i
 export function unsupportedFileMessage(file: File): string {
   return OTHER_DOCUMENT.test(file.name)
     ? 'Save your document as a PDF or a Word document (.docx), then drop it here.'
-    : 'Drop your test as a PDF, a Word document, a photo of it, or a question file from another tool.'
+    : t('errors.dropSourceFile')
 }
 
 /** A photo's bytes as PNG or JPEG, the forms a PDF can hold; any other
@@ -49,7 +50,7 @@ async function embeddablePhoto(file: File): Promise<{ bytes: Uint8Array; type: '
   try {
     bitmap = await createImageBitmap(file)
   } catch {
-    throw new Error('This photo could not be read. Try a PNG or JPEG.')
+    throw new Error(t('errors.photoUnreadable'))
   }
   try {
     const canvas = document.createElement('canvas')
@@ -57,7 +58,7 @@ async function embeddablePhoto(file: File): Promise<{ bytes: Uint8Array; type: '
     canvas.height = bitmap.height
     canvas.getContext('2d')?.drawImage(bitmap, 0, 0)
     const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
-    if (!png) throw new Error('This photo could not be read. Try a PNG or JPEG.')
+    if (!png) throw new Error(t('errors.photoUnreadable'))
     return { bytes: new Uint8Array(await png.arrayBuffer()), type: 'image/png' }
   } finally {
     bitmap.close()

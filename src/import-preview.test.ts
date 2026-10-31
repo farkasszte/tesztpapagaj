@@ -21,7 +21,7 @@ const record = (extra: Record<string, unknown>, position: Record<string, unknown
   format: 'test-parrot/exam',
   formatVersion: '0.4.0',
   name: 'Preview',
-  sections: [{ title: 'Short Answer', instructions: '' }],
+  sections: [{ title: 'Rövid válasz', instructions: '' }],
   positions: [
     { question: { bank: 'cells', question: 'q5' }, section: 0, ...position },
     { question: { bank: 'cells', question: 'q1' }, section: 0 },

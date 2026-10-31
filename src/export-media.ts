@@ -1,6 +1,7 @@
 import type { LayoutPlan } from './export-plan'
 import { keptPixels, pictureCropOf, pictureKey, type CropBox } from './picture-geometry'
 import type { ProseMirrorJSON } from './question-doc'
+import { t } from './i18n'
 
 /** One decoded image, ready for an Export Adapter to embed. */
 export type ExportImage = {
@@ -20,7 +21,7 @@ export class RequiredMediaError extends Error {
   constructor(questionNumber: number | null) {
     super(
       `Required media for question ${questionNumber ?? 'unknown'} could not be resolved. `
-      + 'Re-add the image and try again.',
+      + t('errors.readdImage'),
     )
     this.name = 'RequiredMediaError'
   }

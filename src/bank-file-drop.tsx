@@ -119,7 +119,7 @@ export function BankFileDropTarget({
           <strong>{t('ui.dropTest')}</strong>
           <span>{t('bank.dropKinds')}</span>
         </> : <>
-          <strong>Drop to import</strong>
+          <strong>{t('bank.dropToImport')}</strong>
           <span>{t('bank.fileKinds')}</span>
         </>}
       </div>

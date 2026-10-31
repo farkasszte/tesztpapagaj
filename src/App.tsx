@@ -1573,7 +1573,7 @@ function QuestionBankTabsPane({
   const chooseBank = async (id: string) => {
     const opened = await service.openTab(stableContext, id)
     if (!opened) {
-      setMessage('That Question Bank is unavailable on this device.')
+      setMessage(t('errors.bankUnavailable'))
       setPickerBanks(null)
       return
     }
@@ -1590,7 +1590,7 @@ function QuestionBankTabsPane({
       setWorkspace((current) => current.activeBankId === id
         ? { ...current, activeBankId: previousActiveBankId }
         : current)
-      setMessage('That Question Bank is unavailable on this device.')
+      setMessage(t('errors.bankUnavailable'))
       return
     }
     // The durable response can finish after the teacher has changed this or
@@ -1960,10 +1960,10 @@ function QuestionBankPage({
       <section className="question-bank-details-dialog" role="dialog" aria-modal="true" aria-labelledby="bank-details-title">
         <h2 id="bank-details-title">{t('bank.detailsTitle')}</h2>
         <p>{t('bank.detailsHint')}</p>
-        <label>Description<textarea value={details.description} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, description: event.target.value })} /></label>
-        <label>Declared author<input value={details.author} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, author: event.target.value })} /></label>
-        <label>License name<input value={details.licenseName} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseName: event.target.value })} /></label>
-        <label>License URL<input type="url" value={details.licenseUrl} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseUrl: event.target.value })} /></label>
+        <label>{t('bank.description')}<textarea value={details.description} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, description: event.target.value })} /></label>
+        <label>{t('bank.declaredAuthor')}<input value={details.author} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, author: event.target.value })} /></label>
+        <label>{t('bank.licenseName')}<input value={details.licenseName} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseName: event.target.value })} /></label>
+        <label>{t('bank.licenseUrl')}<input type="url" value={details.licenseUrl} disabled={detailsBusy} onChange={(event) => setDetails({ ...details, licenseUrl: event.target.value })} /></label>
         <div className="dialog-actions">
           <button type="button" className="secondary-button" disabled={detailsBusy} onClick={() => setEditingDetails(false)}>{t('common.cancel')}</button>
           <button type="button" className="primary-button" disabled={detailsBusy} onClick={() => {
@@ -2988,7 +2988,7 @@ function ExamEditor({
             onSetShownIncorrect={(questionIds, count) => {
               store.setShownIncorrect(questionIds, count)
               setVarySummary(count === Infinity
-                ? 'Showing every incorrect answer.'
+                ? t('errors.allIncorrectShown')
                 : `Showing ${count} incorrect ${count === 1 ? 'answer' : 'answers'}.`)
             }}
             onRemove={(questionIds) => {
@@ -3271,7 +3271,7 @@ export default function App({
     onCancel={() => setDeletingBank(null)}
     onConfirm={async () => {
       const bank = await bankWorkspaces.read(deletingBank.bank.id)
-      if (!bank) throw new Error('That Question Bank is unavailable on this device.')
+      if (!bank) throw new Error(t('errors.bankUnavailable'))
       await bankWorkspaces.permanentlyDeleteBank(bank.id, (ids) => workspaces.forceDeleteQuestions(ids))
       setBankCollection((current) => current.filter(({ id }) => id !== bank.id))
       setExams(await workspaces.recent())
@@ -3383,7 +3383,7 @@ export default function App({
         setPageBank({ bank: opened, search })
         return
       }
-      setHomeError('That Question Bank is unavailable on this device.')
+      setHomeError(t('errors.bankUnavailable'))
       replaceRoute('/question-banks')
     })
     return () => { current = false }

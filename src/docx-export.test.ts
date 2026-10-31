@@ -382,7 +382,7 @@ describe('one combined package for a Export Artifact', () => {
 
     expect(keys[0]!.content).toEqual([
       'heading:1 Válaszkulcs',
-      'heading:2 Multiple Choice',
+      'heading:2 Feleletválasztós',
       'para 1. «strong»A«/»',
     ])
   })

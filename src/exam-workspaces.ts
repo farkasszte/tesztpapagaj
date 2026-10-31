@@ -237,7 +237,7 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
       const source = await transact(EXAM_STORE, 'readonly', (transaction) =>
         requestOf(transaction.objectStore(EXAM_STORE).get(sourceId)) as Promise<ExamSummary | undefined>,
       )
-      if (!source) throw new Error('The source Exam is unavailable.')
+      if (!source) throw new Error(t('errors.examUnavailable'))
       const timestamp = now().toISOString()
       const target = { id: createId(), createdAt: timestamp, lastOpenedAt: timestamp }
       const sourceBackend = backendFor(sourceId)

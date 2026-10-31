@@ -19,24 +19,21 @@ import { t } from './i18n'
 // The section headings and directions a school test carries. The `'open'`
 // question type prints under "Short Answer".
 export const SECTION_TITLE: Record<QuestionType, string> = {
-  'multiple-choice': 'Multiple Choice',
-  'true-false': 'True/False',
-  matching: 'Matching',
-  'fill-in-the-blank': 'Fill in the Blank',
-  open: 'Short Answer',
-  multipart: 'Multipart',
+  get 'multiple-choice'() { return t('type.multipleChoice') },
+  get 'true-false'() { return t('type.trueFalse') },
+  get matching() { return t('type.matching') },
+  get 'fill-in-the-blank'() { return t('type.fillInTheBlank') },
+  get open() { return t('type.open') },
+  get multipart() { return t('type.multipart') },
 }
 
 export const SECTION_INSTRUCTIONS: Record<QuestionType, string> = {
-  'multiple-choice':
-    'Identify the choice that best completes the statement or answers the question.',
-  'true-false':
-    'Circle T if the statement is true and F if it is false.',
-  matching:
-    'Match each item with the correct answer from the word bank. Write its letter in the blank.',
-  'fill-in-the-blank': 'Complete each sentence by writing the missing word or words on each line.',
-  open: 'Answer the following questions in the space provided. Show all work.',
-  multipart: 'Answer every part of each question.',
+  get 'multiple-choice'() { return t('section.multipleChoiceHint') },
+  get 'true-false'() { return t('section.trueFalseHint') },
+  get matching() { return t('section.matchingHint') },
+  get 'fill-in-the-blank'() { return t('section.fillInHint') },
+  get open() { return t('section.openHint') },
+  get multipart() { return t('section.multipartHint') },
 }
 
 /** An Exam's own wording for one section. An absent key is the default; an

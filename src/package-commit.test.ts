@@ -191,7 +191,7 @@ describe('committing an import', () => {
       name: 'Sectioned',
       sections: [
         { title: 'Part 1', instructions: 'Answer each question.' },
-        { title: 'Short Answer', instructions: '' },
+        { title: 'Rövid válasz', instructions: '' },
         { title: '', instructions: 'Circle one.' },
         { title: '', instructions: '' },
       ],
@@ -213,7 +213,7 @@ describe('committing an import', () => {
     expect(new Set(ids).size).toBe(4)
     expect(copy.sections).toEqual([
       { id: ids[0]!, title: 'Part 1', instructions: 'Answer each question.' },
-      { id: ids[1]!, title: 'Short Answer', instructions: '' },
+      { id: ids[1]!, title: 'Rövid válasz', instructions: '' },
       { id: ids[2]!, title: '', instructions: 'Circle one.' },
       { id: ids[3]!, title: '', instructions: '' },
     ])
@@ -232,7 +232,7 @@ describe('committing an import', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.4.0',
       name: 'Styled',
-      sections: [{ title: 'Short Answer', instructions: '' }],
+      sections: [{ title: 'Rövid válasz', instructions: '' }],
       paperStyle: 'classic',
       positions: [
         { question: { bank: 'cells', question: 'q5' }, section: 0, workSpace: { height: 0, style: 'blank', fill: false } },
@@ -253,7 +253,7 @@ describe('committing an import', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.3.0',
       name: 'Plain',
-      sections: [{ title: 'Short Answer', instructions: '' }],
+      sections: [{ title: 'Rövid válasz', instructions: '' }],
       paperStyle: 'classic',
       positions: [{ question: { bank: 'cells', question: 'q5' }, section: 0 }],
     })
@@ -287,8 +287,8 @@ describe('committing an import', () => {
     expect(sectionsOf(exam)).toEqual([
       {
         id: 'multiple-choice',
-        title: 'Multiple Choice',
-        instructions: 'Identify the choice that best completes the statement or answers the question.',
+        title: 'Feleletválasztós',
+        instructions: 'Válaszd ki azt a lehetőséget, amely a legjobban kiegészíti az állítást, vagy válaszol a kérdésre.',
       },
       { id: 'open', title: 'Essays', instructions: '' },
     ])
@@ -301,7 +301,7 @@ describe('committing an import', () => {
     // does not exist, which fails inside the same commit.
     const selection = setBankTarget(initialSelection(proposal), 'forces', { kind: 'existing', bankId: 'gone' })
 
-    await expect(banks.commitImport(proposal, selection)).rejects.toThrow('no longer on this device')
+    await expect(banks.commitImport(proposal, selection)).rejects.toThrow('már nincs ezen az eszközön')
 
     expect(await banks.recent()).toEqual([])
     expect(await exams.recent()).toEqual([])

@@ -36,8 +36,8 @@ describe('a Fill in the Blank question', () => {
   test('is listed after Matching and before Short Answer, with its own Section wording', () => {
     expect(SECTION_ORDER.indexOf('fill-in-the-blank')).toBe(SECTION_ORDER.indexOf('matching') + 1)
     expect(SECTION_ORDER.indexOf('open')).toBe(SECTION_ORDER.indexOf('fill-in-the-blank') + 1)
-    expect(SECTION_TITLE['fill-in-the-blank']).toBe('Fill in the Blank')
-    expect(SECTION_INSTRUCTIONS['fill-in-the-blank']).toContain('missing word')
+    expect(SECTION_TITLE['fill-in-the-blank']).toBe('Szövegkiegészítés')
+    expect(SECTION_INSTRUCTIONS['fill-in-the-blank']).toContain('hiányzó szó')
   })
 
   test('starts as an empty sentence with no Blank, which is incomplete rather than invalid', () => {

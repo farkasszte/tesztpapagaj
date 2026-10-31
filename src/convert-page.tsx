@@ -1,6 +1,7 @@
 import { ImportFileDrop } from './import-file-drop'
 import { LandingHeader } from './landing-page'
 import { Footer, Link } from './site-chrome'
+import { t } from './i18n'
 
 /**
  * The second onboarding page, for a teacher with a test already in hand. It
@@ -18,21 +19,18 @@ export function ConvertPage({
     <div className="landing landing--onboarding landing--convert">
       <LandingHeader>
         <Link href="/get-started" className="site-link">
-          Back
+          {t('common.back')}
         </Link>
         <Link href="/about" className="site-link">
-          About
+          {t('nav.about')}
         </Link>
       </LandingHeader>
 
       <main className="convert">
         <div className="convert-head">
-          <h1>Convert a test you already have</h1>
+          <h1>{t('convert.title')}</h1>
           <p className="landing-lede">
-            A question file from Blackboard, Canvas, Moodle or another tool comes straight in, with
-            no AI. Any other test — a PDF, a Word document, a photo — an AI assistant turns into a
-            file Test Parrot imports: your questions, the test laid out as you gave it, and its
-            pictures.
+            {t('convert.lede')}
           </p>
         </div>
 

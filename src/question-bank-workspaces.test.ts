@@ -60,13 +60,13 @@ test('an existing Question Type cannot be changed', async () => {
   const initial = { ...bank(), questions: [original] }
   const store = createQuestionBankResourceStore(initial, async (change) => {
     if (change.kind === 'update-question' && change.question.type !== original.type) {
-      throw new Error('A Question Type cannot be changed after creation.')
+      throw new Error('A kérdés típusa létrehozás után nem változtatható meg.')
     }
     return initial
   })
 
   await expect(store.updateQuestion({ ...original, type: 'open' })).rejects.toThrow(
-    'A Question Type cannot be changed after creation.',
+    'A kérdés típusa létrehozás után nem változtatható meg.',
   )
   expect(store.getState()).toBe(initial)
 })

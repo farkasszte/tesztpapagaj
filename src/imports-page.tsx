@@ -195,13 +195,13 @@ export function ImportsPage({
 
   return <AppShell crumbs={[{ label: t('nav.home'), href: '/' }, { label: t('nav.imports') }]} persistentStorage={persistentStorage}>
     <header className="collection-heading">
-      <h1>Imports</h1>
+      <h1>{t('shell.importsTitle')}</h1>
       <div className="collection-actions">
-        <button type="button" className="primary-button" onClick={onImport}>Import</button>
+        <button type="button" className="primary-button" onClick={onImport}>{t('import.action')}</button>
       </div>
     </header>
     {entries === null
-      ? <p className="import-list-status" role="status">Loading imports…</p>
+      ? <p className="import-list-status" role="status">{t('imports.loading')}</p>
       : entries.length === 0
         ? <div className="home-empty">
             <h2>{t('imports.noneTitle')}</h2>
@@ -387,11 +387,11 @@ export function WaitingImportPage({
     persistentStorage={persistentStorage}
   >
     {waiting === 'loading'
-      ? <p className="import-list-status" role="status">Loading…</p>
+      ? <p className="import-list-status" role="status">{t('common.loading')}</p>
       : waiting
         ? <div className="import-page">
             <h1 className="import-page-title" title={waiting.fileName}>
-              <span>Converting</span> <span className="import-page-name">{waiting.fileName}</span>
+              <span>{t('imports.converting')}</span> <span className="import-page-name">{waiting.fileName}</span>
             </h1>
             <aside className="import-page-side">
               <WaitingPreview key={waiting.id} waiting={waiting} />
@@ -407,7 +407,7 @@ export function WaitingImportPage({
           </div>
         : <div className="home-empty">
             <h2>{t('imports.notWaiting')}</h2>
-            <p>It was imported, discarded, or expired. <Link href="/imports">See every import</Link>.</p>
+            <p>{t('imports.gone')} <Link href="/imports">{t('imports.seeAll')}</Link>.</p>
           </div>}
   </AppShell>
 }

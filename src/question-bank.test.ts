@@ -169,14 +169,14 @@ describe('writing back Sections', () => {
   test('stores every Section, every placement and the order, and keeps the legacy per-type wording', () => {
     const draft = { ...draftOf(), sectionHeadings: { open: { title: 'Essays' } } }
     const laidOut = withSectionLayout(draft, {
-      sections: [{ id: 'open', title: 'Essays', instructions: '' }, { id: 'B', title: 'Short Answer', instructions: '' }],
+      sections: [{ id: 'open', title: 'Essays', instructions: '' }, { id: 'B', title: 'Rövid válasz', instructions: '' }],
       sectionOf: { q1: 'open', q2: 'B', q3: 'open' },
       questionOrder: ['q1', 'q3', 'q2'],
     })
     expect(laidOut).toEqual({
       ...createWorkingCopy(),
       questionIds: ['q1', 'q3', 'q2'],
-      sections: [{ id: 'open', title: 'Essays', instructions: '' }, { id: 'B', title: 'Short Answer', instructions: '' }],
+      sections: [{ id: 'open', title: 'Essays', instructions: '' }, { id: 'B', title: 'Rövid válasz', instructions: '' }],
       sectionOf: { q1: 'open', q2: 'B', q3: 'open' },
       // Kept, for a Section begun later for a type the Exam has none of.
       sectionHeadings: { open: { title: 'Essays' } },

@@ -132,7 +132,7 @@ describe('public Exam Record 0.3.0 contract', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.3.0',
       name: 'Quiz',
-      sections: [{ title: 'Multiple Choice', instructions: '' }],
+      sections: [{ title: 'Feleletválasztós', instructions: '' }],
       positions: [{ question: { bank: 'b', question: 'q1' }, ...position }],
     })
     expect(validate(exam({ section: 0 }))).toBe(true)
@@ -278,7 +278,7 @@ describe('retained Exam Record 0.4.0 contract', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.4.0',
       name: 'Quiz',
-      sections: [{ title: 'Multiple Choice', instructions: '' }],
+      sections: [{ title: 'Feleletválasztós', instructions: '' }],
       positions: [{ question: { bank: 'b', question: 'q1' }, section: 0, hiddenAnswers }],
     })
     expect(validate(exam(['q1-c2']))).toBe(true)
@@ -293,7 +293,7 @@ describe('retained Exam Record 0.4.0 contract', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.4.0',
       name: 'Quiz',
-      sections: [{ title: 'Matching', instructions: '' }],
+      sections: [{ title: 'Párosítás', instructions: '' }],
       positions: [{ question: { bank: 'cells', question }, section: 0, wordBankLayout }],
     })
     expect(validate(exam('q4', 'beside'))).toBe(true)
@@ -367,7 +367,7 @@ describe('public Exam Record 0.5.0 contract', () => {
       format: 'test-parrot/exam',
       formatVersion: '0.5.0',
       name: 'Quiz',
-      sections: [{ title: 'Short Answer', instructions: '' }],
+      sections: [{ title: 'Rövid válasz', instructions: '' }],
       positions: [{ question: { bank: 'b', question: 'q1' }, section: 0, pictureSizes }],
     })
     expect(validate(exam([{ picture: 1, size: 0.5 }]))).toBe(true)

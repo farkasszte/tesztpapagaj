@@ -1166,7 +1166,7 @@ export function questionBankFilePackage(prepared: PreparedQuestionBankExport): T
 export const browserQuestionBankLogo = async (): Promise<ArrayBuffer | null> => {
   if (typeof document === 'undefined') return null
   const response = await fetch('/logo.png')
-  if (!response.ok) throw new Error('The Test Parrot logo could not be loaded.')
+  if (!response.ok) throw new Error(t('errors.logoNotLoaded'))
   return response.arrayBuffer()
 }
 

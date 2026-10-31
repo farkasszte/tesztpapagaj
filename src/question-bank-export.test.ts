@@ -647,7 +647,7 @@ describe('Question Bank exchange export seam', () => {
 
   test('requires a non-empty bank and creates safe filenames', async () => {
     await expect(prepareQuestionBankExport(bank([]))).rejects.toThrow(
-      'at least one Question',
+      'legalább egy kérdés',
     )
     expect(questionBankFilename('  Álgebra: Unit / 1?  ')).toBe(
       'algebra-unit-1.question-bank.pdf',
@@ -686,8 +686,8 @@ describe('Question Bank exchange export seam', () => {
     expect(preview).toContain('A digital file for importing into Test Parrot')
     expect(preview).toContain('answers included')
     expect(preview).toContain('saving it again as a PDF')
-    expect(preview).toContain('Short Answer')
-    expect(preview).toContain('Multiple Choice')
+    expect(preview).toContain('Rövid válasz')
+    expect(preview).toContain('Feleletválasztós')
     expect(preview).toMatch(/Difficulty:\s+Hard/)
     expect(preview).toMatch(/Topics:\s+Matter, Lab/)
     expect(preview).toContain('Suggested Answer')
@@ -756,7 +756,7 @@ describe('Question Bank exchange export seam', () => {
 
     // The front matter lists each type, with its count, then its Topics.
     const front = pages[0]!
-    const order = ['Question Types', 'Multiple Choice', '3', 'Atoms', '1', 'Waves', '1', 'No topic', '1', 'Short Answer', '1']
+    const order = ['Question Types', 'Feleletválasztós', '3', 'Atoms', '1', 'Waves', '1', 'No topic', '1', 'Rövid válasz', '1']
     let from = 0
     for (const fragment of order) {
       const at = front.indexOf(fragment, from)
@@ -765,7 +765,7 @@ describe('Question Bank exchange export seam', () => {
     }
     // Each type starts a page, and a Question with several Topics is placed
     // once, under its first.
-    expect(pages[1]).toContain('Multiple Choice')
+    expect(pages[1]).toContain('Feleletválasztós')
     expect(pages.join(' ').match(/Question 1\b/g)).toHaveLength(1)
     expect(pages.slice(1).join(' ').indexOf('Atoms')).toBeLessThan(pages.slice(1).join(' ').indexOf('Waves'))
 
@@ -809,7 +809,7 @@ describe('Question Bank exchange export seam', () => {
       )
     ).join(' ')
 
-    expect(preview).toContain('Multipart')
+    expect(preview).toContain('Többrészes')
     const order = [
       'The power of the Kingdom of Aldmere',
       'Source:',
@@ -1081,7 +1081,7 @@ describe('a Question Bank with Side-by-Sides', () => {
 
     await expect(prepareQuestionBankExport(bank([inChoice]), pixels)).rejects.toThrow(/only as a top-level block of a stem/)
     await expect(prepareQuestionBankExport(bank([inBlockquote]), pixels)).rejects.toThrow(/only as a top-level block of a stem/)
-    await expect(prepareQuestionBankExport(bank([onePanel]), pixels)).rejects.toThrow(/two or three Panels/)
+    await expect(prepareQuestionBankExport(bank([onePanel]), pixels)).rejects.toThrow(/kettő vagy három panelt/)
   })
 })
 
@@ -1155,7 +1155,7 @@ describe('a picture’s Authored Image Size and Picture Crop in Record 0.7.0', (
 
   test('a size outside 0.05–1 is refused', async () => {
     await expect(prepareQuestionBankExport(bank([pictureQuestion({ size: 1.2 })]), loaderOf(300))).rejects.toThrow(
-      'between 0.05 and 1',
+      '0,05 és 1 között',
     )
   })
 

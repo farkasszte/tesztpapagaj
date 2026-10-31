@@ -485,7 +485,7 @@ export function QuestionBankPane({
             onClick={() => onAddManyToWorkingCopy(addableQuestions.map(({ id }) => id))}
           >
             <Plus aria-hidden="true" />
-            Add all
+            {t('bank.addAll')}
           </button>
         )}
         {filtered && (
@@ -494,7 +494,7 @@ export function QuestionBankPane({
             className="bank-filter-clear"
             onClick={() => onFilterChange({ ...NO_FILTER, sort: filter.sort ?? 'newest' })}
           >
-            Clear filters
+            {t('bank.clearFiltersAction')}
           </button>
         )}
       </div>

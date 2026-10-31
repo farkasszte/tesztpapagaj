@@ -91,8 +91,8 @@ function formatBytes(bytes: number): string {
  * section.
  */
 const KINDS = {
-  bank: { Icon: Library, noun: 'Question Bank' },
-  exam: { Icon: FileText, noun: 'Test' },
+  bank: { Icon: Library, get noun() { return t('import.kindBankOne') } },
+  exam: { Icon: FileText, get noun() { return t('import.kindTestOne') } },
 } satisfies Record<string, { Icon: LucideIcon; noun: string }>
 type Kind = keyof typeof KINDS
 
@@ -386,7 +386,7 @@ function BankSummary({ bank, picturesNeeded, readAs }: {
         </dd>
       </div>
       <div>
-        <dt>External links</dt>
+        <dt>{t('import.externalLinks2')}</dt>
         <dd>{summary.externalLinks ? t('import.present') : t('import.none')}</dd>
       </div>
       {readAs ? (
@@ -1078,7 +1078,7 @@ export function QuestionBankImportDialog({
               />
               <UploadCloud aria-hidden="true" />
               <strong>{t('imports.dropHere')}</strong>
-              <span>or click to choose it</span>
+              <span>{t('import.orClick')}</span>
             </label>
             {needsConversion ? (
               <div className="bank-import-assist" data-emphasis="true" role="alert">
@@ -1120,11 +1120,11 @@ export function QuestionBankImportDialog({
             <span className="bank-import-assist-actions">
               {resolvingSource && occurrences.some(({ key }) => !resolutions.has(key)) && (
                 <button type="button" className="secondary-button" disabled={busy || filling} onClick={() => fill(resolvingSource)}>
-                  Use its pictures anyway
+                  {t('import.usePicturesAnyway')}
                 </button>
               )}
               <button type="button" className="secondary-button" disabled={busy} onClick={chooseAnother}>
-                Choose another file
+                {t('import.chooseAnother')}
               </button>
             </span>
           </div>
@@ -1265,7 +1265,7 @@ export function QuestionBankImportDialog({
                   onSourceFile={(file) => void supplySource(file)}
                 />
                 <button type="button" className="primary-button bank-import-picture-done" onClick={() => { setPicked(null); setCropping(false) }}>
-                  Done
+                  {t('common.done')}
                 </button>
               </aside>
             )}

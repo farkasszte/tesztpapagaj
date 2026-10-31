@@ -70,7 +70,7 @@ function setOf(exam: Exam, measure: Measure): MatchingSet {
   return item.matching
 }
 
-const exam = (question: Question, extra: Partial<Exam> = {}): Exam => ({ title: 'Matching', questions: [question], ...extra })
+const exam = (question: Question, extra: Partial<Exam> = {}): Exam => ({ title: 'Párosítás', questions: [question], ...extra })
 const beside = (set: MatchingSet) => set.bankGrid === null
 
 /** The widest answer that still fits beside the Items, on today's sheet. */

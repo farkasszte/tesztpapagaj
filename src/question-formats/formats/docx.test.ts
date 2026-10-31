@@ -180,7 +180,7 @@ describe('Word document text', () => {
   test('a Word document with no questions in a known format says so in Word’s terms', async () => {
     const bytes = await docx(['Dear parents,', '', 'The field trip is on Friday.'])
     await expect(readQuestionFile({ name: 'letter.docx', bytes })).rejects.toThrow(
-      'Test Parrot could not find questions written in a format it knows in this Word document.',
+      'A Tesztpapagáj nem talált ismert formátumú kérdéseket ebben a Word-dokumentumban.',
     )
   })
 

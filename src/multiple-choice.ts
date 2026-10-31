@@ -634,7 +634,7 @@ export const multipleChoiceChoiceView = $view(
             drawnLock = locked
             lock.replaceChildren(rowIcon(locked ? 'locked' : 'unlocked'))
             lock.title = locked
-              ? 'Locked: keeps its letter when answers are shuffled. Click to unlock.'
+              ? t('errors.lockedAnswer')
               : 'Lock this answer so it keeps its letter when answers are shuffled'
           }
         }

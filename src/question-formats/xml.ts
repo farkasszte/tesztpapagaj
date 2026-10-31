@@ -15,6 +15,8 @@
  * entities decode.
  */
 
+import { t } from '../i18n'
+
 export type XmlElement = {
   name: string
   /** The name without its namespace prefix, lower-cased in `html` mode. */
@@ -201,7 +203,7 @@ export function parseXml(source: string, options: { html?: boolean } = {}): XmlE
       children: [],
     }
     nodes += 1
-    if (nodes > MAX_NODES) throw new XmlError('This file has too many elements to read safely.')
+    if (nodes > MAX_NODES) throw new XmlError(t('errors.xmlTooManyElements'))
     stack.at(-1)!.children.push(element)
     if (selfClosing || (html && VOID_ELEMENTS.has(element.local))) continue
     if (html && (element.local === 'script' || element.local === 'style')) {

@@ -5,6 +5,7 @@ import {
   STORAGE_VERSION,
 } from './storage-schema'
 import { pendingImageOf, type ProseMirrorJSON } from './question-doc'
+import { t } from './i18n'
 
 const imagePath = '/local-images/'
 const ownedReference = /^\/local-images\/[a-f0-9]{64}$/
@@ -71,7 +72,7 @@ export async function saveImage(file: Blob): Promise<string> {
   try {
     ;[bytes, metadata] = await Promise.all([file.arrayBuffer(), imageMetadata(file)])
   } catch {
-    throw new Error('This image could not be captured.')
+    throw new Error(t('errors.imageNotCaptured'))
   }
   const hash = hex(await crypto.subtle.digest('SHA-256', bytes))
   const database = await openMediaDatabase()
@@ -106,17 +107,17 @@ async function hasMediaAsset(source: string): Promise<boolean> {
 export async function captureImageSource(source: string): Promise<string> {
   if (ownedReference.test(source)) {
     if (await hasMediaAsset(source)) return source
-    throw new Error('This image could not be captured.')
+    throw new Error(t('errors.imageNotCaptured'))
   }
   let response: Response
   try {
     response = await fetch(source)
   } catch {
-    throw new Error('This image could not be captured.')
+    throw new Error(t('errors.imageNotCaptured'))
   }
-  if (!response.ok) throw new Error('This image could not be captured.')
+  if (!response.ok) throw new Error(t('errors.imageNotCaptured'))
   const image = await response.blob()
-  if (!image.type.startsWith('image/')) throw new Error('This image could not be captured.')
+  if (!image.type.startsWith('image/')) throw new Error(t('errors.imageNotCaptured'))
   return saveImage(image)
 }
 

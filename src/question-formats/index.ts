@@ -5,6 +5,7 @@ import { FORMATS } from './formats'
 import { FORMAT_LABELS } from './catalog'
 import { wordText } from './formats/docx'
 import type { ForeignImage, FormatId, FormatInput, FormatSpec, ZipFiles } from './types'
+import { t } from '../i18n'
 
 export type { FormatId, ImportIssue } from './types'
 export { FORMATS } from './formats'
@@ -134,7 +135,7 @@ export async function readQuestionFile(
   let best: Awaited<ReturnType<typeof tryFormat>> = null
   if (options.format) {
     const format = FORMATS.find(({ id }) => id === options.format)
-    if (!format) throw new QuestionFileError('Test Parrot does not know that format.', 'not-recognized')
+    if (!format) throw new QuestionFileError(t('errors.unknownFormat'), 'not-recognized')
     const score = candidates.find(({ id }) => id === format.id)?.score ?? 0
     best = await tryFormat(format, input, Math.max(score, 0.5), options)
     if (!best || !best.converted.imported) {
@@ -172,8 +173,8 @@ export async function readQuestionFile(
 
 function notRecognizedMessage(name: string, word: boolean): string {
   if (word) {
-    return 'Test Parrot could not find questions written in a format it knows in this Word document.'
+    return t('errors.noKnownQuestions')
   }
   return `Test Parrot could not find questions in “${name}” written in a format it knows. ` +
-    'Check it is one of the formats listed, or convert it with your AI instead.'
+    t('errors.checkFormatOrAi')
 }

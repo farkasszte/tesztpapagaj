@@ -411,7 +411,7 @@ describe('a Multipart question in an Exam package', () => {
 
     // Per-Part answer order and columns are not carried yet: the position is bare.
     expect(carried.exams[0]!.positions).toEqual([{ question: { bank: 'bank-1', question: 'q1' }, section: 0 }])
-    expect(carried.exams[0]!.sections).toEqual([{ title: 'Multipart', instructions: 'Answer every part of each question.' }])
+    expect(carried.exams[0]!.sections).toEqual([{ title: 'Többrészes', instructions: 'Válaszolj minden kérdés minden részére.' }])
     const proposal = await inspectImportRecord(new TextEncoder().encode(JSON.stringify(carried)))
     expect(proposal.banks[0]!.record.bank.questions[0]).toMatchObject({
       type: 'multipart',
@@ -540,8 +540,8 @@ describe('a Multipart question in an Exam package', () => {
     expect(carried.exams[0]).toMatchObject({
       formatVersion: '0.5.0',
       sections: [
-        { title: 'Multiple Choice', instructions: 'Identify the choice that best completes the statement or answers the question.' },
-        { title: 'Vocabulary', instructions: 'Match each item with the correct answer from the word bank. Write its letter in the blank.' },
+        { title: 'Feleletválasztós', instructions: 'Válaszd ki azt a lehetőséget, amely a legjobban kiegészíti az állítást, vagy válaszol a kérdésre.' },
+        { title: 'Vocabulary', instructions: 'Párosítsd az elemeket a szótárban megadott helyes válasszal. Írd a betűjét az üres helyre.' },
         { title: 'Essays', instructions: '' },
       ],
       headingSize: 'small',
@@ -569,9 +569,9 @@ describe('a Multipart question in an Exam package', () => {
   test('an Exam that keeps the default headings writes their wording out in full, and no sizes', async () => {
     const carried = (await examPackage({ exam, arrangement, ownerOf, loadMedia: noImages })).package
     expect(carried.exams[0]!.sections).toEqual([
-      { title: 'Multiple Choice', instructions: 'Identify the choice that best completes the statement or answers the question.' },
-      { title: 'Matching', instructions: 'Match each item with the correct answer from the word bank. Write its letter in the blank.' },
-      { title: 'Short Answer', instructions: 'Answer the following questions in the space provided. Show all work.' },
+      { title: 'Feleletválasztós', instructions: 'Válaszd ki azt a lehetőséget, amely a legjobban kiegészíti az állítást, vagy válaszol a kérdésre.' },
+      { title: 'Párosítás', instructions: 'Párosítsd az elemeket a szótárban megadott helyes válasszal. Írd a betűjét az üres helyre.' },
+      { title: 'Rövid válasz', instructions: 'Válaszolj a következő kérdésekre a kijelölt helyen. Minden számítást mutass meg.' },
     ])
     expect(carried.exams[0]).not.toHaveProperty('sectionHeadings')
     expect(carried.exams[0]).not.toHaveProperty('headingSize')

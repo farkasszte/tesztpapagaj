@@ -243,7 +243,7 @@ describe('analyzing a Source Document', () => {
 
   test('refuses a file that is not a PDF', async () => {
     await expect(analyzeSourceDocument(new TextEncoder().encode('{"not":"a pdf"}'))).rejects.toThrow(
-      'not a PDF',
+      'nem olyan PDF',
     )
   })
 })

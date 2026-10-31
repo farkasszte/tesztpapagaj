@@ -231,7 +231,7 @@ function historicalRecord(
 function withVersions(record: ExportRecord, versions: readonly string[]): ExportRecord {
   const names = (record.versions ?? []).filter((name) => versions.includes(name))
   if (names.length === 0) {
-    throw new Error('Choose at least one Version this export printed.')
+    throw new Error(t('errors.choosePrintedVersion'))
   }
   const plans = record.plans.filter((plan) => names.includes(plan.arrangement.version ?? ''))
   return { ...record, plans, mediaHashes: mediaHashesOf(plans), versions: names }
@@ -356,7 +356,7 @@ export function prepareExport({
     throw new Error(t('ui.needQuestionBeforeExport'))
   }
   if (!configuration.selection.test && !configuration.selection.answerKey) {
-    throw new Error('Choose the student test, the answer key, or both.')
+    throw new Error(t('errors.chooseContent'))
   }
 
   // Named by the numbers the teacher sees in the Working Copy, not a

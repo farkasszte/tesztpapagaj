@@ -157,3 +157,14 @@ test('az exportálás párbeszéd magyar beállításokat kínál', async ({ pag
   await expect(dialog).not.toContainText('Shuffle')
   await expect(dialog).not.toContainText('Download')
 })
+
+test('a Beállítások biztonsági másolat szakasza magyarul szól', async ({ page }) => {
+  await page.goto('/settings')
+  const card = page.locator('.account-settings')
+  await expect(card).toBeVisible()
+
+  await expect(card).toContainText('A dolgozatok, a kérdésbankok, a munkapéldányok és az exportelőzmények')
+  await expect(card).toContainText('biztonsági másolatot')
+  await expect(card).not.toContainText('are saved in this browser')
+  await expect(card).not.toContainText('Persistent browser storage is enabled')
+})

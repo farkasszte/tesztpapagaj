@@ -1,5 +1,6 @@
 import JSZip from 'jszip'
 import type { ZipFiles } from './types'
+import { t } from '../i18n'
 
 /**
  * A ZIP's files, read with limits a hostile file cannot get past: no more
@@ -47,7 +48,7 @@ export async function readZip(bytes: Uint8Array): Promise<ZipFiles | null> {
     return null
   }
   const entries = Object.values(zip.files).filter((entry) => !entry.dir)
-  if (entries.length > ZIP_LIMITS.entries) throw new ZipLimitError('This archive has too many files to open safely.')
+  if (entries.length > ZIP_LIMITS.entries) throw new ZipLimitError(t('errors.zipTooManyFiles'))
   const files: ZipFiles = new Map()
   let total = 0
   for (const entry of entries) {
@@ -57,14 +58,14 @@ export async function readZip(bytes: Uint8Array): Promise<ZipFiles | null> {
     const declared = (entry as unknown as { _data?: { uncompressedSize?: number; compressedSize?: number } })._data
     const size = declared?.uncompressedSize ?? 0
     const compressed = declared?.compressedSize ?? 0
-    if (size > ZIP_LIMITS.entryBytes) throw new ZipLimitError('A file in this archive is too large to open safely.')
+    if (size > ZIP_LIMITS.entryBytes) throw new ZipLimitError(t('errors.zipFileTooLarge'))
     if (compressed > 0 && size / compressed > ZIP_LIMITS.ratio && size > 1024 * 1024) {
-      throw new ZipLimitError('A file in this archive is compressed too far to open safely.')
+      throw new ZipLimitError(t('errors.zipFileTooCompressed'))
     }
     total += size
-    if (total > ZIP_LIMITS.totalBytes) throw new ZipLimitError('This archive is too large to open safely.')
+    if (total > ZIP_LIMITS.totalBytes) throw new ZipLimitError(t('errors.zipTooLarge'))
     const content = await entry.async('uint8array')
-    if (content.byteLength > ZIP_LIMITS.entryBytes) throw new ZipLimitError('A file in this archive is too large to open safely.')
+    if (content.byteLength > ZIP_LIMITS.entryBytes) throw new ZipLimitError(t('errors.zipFileTooLarge'))
     files.set(path, content)
   }
   return files
