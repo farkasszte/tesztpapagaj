@@ -112,7 +112,7 @@ function parseQuestion(source: string, line: number, onMissing: (source: string)
   const open = text.indexOf('{')
   if (open === -1) return { description: true }
   const close = text.indexOf('}', open)
-  if (close === -1) return { error: 'its answers start with “{” but never end with “}”.' }
+  if (close === -1) return { error: t('issue.gift.unclosedBraces') }
 
   const before = text.slice(0, open)
   const after = text.slice(close + 1)
@@ -143,7 +143,7 @@ function parseQuestion(source: string, line: number, onMissing: (source: string)
     const answers = []
     for (const piece of pieces) {
       const answer = numericAnswer(piece.text)
-      if (!answer) return { error: `its numerical answer “${excerpt(release(piece.text), 20)}” is not a number, a number:tolerance, or a range such as 1..5.` }
+      if (!answer) return { error: t('issue.gift.notANumber', { answer: excerpt(release(piece.text), 20) }) }
       answers.push(answer)
     }
     return { question: { ...base, kind: 'numeric', answers } }
@@ -151,7 +151,7 @@ function parseQuestion(source: string, line: number, onMissing: (source: string)
 
   const answers = answersOf(body)
   if (!answers.length) {
-    return { error: `Test Parrot could not read its answers, “${excerpt(release(body), 30)}”. Start each with = (right) or ~ (wrong).` }
+    return { error: t('issue.gift.unreadableAnswers', { answers: excerpt(release(body), 30) }) }
   }
   if (answers.some((answer) => answer.match !== null)) {
     const pairs = answers.map((answer) => ({
@@ -226,13 +226,13 @@ export function parseGift(text: string): ParseResult {
     try {
       parsed = parseQuestion(source, line, (picture) => missing.push(picture))
     } catch {
-      parsed = { error: 'it could not be read.' }
+      parsed = { error: t('issue.gift.unreadable') }
     }
     if ('description' in parsed) {
       issues.push({
         severity: 'info',
         code: 'description-skipped',
-        message: `Line ${line}: this has no answers in braces, so it was read as a description, text shown between questions, and skipped.`,
+        message: t('issue.gift.description', { line }),
         line,
         excerpt: excerpt(source),
       })
@@ -255,7 +255,13 @@ export function parseGift(text: string): ParseResult {
       issues.push({
         severity: 'warning',
         code: 'picture-missing',
-        message: `Question ${found} (line ${line}): a GIFT file cannot carry pictures, so ${missing.length === 1 ? 'its picture was' : `its ${missing.length} pictures were`} left out. Add ${missing.length === 1 ? 'it' : 'them'} after importing.`,
+        message: t('issue.place', {
+          number: found,
+          line,
+          message: missing.length === 1
+            ? t('issue.gift.pictureOne')
+            : t('issue.gift.pictures', { count: missing.length }),
+        }),
         line,
         excerpt: excerpt(source),
       })

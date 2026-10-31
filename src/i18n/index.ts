@@ -913,6 +913,16 @@ const en = {
   'issue.aiken.noStem': 'it has no question text before its answers.',
   'issue.aiken.answerMissing': 'its ANSWER is {letter}, but it has no answer {letter}.',
   'issue.aiken.answerLine': 'its answer line “{written}” should be written “ANSWER: {letter}”; Moodle would refuse it as it is.',
+  'issue.gift.unclosedBraces': 'its answers start with “{” but never end with “}”.',
+  'issue.gift.notANumber': 'its numerical answer “{answer}” is not a number, a number:tolerance, or a range such as 1..5.',
+  'issue.gift.unreadableAnswers': 'Test Parrot could not read its answers, “{answers}”. Start each with = (right) or ~ (wrong).',
+  'issue.gift.unreadable': 'it could not be read.',
+  'issue.gift.description': 'Line {line}: this has no answers in braces, so it was read as a description, text shown between questions, and skipped.',
+  'issue.gift.pictureOne': 'a GIFT file cannot carry pictures, so its picture was left out. Add it after importing.',
+  'issue.gift.pictures': 'a GIFT file cannot carry pictures, so its {count} pictures were left out. Add them after importing.',
+  'issue.bbPackage.unsupportedType': 'Test Parrot has no “{type}” questions, so it was left out.',
+  'issue.bbPackage.notXml': 'This file is not well-formed XML, so no questions could be read from it.',
+  'issue.bbPackage.poolMissing': 'A Random Block draws questions from a pool that is not in this export. Export the pool too to bring those questions in.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1812,6 +1822,16 @@ const hu: Record<TextKey, string> = {
   'issue.aiken.noStem': 'nincs kérdésszövege a válaszok előtt.',
   'issue.aiken.answerMissing': 'a helyes válaszjelölése {letter}, de nincs {letter} válasza.',
   'issue.aiken.answerLine': 'a válaszsora „{written}” helyett így legyen: „ANSWER: {letter}”; a Moodle így nem fogadná el.',
+  'issue.gift.unclosedBraces': 'a válaszai „{” jellel kezdődnek, de nem záródnak „}” jellel.',
+  'issue.gift.notANumber': 'a számválasza „{answer}” nem szám, nem szám:tűrés, és nem tartomány (például 1..5).',
+  'issue.gift.unreadableAnswers': 'a válaszait nem sikerült olvasni: „{answers}”. Mindegyik = (helyes) vagy ~ (helytelen) jellel kezdődjön.',
+  'issue.gift.unreadable': 'nem sikerült olvasni.',
+  'issue.gift.description': '{line}. sor: nincsenek kapcsos zárójelben válaszai, ezért leírásként olvastam (a kérdések között megjelenő szöveg), és kihagytam.',
+  'issue.gift.pictureOne': 'a GIFT-fájl nem hordozhat képeket, ezért a képe kimaradt. Importálás után tedd be.',
+  'issue.gift.pictures': 'a GIFT-fájl nem hordozhat képeket, ezért {count} kép kimaradt. Importálás után tedd be őket.',
+  'issue.bbPackage.unsupportedType': 'a Tesztpapagáj nem ismer „{type}” kérdést, ezért kimaradt.',
+  'issue.bbPackage.notXml': 'ez a fájl nem jól formált XML, ezért nem lehetett belőle kérdést olvasni.',
+  'issue.bbPackage.poolMissing': 'a véletlen blokk olyan kérdéskészletből merít, amely nincs ebben az exportban. Exportáld azt is, hogy azok a kérdések is bejöjjenek.',
 };
 
 const LANGUAGES = { en, hu } as const

@@ -1,4 +1,5 @@
 import { looksLikeHtml } from '../rich-text'
+import { t } from '../../i18n'
 import { decodeText } from '../text'
 import type { Blocks, FormatInput, FormatSpec, ParseResult, ZipFiles } from '../types'
 import { attributeOf, childOf, childrenOf, descendantsOf, documentElement, parseXml, textOf, type XmlElement } from '../xml'
@@ -55,7 +56,9 @@ function readLegacyQuestion(question: XmlElement, html: (source: string) => Bloc
   if (!sourceType) {
     return {
       code: 'unsupported-type',
-      error: `Test Parrot has no “${question.local.replace(/^QUESTION_/, '').toLowerCase()}” questions, so it was left out.`,
+      error: t('issue.bbPackage.unsupportedType', {
+        type: question.local.replace(/^QUESTION_/, '').toLowerCase(),
+      }),
     }
   }
   const rich = (text: string) => html(looksLikeHtml(text) ? text : escapeLines(text))
@@ -219,7 +222,7 @@ export async function parseBbPackage(input: FormatInput): Promise<ParseResult> {
   if (!files) {
     const root = readRoot(input.text())
     if (!root) {
-      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: 'This file is not well-formed XML, so no questions could be read from it.' })
+      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: t('issue.bbPackage.notXml') })
       return gatherer.result()
     }
     if (root.local === 'POOL') {
@@ -279,7 +282,7 @@ export async function parseBbPackage(input: FormatInput): Promise<ParseResult> {
         gatherer.issues.push({
           severity: 'warning',
           code: 'question-bank-missing',
-          message: 'A Random Block draws questions from a pool that is not in this export. Export the pool too to bring those questions in.',
+          message: t('issue.bbPackage.poolMissing'),
         })
       }
     }))

@@ -114,8 +114,8 @@ describe('Moodle GIFT', () => {
     expect(questions).toHaveLength(1)
     expect(reading.found).toBe(3)
     expect(reading.issues.map((issue) => issue.message)).toEqual([
-      '1. kérdés (1. sor): its answers start with “{” but never end with “}”.',
-      '2. kérdés (3. sor): its numerical answer “two” is not a number, a number:tolerance, or a range such as 1..5.',
+      '1. kérdés (1. sor): a válaszai „{” jellel kezdődnek, de nem záródnak „}” jellel.',
+      '2. kérdés (3. sor): a számválasza „two” nem szám, nem szám:tűrés, és nem tartomány (például 1..5).',
     ])
   })
 
