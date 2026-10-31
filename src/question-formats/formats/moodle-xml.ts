@@ -409,7 +409,7 @@ export function parseMoodleXml(text: string): ParseResult {
       collectFiles(element, context)
       read = readQuestion(element, type, context, line)
     } catch {
-      read = { error: 'it could not be read.' }
+      read = { error: t('issue.moodle.unreadableQuestion') }
     }
     if ('error' in read) {
       report('error', 'unsupported' in read ? 'unsupported-type' : 'unreadable-question', read.error, found)
