@@ -113,7 +113,7 @@ function parseNumbered(block: Line[]): Parsed | null {
   let stemLines = [(blank ?? match ?? numbered)![2]!.trim(), ...rest.slice(0, answerAt).map((next) => next.text.trim())]
   const answers = rest.slice(answerAt)
   const invalid = answers.find((next) => !ANSWER.test(clean(next)))
-  if (invalid) return { error: `this answer does not start with a letter and a period or parenthesis: “${excerpt(invalid.text)}”.` }
+  if (invalid) return { error: t('issue.bbGen.badAnswer', { answer: excerpt(invalid.text) }) }
   const lettered = answers.map((next) => {
     const [, star, , text] = ANSWER.exec(clean(next))!
     // Keep the teacher's own characters in the answer text.
@@ -123,15 +123,15 @@ function parseNumbered(block: Line[]): Parsed | null {
   })
 
   if (blank) {
-    if (!lettered.length) return { error: 'a fill-in-the-blank question needs at least one answer.' }
+    if (!lettered.length) return { error: t('issue.bbGen.blankNeedsAnswer') }
     return {
       question: { kind: 'fill-in-blank', line, sourceType: 'blank', stem: plainBlocks(stemLines.join('\n')), accepted: lettered.map(({ text }) => text) },
     }
   }
   if (match) {
-    if (!lettered.length) return { error: 'a matching question needs its pairs, each written “left / right”.' }
+    if (!lettered.length) return { error: t('issue.bbGen.matchingNeedsPairs') }
     const missing = lettered.find(({ text }) => !text.includes('/'))
-    if (missing) return { error: `this matching pair has no “/” between its two sides: “${excerpt(missing.text)}”.` }
+    if (missing) return { error: t('issue.bbGen.matchingSlash', { pair: excerpt(missing.text) }) }
     return {
       question: { kind: 'matching', line, sourceType: 'match', stem: plainBlocks(stemLines.join('\n')), pairs: pairsOf(lettered.map(({ text }) => text)) },
     }
@@ -149,10 +149,10 @@ function parseNumbered(block: Line[]): Parsed | null {
     return { question: { kind: 'short-answer', line, sourceType: 'essay', stem: plainBlocks(stemLines.join('\n')) } }
   }
   if (lettered.length === 1) {
-    return { error: 'it has one answer, and it is not True or False. A multiple choice question needs at least two answers.' }
+    return { error: t('issue.bbGen.oneAnswer') }
   }
   const correct = lettered.filter((answer) => answer.correct).length
-  if (correct === 0) return { error: 'no answer is marked correct. Put * directly before the correct answer, e.g. “*b) 5”.' }
+  if (correct === 0) return { error: t('issue.bbGen.noCorrectStar') }
   const stem = plainBlocks(stemLines.join('\n'))
   const trueFalse = trueFalseChoices(lettered)
   if (trueFalse !== undefined) return { question: { kind: 'true-false', line, sourceType: 'TF', stem, answer: trueFalse } }
@@ -198,28 +198,28 @@ function parseTagged(block: Line[], active: Tag | null): { parsed: Parsed; activ
         question: { kind: 'short-answer', line, sourceType: 'ES', stem: plainBlocks(body.map((each) => each.text.trim()).join('\n')) },
       })
     case 'BL': {
-      if (!answerLines.length) return next({ error: 'a fill-in-the-blank question needs at least one answer, each on its own line below the question.' })
+      if (!answerLines.length) return next({ error: t('issue.bbGen.blankNeedsLine') })
       return next({ question: { kind: 'fill-in-blank', line, sourceType: 'BL', stem, accepted: answerLines.map((each) => each.text.trim()) } })
     }
     case 'TF': {
-      if (answerLines.length !== 1) return next({ error: 'a True/False question needs its answer — T or F — on one line below it.' })
+      if (answerLines.length !== 1) return next({ error: t('issue.bbGen.trueFalseNeedsAnswer') })
       const answer = plainStructure(answerLines[0]!.text).trim().replace(/^\*/, '').trim().toLowerCase()[0]
-      if (answer !== 't' && answer !== 'f') return next({ error: 'True and False are the only answers a True/False question can have.' })
+      if (answer !== 't' && answer !== 'f') return next({ error: t('issue.bbGen.trueFalseOnly') })
       return next({ question: { kind: 'true-false', line, sourceType: 'TF', stem, answer: answer === 't' } })
     }
     case 'MAT': {
-      if (!answerLines.length) return next({ error: 'a matching question needs its pairs, each written “left / right”.' })
+      if (!answerLines.length) return next({ error: t('issue.bbGen.matchingNeedsPairs') })
       const missing = answerLines.find((each) => !each.text.includes('/'))
-      if (missing) return next({ error: `this matching pair has no “/” between its two sides: “${excerpt(missing.text)}”.` })
+      if (missing) return next({ error: t('issue.bbGen.matchingSlash', { pair: excerpt(missing.text) }) })
       const texts = answerLines.map((each) => each.text.trim().replace(/^\s*[a-zA-Z][.)]\s+/, ''))
       return next({ question: { kind: 'matching', line, sourceType: 'MAT', stem, pairs: pairsOf(texts) } })
     }
     case 'MC':
     case 'MA': {
-      if (!answerLines.length) return next({ error: 'a multiple choice question needs its answers, each on its own line below the question, with * before the correct one.' })
+      if (!answerLines.length) return next({ error: t('issue.bbGen.choiceNeedsLines') })
       const answers = withoutLetters(answerLines.map(starred))
       const correct = answers.filter((answer) => answer.correct).length
-      if (correct === 0) return next({ error: 'no answer is marked correct. Put * directly before the correct answer, e.g. “*Mercury”.' })
+      if (correct === 0) return next({ error: t('issue.bbGen.noCorrectStarExample') })
       const trueFalse = trueFalseChoices(answers)
       if (trueFalse !== undefined) return next({ question: { kind: 'true-false', line, sourceType: tag, stem, answer: trueFalse } })
       const choices = answers.map(({ correct: isCorrect, text }) => ({ correct: isCorrect, content: plainBlocks(text) }))
@@ -260,7 +260,7 @@ export function parseBbGenerator(text: string): ParseResult {
       issues.push({
         severity: 'error',
         code: 'unreadable-question',
-        message: `Question ${found} (line ${block[0]!.line}): ${parsed.error}`,
+        message: t('issue.place', { number: found, line: block[0]!.line, message: parsed.error }),
         line: block[0]!.line,
         excerpt: excerpt(block.filter((each) => !tagOf(each.text)).map((each) => each.text).join(' ')),
       })
@@ -270,7 +270,7 @@ export function parseBbGenerator(text: string): ParseResult {
     issues.push({
       severity: 'warning',
       code: 'orphan-tag',
-      message: `Line ${pendingHeader.line}: the type “${pendingHeader.tag}” has no question after it.`,
+      message: t('issue.bbGen.typeWithoutQuestion', { line: pendingHeader.line, type: pendingHeader.tag }),
       line: pendingHeader.line,
     })
   }

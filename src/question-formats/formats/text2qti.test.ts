@@ -48,7 +48,7 @@ describe('text2qti', () => {
     expect(text(essay!.stem)).toBe('Write an essay.')
     expect(essay!.suggestedAnswer).toBeUndefined()
     expect(text(upload!.stem)).toBe('Upload a file.')
-    expect(reading.issues.find((issue) => issue.code === 'file-upload')?.message).toStartWith('Question 8 (line 43):')
+    expect(reading.issues.find((issue) => issue.code === 'file-upload')?.message).toStartWith('8. kérdés (43. sor):')
 
     // Indented lines continue the question or choice above them, paragraph by paragraph.
     expect(text(wrapped!.stem)).toBe(
@@ -98,7 +98,7 @@ describe('text2qti', () => {
     expect(reading.format).toBe('text2qti')
     expect(questions).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'no-correct-answer')?.message).toBe(
-      'Question 1 (line 3): no choice is marked correct. Put * directly before the correct choice’s letter, e.g. “*c) 5”.',
+      '1. kérdés (3. sor): egy válasz sincs helyesként megjelölve. Tegyél * jelet közvetlenül a helyes válasz betűje elé, például „*c) 5”.',
     )
   })
 

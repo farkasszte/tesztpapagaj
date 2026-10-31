@@ -63,7 +63,7 @@ describe('what a teacher is told', () => {
     const { reading } = await read('pasted.txt', new TextEncoder().encode(pasted))
     // A Multiple Answer question needs no note: it is a type of its own now.
     expect(reading.issues.map((issue) => issue.message.split(':')[0])).toEqual([
-      'Question 1 (line 1)',
+      '1. kérdés (1. sor)',
     ])
   })
 })

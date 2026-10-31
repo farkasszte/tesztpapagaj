@@ -1,4 +1,5 @@
 import type { SemanticMark, SemanticNode } from '../../question-bank-export'
+import { t } from '../../i18n'
 import { textRun } from '../rich-text'
 import { excerpt, linesOf, plainStructure, pointsIn, type Line } from '../text'
 import type { Blocks, ForeignChoice, ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
@@ -96,7 +97,7 @@ export function parseText2qti(text: string): ParseResult {
         issues.push({
           severity: 'info',
           code: 'file-upload',
-          message: `Question ${found} (line ${current.line}): it asks for a file to be uploaded, which a printed test cannot, so it came in as Short Answer.`,
+          message: t('issue.text2qti.upload', { number: found, line: current.line }),
           line: current.line,
         })
       }
@@ -104,7 +105,7 @@ export function parseText2qti(text: string): ParseResult {
       issues.push({
         severity: 'error',
         code: result.code,
-        message: `Question ${found} (line ${current.line}): ${result.error}`,
+        message: t('issue.place', { number: found, line: current.line, message: result.error }),
         line: current.line,
         excerpt: excerpt(current.stem.lines.join(' ')),
       })
@@ -150,14 +151,14 @@ export function parseText2qti(text: string): ParseResult {
         ? {
             severity: 'warning',
             code: 'code-block-not-run',
-            message: `Line ${line.line}: this code block writes questions when text2qti runs it. Test Parrot never runs code, so any questions it would write were left out.`,
+            message: t('issue.text2qti.codeBlock', { line: line.line }),
             line: line.line,
             excerpt: excerpt(text),
           }
         : {
             severity: 'warning',
             code: 'unreadable-line',
-            message: `Line ${line.line}: this code block is not part of any question, so it was left out. Indent it under the question it belongs to.`,
+            message: t('issue.text2qti.looseCode', { line: line.line }),
             line: line.line,
             excerpt: excerpt(text),
           })
@@ -268,7 +269,7 @@ export function parseText2qti(text: string): ParseResult {
       issues.push({
         severity: 'warning',
         code: 'unreadable-line',
-        message: `Question ${found + 1} (line ${line.line}): this line was not understood and was left out: “${excerpt(text)}”. Indent it to make it part of the text above.`,
+        message: t('issue.text2qti.unreadableLine', { number: found + 1, line: line.line, text: excerpt(text) }),
         line: line.line,
         excerpt: excerpt(text),
       })
@@ -280,14 +281,18 @@ export function parseText2qti(text: string): ParseResult {
     issues.push({
       severity: 'info',
       code: 'question-group',
-      message: `The file has ${groups === 1 ? 'a question group' : `${groups} question groups`}, from which a quiz picks some questions at random. Every question in ${groups === 1 ? 'it' : 'them'} came in.`,
+      message: groups === 1
+        ? t('issue.text2qti.groupOne')
+        : t('issue.text2qti.groups', { count: groups }),
     })
   }
   if (pictures) {
     issues.push({
       severity: 'warning',
       code: 'picture-left-out',
-      message: `${pictures === 1 ? 'One picture' : `${pictures} pictures`} named in the file ${pictures === 1 ? 'is' : 'are'} a separate file, not in it, so ${pictures === 1 ? 'it was' : 'they were'} left out. Add ${pictures === 1 ? 'it' : 'them'} after importing.`,
+      message: pictures === 1
+          ? t('issue.text2qti.pictureOne')
+          : t('issue.text2qti.pictures', { count: pictures }),
     })
   }
   const descriptionText = description ? description.lines.join('\n').trim() : ''
@@ -319,12 +324,12 @@ function build(draft: Draft, markdown: (element: Element) => Blocks): Built {
     draft.numeric.length > 0, draft.essay, draft.upload,
   ].filter(Boolean).length
   if (kinds > 1) {
-    return { code: 'mixed-answers', error: 'its answers are of more than one kind — choices, [*] answers, * short answers, = numbers, ____ or ^^^^ — and a question has one.' }
+    return { code: 'mixed-answers', error: t('issue.text2qti.mixedAnswers') }
   }
   if (draft.choices.length) {
-    if (draft.choices.length < 2) return { code: 'too-few-choices', error: 'a multiple choice question needs at least two choices.' }
+    if (draft.choices.length < 2) return { code: 'too-few-choices', error: t('issue.text2qti.choiceNeedsTwo') }
     const correct = draft.choices.filter((choice) => choice.correct).length
-    if (!correct) return { code: 'no-correct-answer', error: 'no choice is marked correct. Put * directly before the correct choice’s letter, e.g. “*c) 5”.' }
+    if (!correct) return { code: 'no-correct-answer', error: t('issue.text2qti.noCorrectStar') }
     const texts = draft.choices.map((choice) => choice.element.lines.join(' ').trim().toLowerCase())
     if (texts.length === 2 && correct === 1 && texts.includes('true') && texts.includes('false')) {
       const answer = draft.choices.find((choice) => choice.correct)!
@@ -338,7 +343,7 @@ function build(draft: Draft, markdown: (element: Element) => Blocks): Built {
     }
   }
   if (draft.answers.length) {
-    if (draft.answers.length < 2) return { code: 'too-few-choices', error: 'a multiple answers question needs at least two answers.' }
+    if (draft.answers.length < 2) return { code: 'too-few-choices', error: t('issue.text2qti.multiNeedsTwo') }
     const choices: ForeignChoice[] = draft.answers.map((answer) => ({ correct: answer.correct, content: markdown(answer.element) }))
     return { question: { kind: 'multiple-answer', line, sourceType: 'multiple_answers', stem, choices } }
   }
@@ -353,7 +358,7 @@ function build(draft: Draft, markdown: (element: Element) => Blocks): Built {
       },
     }
   }
-  return { code: 'no-answers', error: 'it has no answers. Give it choices (“a)”, “*b)”), or end it with ____ for an essay.' }
+  return { code: 'no-answers', error: t('issue.text2qti.noAnswers') }
 }
 
 // Markdown, the part of it question text uses.
