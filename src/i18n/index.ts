@@ -903,6 +903,10 @@ const en = {
   'editor.moveAnswerDown': 'Move answer {name} down',
   'editor.moveItemUp': 'Move item {name} up',
   'editor.moveItemDown': 'Move item {name} down',
+  'export.studentTestAndKey': 'Student test + answer key',
+  'imports.recordFile': 'Test Parrot file',
+  'reading.matchedAnswer': 'Matched answer',
+  'reading.unmatched': 'Unmatched',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1792,6 +1796,10 @@ const hu: Record<TextKey, string> = {
   'editor.moveAnswerDown': 'Válasz mozgatása lefelé: {name}',
   'editor.moveItemUp': 'Elem mozgatása felfelé: {name}',
   'editor.moveItemDown': 'Elem mozgatása lefelé: {name}',
+  'export.studentTestAndKey': 'Tanulói feladatlap + válaszkulcs',
+  'imports.recordFile': 'Tesztpapagáj-fájl',
+  'reading.matchedAnswer': 'Párosított válasz',
+  'reading.unmatched': 'Nincs párja',
 };
 
 const LANGUAGES = { en, hu } as const

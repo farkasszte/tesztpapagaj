@@ -63,7 +63,7 @@ export function QuestionReading({
             <li key={prompt.id}>
               <span
                 className="record-matching-blank"
-                aria-label={prompt.letter ? 'Matched answer' : 'Unmatched'}
+                aria-label={prompt.letter ? t('reading.matchedAnswer') : t('reading.unmatched')}
               >
                 {prompt.letter ?? '—'}
               </span>

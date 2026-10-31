@@ -705,7 +705,7 @@ function PopOverBank({
             <PopOverCard
               key={question.id}
               question={shown(question)}
-              name={stemPreview(question).text || 'Untitled question'}
+              name={stemPreview(question).text || t('bank.untitledQuestion')}
               format={formats[question.id] ?? {}}
               onFormat={(format) => onFormat(question.id, format)}
               selected={selection.selectedIds.has(question.id)}

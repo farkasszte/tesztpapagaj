@@ -11,9 +11,9 @@ function versionsLabel(versions: readonly string[]): string {
 
 function selectionLabel(record: ExportRecord): string {
   if (record.selection.test && record.selection.answerKey) {
-    return 'Student Test + Answer Key'
+    return t('export.studentTestAndKey')
   }
-  return record.selection.test ? 'Student Test' : 'Answer Key'
+  return record.selection.test ? t('export.studentTest') : t('export.answerKey')
 }
 
 export function ExportHistoryDrawer({

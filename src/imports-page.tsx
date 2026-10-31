@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, EllipsisVertical, FileImage, FileJson, FileText, FolderOpen, ImageIcon, Library, Trash2 } from 'lucide-react'
 import { AppShell } from './app-shell'
+import { DEFAULT_EXAM_TITLE } from './exam'
 import { KahootLinkField } from './kahoot-link-field'
 import type { PersistentStorageStatus } from './durable-storage'
 import {
@@ -30,7 +31,7 @@ const KIND_LABELS: Record<ImportFileKind, string> = {
   pdf: 'PDF',
   photo: 'Photo',
   word: t('imports.wordDoc'),
-  record: 'Test Parrot file',
+  record: t('imports.recordFile'),
   questions: t('imports.questionFile'),
 }
 
@@ -95,7 +96,7 @@ function ImportCard({
   // opened with a full load, as their own cards open them.
   const opens = entry.stage === 'imported'
     ? [
-        ...entry.imported.exams.map((exam) => ({ label: exam.name || 'Untitled Test', href: `/editor?exam=${exam.id}`, Icon: FileText })),
+        ...entry.imported.exams.map((exam) => ({ label: exam.name || DEFAULT_EXAM_TITLE, href: `/editor?exam=${exam.id}`, Icon: FileText })),
         ...entry.imported.banks.map((bank) => ({ label: bank.name || t('bank.untitledName'), href: `/question-bank?id=${bank.id}`, Icon: Library })),
       ]
     : []
