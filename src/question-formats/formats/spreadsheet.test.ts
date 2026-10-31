@@ -43,7 +43,7 @@ describe('Spreadsheet of questions', () => {
     // A number naming an empty option.
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',
-      message: 'Question 6 (line 7): its correct answer “3” is not one of its options, their letter or their number.',
+      message: '6. kérdés (7. sor): its correct answer “3” is not one of its options, their letter or their number.',
     }))
   })
 
@@ -81,7 +81,7 @@ describe('Spreadsheet of questions', () => {
     expect(questions[1]!.choices!.map((choice) => choice.correct)).toEqual([false, true, false])
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',
-      message: 'Question 4 (line 5): Test Parrot does not read “Matching” questions from a spreadsheet.',
+      message: '4. kérdés (5. sor): Test Parrot does not read “Matching” questions from a spreadsheet.',
     }))
   })
 

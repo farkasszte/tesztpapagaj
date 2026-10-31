@@ -48,7 +48,7 @@ describe('Aiken', () => {
       ['error', 'unreadable-question', 12],
       ['error', 'unreadable-question', 16],
     ])
-    expect(reading.issues[3]!.message).toBe('Question 4 (line 16): its ANSWER is E, but it has no answer E.')
+    expect(reading.issues[3]!.message).toBe('4. kérdés (16. sor): a helyes válaszjelölése E, de nincs E válasza.')
   })
 
   test('is unlikely for a Blackboard Test Generator file', () => {

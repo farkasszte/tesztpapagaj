@@ -1,4 +1,5 @@
 import { htmlBlocks, plainBlocks, richBlocks } from '../rich-text'
+import { t } from '../../i18n'
 import { delimitedRows, excerpt, plainStructure } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult } from '../types'
 
@@ -202,7 +203,7 @@ export function parseFlashcards(text: string): ParseResult {
       issues.push({
         severity: 'error',
         code: 'unreadable-question',
-        message: `Question ${index + 1} (line ${row.line}): ${parsed}`,
+        message: t('issue.place', { number: index + 1, line: row.line, message: parsed }),
         line: row.line,
         excerpt: excerpt(row.fields.join(' ')),
       })

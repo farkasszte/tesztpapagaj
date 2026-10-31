@@ -1,4 +1,5 @@
 import { htmlBlocks, plainBlocks } from '../rich-text'
+import { t } from '../../i18n'
 import { excerpt, linesOf, plainStructure, type Line } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignChoice, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult } from '../types'
 import { categoryTopic } from './moodle-xml'
@@ -242,7 +243,7 @@ export function parseGift(text: string): ParseResult {
       issues.push({
         severity: 'error',
         code: 'unreadable-question',
-        message: `Question ${found} (line ${line}): ${parsed.error}`,
+        message: t('issue.place', { number: found, line, message: parsed.error }),
         line,
         excerpt: excerpt(source),
       })

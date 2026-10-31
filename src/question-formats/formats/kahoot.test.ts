@@ -67,7 +67,7 @@ describe('Kahoot spreadsheet', () => {
     expect(flat!.choices!.map((choice) => choice.correct)).toEqual([false, true])
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',
-      message: 'Question 4 (line 12): Kahoot questions need at least two answers, and this one has one.',
+      message: '4. kérdés (12. sor): Kahoot questions need at least two answers, and this one has one.',
     }))
   })
 

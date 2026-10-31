@@ -1,4 +1,5 @@
 import { inMarkedOrder, markNamedBlanks, richBlocks } from '../rich-text'
+import { t } from '../../i18n'
 import { delimitedRows, excerpt, plainStructure, trimTrailingEmpty } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
 
@@ -125,7 +126,7 @@ export function parseBbTsv(text: string): ParseResult {
       issues.push({
         severity: 'error',
         code: 'unreadable-question',
-        message: `Question ${found} (line ${row.line}): ${parsed}`,
+        message: t('issue.place', { number: found, line: row.line, message: parsed }),
         line: row.line,
         excerpt: excerpt(row.fields.slice(1, 2).join(' ')),
       })

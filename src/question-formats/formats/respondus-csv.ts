@@ -1,4 +1,5 @@
 import { richBlocks } from '../rich-text'
+import { t } from '../../i18n'
 import { excerpt, plainStructure, pointsIn } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
 import { isBlankRow, readSheet, type SheetRow } from './sheet'
@@ -102,7 +103,7 @@ export function parseRespondusRows(rows: SheetRow[]): ParseResult {
       issues.push({
         severity: 'error',
         code: 'unreadable-question',
-        message: `Question ${found} (line ${row.line}): ${parsed}`,
+        message: t('issue.place', { number: found, line: row.line, message: parsed }),
         line: row.line,
         excerpt: excerpt(row.fields[COLUMN.wording] ?? ''),
       })

@@ -78,7 +78,7 @@ describe('Flashcards', () => {
     expect(questions).toHaveLength(12)
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',
-      message: 'Question 5 (line 5): it has no definition: a card is a term and a definition, separated by a tab, a comma or a dash.',
+      message: '5. kérdés (5. sor): it has no definition: a card is a term and a definition, separated by a tab, a comma or a dash.',
     }))
   })
 })

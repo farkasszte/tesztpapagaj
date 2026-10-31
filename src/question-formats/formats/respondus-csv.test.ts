@@ -55,7 +55,7 @@ describe('Respondus CSV', () => {
     expect(questions).toHaveLength(1)
     expect(reading.issues).toContainEqual(expect.objectContaining({
       severity: 'error',
-      message: 'Question 1 (line 1): its correct answer “D” names choice 4, which is empty.',
+      message: '1. kérdés (1. sor): its correct answer “D” names choice 4, which is empty.',
     }))
   })
 

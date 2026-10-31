@@ -907,6 +907,12 @@ const en = {
   'imports.recordFile': 'Test Parrot file',
   'reading.matchedAnswer': 'Matched answer',
   'reading.unmatched': 'Unmatched',
+  'issue.place': 'Question {number} (line {line}): {message}',
+  'issue.aiken.noAnswerLine': 'it has no ANSWER line. Put “ANSWER: ” and the correct letter on the line after its answers.',
+  'issue.aiken.noAnswers': 'it has no answers. Put each on its own line starting “A. ”, “B. ” and so on.',
+  'issue.aiken.noStem': 'it has no question text before its answers.',
+  'issue.aiken.answerMissing': 'its ANSWER is {letter}, but it has no answer {letter}.',
+  'issue.aiken.answerLine': 'its answer line “{written}” should be written “ANSWER: {letter}”; Moodle would refuse it as it is.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1800,6 +1806,12 @@ const hu: Record<TextKey, string> = {
   'imports.recordFile': 'Tesztpapagáj-fájl',
   'reading.matchedAnswer': 'Párosított válasz',
   'reading.unmatched': 'Nincs párja',
+  'issue.place': '{number}. kérdés ({line}. sor): {message}',
+  'issue.aiken.noAnswerLine': 'nincs ANSWER sora. Írd a válaszai után egy sorba: „ANSWER: ” és a helyes válasz betűje.',
+  'issue.aiken.noAnswers': 'nincsenek válaszai. Mindegyik külön sorba kerüljön, „A. ”, „B. ” kezdettel.',
+  'issue.aiken.noStem': 'nincs kérdésszövege a válaszok előtt.',
+  'issue.aiken.answerMissing': 'a helyes válaszjelölése {letter}, de nincs {letter} válasza.',
+  'issue.aiken.answerLine': 'a válaszsora „{written}” helyett így legyen: „ANSWER: {letter}”; a Moodle így nem fogadná el.',
 };
 
 const LANGUAGES = { en, hu } as const

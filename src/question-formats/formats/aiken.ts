@@ -1,3 +1,4 @@
+import { t } from '../../i18n'
 import { plainBlocks } from '../rich-text'
 import { blocksOf, excerpt, plainStructure, type Line } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
@@ -41,11 +42,11 @@ function parseQuestion(lines: Line[]): Parsed {
   const line = lines[0]!.line
   const answerLine = lines.at(-1)!
   const answer = ANSWER.exec(clean(answerLine))
-  if (!answer) return { error: 'it has no ANSWER line. Put “ANSWER: ” and the correct letter on the line after its answers.' }
+  if (!answer) return { error: t('issue.aiken.noAnswerLine') }
   const body = lines.slice(0, -1)
   const first = body.findIndex((each) => OPTION.test(clean(each)))
-  if (first === -1) return { error: 'it has no answers. Put each on its own line starting “A. ”, “B. ” and so on.' }
-  if (first === 0) return { error: 'it has no question text before its answers.' }
+  if (first === -1) return { error: t('issue.aiken.noAnswers') }
+  if (first === 0) return { error: t('issue.aiken.noStem') }
 
   const stem = body.slice(0, first).map((each) => each.text.trim()).join('\n')
   const options: { letter: string; text: string }[] = []
@@ -63,7 +64,7 @@ function parseQuestion(lines: Line[]): Parsed {
   }
   const letter = answer[1]!.toUpperCase()
   if (!options.some((option) => option.letter === letter)) {
-    return { error: `its ANSWER is ${letter}, but it has no answer ${letter}.` }
+    return { error: t('issue.aiken.answerMissing', { letter }) }
   }
   const question: ForeignQuestion = {
     kind: 'multiple-choice',
@@ -74,7 +75,7 @@ function parseQuestion(lines: Line[]): Parsed {
   }
   return STRICT_ANSWER.test(clean(answerLine))
     ? { question }
-    : { question, warning: `its answer line “${excerpt(answerLine.text, 20)}” should be written “ANSWER: ${letter}”; Moodle would refuse it as it is.` }
+    : { question, warning: t('issue.aiken.answerLine', { written: excerpt(answerLine.text, 20), letter }) }
 }
 
 export function parseAiken(text: string): ParseResult {
@@ -90,7 +91,7 @@ export function parseAiken(text: string): ParseResult {
         issues.push({
           severity,
           code,
-          message: `Question ${found} (line ${line}): ${message}`,
+          message: t('issue.place', { number: found, line, message }),
           line,
           excerpt: excerpt(lines.map((each) => each.text).join(' ')),
         })
