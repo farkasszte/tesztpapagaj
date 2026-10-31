@@ -3153,6 +3153,8 @@ export default function App({
   const [exportingBank, setExportingBank] = useState<QuestionBankResource | null>(null)
   const [inspectingBankFile, setInspectingBankFile] = useState(false)
   const [droppedBankFile, setDroppedBankFile] = useState<File | null>(null)
+  /** A proposal handed to the dialog ready-made: a Kahoot link already read. */
+  const [importProposal, setImportProposal] = useState<import('./package-import').ImportProposal | null>(null)
   const [convertDrop, setConvertDrop] = useState<{ file: File; id: number } | null>(null)
   const [homeError, setHomeError] = useState(initialError)
   const [bankLibraryRevision, setBankLibraryRevision] = useState(0)
@@ -3161,6 +3163,14 @@ export default function App({
   const [importWaitingId, setImportWaitingId] = useState<string | null>(null)
   /** Bumped whenever an import may have finished, for the Imports pages. */
   const [importRevision, setImportRevision] = useState(0)
+  /** A Kahoot link read into questions: the dialog shows it as a file's reading. */
+  const openImportWithProposal = useCallback((proposal: import('./package-import').ImportProposal) => {
+    setImportProposal(proposal)
+    setDroppedBankFile(null)
+    setImportTargetBankId(null)
+    setImportWaitingId(null)
+    setInspectingBankFile(true)
+  }, [])
   const openImport = useCallback((file?: File | null, targetBankId?: string | null, waitingImportId?: string | null) => {
     setDroppedBankFile(file ?? null)
     setImportTargetBankId(targetBankId ?? null)
@@ -3391,6 +3401,7 @@ export default function App({
   const importDialog = inspectingBankFile && <QuestionBankImportDialog
     key={`${droppedBankFile ? `${droppedBankFile.name}:${droppedBankFile.lastModified}` : 'chosen'}:${importTargetBankId ?? ''}:${importWaitingId ?? ''}`}
     initialFile={droppedBankFile ?? undefined}
+    initialProposal={importProposal ?? undefined}
     targetBankId={importTargetBankId ?? undefined}
     waitingImportId={importWaitingId ?? undefined}
     dropped={dialogDrop ?? undefined}
@@ -3412,6 +3423,7 @@ export default function App({
   </>
   if (route === '/imports' || route === '/imports/new') return <>{globalChrome}<ImportsPage
     onImport={() => openImport()}
+    onProposal={openImportWithProposal}
     persistentStorage={storageStatus}
     revision={importRevision}
     picturesNeededIn={picturesNeededIn}

@@ -195,3 +195,14 @@ test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({
   await field.blur()
   await expect(field).toHaveValue('3')
 })
+
+test('az Importok oldal Kahoot linket is kínál, magyar hibával', async ({ page }) => {
+  await page.goto('/imports')
+  const card = page.locator('.kahoot-link')
+  await expect(card).toBeVisible()
+  await expect(card).toContainText('Kahoot behozása linkről')
+
+  await card.locator('input').fill('https://example.com/nem-kahoot')
+  await card.getByRole('button', { name: 'Kahoot behozása', exact: true }).click()
+  await expect(card.getByRole('alert')).toContainText('Ez nem Kahoot link')
+})

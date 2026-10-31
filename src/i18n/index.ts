@@ -875,6 +875,19 @@ const en = {
   'margins.ariaLabel': '{side} margin in {unit}',
   'margins.valueText': '{value} {unit}',
   'margins.dragHint': 'Drag to change',
+  'kahoot.noQuestion': 'This Kahoot question has no text.',
+  'kahoot.fewAnswers': 'A Kahoot question needs at least two answers.',
+  'kahoot.noCorrect': 'No answer is marked correct in this Kahoot question.',
+  'kahoot.trueFalse': 'This True/False question has no True answer to compare with.',
+  'kahoot.noAccepted': 'This written-answer question accepts no answer.',
+  'kahoot.fewItems': 'A Kahoot ordering question needs at least two items.',
+  'kahoot.unsupported': 'A {kind} cannot be imported, so this question was left out.',
+  'kahoot.unknownType': 'A “{type}” question cannot be imported, so this question was left out.',
+  'imports.kahootTitle': 'Import a Kahoot from its link',
+  'imports.kahootHint': 'Paste a Kahoot share link. The quiz comes in as questions, with a note of what could not be read.',
+  'imports.kahootButton': 'Bring in the Kahoot',
+  'imports.kahootBusy': 'Reading the Kahoot…',
+  'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1736,6 +1749,19 @@ const hu: Record<TextKey, string> = {
   'margins.ariaLabel': '{side} margó ({unit})',
   'margins.valueText': '{value} {unit}',
   'margins.dragHint': 'Húzd a módosításhoz',
+  'kahoot.noQuestion': 'Ennek a kahoot-kérdésnek nincs szövege.',
+  'kahoot.fewAnswers': 'Egy kahoot-kérdéshez legalább két válasz kell.',
+  'kahoot.noCorrect': 'Egy válasz sincs helyesként megjelölve ebben a kahoot-kérdésben.',
+  'kahoot.trueFalse': 'Ennél az igaz/hamis kérdésnél nincs Igaz válasz, amihez hasonlíthatnánk.',
+  'kahoot.noAccepted': 'Ennél a szöveges kérdésnél nincs elfogadott válasz.',
+  'kahoot.fewItems': 'Egy sorrendezős kahoot-kérdéshez legalább két elem kell.',
+  'kahoot.unsupported': 'A(z) {kind} nem importálható, ezért ez a kérdés kimaradt.',
+  'kahoot.unknownType': 'A(z) „{type}” típusú kérdés nem importálható, ezért ez kimaradt.',
+  'imports.kahootTitle': 'Kahoot behozása linkről',
+  'imports.kahootHint': 'Illeszd be a Kahoot megosztási linkjét. A kvíz kérdésekként jön be, és jelzi, mi nem volt beolvasható.',
+  'imports.kahootButton': 'Kahoot behozása',
+  'imports.kahootBusy': 'A kahoot beolvasása…',
+  'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
 };
 
 const LANGUAGES = { en, hu } as const

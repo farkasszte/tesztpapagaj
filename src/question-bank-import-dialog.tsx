@@ -511,6 +511,7 @@ export function QuestionBankImportDialog({
   onClose,
   onImport,
   initialFile,
+  initialProposal,
   targetBankId,
   loadBanks,
   waitingImportId,
@@ -533,6 +534,9 @@ export function QuestionBankImportDialog({
   /** A file already chosen elsewhere — dropped onto the page — inspected as
    *  soon as the dialog opens rather than asked for again. */
   initialFile?: File
+  /** A proposal handed in ready-made — a Kahoot link already read into
+   *  questions — shown as if a file had been read, with no file to inspect. */
+  initialProposal?: ImportProposal
   /** The bank the import was started from, which every bank in the file
    *  defaults to adding into. */
   targetBankId?: string
@@ -833,13 +837,23 @@ export function QuestionBankImportDialog({
     setError(null)
   }
 
-  const inspectOnOpen = useRef(initialFile)
+  const inspectOnOpen = useRef({ file: initialFile, proposal: initialProposal })
   useEffect(() => {
-    const file = inspectOnOpen.current
-    inspectOnOpen.current = undefined
-    // Deliberately once, for the file the dialog was opened with. A later drop
+    const opened = inspectOnOpen.current
+    inspectOnOpen.current = { file: undefined, proposal: undefined }
+    // Deliberately once, for what the dialog was opened with. A later drop
     // opens the dialog again with a fresh key rather than mutating this one.
-    if (file) inspect(file)
+    if (opened.proposal) {
+      const next = opened.proposal
+      setInspected({ fileName: next.reading?.label ?? 'Kahoot', kind: 'record' })
+      setProposal(next)
+      setSelection(initialSelection(next, targetBankId ? { targetBankId } : {}))
+      setNames(Object.fromEntries(next.banks.map((bank) => [bank.id, bank.record.bank.name])))
+      setFocus(next.exams[0] ? { kind: 'exam', key: next.exams[0].key } : { kind: 'bank', id: next.banks[0]!.id })
+      setPhase('choose')
+      return
+    }
+    if (opened.file) inspect(opened.file)
   }, [])
 
   const sources = useMemo(() => (proposal ? mediaSources(proposal) : new Map<string, string>()), [proposal])
