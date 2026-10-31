@@ -1,4 +1,5 @@
 import { htmlBlocks, plainBlocks, richBlocks, type HtmlOptions } from '../rich-text'
+import { t } from '../../i18n'
 import { excerpt, pointsIn } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignBlank, type ForeignChoice, type ForeignImage, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult } from '../types'
 import {
@@ -296,7 +297,7 @@ function readQuestion(element: XmlElement, type: string, context: Context, line:
         .map((answer) => ({ value: plainText(textOf(childOf(answer, 'text'))), tolerance: textOf(childOf(answer, 'tolerance')).trim() }))
         .filter(({ value }) => value && value !== '*')
       const invalid = values.find(({ value }) => Number.isNaN(Number(value.replace(',', '.'))))
-      if (invalid) return { error: `its answer “${excerpt(invalid.value, 20)}” is not a number.` }
+      if (invalid) return { error: t('issue.moodle.notANumber', { answer: excerpt(invalid.value, 20) }) }
       return {
         question: {
           ...base,
@@ -313,7 +314,7 @@ function readQuestion(element: XmlElement, type: string, context: Context, line:
         const hasLeft = plainText(textOf(childOf(subquestion, 'text'))) !== '' || /<img\b/i.test(textOf(childOf(subquestion, 'text')))
         return { left: hasLeft ? left : null, right: right ? plainBlocks(right) : null }
       })
-      if (!pairs.length) return { error: 'a matching question needs its pairs, and this one has none.' }
+      if (!pairs.length) return { error: t('issue.moodle.matchingNoPairs') }
       return { question: { ...base, kind: 'matching', stem: stem(), pairs } }
     }
     case 'essay': {
@@ -327,8 +328,8 @@ function readQuestion(element: XmlElement, type: string, context: Context, line:
     case 'multianswer': {
       const html = textOf(childOf(questionText, 'text'))
       const cloze = readCloze(html)
-      if (cloze.unknown.length) return { error: `its embedded answer type “${cloze.unknown[0]}” is not one Test Parrot knows.` }
-      if (!cloze.blanks.length) return { error: 'it is a cloze question with no embedded answers, such as {1:SHORTANSWER:=Paris}.' }
+      if (cloze.unknown.length) return { error: t('issue.moodle.unknownCloze', { type: cloze.unknown[0] }) }
+      if (!cloze.blanks.length) return { error: t('issue.moodle.emptyCloze') }
       return { question: { ...base, kind: 'fill-in-blanks', stem: blocksOf(questionText, context, cloze.html), blanks: cloze.blanks } }
     }
     case 'ordering': {
@@ -337,19 +338,19 @@ function readQuestion(element: XmlElement, type: string, context: Context, line:
         .map((answer, index) => ({ answer, index, place: fractionOf(answer) }))
         .sort((a, b) => (a.place && b.place ? a.place - b.place : a.index - b.index))
         .map(({ answer }) => blocksOf(answer, context))
-      if (!items.length) return { error: 'it has nothing to put in order.' }
+      if (!items.length) return { error: t('issue.moodle.nothingToOrder') }
       return { question: { ...base, kind: 'ordering', stem: stem(), items } }
     }
     case 'description':
-      return { skip: 'it is a description, text shown between questions, so it was skipped.' }
+      return { skip: t('issue.moodle.description') }
     case 'ddwtos':
-      return { error: 'Test Parrot does not support drag-and-drop into text questions.', unsupported: true }
+      return { error: t('issue.moodle.dragDrop'), unsupported: true }
     case 'gapselect':
-      return { error: 'Test Parrot does not support select-missing-words questions.', unsupported: true }
+      return { error: t('issue.moodle.selectMissing'), unsupported: true }
     case 'random':
-      return { error: 'it is a random question, which Moodle fills from a category when a quiz runs, not a question of its own.', unsupported: true }
+      return { error: t('issue.moodle.random'), unsupported: true }
     default:
-      return { error: `Test Parrot does not support Moodle’s “${type || 'untyped'}” questions.`, unsupported: true }
+      return { error: t('issue.moodle.unsupportedType', { type: type || t('issue.moodle.untyped') }), unsupported: true }
   }
 }
 
@@ -362,11 +363,11 @@ export function parseMoodleXml(text: string): ParseResult {
     quiz = documentElement(parseXml(text))
   } catch (reason) {
     const detail = reason instanceof Error ? ` ${reason.message}` : ''
-    issues.push({ severity: 'error', code: 'unreadable-file', message: `This Moodle XML file could not be read.${detail}` })
+    issues.push({ severity: 'error', code: 'unreadable-file', message: t('issue.moodle.unreadable', { detail }) })
     return { questions, issues, found: 0 }
   }
   if (!quiz || quiz.local !== 'quiz') {
-    issues.push({ severity: 'error', code: 'unreadable-file', message: 'This is not a Moodle XML file: it has no <quiz>.' })
+    issues.push({ severity: 'error', code: 'unreadable-file', message: t('issue.moodle.notMoodle') })
     return { questions, issues, found: 0 }
   }
 

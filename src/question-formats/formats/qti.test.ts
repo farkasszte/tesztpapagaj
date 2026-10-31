@@ -93,7 +93,7 @@ describe('Canvas classic quiz export', () => {
     expect(codes).toContainEqual(['info', 'not-a-question'])
     expect(codes).toContainEqual(['error', 'unsupported-type'])
     expect(reading.issues.find((issue) => issue.code === 'unsupported-type')?.message).toBe(
-      'Question 11: Test Parrot has no “calculated_question” questions, so it was left out.',
+      'Question 11: a Tesztpapagáj nem ismer „calculated_question” kérdést, ezért kimaradt.',
     )
   })
 

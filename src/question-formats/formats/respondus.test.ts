@@ -61,11 +61,11 @@ describe('Respondus Standard Format', () => {
 
     // A picture Respondus reads from a folder is left out, and said so.
     expect(text(planet!.stem)).toBe('Which planet is shown?')
-    expect(reading.issues.find((issue) => issue.code === 'picture-left-out')?.message).toStartWith('Question 10 (line 65):')
+    expect(reading.issues.find((issue) => issue.code === 'picture-left-out')?.message).toStartWith('10. kérdés (65. sor):')
 
     const unsupported = reading.issues.find((issue) => issue.code === 'unsupported-type')
     expect(unsupported?.severity).toBe('error')
-    expect(unsupported?.message).toBe('Question 9 (line 63): Test Parrot cannot read Respondus questions of type “JUM”, so it was left out.')
+    expect(unsupported?.message).toBe('9. kérdés (63. sor): a Tesztpapagáj nem tud olvasni „JUM” típusú Respondus kérdést, ezért kimaradt.')
   })
 
   test('takes correct answers from the Answers: list at the end, and never guesses A', async () => {
@@ -86,7 +86,7 @@ describe('Respondus Standard Format', () => {
 
     const missing = reading.issues.find((issue) => issue.code === 'no-correct-answer')
     expect(missing?.severity).toBe('error')
-    expect(missing?.message).toStartWith('Question 7 (line 26): no answer is marked correct.')
+    expect(missing?.message).toStartWith('7. kérdés (26. sor): egy válasz sincs helyesként megjelölve.')
   })
 
   test('a plain numbered file with no Respondus markers is left to the Blackboard Test Generator', async () => {

@@ -150,7 +150,7 @@ describe('Blackboard QTI pool and test export', () => {
     // The Hot Spot question is left out, and says why.
     const hotSpot = reading.issues.find((issue) => issue.code === 'unsupported-type')
     expect(hotSpot?.severity).toBe('error')
-    expect(hotSpot?.message).toBe('Question 10: Test Parrot has no “Hot Spot” questions, so it was left out.')
+    expect(hotSpot?.message).toBe('Question 10: a Tesztpapagáj nem ismer „Hot Spot” kérdést, ezért kimaradt.')
   })
 
   test('an item worth a fraction of a point comes in unpointed', async () => {

@@ -1,4 +1,5 @@
 import { blocksText, htmlBlocks, inMarkedOrder, looksLikeHtml, markNamedBlanks, plainBlocks } from '../rich-text'
+import { t } from '../../i18n'
 import { decodeText, excerpt, pointsIn } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignImage, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult, type ZipFiles } from '../types'
 import {
@@ -140,7 +141,7 @@ export class Gatherer {
       this.issues.push({
         severity: 'warning',
         code: 'picture-missing',
-        message: `${place}: its picture “${excerpt(source, 50)}” is not in this file, so it was left out. Add it after importing.`,
+        message: t('issue.qti.pictureMissing', { place, picture: excerpt(source, 50) }),
         excerpt: quoted,
       })
     }
@@ -464,7 +465,7 @@ export function readQti12Item(item: XmlElement, html: (source: string) => Blocks
  *  if any. */
 function readQti12Question(item: XmlElement, html: (source: string) => Blocks): Reading {
   const presentation = childOf(item, 'presentation')
-  if (!presentation) return { error: 'it has no question text or answers, so it was left out.' }
+  if (!presentation) return { error: t('issue.qti.noTextOrAnswers') }
   const responses = responsesOf(presentation)
   const { kind, sourceType } = kindOf(item, responses)
   const stem = html(materialsHtml(stemMaterials(presentation)))
@@ -474,11 +475,13 @@ function readQti12Question(item: XmlElement, html: (source: string) => Blocks): 
 
   switch (kind) {
     case 'text':
-      return { skip: `“${excerpt(blocksText(stem)) || 'A passage'}” is text between questions, not a question, so it was left out.` }
+      return { skip: t('issue.qti.passage', { name: excerpt(blocksText(stem)) || t('issue.qti.aPassage') }) }
     case 'unsupported':
       return {
         code: 'unsupported-type',
-        error: `Test Parrot has no ${sourceType ? `“${sourceType}”` : 'such'} questions, so it was left out.`,
+        error: sourceType
+          ? t('issue.qti.unsupportedType', { type: sourceType })
+          : t('issue.qti.unsupportedSuch'),
       }
     case 'essay':
     case 'file': {
@@ -494,7 +497,7 @@ function readQti12Question(item: XmlElement, html: (source: string) => Blocks): 
     case 'choice':
     case 'multiple-answer':
     case 'true-false': {
-      if (!first?.labels.length) return { error: 'it has no answers to choose from, so it was left out.' }
+      if (!first?.labels.length) return { error: t('issue.qti.noChoices') }
       const correct = new Set(correctValues(conditions, first.ident))
       if (kind === 'true-false') {
         const right = first.labels.find((label) => correct.has(label.ident))
@@ -510,7 +513,7 @@ function readQti12Question(item: XmlElement, html: (source: string) => Blocks): 
       return { question: { ...base, kind: kind === 'multiple-answer' ? 'multiple-answer' : 'multiple-choice', choices } }
     }
     case 'ordering': {
-      if (!first?.labels.length) return { error: 'it has no items to put in order, so it was left out.' }
+      if (!first?.labels.length) return { error: t('issue.qti.noOrderItems') }
       const order = correctValues(conditions, first.ident)
       const byIdent = new Map(first.labels.map((label) => [label.ident, label]))
       const ordered = order.map((ident) => byIdent.get(ident)).filter((label): label is Label => Boolean(label))
@@ -575,7 +578,7 @@ function readMatching(
   html: (source: string) => Blocks,
 ): Reading {
   const lids = responses.filter((response) => response.kind === 'response_lid')
-  if (!lids.length) return { error: 'it has no items to match, so it was left out.' }
+  if (!lids.length) return { error: t('issue.qti.noMatchItems') }
   const rightBlock = descendantsWhere(presentation, (element) =>
     element.local === 'flow' && /RIGHT_MATCH_BLOCK/i.test(attributeOf(element, 'class') ?? ''))[0]
   const rightTexts = rightBlock
@@ -702,7 +705,7 @@ export function readQti2Item(item: XmlElement, html: (source: string) => Blocks)
 
 function readQti2Question(item: XmlElement, html: (source: string) => Blocks): Reading {
   const body = kid(item, 'itemBody')
-  if (!body) return { error: 'it has no item body, so it was left out.' }
+  if (!body) return { error: t('issue.qti.noBody') }
   const declarations = declarationsOf(item)
   const interactions = deepInteractions(body)
   const correctOf = (interaction: XmlElement) => {
@@ -729,9 +732,11 @@ function readQti2Question(item: XmlElement, html: (source: string) => Blocks): R
   }))
   const base = { stem, ...(interactions[0] ? { sourceType: nameOf(interactions[0]) } : {}) }
 
-  if (!interactions.length) return { skip: `“${excerpt(blocksText(stem)) || attr(item, 'title') || 'An item'}” asks for no answer, so it was left out.` }
+  if (!interactions.length) return { skip: t('issue.qti.noAnswerAsked', {
+        name: excerpt(blocksText(stem)) || attr(item, 'title') || t('issue.qti.anItem'),
+      }) }
   if (others.length > 1 || (others.length && blanks.length)) {
-    return { code: 'unsupported-type', error: 'it asks several questions in one item, which Test Parrot cannot read, so it was left out.' }
+    return { code: 'unsupported-type', error: t('issue.qti.severalQuestions') }
   }
 
   if (singleInline) {
@@ -831,7 +836,7 @@ function readQti2Question(item: XmlElement, html: (source: string) => Blocks): R
     default:
       return {
         code: 'unsupported-type',
-        error: `Test Parrot cannot read a question that uses “${nameOf(interaction)}”, so it was left out.`,
+        error: t('issue.qti.unknownInteraction', { interaction: nameOf(interaction) }),
       }
   }
 }
@@ -988,7 +993,7 @@ export async function parseQti(input: FormatInput): Promise<ParseResult> {
     try {
       root = documentElement(parseXml(input.text()))
     } catch (reason) {
-      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: `This file is not well-formed XML: ${(reason as Error).message}` })
+      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: t('issue.qti.notXml', { reason: (reason as Error).message }) })
       return gatherer.result()
     }
     const titles = root ? readDocument(root, gatherer, new Set(), false) : []
@@ -1022,7 +1027,7 @@ export async function parseQti(input: FormatInput): Promise<ParseResult> {
     if (!sniffXml(head) && !QTI12_ROOT.test(head)) continue
     const root = readXml(bytes)
     if (!root) {
-      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: `“${path}” in this archive is not well-formed XML, so its questions were left out.` })
+      gatherer.issues.push({ severity: 'error', code: 'unreadable-file', message: t('issue.qti.archiveNotXml', { path }) })
       continue
     }
     documents.push({ path, root })
