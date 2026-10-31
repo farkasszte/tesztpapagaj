@@ -45,7 +45,7 @@ const en = {
   'landing.about': 'About',
   'landing.home': 'Home',
   'landing.getStarted': 'Get started',
-  'landing.getStartedFree': 'Get started — it’s free',
+  'landing.getStartedFree': 'Get started',
   'landing.siteNav': 'Site',
   'landing.sourcePdf': 'last-year.pdf',
   'landing.sourcePhoto': 'photo of a worksheet',
@@ -989,6 +989,7 @@ const en = {
   'issue.respondus.answerListLetter': 'the Answers: list gives “{value}” for it, which is not the letter of one of its answers.',
   'issue.respondus.noCorrectStar': 'no answer is marked correct. Put * directly before the correct answer’s letter, e.g. “*b) 5”, or list it in an Answers: list at the end of the file.',
   'footer.about': 'about',
+  'site.about.repoLink': 'The source code is on GitHub.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1021,7 +1022,7 @@ const hu: Record<TextKey, string> = {
   'landing.about': 'A projektről',
   'landing.home': 'Kezdőlap',
   'landing.getStarted': 'Kezdés',
-  'landing.getStartedFree': 'Kezdés — ingyen van',
+  'landing.getStartedFree': 'Kezdés',
   'landing.siteNav': 'Oldal',
   'landing.sourcePdf': 'tavalyi-dolgozat.pdf',
   'landing.sourcePhoto': 'fénykép egy munkalapról',
@@ -1964,6 +1965,7 @@ const hu: Record<TextKey, string> = {
   'issue.respondus.answerListLetter': 'az Answers: lista „{value}” értéket ad, ami nem az egyik válaszának betűje.',
   'issue.respondus.noCorrectStar': 'egy válasz sincs helyesként megjelölve. Tegyél * jelet a helyes válasz betűje elé (például „*b) 5”), vagy sorold fel a fájl végén egy Answers: listában.',
   'footer.about': 'a projektről',
+  'site.about.repoLink': 'A forráskód a GitHubon érhető el.',
 };
 
 const LANGUAGES = { en, hu } as const
