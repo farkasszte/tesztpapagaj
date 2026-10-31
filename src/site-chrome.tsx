@@ -37,17 +37,6 @@ export function Footer() {
   const t = useT()
   return (
     <footer className="site-footer">
-      <a
-        href="/about"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="site-footer-credit"
-      >
-        {t('footer.credit')}
-      </a>
-      <Link href="/about" className="site-footer-link">
-        {t('footer.about')}
-      </Link>
       <Link href="/privacy" className="site-footer-link">
         {t('footer.privacy')}
       </Link>

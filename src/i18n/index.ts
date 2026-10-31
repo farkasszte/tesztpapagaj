@@ -30,8 +30,6 @@ const en = {
   'shell.helpBodyAfter': '.',
   'shell.logoAlt': 'Home',
 
-  'footer.credit': 'Alap: Test Parrot · Apache-2.0',
-  'footer.about': 'about',
   'footer.privacy': 'privacy',
 
   // --- kezdőlap
@@ -568,7 +566,7 @@ const en = {
   'import.changePicture': 'Change picture',
   'bank.fileKinds': 'A question file from another tool, your test, or a Tesztpapagáj file',
   'site.about.title': 'About',
-  'site.about.lede': 'A free tool for teachers who need the same test in more than one order.',
+  'site.about.lede': 'A free tool for teachers who need the same test in more than one order. It was made from testparrot.com, the site of the developers at teacher.dev.',
   'site.about.whyTitle': 'What it is, and why it is free',
   'site.about.whyBody': 'The app was built so a teacher can put together a tidy, printable test from their own questions in minutes — and hand out the same test in several orders. No account, no subscription, and your work stays in your own browser.',
   'site.about.promiseTitle': 'Our promise',
@@ -1009,8 +1007,6 @@ const hu: Record<TextKey, string> = {
   'shell.helpBodyAfter': '.',
   'shell.logoAlt': 'Kezdőlap',
 
-  'footer.credit': 'Alap: Test Parrot · Apache-2.0',
-  'footer.about': 'a projektről',
   'footer.privacy': 'adatvédelem',
 
   'home.pickUp': 'Folytasd ott, ahol abbahagytad',
@@ -1544,7 +1540,7 @@ const hu: Record<TextKey, string> = {
   'import.changePicture': 'Kép cseréje',
   'bank.fileKinds': 'Kérdésfájl másik programból, a dolgozatod vagy egy Tesztpapagáj-fájl',
   'site.about.title': 'A projektről',
-  'site.about.lede': 'Ingyenes eszköz tanároknak, akiknek ugyanaz a dolgozat több sorrendben is kell.',
+  'site.about.lede': 'Ingyenes eszköz tanároknak, akiknek ugyanaz a dolgozat több sorrendben is kell. A teacher.dev fejlesztőinek testparrot.com oldala alapján készült.',
   'site.about.whyTitle': 'Mi ez, és miért ingyenes?',
   'site.about.whyBody': 'A Tesztpapagáj azért készült, hogy egy tanár néhány perc alatt rendezett, nyomtatható dolgozatot állíthasson össze a saját kérdéseiből — és ugyanazt a dolgozatot változatokban is kiadhassa. Nincs fiók, nincs előfizetés, és a munkád a saját böngésződben marad.',
   'site.about.promiseTitle': 'Ígéretünk',
