@@ -43,7 +43,6 @@ export function AboutPage({
           <h2>{t('site.about.sourceTitle')}</h2>
           <p>{t('site.about.sourceBody')}</p>
           <p>
-            {t('site.about.sourceSite')}{' '}
             <a
               href="https://github.com/farkasszte/tesztpapagaj"
               target="_blank"

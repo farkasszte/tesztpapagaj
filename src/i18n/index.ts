@@ -1552,7 +1552,7 @@ const hu: Record<TextKey, string> = {
   'site.about.promise3Lead': 'Nincs személyes adat gyűjtése.',
   'site.about.promise3': 'A dolgozataid nem hagyják el a gépedet.',
   'site.about.sourceTitle': 'Forrás és licenc',
-  'site.about.sourceBody': 'A Tesztpapagáj a Test Parrot nyílt forráskódú projekt magyar változata, amelyet a teacher.dev készített, és Apache License 2.0 alatt adott ki. A magyar fordítás és a módosítások ugyanezen licenc alatt érhetők el; a részleteket a repó NOTICE.md és LICENSE fájlja tartalmazza. A név, a logó és a felület saját; az eredeti projekt neve és védjegye nem került át.',
+  'site.about.sourceBody': 'A Tesztpapagáj a teachers.dev által fejlesztett Test Parrot nyílt forráskódú projekt magyar változata, amelyet a teacher.dev készített, és Apache License 2.0 alatt adott ki. A magyar fordítás és a módosítások ugyanezen licenc alatt érhetők el; a részleteket a NOTICE.md és LICENSE fájlja tartalmazza. A név, a logó és a felület saját; az eredeti projekt neve és védjegye nem került át.',
   'site.about.feedbackTitle': 'Visszajelzés és ötletek',
   'site.about.feedbackBody': 'Örülök, ha írsz: mi működik, mi nem, vagy milyen eszközre lenne szükséged. Igyekszem segíteni.',
   'site.about.emailCta': 'Írj e-mailt: {email}',
