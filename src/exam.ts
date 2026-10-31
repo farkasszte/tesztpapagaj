@@ -434,6 +434,7 @@ export type Part = Omit<Subpart, 'type'> & {
 // holds one.
 export const SECTION_ORDER: readonly QuestionType[] = [
   'multiple-choice',
+  'multiple-answer',
   'true-false',
   'matching',
   'fill-in-the-blank',
