@@ -17,17 +17,6 @@ export function AboutPage({
     >
       <div className="site-prose">
         <h1>{t('site.about.title')}</h1>
-        <p className="site-lede">
-          {t('site.about.lede')}{' '}
-          <a
-            href="https://github.com/farkasszte/tesztpapagaj"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('site.about.repoLink')}
-          </a>
-        </p>
-
         <section className="site-card">
           <div className="site-card-heading">
             <h2>{t('site.about.whyTitle')}</h2>
@@ -53,6 +42,16 @@ export function AboutPage({
         <section className="site-card">
           <h2>{t('site.about.sourceTitle')}</h2>
           <p>{t('site.about.sourceBody')}</p>
+          <p>
+            {t('site.about.sourceSite')}{' '}
+            <a
+              href="https://github.com/farkasszte/tesztpapagaj"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('site.about.repoLink')}
+            </a>
+          </p>
         </section>
 
         <section className="site-card">

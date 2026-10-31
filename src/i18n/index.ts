@@ -566,7 +566,6 @@ const en = {
   'import.changePicture': 'Change picture',
   'bank.fileKinds': 'A question file from another tool, your test, or a Tesztpapagáj file',
   'site.about.title': 'About',
-  'site.about.lede': 'A free tool for teachers who need the same test in more than one order. It was made from testparrot.com, the site of the developers at teacher.dev.',
   'site.about.whyTitle': 'What it is, and why it is free',
   'site.about.whyBody': 'The app was built so a teacher can put together a tidy, printable test from their own questions in minutes — and hand out the same test in several orders. No account, no subscription, and your work stays in your own browser.',
   'site.about.promiseTitle': 'Our promise',
@@ -990,6 +989,7 @@ const en = {
   'issue.respondus.noCorrectStar': 'no answer is marked correct. Put * directly before the correct answer’s letter, e.g. “*b) 5”, or list it in an Answers: list at the end of the file.',
   'footer.about': 'about',
   'site.about.repoLink': 'The source code is on GitHub.',
+  'site.about.sourceSite': 'It was made from testparrot.com, the site of the developers at teacher.dev.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1542,7 +1542,6 @@ const hu: Record<TextKey, string> = {
   'import.changePicture': 'Kép cseréje',
   'bank.fileKinds': 'Kérdésfájl másik programból, a dolgozatod vagy egy Tesztpapagáj-fájl',
   'site.about.title': 'A projektről',
-  'site.about.lede': 'Ingyenes eszköz tanároknak, akiknek ugyanaz a dolgozat több sorrendben is kell. A teacher.dev fejlesztőinek testparrot.com oldala alapján készült.',
   'site.about.whyTitle': 'Mi ez, és miért ingyenes?',
   'site.about.whyBody': 'A Tesztpapagáj azért készült, hogy egy tanár néhány perc alatt rendezett, nyomtatható dolgozatot állíthasson össze a saját kérdéseiből — és ugyanazt a dolgozatot változatokban is kiadhassa. Nincs fiók, nincs előfizetés, és a munkád a saját böngésződben marad.',
   'site.about.promiseTitle': 'Ígéretünk',
@@ -1966,6 +1965,7 @@ const hu: Record<TextKey, string> = {
   'issue.respondus.noCorrectStar': 'egy válasz sincs helyesként megjelölve. Tegyél * jelet a helyes válasz betűje elé (például „*b) 5”), vagy sorold fel a fájl végén egy Answers: listában.',
   'footer.about': 'a projektről',
   'site.about.repoLink': 'A forráskód a GitHubon érhető el.',
+  'site.about.sourceSite': 'A teacher.dev fejlesztőinek testparrot.com oldala alapján készült.',
 };
 
 const LANGUAGES = { en, hu } as const
