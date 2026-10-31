@@ -86,7 +86,7 @@ describe('Moodle GIFT', () => {
     ])
     const entombed = byStem("What two people are entombed in Grant's tomb?")
     expect(entombed).toHaveLength(3)
-    expect(entombed.every((question) => question.choices!.every((choice) => !choice.correct))).toBe(true)
+    expect(entombed.every((question) => question.choices!.filter((choice) => choice.correct).length === 1)).toBe(true)
     expect(reading.issues.filter((issue) => issue.code === 'multiple-answer')).toHaveLength(3)
 
     // Categories become topics; `[markdown]` text is kept as written.

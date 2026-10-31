@@ -888,6 +888,8 @@ const en = {
   'imports.kahootButton': 'Bring in the Kahoot',
   'imports.kahootBusy': 'Reading the Kahoot…',
   'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
+  'record.noCorrect': 'no answer is marked correct. Mark one after importing.',
+  'record.severalCorrect': 'it has {count} correct answers ({letters}). Test Parrot keeps one, so {kept} is marked: check it.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1762,6 +1764,8 @@ const hu: Record<TextKey, string> = {
   'imports.kahootButton': 'Kahoot behozása',
   'imports.kahootBusy': 'A kahoot beolvasása…',
   'imports.kahootPlaceholder': 'https://create.kahoot.it/share/…',
+  'record.noCorrect': 'egy válasz sincs helyesként megjelölve. Importálás után jelölj meg egyet.',
+  'record.severalCorrect': 'a forrás {count} helyes választ jelöl ({letters}). A Tesztpapagáj egyet tart meg, ezért {kept} van megjelölve: ellenőrizd.',
 };
 
 const LANGUAGES = { en, hu } as const

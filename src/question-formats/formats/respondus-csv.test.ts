@@ -35,7 +35,7 @@ describe('Respondus CSV', () => {
     ])
     expect(sun!.choices!.map((choice) => choice.correct)).toEqual([true, false])
     // MR with two answers comes in unmarked, and says which they were.
-    expect(primes!.choices!.every((choice) => !choice.correct)).toBe(true)
+    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
     // Its own underscores are where its Blank goes.
     expect(text(water!.stem)).toBe('The chemical formula for water is _____.')

@@ -43,7 +43,7 @@ describe('Moodle XML', () => {
     expect(JSON.stringify(cell!.stem)).toContain(reading.record.media[0]!.id)
 
     // `<single>false` with two answers worth 50 each: Multiple Answer.
-    expect(primes!.choices!.every((choice) => !choice.correct)).toBe(true)
+    expect(primes!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, b)')
 
     expect(sun!.choices!.map((choice) => choice.correct)).toEqual([false, true])

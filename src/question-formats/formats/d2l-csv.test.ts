@@ -55,8 +55,8 @@ describe('Brightspace (D2L) question CSV', () => {
     ])
     expect(trueFalse!.choices!.map((option) => option.correct)).toEqual([true, false])
 
-    // Multi-Select with two right answers comes in unmarked, and says which.
-    expect(multiSelect!.choices!.every((option) => !option.correct)).toBe(true)
+    // Multi-Select with two right answers keeps the first answer it marks, and says which.
+    expect(multiSelect!.choices!.filter((option) => option.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
 
     expect(text(ordering!.suggestedAnswer).split(/\n+/)).toEqual(['This is the text for item 1', 'This is the text for item 2'])

@@ -52,9 +52,9 @@ describe('Blackboard Test Generator pool download', () => {
       'Two plus two equals _____.',
       'Match the number with it\'s spelling. :)',
     ])
-    // Question 1 is Multiple Answer: it comes in with none marked, and says so.
+    // Question 1 is Multiple Answer: keeps the first answer it marks, and names the rest.
     expect(questions[0]!.choices!.map((choice) => text(choice.content))).toEqual(['2', '3', '4', '5', '6', '7'])
-    expect(questions[0]!.choices!.every((choice) => !choice.correct)).toBe(true)
+    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.map((issue) => issue.code)).toContain('multiple-answer')
     expect(questions[1]!.choices!.map((choice) => [text(choice.content), choice.correct])).toEqual([
       ['4', false], ['5', true], ['6', false],
@@ -125,7 +125,7 @@ describe('Blackboard QTI pool and test export', () => {
     expect(reading.record.media.map((asset) => asset.id)).toContain(picture.asset)
 
     expect(text(multiple!.stem)).toBe('Select all the prime numbers.')
-    expect(multiple!.choices!.every((each) => !each.correct)).toBe(true)
+    expect(multiple!.choices!.filter((each) => each.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
 
     expect(trueFalse!.choices!.map((each) => each.correct)).toEqual([true, false])

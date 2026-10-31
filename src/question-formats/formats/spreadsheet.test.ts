@@ -33,7 +33,7 @@ describe('Spreadsheet of questions', () => {
     ])
     expect(sum!.topics).toEqual(['Arithmetic'])
     // A list: two correct answers, unmarked, with a note naming them.
-    expect(even!.choices!.every((choice) => !choice.correct)).toBe(true)
+    expect(even!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(a, c)')
     // True, with no options: True/False.
     expect(water!.choices!.map((choice) => choice.correct)).toEqual([true, false])

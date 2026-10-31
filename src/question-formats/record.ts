@@ -149,7 +149,7 @@ function convertQuestion(question: ForeignQuestion, id: string, report: Report):
       }
       const correct = choices.filter((choice) => choice.correct)
       if (correct.length === 0) {
-        report('warning', 'no-correct-answer', 'no answer is marked correct. Mark one after importing.')
+        report('warning', 'no-correct-answer', t('record.noCorrect'))
         return { ...base, type: 'multiple-choice', choices: choicesOf(choices, () => false) }
       }
       if (correct.length === 1) {
@@ -159,9 +159,16 @@ function convertQuestion(question: ForeignQuestion, id: string, report: Report):
       report(
         'warning',
         'multiple-answer',
-        `it has ${correct.length} correct answers (${letters.join(', ')}). A Test Parrot question has one, so it came in with none marked: mark one, or reword it.`,
+        t('record.severalCorrect', {
+          count: correct.length,
+          letters: letters.join(', '),
+          kept: letter(choices.indexOf(correct[0]!)),
+        }),
       )
-      return { ...base, type: 'multiple-choice', choices: choicesOf(choices, () => false) }
+      // The first answer the source marks is kept: a question with no answer
+      // marked cannot be graded at all, and the note names the rest, so the
+      // teacher can change it rather than discover it after printing.
+      return { ...base, type: 'multiple-choice', choices: choicesOf(choices, (choice) => choice === correct[0]) }
     }
     case 'true-false': {
       if (question.answer === null) report('warning', 'no-correct-answer', 'it does not say whether it is true or false. Mark one after importing.')

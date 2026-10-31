@@ -74,6 +74,7 @@ import { SourceDocumentSteps } from './source-document-steps'
 import { TEST_FILE_TYPES, kindOfFile, readSourceDocument, startWaitingImport } from './source-file'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { countOf, t } from './i18n'
+import { KahootLinkField } from './kahoot-link-field'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -837,6 +838,17 @@ export function QuestionBankImportDialog({
     setError(null)
   }
 
+  /** A proposal shown as a file's reading: what the dialog does with every
+   *  import, whether it came from a file, a link or an AI. */
+  const showProposal = (next: ImportProposal) => {
+    setInspected({ fileName: next.reading?.label ?? t('import.action'), kind: 'record' })
+    setProposal(next)
+    setSelection(initialSelection(next, targetBankId ? { targetBankId } : {}))
+    setNames(Object.fromEntries(next.banks.map((bank) => [bank.id, bank.record.bank.name])))
+    setFocus(next.exams[0] ? { kind: 'exam', key: next.exams[0].key } : { kind: 'bank', id: next.banks[0]!.id })
+    setPhase('choose')
+  }
+
   const inspectOnOpen = useRef({ file: initialFile, proposal: initialProposal })
   useEffect(() => {
     const opened = inspectOnOpen.current
@@ -844,13 +856,7 @@ export function QuestionBankImportDialog({
     // Deliberately once, for what the dialog was opened with. A later drop
     // opens the dialog again with a fresh key rather than mutating this one.
     if (opened.proposal) {
-      const next = opened.proposal
-      setInspected({ fileName: next.reading?.label ?? 'Kahoot', kind: 'record' })
-      setProposal(next)
-      setSelection(initialSelection(next, targetBankId ? { targetBankId } : {}))
-      setNames(Object.fromEntries(next.banks.map((bank) => [bank.id, bank.record.bank.name])))
-      setFocus(next.exams[0] ? { kind: 'exam', key: next.exams[0].key } : { kind: 'bank', id: next.banks[0]!.id })
-      setPhase('choose')
+      showProposal(opened.proposal)
       return
     }
     if (opened.file) inspect(opened.file)
@@ -1104,6 +1110,7 @@ export function QuestionBankImportDialog({
             ) : <>
               <SupportedSources />
               <TextOnlyChoices busy={busy} onPaste={inspect} />
+              <KahootLinkField onProposal={showProposal} compact />
             </>}
           </div>
         )}

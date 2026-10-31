@@ -49,7 +49,7 @@ describe('Respondus Standard Format', () => {
     expect(text(order!.suggestedAnswer).replace(/\n+/g, '\n')).toBe('George Washington\nJohn Adams\nThomas Jefferson')
 
     // Multiple Answer: comes in with none marked, and the teacher is told which were.
-    expect(several!.choices!.every((choice) => !choice.correct)).toBe(true)
+    expect(several!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.find((issue) => issue.code === 'multiple-answer')?.message).toContain('(b, d)')
 
     expect(text(blanks!.stem)).toBe('A _____ by any other _____ would smell as\n_____.')

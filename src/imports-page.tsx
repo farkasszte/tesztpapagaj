@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, EllipsisVertical, FileImage, FileJson, FileText, FolderOpen, ImageIcon, Library, Trash2 } from 'lucide-react'
 import { AppShell } from './app-shell'
+import { KahootLinkField } from './kahoot-link-field'
 import type { PersistentStorageStatus } from './durable-storage'
 import {
   WAITING_IMPORT_LIFETIME_MS,
@@ -159,53 +160,6 @@ function ImportCard({
   </li>
 }
 
-/** A Kahoot, brought in from its share link: the one import that starts from
- *  a link rather than a file, because a teacher who has the link has the
- *  quiz. The reading happens behind `api/kahoot`; what comes back is shown in
- *  the same dialog a dropped file opens. */
-function KahootLinkCard({ onProposal }: { onProposal: (proposal: ImportProposal) => void }) {
-  const inputId = useId()
-  const [link, setLink] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const bring = async (event: FormEvent) => {
-    event.preventDefault()
-    if (!link.trim() || busy) return
-    setBusy(true)
-    setError(null)
-    try {
-      const { inspectKahootLink } = await import('./kahoot-link')
-      onProposal(await inspectKahootLink(link))
-      setLink('')
-    } catch (reason) {
-      setError(reason instanceof Error && reason.message ? reason.message : t('imports.unreadable'))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return <form className="site-card kahoot-link" onSubmit={bring}>
-    <h2>{t('imports.kahootTitle')}</h2>
-    <p>{t('imports.kahootHint')}</p>
-    <label htmlFor={inputId} className="sr-only">{t('imports.kahootTitle')}</label>
-    <input
-      id={inputId}
-      type="url"
-      inputMode="url"
-      className="kahoot-link-input"
-      placeholder={t('imports.kahootPlaceholder')}
-      value={link}
-      onChange={(event) => setLink(event.target.value)}
-      disabled={busy}
-    />
-    <button type="submit" className="secondary-button" disabled={busy || !link.trim()}>
-      {busy ? t('imports.kahootBusy') : t('imports.kahootButton')}
-    </button>
-    {error && <p className="home-error" role="alert">{error}</p>}
-  </form>
-}
-
 export function ImportsPage({
   onImport,
   onProposal,
@@ -251,7 +205,7 @@ export function ImportsPage({
         <button type="button" className="primary-button" onClick={onImport}>{t('import.action')}</button>
       </div>
     </header>
-    <KahootLinkCard onProposal={onProposal} />
+    <KahootLinkField onProposal={onProposal} />
     {entries === null
       ? <p className="import-list-status" role="status">{t('imports.loading')}</p>
       : entries.length === 0

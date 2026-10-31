@@ -44,8 +44,9 @@ describe('Blackboard Test Generator text', () => {
     expect(questions.map((question) => question.type)).toEqual([
       'multiple-choice', 'multiple-choice', 'true-false', 'short-answer', 'fill-in-the-blank', 'matching',
     ])
-    // Question 1 is Multiple Answer: it comes in with none marked, and says so.
-    expect(questions[0]!.choices!.every((choice) => !choice.correct)).toBe(true)
+    // Question 1 is Multiple Answer: the first answer the source marks is kept,
+    // so the question can be graded, and the note names the rest.
+    expect(questions[0]!.choices!.filter((choice) => choice.correct)).toHaveLength(1)
     expect(reading.issues.map((issue) => issue.code)).toContain('multiple-answer')
     expect(questions[2]!.choices!.map((choice) => choice.correct)).toEqual([true, false])
     // The teacher's own underscores are where its one Blank goes.
