@@ -2001,13 +2001,15 @@ function QuestionBankPage({
 }
 
 
-/** What the Working Copy's state is, in a slot that never changes size. */
-const WORKING_COPY_STATES = {
+/** What the Working Copy's state is, in a slot that never changes size.
+ *  A function, not a constant: a module-level `t()` would freeze the language
+ *  the app was loaded in and never follow a switch. */
+const workingCopyStates = () => ({
   pending: { Icon: RefreshCw, label: t('status.backingUp'), detail: t('status.writingDetail') },
   failed: { Icon: TriangleAlert, label: t('status.backupFailed'), detail: t('status.backupFailedDetail') },
   dirty: { Icon: CircleDot, label: t('status.dirtyLabel'), detail: t('status.dirtyDetail') },
   saved: { Icon: Check, label: t('status.saved'), detail: t('status.savedDetail') },
-} as const
+} as const)
 
 function WorkingCopyStatus({ dirty, backupStatus }: {
   dirty: boolean
@@ -2017,7 +2019,7 @@ function WorkingCopyStatus({ dirty, backupStatus }: {
   const state = backupStatus === 'pending' ? 'pending'
     : backupStatus === 'failed' ? 'failed'
       : dirty ? 'dirty' : 'saved'
-  const { Icon, label, detail } = WORKING_COPY_STATES[state]
+  const { Icon, label, detail } = workingCopyStates()[state]
   return (
     <div className="working-copy-badge" data-state={state}>
       <button type="button" className="working-copy-badge-button" aria-label={label} aria-describedby="working-copy-tip">

@@ -990,6 +990,7 @@ const en = {
   'footer.about': 'about',
   'site.about.repoLink': 'The source code is on GitHub.',
   'site.about.sourceSite': 'It was made from testparrot.com, the site of the developers at teacher.dev.',
+  'export.fineprint': 'A free test maker by Tesztpapagáj — your work stays in your browser.',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1966,6 +1967,7 @@ const hu: Record<TextKey, string> = {
   'footer.about': 'a projektről',
   'site.about.repoLink': 'A forráskód a GitHubon érhető el.',
   'site.about.sourceSite': 'A teacher.dev fejlesztőinek testparrot.com oldala alapján készült.',
+  'export.fineprint': 'A Tesztpapagáj ingyenes dolgozatkészítő — a munkád a saját böngésződben marad.',
 };
 
 const LANGUAGES = { en, hu } as const

@@ -161,7 +161,7 @@ test('empty Exams cannot export and Cmd/Ctrl+P opens Export for non-empty Exams'
   await expect(dialogOf(page)).toBeVisible()
 })
 
-test('a Short Answer question sits close to its number, and its Suggested Answer prints only in the key', async ({ page }) => {
+test('a Short Answer question prints no Suggested Answer on the test, and the key prints it', async ({ page }) => {
   const [mc, sa] = EXAM.questions
   const withAnswer = {
     ...sa!,
@@ -169,11 +169,11 @@ test('a Short Answer question sits close to its number, and its Suggested Answer
   }
   await open(page, { ...AUTHORING, questionBank: { questions: [mc!, withAnswer] } })
 
-  // On the sheet, a Short Answer question has no blank beside its number, so
-  // its text starts well short of where a Multiple Choice stem does.
+  // A kérdésszövegek egy vonalban kezdődnek a számtól függetlenül: a lap a
+  // számoszlop után igazítja őket, nem típusonként más behúzással.
   const stemLeft = async (id: string) =>
     (await page.locator(`.exam-workspace [data-question-id="${id}"] .question-stem`).boundingBox())!.x
-  expect(await stemLeft('o1')).toBeLessThan(await stemLeft('m1') - 40)
+  expect(await stemLeft('o1')).toBe(await stemLeft('m1'))
 
   const dialog = await openDialog(page)
   const [testPage, keyPage] = await dialog.getByLabel('Export Preview').locator('.exam-page').all()

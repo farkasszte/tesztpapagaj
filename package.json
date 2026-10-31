@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "test": "bun test",
     "test:e2e": "playwright test",
+    "test:e2e:file": "playwright test --retries=0",
+    "test:e2e:each": "bun run scripts/e2e-each.ts",
     "format": "prettier --write .",
     "test:exports": "bun run scripts/test-exports.ts"
   },

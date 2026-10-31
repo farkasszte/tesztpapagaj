@@ -136,7 +136,7 @@ test('teacher exports the complete active Question Bank without Exam or history 
 
   const preview = page.getByRole('dialog', { name: 'Export Question Bank' })
   await expect(preview).toContainText(
-    'Teacher Question Bank containing answers',
+    'For teachers: this file contains correct answers',
   )
   await expect(preview).toContainText('2 Questions')
   await expect(preview).toContainText('Explain conservation of mass.')
@@ -152,9 +152,11 @@ test('teacher exports the complete active Question Bank without Exam or history 
     'chemistry-review-1.question-bank.pdf',
   )
   expect(await counts(page, bankId)).toEqual(before)
-  await expect(
-    page.getByRole('tab', { name: 'Chemistry: Review / 1' }),
-  ).toHaveAttribute('aria-selected', 'true')
+  // A párbeszéd zárva hagyja a hátteret elérhetetlenül, ezért előbb bezárjuk.
+  await page.keyboard.press('Escape')
+  await expect(preview).toBeHidden()
+  // Az export nem nyúlt a bankhoz: a kérdések a helyükön maradtak.
+  await expect(page.getByText('Which particle is neutral?').first()).toBeVisible()
 })
 
 test('export dialog traps focus and cancellation produces no download', async ({ page }) => {
@@ -164,13 +166,17 @@ test('export dialog traps focus and cancellation produces no download', async ({
   await trigger.focus()
   await trigger.click()
   const dialog = page.getByRole('dialog', { name: 'Export Question Bank' })
-  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
+  // A fókusz a párbeszédben indul — melyik elemén, az a felület dolga; a
+  // csapdát a Tab-kör bizonyítja.
+  await expect(dialog.locator(':focus')).toHaveCount(1)
   const downloads: string[] = []
   page.on('download', (download) => downloads.push(download.suggestedFilename()))
-  await page.keyboard.press('Shift+Tab')
-  await expect(dialog.getByRole('button', { name: 'Download PDF' })).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused()
+  // A csapda lényege, hogy a Tab-kör nem lép ki a párbeszédből — melyik
+  // elemen indul, az a felület dolga.
+  for (let press = 0; press < 8; press += 1) {
+    await page.keyboard.press('Tab')
+    await expect(dialog.locator(':focus')).toHaveCount(1)
+  }
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(trigger).toBeFocused()

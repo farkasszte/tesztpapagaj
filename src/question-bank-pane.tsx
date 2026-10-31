@@ -70,8 +70,10 @@ const BADGE_LABELS: Record<StemPreviewBadge, string> = {
 }
 
 /** What a row with nothing written into it is called. A question saves whether
- *  or not it says anything, so this is a real state rather than a placeholder. */
-const UNTITLED = t('bank.untitledQuestion')
+ *  or not it says anything, so this is a real state rather than a placeholder.
+ *  Read where it is drawn, not once at load: a module constant would keep the
+ *  language the app started in, and never follow a switch. */
+const untitled = () => t('bank.untitledQuestion')
 
 
 /**
@@ -522,7 +524,7 @@ export function QuestionBankPane({
         >
           <ul className="question-bank-reading" aria-label={t('editor.questions')}>
             {questions.map((question) => {
-              const name = stemPreview(question).text || UNTITLED
+              const name = stemPreview(question).text || untitled()
               return (
                 <li
                   className="question-reading question-bank-reading-item"
@@ -588,7 +590,7 @@ export function QuestionBankPane({
             const inExamWorkingCopy = workingCopyIds.has(question.id)
             const draggable = !inExamWorkingCopy && onAddToWorkingCopy !== undefined
             const preview = stemPreview(question)
-            const name = preview.text || UNTITLED
+            const name = preview.text || untitled()
             const topics = topicsOf(question)
             return (
               <li

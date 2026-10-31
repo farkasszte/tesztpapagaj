@@ -316,9 +316,7 @@ function BankFilePreview({ record }: { record: QuestionBankRecord }) {
         </ul>
       </nav>
       <p className="question-bank-file-credit">
-        <span>
-          A Tesztpapagáj ingyenes dolgozatkészítő — a munkád a saját böngésződben marad.
-        </span>
+        <span>{t('export.fineprint')}</span>
       </p>
       {rows.slice(0, shown).map((row) => {
         if (row.kind === 'section') {
