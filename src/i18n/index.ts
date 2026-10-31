@@ -988,6 +988,7 @@ const en = {
   'issue.respondus.oneAnswer': 'it has one answer. A multiple choice question needs at least two; an essay needs “Type: E” on the line above it.',
   'issue.respondus.answerListLetter': 'the Answers: list gives “{value}” for it, which is not the letter of one of its answers.',
   'issue.respondus.noCorrectStar': 'no answer is marked correct. Put * directly before the correct answer’s letter, e.g. “*b) 5”, or list it in an Answers: list at the end of the file.',
+  'footer.about': 'about',
 } as const
 
 export type TextKey = keyof typeof en
@@ -1962,6 +1963,7 @@ const hu: Record<TextKey, string> = {
   'issue.respondus.oneAnswer': 'egy válasza van. A feleletválasztós kérdéshez legalább kettő kell; esszénél „Type: E” áll a fölötte lévő sorban.',
   'issue.respondus.answerListLetter': 'az Answers: lista „{value}” értéket ad, ami nem az egyik válaszának betűje.',
   'issue.respondus.noCorrectStar': 'egy válasz sincs helyesként megjelölve. Tegyél * jelet a helyes válasz betűje elé (például „*b) 5”), vagy sorold fel a fájl végén egy Answers: listában.',
+  'footer.about': 'a projektről',
 };
 
 const LANGUAGES = { en, hu } as const
