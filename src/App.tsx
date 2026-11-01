@@ -1211,7 +1211,7 @@ function QuestionDeletionConfirmation({ usage, onCancel, onConfirm }: {
   return <DestructiveConfirmation
     label={t('editor.deleteQuestionPermanent')}
     title={t('editor.deleteQuestionTitle')}
-    confirmLabel={count === 0 ? t('editor.deleteQuestion') : `Delete and remove from ${count} ${count === 1 ? t('exam.one') : t('exam.many')}`}
+    confirmLabel={count === 0 ? t('editor.deleteQuestion') : t(count === 1 ? 'editor.deleteAndRemoveOne' : 'editor.deleteAndRemoveMany', { count })}
     onCancel={onCancel}
     onConfirm={onConfirm}
   >
@@ -1232,17 +1232,22 @@ function BankDeletionConfirmation({ bank, impact, onCancel, onConfirm }: {
   const t = useT()
   return <DestructiveConfirmation
     label={t('bank.deletePermanent')}
-    title={`Permanently delete “${bank.name}”?`}
+    title={t('bank.deleteTitle', { name: bank.name })}
     confirmLabel={t('bank.delete')}
     onCancel={onCancel}
     onConfirm={onConfirm}
   >
     <p>{t('common.cannotBeUndone')}</p>
     {bank.questionCount === 0 ? <p>{t('bank.deleteEmpty')}</p> : <>
-      <p>{bank.questionCount} {bank.questionCount === 1 ? t('editor.question') : t('editor.questions')} will be permanently deleted.</p>
-      <p>{impact.length} affected {impact.length === 1 ? t('exam.one') : t('exam.many')}:</p>
-      {impact.length > 0 && <ul>{impact.map((item) => <li key={item.examId}>{item.title} — {item.questionCount} {item.questionCount === 1 ? t('editor.question') : t('editor.questions')} removed</li>)}</ul>}
-      <p><strong>{t('bank.exportHistoryUnchanged')}</strong>{t('bank.exportHistoryStays')}</p>
+      <p>{t(bank.questionCount === 1 ? 'bank.deleteOne' : 'bank.deleteMany', { count: bank.questionCount })}</p>
+      {/* Ha egy dolgozat sem használja, nincs mit felsorolni. */}
+      {impact.length > 0 && (
+        <>
+          <p>{t(impact.length === 1 ? 'bank.impactOne' : 'bank.impactMany', { count: impact.length })}</p>
+          <ul>{impact.map((item) => <li key={item.examId}>{t(item.questionCount === 1 ? 'bank.impactLineOne' : 'bank.impactLineMany', { title: item.title, count: item.questionCount })}</li>)}</ul>
+        </>
+      )}
+      <p><strong>{t('bank.exportHistoryUnchanged')}</strong> {t('bank.exportHistoryStays')}</p>
     </>}
   </DestructiveConfirmation>
 }
