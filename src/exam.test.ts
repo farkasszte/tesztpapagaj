@@ -999,6 +999,19 @@ describe('duplicating a question', () => {
     expect(copy).toMatchObject({ type: 'open', columns: 4 })
   })
 
+  test('keeps the Explanation, without sharing the document', () => {
+    const original: Question = {
+      ...multipleChoice('q1', ['c1', 'c2']),
+      explanation: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Because.' }] }],
+      },
+    }
+    const copy = duplicateQuestion(original)
+    expect(copy.explanation).toEqual(original.explanation)
+    expect(copy.explanation).not.toBe(original.explanation)
+  })
+
   test('keeps the Difficulty and the Topics, without sharing the Topic list', () => {
     const original: Question = {
       ...multipleChoice('q1', ['c1', 'c2']),

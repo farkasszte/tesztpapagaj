@@ -1,0 +1,16 @@
+{
+  "name": "tesztpapagaj-room",
+  "private": true,
+  "type": "module",
+  "description": "Szoba-relay a Tesztpapagáj kvízjátékához: egy Durable Object = egy szoba (PIN), WebSocket fan-out, kép-cache.",
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "wrangler": "^4.156.0"
+  }
+}

@@ -76,6 +76,7 @@ function multipleChoice(
   columns: Question['columns'],
   stem: ProseMirrorJSON[],
   choices: ProseMirrorJSON[],
+  explanation?: ProseMirrorJSON[],
 ): Question {
   return {
     id,
@@ -85,6 +86,9 @@ function multipleChoice(
       type: 'doc',
       content: [...stem, { type: 'multipleChoice', content: choices }],
     },
+    ...(explanation
+      ? { explanation: { type: 'doc', content: explanation } }
+      : {}),
   }
 }
 
@@ -307,6 +311,7 @@ const COMPOSITE_EXAM: Exam = {
         choice('c3', true, paragraph(text('Energy'))),
         choice('c4', false, paragraph(text('Gas'))),
       ],
+      [paragraph(text('Energy is a form of work or heat, not a state of matter.'))],
     ),
     multipleChoice(
       'm2',

@@ -1,0 +1,16 @@
+name = "tesztpapagaj-room"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+# Egy szoba = egy Durable Object; a kód nevezi meg, tehát nincs külön
+# adatbázis és nincs állapot a szobán kívül.
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+[observability]
+enabled = true

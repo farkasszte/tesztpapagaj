@@ -158,6 +158,10 @@ export type Question = {
   /** Optional answer material for a Short Answer Question. It is canonical
    * Question Content, but is never shown on the student Exam stream. */
   suggestedAnswer?: ProseMirrorJSON
+  /** Why the right answer is right, shown once the answer is revealed. Canonical
+   *  Question Content, like the words themselves: it belongs to the Question and
+   *  not to one Exam, and no printed exam shows it. */
+  explanation?: ProseMirrorJSON
   columns: ColumnSetting
   // Optional classification. Both are absent rather than empty on a question
   // nobody has classified, so an untagged question costs no storage and a
@@ -527,6 +531,7 @@ export function duplicateQuestion(question: Question): Question {
     ...(question.suggestedAnswer
       ? { suggestedAnswer: structuredClone(question.suggestedAnswer) }
       : {}),
+    ...(question.explanation ? { explanation: structuredClone(question.explanation) } : {}),
   }
   // A list of its own: the copy is a Question Bank record in its own right, and
   // retagging one must never retag the other.

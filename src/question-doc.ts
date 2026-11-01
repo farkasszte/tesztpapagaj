@@ -500,6 +500,60 @@ export function suggestedAnswerDocumentOf(
   return { type: 'doc', content }
 }
 
+// A Question's Explanation: the block that says why the right answer is right.
+// It rides in the document while the question is edited, and is lifted out into
+// the Question itself when the dialog saves (see `explanationDocumentOf`).
+export function explanationNodeOf(doc: ProseMirrorJSON): ProseMirrorJSON | undefined {
+  return childrenOf(doc).find((node) => node.type === 'explanation')
+}
+
+// The document to hand the editor: the stem (with its Suggested Answer, for a
+// Short Answer question) and an Explanation block at the end, holding the
+// explanation already saved. The block is always there, so it is typed rather
+// than added.
+export function withExplanation(doc: ProseMirrorJSON, explanation?: ProseMirrorJSON): ProseMirrorJSON {
+  const content = explanation ? childrenOf(explanation) : []
+  const without = withoutExplanation(doc)
+  const nodes = childrenOf(without)
+  return {
+    ...without,
+    content: [
+      ...(nodes.length > 0 ? nodes : [{ type: 'paragraph' }]),
+      {
+        type: 'explanation',
+        content: content.length > 0 ? content : [{ type: 'paragraph' }],
+      },
+    ],
+  }
+}
+
+// The document without its Explanation block, and without the empty paragraph
+// Crepe keeps beside it as the editing boundary.
+export function withoutExplanation(doc: ProseMirrorJSON): ProseMirrorJSON {
+  const nodes = childrenOf(doc)
+  const index = nodes.findIndex((node) => node.type === 'explanation')
+  if (index < 0) return { ...doc, content: [...nodes] }
+  const before = nodes.slice(0, index)
+  const after = nodes.slice(index + 1)
+  const content = [
+    ...(isBlankParagraph(before.at(-1)) && before.length > 1 ? before.slice(0, -1) : before),
+    ...(isBlankParagraph(after[0]) ? after.slice(1) : after),
+  ]
+  return {
+    ...doc,
+    content: content.length > 0 ? content : [{ type: 'paragraph' }],
+  }
+}
+
+// The explanation the dialog saves, or undefined when the block was left blank.
+export function explanationDocumentOf(doc: ProseMirrorJSON): ProseMirrorJSON | undefined {
+  const node = explanationNodeOf(doc)
+  if (!node) return undefined
+  const content = childrenOf(node)
+  if (content.every(isBlankParagraph)) return undefined
+  return { type: 'doc', content }
+}
+
 // The document with its multiple-choice node taken out, if it has one. A
 // document holds at most one, so this is what switching a question to Open
 // Response lifts out into the stash.

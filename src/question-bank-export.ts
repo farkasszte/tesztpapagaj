@@ -34,7 +34,7 @@ import {
 import { t } from './i18n'
 
 export const QUESTION_BANK_FORMAT = 'test-parrot/question-bank'
-export const QUESTION_BANK_FORMAT_VERSION = '0.12.0'
+export const QUESTION_BANK_FORMAT_VERSION = '0.13.0'
 export const QUESTION_BANK_ATTACHMENT_NAME = 'pdfcx.json'
 export const QUESTION_BANK_ATTACHMENT_DESCRIPTION = 'pdf-canonical-extraction'
 
@@ -307,6 +307,8 @@ export type QuestionBankRecordQuestion = {
   /** A Multipart question's Parts, in lettered order; `stem` is the shared material. */
   parts?: QuestionBankRecordPart[]
   suggestedAnswer?: SemanticDocument
+  /** Why the right answer is right, shown once it is revealed. Added in 0.13.0. */
+  explanation?: SemanticDocument
 }
 
 export type QuestionBankRecord = {
@@ -651,6 +653,10 @@ function portableQuestion(
     id: `q${index + 1}`,
     type: RECORD_TYPES[question.type],
     stem: semanticStem(stemNodesOf(question.doc), mediaIds),
+    // Why the right answer is right, in the same shape as a stem.
+    ...(question.explanation
+      ? { explanation: semanticDocument(childNodes(question.explanation), mediaIds) }
+      : {}),
     ...(question.difficulty ? { difficulty: question.difficulty } : {}),
     ...(topicsOf(question).length > 0
       ? { topics: [...topicsOf(question)] }

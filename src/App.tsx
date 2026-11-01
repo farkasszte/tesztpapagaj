@@ -66,7 +66,10 @@ import type { ReactNode } from 'react'
 import {
   cleanDocument,
   suggestedAnswerDocumentOf,
+  explanationDocumentOf,
+  withExplanation,
   withSuggestedAnswer,
+  withoutExplanation,
   withoutSuggestedAnswer,
 } from './question-doc'
 import type { ProseMirrorJSON } from './question-doc'
@@ -200,6 +203,8 @@ import {
 import { AppShell } from './app-shell'
 import { AboutPage, PrivacyPage } from './site-pages'
 import { SettingsPage } from './settings-page'
+import { GamePage } from './game-page'
+import { GameStudent } from './game-student'
 import { persistentStorageStatus, requestPersistentStorage, type PersistentStorageStatus } from './durable-storage'
 import { ResourceCollectionPage } from './resource-collection-page'
 import { BankFileDropTarget } from './bank-file-drop'
@@ -230,6 +235,7 @@ import {
   suggestedAnswerSchema,
   suggestedAnswerView,
 } from './suggested-answer'
+import { explanationMode, explanationSchema, explanationView, keepExplanation } from './explanation'
 import { countOf, t, useT } from './i18n'
 
 /** The mark each Question Section goes by, so a type reads the same wherever
@@ -647,6 +653,7 @@ function CrepeQuestion({
     crepe.editor
       .use(multipleChoiceMode(true, fixedChoices, severalCorrect, orderingItems))
       .use(suggestedAnswerMode(suggestedAnswer))
+      .use(explanationMode(true))
       .use(matchingMode(matching))
       .use(multipartMode(multipart))
       .use(subscriptSchema)
@@ -664,6 +671,9 @@ function CrepeQuestion({
       .use(suggestedAnswerSchema)
       .use(suggestedAnswerView)
       .use(keepSuggestedAnswer)
+      .use(explanationSchema)
+      .use(explanationView)
+      .use(keepExplanation)
       .use(matchingSchema)
       .use(matchingPromptSchema)
       .use(matchingAnswerSchema)
@@ -798,9 +808,12 @@ function QuestionDialog({
   // across one.
   const { type } = question
   const [doc] = useState<ProseMirrorJSON>(() =>
-    type === 'open'
-      ? withSuggestedAnswer(question.doc, question.suggestedAnswer)
-      : question.doc,
+    withExplanation(
+      type === 'open'
+        ? withSuggestedAnswer(question.doc, question.suggestedAnswer)
+        : question.doc,
+      question.explanation,
+    ),
   )
   const [difficulty, setDifficulty] = useState<Difficulty | ''>(question.difficulty ?? '')
   const [topics, setTopics] = useState<readonly string[]>(topicsOf(question))
@@ -863,7 +876,9 @@ function QuestionDialog({
         ...question,
         type,
         doc: await ownDocumentMedia(
-          type === 'open' ? withoutSuggestedAnswer(edited) : edited,
+          withoutExplanation(
+            type === 'open' ? withoutSuggestedAnswer(edited) : edited,
+          ),
         ),
       }
       if (difficulty) saved.difficulty = difficulty
@@ -881,6 +896,9 @@ function QuestionDialog({
         if (answer) saved.suggestedAnswer = await ownDocumentMedia(answer)
         else delete saved.suggestedAnswer
       }
+      const explanation = explanationDocumentOf(edited)
+      if (explanation) saved.explanation = await ownDocumentMedia(explanation)
+      else delete saved.explanation
       await onSave(saved)
     } catch (error) {
       setSaveError(
@@ -3455,6 +3473,12 @@ export default function App({
         onReturnedFile={(file) => openImport(file, null, waitingId)}
       />
     </>
+  }
+  if (route === '/jatek') {
+    // A diák linkje (`/jatek?kod=482913`) a telefonos belépő; kód nélkül a tanár oldala.
+    const code = new URLSearchParams(search).get('kod') ?? ''
+    if (code) return <GameStudent initialCode={code} />
+    return <GamePage banks={bankWorkspaces} persistentStorage={storageStatus} />
   }
   if (route === '/about') return <>{globalChrome}<AboutPage persistentStorage={storageStatus} /></>
   if (route === '/privacy') return <>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></>

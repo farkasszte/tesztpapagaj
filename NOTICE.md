@@ -104,3 +104,28 @@ NOTICE.md                    (ez a fájl)
     getterrel olvassák őket.
 11. **Behozatal párbeszéd.** A felület és a lábléc-mondat („Létrejön: …") a
     szótárból épül; a mondat szerkezetét vizsgáló egységteszt angolul fut.
+12. **Kvízjáték.** Új modul (`/jatek`): a Class Gauntlet
+    (<https://github.com/teacherdotdev/class-gauntlet>, Apache License 2.0)
+    szabálymotorja került át változatlan logikával, keretrendszer-független
+    TypeScriptként (`src/game/`); a felület — a magyar színpadok, a diák-nézetek,
+    a lobbi és a szoba-relay — ennek a projektnek a sajátja. A Class Gauntlet
+    maga az EdTech-a-thon „1v100” projektjének szerver nélküli újraírása
+    (<https://github.com/deadbeef101010/1v100-edtechathon>, Apache License 2.0,
+    Copyright 2026 deadbeef101010 és közreműködők). A licenc 4(a) és 6. pontja
+    szerint a Class Gauntlet neve, logói (`src/lib/components/art/`), a
+    `classgauntlet.com` és a `support@teacher.dev` nem kerültek át; a magyar
+    felület a saját i18n-szótárból épül.
+
+    This product includes software developed at teacher.dev, published as
+    "Class Gauntlet" under the Apache License, Version 2.0, itself adapted from
+    "1v100" (Copyright 2026 deadbeef101010 and contributors).
+
+13. **Betűtípusok a játékhoz.** A kvízjáték színpada két SIL Open Font License
+    1.1 alatti betűt használ, `public/game-fonts/` alatt, `unicode-range`
+    részhalmazokkal: **Literata** (Copyright 2017 The Literata Project Authors,
+    <https://github.com/googlefonts/literata>) és **Pirata One**
+    (Copyright (c) 2012, Rodrigo Fuenzalida, Nicolas Massi; Reserved Font Name
+    „Pirata”). A licencek teljes szövege ugyanott:
+    `public/game-fonts/OFL-Literata.txt` és `OFL-PirataOne.txt`. A többi
+    beépített betű (GNU FreeFont) változatlan, saját licence a
+    `public/fonts/FREEFONT-LICENSE.txt`-ben.

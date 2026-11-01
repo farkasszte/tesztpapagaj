@@ -179,6 +179,7 @@ export function questionOf(stored: Question & { bankId?: string }): Question {
     type: stored.type,
     doc: stored.doc,
     ...(stored.suggestedAnswer ? { suggestedAnswer: stored.suggestedAnswer } : {}),
+    ...(stored.explanation ? { explanation: stored.explanation } : {}),
     columns: stored.columns,
   }
   if (stored.difficulty) question.difficulty = stored.difficulty

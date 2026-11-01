@@ -20,8 +20,8 @@ import publicSchema080 from '../public/formats/question-bank/0.8.0/schema.json'
 import applicationSchema080 from './question-bank-record-0.8.0.schema.json'
 import publicSchema090 from '../public/formats/question-bank/0.9.0/schema.json'
 import applicationSchema090 from './question-bank-record-0.9.0.schema.json'
-import publicSchema from '../public/formats/question-bank/0.12.0/schema.json'
-import applicationSchema from './question-bank-record-0.12.0.schema.json'
+import publicSchema from '../public/formats/question-bank/0.13.0/schema.json'
+import applicationSchema from './question-bank-record-0.13.0.schema.json'
 import {
   QUESTION_BANK_FORMAT_VERSION,
   SUPPORTED_BLANK_CONTENT_TYPES,
@@ -96,10 +96,10 @@ function schemaEnum(definition: 'node' | 'mark', property: string): string[] {
   return schema.$defs[definition]!.properties[property]!.enum
 }
 
-describe('public Question Bank Record 0.12.0 contract', () => {
+describe('public Question Bank Record 0.13.0 contract', () => {
   test('canonical examples validate independently against the published schema', async () => {
     expect(publicSchema.$id).toBe(
-      'https://testparrot.com/formats/question-bank/0.12.0/schema.json',
+      'https://testparrot.com/formats/question-bank/0.13.0/schema.json',
     )
     expect(publicSchema.properties.formatVersion.const).toBe(QUESTION_BANK_FORMAT_VERSION)
     expect(
@@ -108,7 +108,7 @@ describe('public Question Bank Record 0.12.0 contract', () => {
           import.meta.dir,
           '..',
           'public',
-          'question-bank-record-0.12.0.schema.json',
+          'question-bank-record-0.13.0.schema.json',
         ),
       ).json(),
     ).toEqual(publicSchema)

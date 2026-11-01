@@ -1,0 +1,990 @@
+/*
+ * A kvízjáték betűi és színpada.
+ *
+ * A színpad a Class Gauntlet kivetítőjének a nyelve (sötét alap, Literata
+ * szöveg, Pirata One címek), a tanári előkészítő felület viszont a
+ * Tesztpapagáj tokenjeit használja, hogy egy oldalnak látszódjon a kettő.
+ *
+ * A betűk latin- és latin-ext részhalmaza külön fájl, `unicode-range`-dzsel:
+ * a latin részhalmazból hiányzik az ő, Ő, ű, Ű, tehát a magyar szöveg a
+ * latin-ext darabból jön. A Pirata One-ból a számjegyek ki vannak zárva (a 0
+ * nyolcasnak látszik benne), ezért a PIN, a pont és az idő Literatával áll.
+ */
+
+@font-face {
+  font-family: 'Literata';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/literata-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Literata';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/literata-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Literata';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/literata-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Literata';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/literata-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* A számjegyek (U+0030–0039) szándékosan kimaradnak: azok Literatával állnak. */
+@font-face {
+  font-family: 'Pirata One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/game-fonts/pirata-one-latin.woff2') format('woff2');
+  unicode-range: U+0000-002F, U+003A-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Pirata One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/game-fonts/pirata-one-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ── Előkészítő felület: a Tesztpapagáj papírján ─────────────────────────── */
+
+.gq-page { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+.gq-lead { max-width: 74ch; margin: 6px 0 22px; color: var(--paper-ink-soft); line-height: 1.5; }
+
+.gq-modes { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 26px; padding: 0; border: 0; }
+@media (min-width: 1024px) { .gq-modes { grid-template-columns: repeat(3, 1fr); } }
+
+.gq-mode {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; text-align: left;
+  border: 1px solid var(--paper-outline); border-radius: 10px; background: var(--paper-surface);
+  color: inherit; cursor: pointer;
+}
+.gq-mode:hover:not(:disabled) { border-color: var(--paper-accent); }
+.gq-mode[aria-pressed='true'] { border-color: var(--paper-accent); box-shadow: 0 0 0 1px var(--paper-accent) inset; }
+.gq-mode:disabled { cursor: not-allowed; opacity: 0.62; }
+.gq-mode-name { font-size: 17px; font-weight: 700; }
+.gq-mode-blurb { font-size: 13px; line-height: 1.45; color: var(--paper-ink-soft); }
+.gq-mode-tag {
+  align-self: flex-start; margin-top: 2px; padding: 1px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--paper-ink-soft); background: var(--paper-surface-low); border: 1px solid var(--paper-outline);
+}
+
+.gq-setup { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 1024px) { .gq-setup { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+
+.gq-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.gq-field > label, .gq-field > .gq-label { font-size: 13px; font-weight: 700; color: var(--paper-ink-soft); }
+.gq-field select { height: 36px; padding: 0 10px; border: 1px solid var(--paper-outline); border-radius: 8px; background: var(--paper-surface); color: inherit; font: inherit; }
+.gq-hint { margin: 0; font-size: 12px; color: var(--paper-ink-soft); }
+.gq-tally { font-size: 13px; color: var(--paper-ink-soft); }
+.gq-tally strong { color: var(--paper-accent); }
+.gq-tally-empty { color: var(--paper-danger); font-weight: 700; }
+
+.gq-checks { display: flex; flex-direction: column; gap: 8px; }
+.gq-checks label { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+
+.gq-out { margin: 18px 0 0; padding: 12px 14px; border: 1px solid var(--paper-outline); border-radius: 10px; background: var(--paper-surface-low); }
+.gq-out h3 { margin: 0 0 6px; font-size: 13px; }
+.gq-out ul { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; color: var(--paper-ink-soft); }
+
+.gq-start { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+/* ── Színpad: kivetítés ─────────────────────────────────────────────────── */
+
+/*
+ * A Class Gauntlet színpada: fáklyafényes terem. Sötét, meleg kő (#241c17),
+ * felülről borostyán derengés, balra agyagvörös, jobbra azúr; a válaszok
+ * címertani színeket viselnek (vörös, kék, arany, zöld) és mindegyiknek saját
+ * jelvénye van, hogy hátulról és szín nélkül is megkülönböztethetők legyenek.
+ */
+
+.gq-stage {
+  position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; gap: 18px;
+  padding: 22px 28px 26px;
+  /* Kivetítésnél görgetősáv nem látszódik: ha mégis kell, a kerék és a
+     billentyűk görgetnek, de a sáv nem vesz el helyet a színpadból. */
+  overflow: auto; scrollbar-width: none;
+  --night: #241c17;
+  --paper: #fffaf3;
+  --paper-low: #f2e6d8;
+  --amber: #f6e2a8;
+  --amber-strong: #f0d27c;
+  --amber-border: #d9a93a;
+  --gules: #b23f2c;
+  --azure: #2f5d8f;
+  --or: #b38418;
+  --vert: #3c7150;
+  --serif: 'Literata', Georgia, 'Times New Roman', serif;
+  --display: 'Pirata One', 'Literata', Georgia, serif;
+  --sans: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgb(240 170 90 / 0.22), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 0% 100%, rgb(159 80 55 / 0.25), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 100% 100%, rgb(47 93 143 / 0.18), transparent 70%),
+    var(--night);
+  color: var(--paper);
+  font-family: var(--serif);
+}
+/* A háttér derengése ne mozduljon a szöveggel: a színpad maga a terem. */
+.gq-stage::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 60% at 50% 0%, rgb(255 236 180 / 0.1), transparent 70%);
+}
+@media (min-width: 1600px) { .gq-stage { padding: 30px 52px 34px; } }
+
+.gq-stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: var(--sans); }
+.gq-pin {
+  display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px;
+  font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase;
+  color: rgb(255 250 243 / 0.78); border: 1px solid rgb(255 250 243 / 0.24);
+  background: rgb(255 250 243 / 0.06);
+}
+.gq-where {
+  display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: nowrap;
+  font-family: var(--serif); font-style: italic; font-size: 19px;
+  color: rgb(255 250 243 / 0.85); letter-spacing: 0.01em;
+}
+.gq-one-name { font-weight: 700; color: var(--paper); }
+.gq-stat {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: 999px;
+  font-style: normal; font-family: var(--sans); font-size: 15px; letter-spacing: 0.03em;
+  text-transform: uppercase; color: var(--amber);
+  border: 1px solid rgb(240 210 124 / 0.35); background: rgb(240 210 124 / 0.1);
+}
+.gq-stat strong { font-family: var(--serif); font-style: normal; font-size: 20px; color: var(--paper); }
+.gq-hearts { gap: 2px; letter-spacing: 0; }
+.gq-heart { color: #e0664c; font-size: 18px; }
+.gq-heart-empty { color: rgb(255 250 243 / 0.35); font-size: 18px; }
+
+.gq-quiet, .gq-go {
+  font-family: var(--sans); font-size: 16px; font-weight: 800; cursor: pointer;
+  border-radius: 12px; box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.18);
+}
+.gq-quiet {
+  padding: 8px 16px; border: 1px solid rgb(255 250 243 / 0.3); background: transparent;
+  color: var(--paper); box-shadow: none;
+}
+.gq-quiet:hover { background: rgb(255 250 243 / 0.1); }
+.gq-go { padding: 12px 30px; border: none; background: var(--paper); color: #332a24; }
+.gq-go:hover { background: #fff; }
+.gq-go:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18); }
+
+.gq-question { display: flex; flex-direction: column; gap: 20px; flex: 1; }
+.gq-head { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 1024px) { .gq-head { grid-template-columns: minmax(0, 1fr) 150px; align-items: center; } }
+
+.gq-prompt {
+  margin: 0; font-family: var(--serif); font-weight: 400; line-height: 1.2;
+  font-size: clamp(28px, 3.4vw, 51px); text-wrap: balance;
+}
+@media (min-width: 1600px) { .gq-prompt { font-size: 51px; } }
+.gq-prompt .doc-content p { margin: 0 0 0.35em; }
+.gq-prompt .doc-figure { margin: 12px 0; }
+
+.gq-timer { justify-self: end; position: relative; display: grid; place-items: center; }
+.gq-timer svg { position: absolute; inset: 0; }
+.gq-timer-track { fill: none; stroke: rgb(255 250 243 / 0.15); stroke-width: 9; }
+.gq-timer-fill {
+  fill: none; stroke: var(--amber-strong); stroke-width: 9; stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s linear;
+}
+.gq-timer[data-low='true'] .gq-timer-fill { stroke: #e0664c; }
+.gq-timer-number {
+  font-family: var(--display); font-size: 46px; line-height: 1; color: var(--paper);
+}
+.gq-timer[data-low='true'] .gq-timer-number { animation: gq-pulse 1s ease-in-out infinite; }
+.gq-timeup { margin: 0; font-family: var(--sans); font-size: 16px; font-weight: 700; color: var(--amber-strong); }
+
+.gq-choices { display: grid; grid-template-columns: 1fr; gap: 12px; }
+/* Két válasz két oszlop, három válasz három, négy válasz 2×2: egy sorban
+   marad minden válasz, ahogy a kivetítőn a legjobban olvasható. */
+@media (min-width: 1024px) {
+  .gq-choices[data-count='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gq-choices[data-count='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gq-choices[data-count='4'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* A válasz: tömör címertani szín, fehér félkövér szöveg, jelvény a bal szélen. */
+.gq-answer {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 14px;
+  min-height: 112px; padding: 19px 26px;
+  border-radius: 12px; background: var(--c, var(--gules)); color: #fff;
+  box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.2), 0 3px 8px rgb(20 14 10 / 0.28);
+  transition: transform 0.12s, opacity 0.3s, filter 0.3s;
+}
+@media (min-width: 1600px) { .gq-answer { min-height: 132px; padding: 24px 32px; } }
+.gq-answer .doc-content {
+  font-family: var(--serif); font-weight: 700; font-size: clamp(22px, 1.7vw, 38px); line-height: 1.2;
+  overflow-wrap: anywhere; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
+}
+@media (min-width: 1600px) { .gq-answer .doc-content { font-size: 38px; } }
+.gq-answer .doc-content p { margin: 0; }
+.gq-mark { flex: none; width: 40px; height: 40px; fill: #fff; filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.25)); }
+.gq-mark .gq-mark-line { fill: none; stroke: rgb(0 0 0 / 0.22); stroke-width: 1.6; stroke-linecap: round; }
+.gq-tick { flex: none; font-family: var(--sans); font-size: 30px; font-weight: 800; }
+
+.gq-answer[data-state='correct'] {
+  outline: 5px solid var(--paper); outline-offset: -5px;
+  animation: gq-pop 0.5s both;
+}
+.gq-answer[data-state='faded'] { opacity: 0.35; filter: saturate(0.6); }
+
+.gq-foot { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: auto; padding-top: 8px; }
+.gq-status {
+  margin: 0; font-family: var(--serif); font-size: clamp(18px, 1.4vw, 24px);
+  color: rgb(255 250 243 / 0.9);
+}
+.gq-status .doc-content { display: inline; }
+.gq-status .doc-content p { display: inline; margin: 0; }
+
+.gq-done { display: grid; place-items: center; gap: 18px; flex: 1; text-align: center; }
+.gq-big {
+  margin: 0; font-family: var(--display); font-weight: 400; line-height: 1.1;
+  font-size: clamp(46px, 6vw, 78px); text-wrap: balance;
+}
+.gq-done p { margin: 0; font-size: 19px; color: rgb(255 250 243 / 0.85); }
+
+@keyframes gq-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+@keyframes gq-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ── A tanári felület színei: módkártyák saját színnel ─────────────────── */
+
+.gq-mode { border-top: 3px solid var(--t, var(--paper-outline)); }
+.gq-mode-mark { display: inline-flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; }
+.gq-mode-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--t, var(--paper-accent)); }
+
+.gq-stage::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── Bajnok mód: névbeírás, segítségek, felhívás ─────────────────────────── */
+
+.gq-notice {
+  margin: 0; padding: 10px 14px; border-radius: 10px; font-family: var(--sans); font-size: 15px;
+  color: #221a10; background: var(--amber);
+}
+.gq-start-row { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.gq-start-row .gq-label { font-family: var(--sans); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: rgb(255 250 243 / 0.7); }
+.gq-input {
+  width: min(420px, 80vw); height: 52px; padding: 0 16px; border-radius: 12px;
+  border: 1px solid rgb(255 250 243 / 0.35); background: rgb(255 250 243 / 0.08);
+  color: var(--paper); font-family: var(--serif); font-size: 24px; text-align: center;
+}
+.gq-input::placeholder { color: rgb(255 250 243 / 0.4); }
+.gq-input:focus { outline: 3px solid var(--amber-strong); outline-offset: 1px; }
+
+.gq-helps { display: flex; flex-wrap: wrap; gap: 10px; }
+.gq-help {
+  padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--amber-border); background: rgb(246 226 168 / 0.14);
+  color: var(--amber); font-family: var(--sans); font-size: 15px; font-weight: 700;
+}
+.gq-help:hover:not(:disabled) { background: rgb(246 226 168 / 0.24); }
+.gq-help:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.gq-answer[data-pickable='true'] { cursor: pointer; }
+.gq-answer[data-pickable='true']:hover { transform: translateY(-2px); }
+.gq-answer[data-pickable='true']:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.2); }
+
+/* ── Veszély!: tábla, csapatok, végeredmény ─────────────────────────────── */
+
+.gq-board-wrap { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.gq-board { display: grid; gap: 12px; flex: 1; align-content: start; }
+.gq-column { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.gq-column-title {
+  margin: 0; padding: 6px 10px; border-radius: 8px; text-align: center;
+  font-family: var(--display); font-weight: 400; font-size: clamp(20px, 1.6vw, 30px);
+  color: var(--night); background: var(--amber-strong); letter-spacing: 0.01em;
+}
+.gq-tile {
+  min-height: 84px; padding: 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgb(255 250 243 / 0.22); background: rgb(255 250 243 / 0.07);
+  color: var(--amber); font-family: var(--display); font-size: clamp(28px, 2.2vw, 44px);
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.18);
+  transition: transform 0.12s, background 0.2s;
+}
+.gq-tile:hover:not(:disabled) { background: rgb(255 250 243 / 0.16); transform: translateY(-2px); }
+.gq-tile:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18); }
+.gq-tile[data-played='true'] {
+  cursor: default; color: rgb(255 250 243 / 0.25); background: rgb(0 0 0 / 0.25);
+  border-color: rgb(255 250 243 / 0.1); box-shadow: none;
+}
+
+.gq-teams { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.gq-team {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 16px 26px; border-radius: 12px; cursor: pointer;
+  border: none; color: #fff; font-family: var(--serif); font-size: 22px; font-weight: 700;
+  background: var(--azure); box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.2);
+}
+.gq-team:nth-child(4n + 2) { background: var(--gules); }
+.gq-team:nth-child(4n + 3) { background: var(--or); }
+.gq-team:nth-child(4n) { background: var(--vert); }
+.gq-team small { font-family: var(--sans); font-size: 13px; font-weight: 600; opacity: 0.85; }
+.gq-team:hover:not(:disabled) { transform: translateY(-2px); }
+.gq-team:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.gq-team-form { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; }
+.gq-input-small { width: 190px; height: 44px; font-size: 18px; }
+select.gq-input-small { text-align: center; }
+
+.gq-standings { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gq-standings li {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 18px; border-radius: 10px; min-width: min(520px, 80vw);
+  background: rgb(255 250 243 / 0.08); font-size: 22px;
+}
+.gq-rank { font-family: var(--display); color: var(--amber-strong); font-size: 26px; text-align: center; }
+.gq-rank-name { font-family: var(--serif); font-weight: 700; }
+.gq-standings strong { font-family: var(--serif); font-size: 26px; color: var(--paper); }
+
+/* ── Félbehagyott játék felajánlása a Kvízjáték oldalon ─────────────────── */
+
+.gq-resume {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 0 0 22px; padding: 16px 18px; border-radius: 12px;
+  border: 1px solid var(--paper-accent); background: var(--paper-accent-wash);
+}
+.gq-resume-title { margin: 0 0 4px; font-size: 15px; color: var(--paper-ink-soft); }
+.gq-resume-line { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
+.gq-resume-actions { display: flex; align-items: center; gap: 10px; }
+.gq-later {
+  height: 34px; padding: 0 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--paper-outline); background: transparent; color: var(--paper-ink-soft); font: inherit;
+}
+.gq-later:hover { border-color: var(--paper-accent); color: #332a24; }
+
+/* ── Lobbi: a szoba kódja és a QR a kivetítőn ─────────────────────────────── */
+
+.gq-lobby {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 44px);
+  align-items: center;
+  padding: clamp(20px, 4vw, 64px);
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgb(240 170 90 / 0.22), transparent 70%),
+    radial-gradient(70% 70% at 20% 100%, rgb(159 80 55 / 0.25), transparent 65%),
+    radial-gradient(60% 60% at 90% 80%, rgb(47 93 143 / 0.18), transparent 60%),
+    #241c17;
+  color: rgb(255 250 243 / 0.94);
+  font-family: Literata, Georgia, serif;
+  overflow: auto;
+}
+
+.gq-lobby-card,
+.gq-lobby-side {
+  min-width: 0;
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
+
+.gq-lobby-card {
+  justify-items: center;
+  text-align: center;
+}
+
+.gq-lobby-kicker {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(240 210 124 / 0.85);
+}
+
+.gq-lobby-code {
+  margin: 0;
+  font-family: Literata, Georgia, serif;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(46px, 9vw, 104px);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: #fffaf3;
+  text-shadow: 0 12px 40px rgb(0 0 0 / 0.45);
+}
+
+.gq-lobby-hint {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgb(255 250 243 / 0.72);
+}
+
+.gq-lobby-join {
+  display: grid;
+  place-items: center;
+  min-height: 196px;
+}
+
+.gq-qr {
+  border-radius: 10px;
+  box-shadow: 0 18px 46px rgb(0 0 0 / 0.45);
+}
+
+.gq-lobby-status {
+  margin: 0;
+  padding: 18px 20px;
+  border: 1px dashed rgb(255 250 243 / 0.35);
+  border-radius: 12px;
+  font-size: 15px;
+  color: rgb(255 250 243 / 0.75);
+}
+
+.gq-lobby-url {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: rgb(255 250 243 / 0.55);
+}
+
+.gq-lobby-problem {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgb(178 63 44 / 0.28);
+  border: 1px solid rgb(224 102 76 / 0.5);
+  font-size: 14px;
+  color: #ffd9cd;
+}
+
+.gq-lobby-count {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-family: Literata, Georgia, serif;
+  color: #f0d27c;
+}
+
+.gq-roster {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 42vh;
+  overflow: auto;
+}
+
+.gq-roster li {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgb(255 250 243 / 0.1);
+  border: 1px solid rgb(255 250 243 / 0.18);
+  font-size: 15px;
+}
+
+.gq-roster li.gq-roster-gone {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.gq-lobby-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gq-lobby-clock {
+  position: fixed;
+  inset-block-end: 18px;
+  inset-inline-start: 22px;
+  font-size: 13px;
+  color: rgb(255 250 243 / 0.3);
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-players {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(240 210 124 / 0.9);
+}
+
+/* ── Diák telefon: belépés, kérdés, eredmény ─────────────────────────────── */
+
+.gq-stu {
+  min-height: 100dvh;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 16px 14px 32px;
+  background: var(--paper, #fbf7f0);
+  color: var(--fg, #241c17);
+  font-family: Literata, Georgia, serif;
+}
+
+.gq-stu-card,
+.gq-stu-question {
+  display: grid;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: #fffdf8;
+  border: 1px solid rgb(36 28 23 / 0.12);
+  box-shadow: 0 10px 26px rgb(36 28 23 / 0.07);
+}
+
+.gq-stu-card h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.gq-stu-field {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: rgb(36 28 23 / 0.7);
+}
+
+.gq-stu-field input {
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(36 28 23 / 0.2);
+  background: #fff;
+  font-size: 20px;
+  font-family: inherit;
+  color: inherit;
+}
+
+.gq-stu-field input:focus-visible {
+  outline: 2px solid #b38418;
+  outline-offset: 1px;
+}
+
+.gq-stu-problem {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgb(178 63 44 / 0.1);
+  border: 1px solid rgb(178 63 44 / 0.35);
+  color: #8d2f1f;
+  font-size: 14px;
+}
+
+.gq-stu-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  color: rgb(36 28 23 / 0.62);
+}
+
+.gq-stu-name {
+  font-weight: 700;
+  color: #241c17;
+}
+
+.gq-stu-points {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  color: #8a6410;
+}
+
+.gq-stu-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-stu-prompt {
+  font-size: 19px;
+  line-height: 1.4;
+}
+
+.gq-stu-prompt .doc-content > *:first-child,
+.gq-stu-choice-words .doc-content > *:first-child {
+  margin-top: 0;
+}
+
+.gq-stu-prompt .doc-content > *:last-child,
+.gq-stu-choice-words .doc-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.gq-stu-clock {
+  margin: 0;
+  justify-self: start;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgb(179 132 24 / 0.14);
+  color: #7d5a0c;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+
+.gq-stu-choices {
+  display: grid;
+  gap: 10px;
+}
+
+.gq-stu-choice {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  min-height: 62px;
+  border-radius: 14px;
+  border: 1px solid rgb(36 28 23 / 0.16);
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  transition: transform 90ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.gq-stu-choice:not(:disabled):active {
+  transform: scale(0.985);
+}
+
+.gq-stu-choice[data-tone='picked'] {
+  border-color: #b38418;
+  box-shadow: 0 0 0 2px rgb(179 132 24 / 0.25);
+}
+
+.gq-stu-choice[data-tone='correct'] {
+  border-color: #3c7150;
+  background: rgb(60 113 80 / 0.1);
+  box-shadow: 0 0 0 2px rgb(60 113 80 / 0.28);
+}
+
+.gq-stu-choice[data-tone='wrong'] {
+  border-color: #b23f2c;
+  background: rgb(178 63 44 / 0.1);
+}
+
+.gq-stu-choice[data-tone='faded'] {
+  opacity: 0.55;
+}
+
+.gq-stu-letter {
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgb(36 28 23 / 0.08);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.gq-stu-choice[data-tone='correct'] .gq-stu-letter {
+  background: #3c7150;
+  color: #fffaf3;
+}
+
+.gq-stu-choice[data-tone='wrong'] .gq-stu-letter {
+  background: #b23f2c;
+  color: #fffaf3;
+}
+
+.gq-stu-choice-words {
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.gq-stu-verdict {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.gq-stu-verdict[data-right='yes'] {
+  color: #2f6344;
+}
+
+.gq-stu-verdict[data-right='no'] {
+  color: #96331f;
+}
+
+.gq-stu-why {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgb(36 28 23 / 0.05);
+  border-inline-start: 3px solid rgb(179 132 24 / 0.7);
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgb(36 28 23 / 0.86);
+}
+
+.gq-stu-result,
+.gq-stu-roster {
+  margin: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 860px) {
+  .gq-lobby {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+    align-content: start;
+  }
+
+  .gq-lobby-side {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .gq-roster {
+    justify-content: center;
+    max-height: none;
+  }
+}
+
+.gq-lobby-copy {
+  justify-self: center;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 250 243 / 0.28);
+  background: rgb(255 250 243 / 0.06);
+  color: rgb(255 250 243 / 0.85);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.gq-lobby-copy:hover {
+  background: rgb(255 250 243 / 0.12);
+}
+
+.gq-roster li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gq-roster-kick {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgb(255 250 243 / 0.22);
+  background: transparent;
+  color: rgb(255 250 243 / 0.6);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gq-roster-kick:hover {
+  border-color: rgb(224 102 76 / 0.7);
+  color: #ffd9cd;
+}
+
+/* ── Veszély! a telefonon ────────────────────────────────────────────────── */
+
+.gq-stu-role {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgb(179 132 24 / 0.14);
+  color: #7d5a0c;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.gq-stu-role[data-one='yes'] {
+  background: rgb(178 63 44 / 0.14);
+  color: #96331f;
+}
+
+.gq-stu-title {
+  margin: 0;
+  font-size: 21px;
+}
+
+.gq-stu-team-members {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: rgb(36 28 23 / 0.55);
+}
+
+.gq-stu-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 8px;
+}
+
+.gq-stu-column {
+  display: grid;
+  gap: 6px;
+}
+
+.gq-stu-column-title {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(36 28 23 / 0.55);
+}
+
+.gq-stu-tile {
+  padding: 12px 6px;
+  border-radius: 10px;
+  border: 1px solid rgb(36 28 23 / 0.16);
+  background: #fffdf8;
+  color: #7d5a0c;
+  font: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.gq-stu-tile[data-played='yes'] {
+  opacity: 0.35;
+  color: rgb(36 28 23 / 0.5);
+  cursor: default;
+}
+
+.gq-stu-tile:disabled {
+  cursor: default;
+}
+
+.gq-stu-buzz {
+  width: 100%;
+  padding: 26px 12px;
+  border-radius: 18px;
+  border: 1px solid #8d2f1f;
+  background: linear-gradient(180deg, #c9503a, #a83624);
+  color: #fffaf3;
+  font: inherit;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow: 0 10px 24px rgb(141 47 31 / 0.35);
+  cursor: pointer;
+}
+
+.gq-stu-buzz:active {
+  transform: scale(0.985);
+}
+
+.gq-stu-wager {
+  display: flex;
+  gap: 8px;
+}
+
+.gq-stu-wager input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(36 28 23 / 0.2);
+  background: #fff;
+  font: inherit;
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-stu-wagers {
+  margin: 0;
+  padding-inline-start: 18px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-stu-answering {
+  margin: 0;
+  font-size: 15px;
+  color: rgb(36 28 23 / 0.6);
+}
+
+/* ── A játék végi eredmény a kivetítőn ───────────────────────────────────── */
+
+.gq-report-wrap {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin: 8px 0 14px;
+}
+
+.gq-report-title {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(240 210 124 / 0.85);
+}
+
+.gq-report {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  min-width: min(560px, 82vw);
+}
+
+.gq-report li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgb(255 250 243 / 0.06);
+  border: 1px solid rgb(255 250 243 / 0.12);
+  font-size: 17px;
+}
+
+.gq-report-rank {
+  color: rgb(240 210 124 / 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-report-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gq-report-right {
+  font-size: 14px;
+  color: rgb(255 250 243 / 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-report-points {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #fffaf3;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { CircleQuestionMark, FileText, House, Import, Library, Settings, X } from 'lucide-react'
+import { CircleQuestionMark, FileText, House, Import, Library, PartyPopper, Settings, X } from 'lucide-react'
 import { AccountBadge, SETTINGS_PATH } from './account-menu'
 import { APP_NAME, useT, type TextKey } from './i18n'
 import type { PersistentStorageStatus } from './durable-storage'
@@ -22,6 +22,7 @@ const NAV = [
   { href: '/', labelKey: 'shell.home', Icon: House },
   { href: '/exams', labelKey: 'shell.exams', Icon: FileText },
   { href: '/question-banks', labelKey: 'shell.questionBanks', Icon: Library },
+  { href: '/jatek', labelKey: 'shell.game', Icon: PartyPopper },
   { href: '/imports', labelKey: 'shell.imports', Icon: Import },
 ] as const satisfies readonly { href: string; labelKey: TextKey; Icon: typeof House }[]
 

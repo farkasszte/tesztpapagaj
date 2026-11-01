@@ -1,0 +1,202 @@
+import { useReducer, useState, type ReactNode } from 'react'
+import { DocView } from './doc-view'
+import type { ClassicSession, ClassicSettings } from './game/classic/types'
+import { ClassicEngine, createClassicSession } from './game/classic/engine'
+import { buildClassicView } from './game/classic/views'
+import type { PlayableWords } from './game/projection'
+import type { Question } from './game/types'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
+import { Ring, Shape } from './game-shapes'
+import type { SavedGame } from './game-store'
+import { useT } from './i18n'
+
+/**
+ * A kivetítés: a Klasszikus mód színpada diákeszközök nélkül.
+ *
+ * A tanár vezet mindent — a kérdést és a válaszokat a nagy képernyő mutatja, az
+ * osztály táblán vagy kézfeltartással válaszol, és a tanár kattint a válasz
+ * megmutatására, majd a következő kérdésre. A szabályok a `game/classic`
+ * motorjában vannak, a szavakat pedig az alkalmazás saját, csak olvasható
+ * rajzolója adja (`DocView`), így a képek, a kivágások és a matek pontosan úgy
+ * állnak a színpadon, ahogy a dolgozaton.
+ *
+ * A színpad a Class Gauntlet terme: sötét, meleg kő, felülről jövő fénnyel, a
+ * válaszok pedig címertani színt és saját jelvényt kapnak (kehely, pajzs,
+ * korona, torony) — így hátulról, szín nélkül is megkülönböztethetők.
+ */
+
+export function ClassicStage({
+  title,
+  questions,
+  words,
+  settings,
+  onExit,
+  restored,
+  engine: given,
+  status,
+  hint,
+}: {
+  title: string
+  questions: Question[]
+  words: Map<string, PlayableWords>
+  settings: Partial<ClassicSettings>
+  onExit: () => void
+  /** Félbehagyott játék a böngésző tárolójából: onnan folytatjuk, ahol állt. */
+  restored?: SavedGame
+  /** Diák-eszközös módban a tanár fülén futó motor; ilyenkor nem ez hozza létre. */
+  engine?: ClassicEngine
+  /** A fejléc bal oldala: a szobakód és a bent lévők száma. */
+  status?: ReactNode
+  /** A lábléc súgója, ha nem a kézfeltartásos változat kell. */
+  hint?: string
+}) {
+  const t = useT()
+  const [engine] = useState(() => {
+    if (given) return given
+    if (restored) return new ClassicEngine(restored.session as ClassicSession)
+    const session = createClassicSession({ code: '', title, questions, settings, noDevices: true })
+    const created = new ClassicEngine(session)
+    created.start()
+    return created
+  })
+  const [, bump] = useReducer((count: number) => count + 1, 0)
+  const now = useNow()
+  useExitOnEscape(onExit)
+
+  const session = engine.session
+  const view = buildClassicView(session, { now })
+  const asked = session.questions[session.index]
+  const shown = asked ? words.get(asked.id) : undefined
+  const question = view.question
+  const total = session.settings.timerSeconds * 1000
+  const remaining = session.deadline === null ? 0 : Math.max(0, session.deadline - now)
+  const timeUp = view.phase === 'QUESTION' && session.deadline !== null && now >= session.deadline
+  const act = (run: () => unknown) => {
+    run()
+    bump()
+  }
+
+  useGamePersistence({
+    mode: 'classic',
+    title,
+    session,
+    words,
+    // A jelentés a játék természetes vége: onnan nincs mit folytatni.
+    finished: view.phase === 'REPORT' || view.phase === 'ENDED',
+  })
+  useStageKeys({
+    next: () => {
+      if (view.phase === 'QUESTION') act(() => engine.lock())
+      else if (view.phase === 'REVEAL') act(() => engine.next())
+    },
+  })
+
+  return (
+    <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.title')}>
+      <div className="gq-stage-bar">
+        {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
+        {session.noDevices || !question ? null : (
+          <span className="gq-players">
+            {t('game.devices.answered', {
+              answered: question.answered,
+              answering: question.answering,
+            })}
+          </span>
+        )}
+        <span className="gq-where">
+          {question
+            ? t('game.stage.questionOf', { number: question.number, total: question.total })
+            : view.title}
+        </span>
+        <button type="button" className="gq-quiet" onClick={onExit}>
+          {t('game.stage.endGame')}
+        </button>
+      </div>
+
+      {question && shown ? (
+        <section className="gq-question">
+          <div className="gq-head">
+            <h1 className="gq-prompt">
+              <DocView content={shown.stem} />
+            </h1>
+            {view.phase === 'QUESTION' && session.deadline !== null ? (
+              <Ring remaining={remaining} total={total} />
+            ) : null}
+          </div>
+
+          <div className="gq-choices" data-count={shown.choices.length}>
+            {shown.choices.map((choiceWords, index) => {
+              const state =
+                question.correct === null ? 'idle' : index === question.correct ? 'correct' : 'faded'
+              return (
+                <div
+                  key={index}
+                  className="gq-answer"
+                  data-state={state}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
+                  role="group"
+                  aria-label={`${LETTERS[index]}: ${question.choices[index] ?? ''}`}
+                >
+                  <Shape index={index} />
+                  <DocView content={choiceWords} />
+                  {state === 'correct' ? <span className="gq-tick" aria-hidden="true">✓</span> : null}
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="gq-foot">
+            <p className="gq-status">
+              {view.phase === 'QUESTION'
+                ? timeUp
+                  ? t('game.stage.timeUp')
+                  : (hint ?? t('game.stage.answerByHand'))
+                : shown.explanation
+                  ? <DocView content={shown.explanation} />
+                  : null}
+            </p>
+            {view.phase === 'QUESTION' ? (
+              <button type="button" className="gq-go" onClick={() => act(() => engine.lock())}>
+                {t('game.stage.showAnswer')}
+              </button>
+            ) : (
+              <button type="button" className="gq-go" onClick={() => act(() => engine.next())}>
+                {question.number < question.total ? t('game.stage.next') : t('game.stage.finish')}
+              </button>
+            )}
+          </div>
+        </section>
+      ) : (
+        <section className="gq-done">
+          <h1 className="gq-big">{t('game.stage.done')}</h1>
+          {/* Diákeszközön a játék végén a tanár a kivetítőn látja, ki hány pontot
+              szerzett — ugyanaz, amit a diákok a telefonjukon. */}
+          {!session.noDevices && view.report ? (
+            <div className="gq-report-wrap">
+              <h2 className="gq-report-title">{t('game.devices.report')}</h2>
+              <ol className="gq-report">
+                {[...view.report.students]
+                  .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+                  .slice(0, 8)
+                  .map((student, index) => (
+                    <li key={student.nickname}>
+                      <span className="gq-report-rank">{index + 1}</span>
+                      <span className="gq-report-name">{student.nickname}</span>
+                      <span className="gq-report-right">
+                        {t('game.devices.reportRight', { right: student.correct, asked: student.answered })}
+                      </span>
+                      <span className="gq-report-points">{student.points}</span>
+                    </li>
+                  ))}
+              </ol>
+              <p className="gq-hint">{t('game.devices.reportHint')}</p>
+            </div>
+          ) : null}
+          <button type="button" className="gq-go" onClick={onExit}>
+            {t('game.stage.backToBanks')}
+          </button>
+        </section>
+      )}
+    </div>
+  )
+}

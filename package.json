@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 8000",
+    "dev:room": "cd workers/room && bun run dev",
+    "typecheck:room": "cd workers/room && bun run typecheck",
+    "deploy:room": "cd workers/room && bun run deploy",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "bun test",
@@ -27,6 +30,7 @@
     "lucide-react": "^1.34.0",
     "mathjax-full": "3.2.2",
     "pdf-lib": "^1.17.1",
+    "qrcode-generator": "^2.0.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

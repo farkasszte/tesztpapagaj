@@ -10,7 +10,7 @@ Always create one complete UTF-8 JSON file using the **Test Parrot Package `0.1.
 <short-name>.parrot.json
 ```
 
-A package always holds exactly one Question Bank Record `0.12.0` with every converted Question. What else goes in it depends on the source, so triage it first:
+A package always holds exactly one Question Bank Record `0.13.0` with every converted Question. What else goes in it depends on the source, so triage it first:
 
 - **The source is a test** — an exam, quiz, worksheet or any paper a student sits, with its questions in a printed order: also add one Exam Record `0.5.0` that lays the Questions out as the test does, in its printed order and under its own section headings (see [Tests](#tests)).
 - **The source is only questions** — a question pool, a study list, a bank exported from elsewhere, anything not laid out as one paper: add no Exam. `exams` is an empty array.
@@ -30,18 +30,18 @@ Do not generate a PDF. Do not return a summary in place of the JSON file.
 
 Use these resources as the source of truth:
 
-- [JSON Schema](./formats/question-bank/0.12.0/schema.json)
-- [Minimal Multiple Choice example](./formats/question-bank/0.12.0/examples/minimal-multiple-choice.json)
-- [True/False example](./formats/question-bank/0.12.0/examples/true-false.json)
-- [Matching example](./formats/question-bank/0.12.0/examples/matching.json)
-- [Multipart example](./formats/question-bank/0.12.0/examples/multipart.json)
-- [Subparts example](./formats/question-bank/0.12.0/examples/subparts.json)
-- [Points example](./formats/question-bank/0.12.0/examples/points.json)
-- [Short Answer example](./formats/question-bank/0.12.0/examples/short-answer.json)
-- [Complete rich-text example](./formats/question-bank/0.12.0/examples/complete-rich-text.json)
-- [Provenance and links example](./formats/question-bank/0.12.0/examples/provenance-and-links.json)
-- [Pending Images example](./formats/question-bank/0.12.0/examples/pending-images.json)
-- [Side-by-side example](./formats/question-bank/0.12.0/examples/side-by-side.json)
+- [JSON Schema](./formats/question-bank/0.13.0/schema.json)
+- [Minimal Multiple Choice example](./formats/question-bank/0.13.0/examples/minimal-multiple-choice.json)
+- [True/False example](./formats/question-bank/0.13.0/examples/true-false.json)
+- [Matching example](./formats/question-bank/0.13.0/examples/matching.json)
+- [Multipart example](./formats/question-bank/0.13.0/examples/multipart.json)
+- [Subparts example](./formats/question-bank/0.13.0/examples/subparts.json)
+- [Points example](./formats/question-bank/0.13.0/examples/points.json)
+- [Short Answer example](./formats/question-bank/0.13.0/examples/short-answer.json)
+- [Complete rich-text example](./formats/question-bank/0.13.0/examples/complete-rich-text.json)
+- [Provenance and links example](./formats/question-bank/0.13.0/examples/provenance-and-links.json)
+- [Pending Images example](./formats/question-bank/0.13.0/examples/pending-images.json)
+- [Side-by-side example](./formats/question-bank/0.13.0/examples/side-by-side.json)
 - [Test Parrot Package JSON Schema](./formats/package/0.1.0/schema.json) and [Exam Record JSON Schema](./formats/exam/0.5.0/schema.json)
 - [Package example: a test, with its bank and its Exam's sections as printed](./formats/package/0.1.0/examples/printed-test.json)
 - [Package example: an exam-board paper, with Points, Subparts and the Exam Board style](./formats/package/0.1.0/examples/exam-board-paper.json)
@@ -52,7 +52,7 @@ The Question Bank Record inside the package has this top-level shape:
 ```json
 {
   "format": "test-parrot/question-bank",
-  "formatVersion": "0.12.0",
+  "formatVersion": "0.13.0",
   "generator": {
     "name": "Name of the assistant or conversion tool",
     "version": "Version or model name"
@@ -82,7 +82,7 @@ The file itself is the package, with the Question Bank Record under `questionBan
   },
   "requiredFeatures": [],
   "questionBanks": [
-    { "id": "bank", "record": { "format": "test-parrot/question-bank", "formatVersion": "0.12.0", "...": "the complete Question Bank Record" } }
+    { "id": "bank", "record": { "format": "test-parrot/question-bank", "formatVersion": "0.13.0", "...": "the complete Question Bank Record" } }
   ],
   "exams": [
     {
@@ -184,6 +184,7 @@ Perform a second pass against the original source and verify all of the followin
 - every question printed under one number with lettered parts is one Multipart Question, each lettered part a Part and each `(i)`, `(ii)`, … beneath a part a Subpart of it, in printed order, with no label left in a stem;
 - every Part that holds Subparts has its lead-in as its `stem` and its `subparts`, and no `type`, `choices`, `suggestedAnswer` or `points`;
 - every mark the source prints for a question, Part or Subpart is that one's `points`, a positive whole number; no `[2]`, `(2 marks)` or `[Total: 9]` is left in a stem, choice or Suggested Answer; no Multipart Question carries `points`; and no total was stored;
+- a Question's `explanation` holds only what the source itself says about why an answer is right, such as a note in the answer key, and is left out when the source says nothing; it is never a restatement of the question;
 - an exam-board paper's Exam has `"paperStyle": "exam-board"`, and no other test has a `paperStyle`;
 - all Question, choice, item, word bank, Part, Part choice, Subpart and Subpart choice IDs are unique and sequential;
 - every meaningful image, including an image used as an answer choice, matching item or word bank answer, is a Pending Image;
@@ -1163,7 +1164,7 @@ Include only information explicitly present in the source or supplied by the use
 
 ## Final validation and delivery
 
-Validate the package against the [package schema](./formats/package/0.1.0/schema.json), its Question Bank Record against the [Question Bank Record schema](./formats/question-bank/0.12.0/schema.json), and any Exam against the [Exam Record schema](./formats/exam/0.5.0/schema.json). Schema validation alone is not sufficient: also verify Question cardinality, unique IDs, that every matching `answer` names an ID in the same Question's `wordBank`, that every Multipart Part is Multiple Choice with at least two choices, Short Answer with none, or holds at least one Subpart and no `type`, `choices`, `suggestedAnswer` or `points`, that every Subpart is Multiple Choice or Short Answer in the same way, that every `points` is a positive whole number on a Question that is not Multipart, a Part that answers, or a Subpart, that every `side-by-side` has two or three panels and stands directly in a stem, safe links, and that every Pending Image follows the rules above.
+Validate the package against the [package schema](./formats/package/0.1.0/schema.json), its Question Bank Record against the [Question Bank Record schema](./formats/question-bank/0.13.0/schema.json), and any Exam against the [Exam Record schema](./formats/exam/0.5.0/schema.json). Schema validation alone is not sufficient: also verify Question cardinality, unique IDs, that every matching `answer` names an ID in the same Question's `wordBank`, that every Multipart Part is Multiple Choice with at least two choices, Short Answer with none, or holds at least one Subpart and no `type`, `choices`, `suggestedAnswer` or `points`, that every Subpart is Multiple Choice or Short Answer in the same way, that every `points` is a positive whole number on a Question that is not Multipart, a Part that answers, or a Subpart, that every `side-by-side` has two or three panels and stands directly in a stem, safe links, and that every Pending Image follows the rules above.
 
 Relevant import limits include:
 
