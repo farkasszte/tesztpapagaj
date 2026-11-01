@@ -9,6 +9,7 @@ import { connectRoom, type RoomConnection } from './game/room-client'
 import type { Question } from './game/types'
 import { PerilStage } from './game-peril-stage'
 import { GameLobby } from './game-lobby'
+import { gameMessage } from './game-messages'
 import { useT } from './i18n'
 
 /**
@@ -102,7 +103,7 @@ export function PerilDevices({
               nickname: message.nickname ?? '',
             })
             if (!result.ok) {
-              live.send({ kind: 'refused', message: result.message }, from)
+              live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
               return
             }
             seats.current.set(from, result.player.id)
@@ -134,7 +135,7 @@ export function PerilDevices({
           if (result && !result.ok) {
             // A buzzert elhibázó diák kapjon visszajelzést, ne csendet.
             if (message.kind === 'buzz' || message.kind === 'wager' || message.kind === 'answer') {
-              live.send({ kind: 'note', message: result.message ?? '', at: Date.now() }, from)
+              live.send({ kind: 'note', message: gameMessage(result.message), at: Date.now() }, from)
             }
             return
           }

@@ -9,6 +9,7 @@ import { connectRoom, type RoomConnection } from './game/room-client'
 import type { Question } from './game/types'
 import { ChampionStage } from './game-champion-stage'
 import { GameLobby } from './game-lobby'
+import { gameMessage } from './game-messages'
 import { useT } from './i18n'
 
 /**
@@ -97,7 +98,7 @@ export function ChampionDevices({
               nickname: message.nickname ?? '',
             })
             if (!result.ok) {
-              live.send({ kind: 'refused', message: result.message }, from)
+              live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
               return
             }
             seats.current.set(from, result.player.id)

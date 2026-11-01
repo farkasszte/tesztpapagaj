@@ -8,6 +8,7 @@ import { newRoomCode, spacedRoomCode } from './game/room-protocol'
 import { connectRoom, type RoomConnection } from './game/room-client'
 import type { Question } from './game/types'
 import { GameLobby } from './game-lobby'
+import { gameMessage } from './game-messages'
 import { ClassicStage } from './game-stage'
 import { useT } from './i18n'
 
@@ -103,7 +104,7 @@ export function ClassicDevices({
               nickname: message.nickname ?? '',
             })
             if (!result.ok) {
-              live.send({ kind: 'refused', message: result.message }, from)
+              live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
               return
             }
             seats.current.set(from, result.player.id)

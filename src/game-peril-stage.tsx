@@ -9,6 +9,7 @@ import type { Question } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
 import { Shape } from './game-shapes'
 import type { SavedGame } from './game-store'
+import { gameMessage } from './game-messages'
 import { useT } from './i18n'
 
 /**
@@ -64,7 +65,7 @@ export function PerilStage({
 
   const run = (action: () => { ok: boolean; message?: string }) => {
     const result = action()
-    setNotice(result.ok ? null : (result.message ?? null))
+    setNotice(result.ok ? null : gameMessage(result.message) || null)
     bump()
   }
 
@@ -74,7 +75,7 @@ export function PerilStage({
       treasureTrove: true,
     })
     const result = session.startBoard(board)
-    setNotice(result.ok ? null : (result.message ?? null))
+    setNotice(result.ok ? null : gameMessage(result.message) || null)
     bump()
   }
 

@@ -738,7 +738,7 @@ export function PageHeaderContent({
                 rows={1}
                 value={furniture.title}
                 disabled={titleDisabled}
-                placeholder="Untitled Exam"
+                placeholder={t('exam.untitled')}
                 spellCheck
                 onChange={(event) => onTitleChange(event.target.value.replace(/\s*\n\s*/g, ' '))}
                 onKeyDown={(event) => {

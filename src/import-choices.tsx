@@ -59,7 +59,7 @@ export function TextOnlyChoices({ busy, onPaste }: {
       </form>
     ) : (
       <p className="convert-text-only">
-        Only have it as text?{' '}
+        {t('imports.textOnly')}{' '}
         <button type="button" className="link-button" disabled={busy} onClick={() => setPasting(true)}>
           <ClipboardPaste aria-hidden="true" /> {t('import.pasteQuestions')}
         </button>
