@@ -1,5 +1,9 @@
 import { MAX_PLAYERS, nicknameProblem, normalizeNickname, randomId, type Clock, type Result } from '../engine';
 import type { Question } from '../types';
+import { acceptedAnswersOf, textIsRight } from '../text-match';
+
+/** Egy beírt válasz leghosszabb elfogadott hossza — a huzalon sem megy több. */
+export const MAX_TEXT_LENGTH = 120;
 import {
   DEFAULT_CLASSIC_SETTINGS,
   type ClassicPlayer,
@@ -179,14 +183,35 @@ export class ClassicEngine {
 
   /** A Multiple Answer question: every ticked choice, in the order they were tapped. */
   answerMany(playerId: string, choices: number[]): Result {
-    const s = this.session;
-    const question = this.question;
-    if (s.phase !== 'QUESTION' || !question) return no('Wait for the next question.');
-    if (!this.player(playerId)) return no('Join the game first.');
-    const answers = s.answers[s.index];
-    if (answers.some((a) => a.playerId === playerId)) return no('You’ve already answered.');
-    // Sorrendnél a sorrend számít, tehát az ismétlődés és a sorrend marad;
-    // minden más kérdésnél a jelölés halmaz.
+    return this.submit(playerId, choices, [])
+  }
+
+  /** Kiegészítés és rövid válasz: a beírt szöveg, hézagonként, sorrendben. */
+  answerTexts(playerId: string, texts: string[]): Result {
+    return this.submit(playerId, [], texts)
+  }
+
+  /** Egy válasz rögzítése: kártyaindexekkel vagy beírt szöveggel. */
+  private submit(playerId: string, choices: number[], texts: string[]): Result {
+    const s = this.session
+    const question = this.question
+    if (s.phase !== 'QUESTION' || !question) return no('Wait for the next question.')
+    if (!this.player(playerId)) return no('Join the game first.')
+    const answers = s.answers[s.index]
+    if (answers.some((a) => a.playerId === playerId)) return no('You’ve already answered.')
+    const ms = this.clock.now() - (s.openedAt ?? this.clock.now())
+
+    // Szöveges válasznál hézagonként egy beírás számít, kártya nincs.
+    if (question.blanks || question.accepted) {
+      const wanted = question.blanks ? question.blanks.length : 1
+      const given = texts.map((text) => text.slice(0, MAX_TEXT_LENGTH).trim())
+      if (given.length !== wanted || given.some((text) => !text)) return no('Write your answer first.')
+      answers.push({ playerId, choice: -1, texts: given, ms })
+      if (s.settings.scoring && answerIsRight(question, [], given)) this.award(playerId, ms)
+      this.closeIfAllIn()
+      return this.changed()
+    }
+
     // Sorrendnél és párosításnál a sorrend számít (fogalmanként egy válasz),
     // minden más kérdésnél a jelölés halmaz.
     const sequence = !!question.correctOrder || !!question.matches
@@ -196,15 +221,16 @@ export class ClassicEngine {
       return no('Match every one of them.')
     if (picked.some((choice) => !Number.isInteger(choice) || choice < 0 || choice >= question.choices.length))
       return no('Pick one of the answers.');
-    const ms = this.clock.now() - (s.openedAt ?? this.clock.now());
     answers.push({ playerId, choice: picked[0]!, choices: picked, ms });
-    // With scoring on, a right answer earns 1000 at once, falling to 500 as time runs out.
-    if (s.settings.scoring && answerIsRight(question, picked)) {
-      const limit = s.settings.timerSeconds * 1000;
-      this.player(playerId)!.points += Math.round(1000 - 500 * Math.min(1, ms / limit));
-    }
+    if (s.settings.scoring && answerIsRight(question, picked)) this.award(playerId, ms)
     this.closeIfAllIn();
     return this.changed();
+  }
+
+  /** A helyes válasz pontja: 1000-ről 500-ra csökken, ahogy telik az idő. */
+  private award(playerId: string, ms: number) {
+    const limit = this.session.settings.timerSeconds * 1000
+    this.player(playerId)!.points += Math.round(1000 - 500 * Math.min(1, ms / limit))
   }
 
   /** The answers lock once everyone still connected has answered. */
@@ -260,7 +286,21 @@ export class ClassicEngine {
  * Whether an answer got the question right: every right choice, and nothing else.
  * A Multiple Answer question is all or nothing — a half-right tick is wrong.
  */
-export function answerIsRight(question: Question, choices: readonly number[]): boolean {
+export function answerIsRight(
+  question: Question,
+  choices: readonly number[],
+  texts: readonly string[] = [],
+): boolean {
+  // Kiegészítés: minden hézag a maga válaszához mérve számít (és azon belül a
+  // tanár válaszában felsorolt alakok bármelyike jó).
+  if (question.blanks) {
+    if (texts.length !== question.blanks.length) return false
+    return question.blanks.every((blank, index) =>
+      textIsRight(texts[index] ?? '', acceptedAnswersOf(blank)),
+    )
+  }
+  // Rövid válasz: a tanár javasolt válaszából készült elfogadható alakok valamelyike.
+  if (question.accepted) return textIsRight(texts[0] ?? '', question.accepted)
   // A párosítás és a sorrendezés válasza szekvencia: a hely számít.
   if (question.matches) {
     if (choices.length !== question.matches.length) return false
@@ -282,7 +322,8 @@ export function reportOf(s: ClassicSession): ClassicReport {
   return {
     questions: asked.map(({ answers, question }) => ({
       prompt: question.prompt,
-      correct: answers.filter((a) => answerIsRight(question, a.choices ?? [a.choice])).length,
+      correct: answers.filter((a) => answerIsRight(question, a.choices ?? [a.choice], a.texts ?? []))
+        .length,
       answered: answers.length,
       counts: question.choices.map(
         (_, c) => answers.filter((a) => (a.choices ?? [a.choice]).includes(c)).length,

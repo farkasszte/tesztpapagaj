@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ClassicView } from './game/classic/views'
 import { StudentBlocks } from './game-student-blocks'
 import { choiceTone } from './game-student-tone'
+import { acceptedAnswersOf, textIsRight } from './game/text-match'
 import { useT } from './i18n'
 
 /**
@@ -24,7 +25,7 @@ export function ClassicStudentGame({
   nickname: string
   problem: string | null
   /** Egy válasz, vagy egy több helyes válaszos kérdésnél a megjelöltek. */
-  onAnswer: (choices: number[]) => void
+  onAnswer: (choices: number[], texts?: string[]) => void
 }) {
   const t = useT()
   /** A több helyes válaszos kérdésnél a beküldés előtt összegyűjtött jelölések. */
@@ -32,6 +33,8 @@ export function ClassicStudentGame({
   /** Párosításnál fogalmanként a válasz indexe, és az épp kiválasztott fogalom. */
   const [links, setLinks] = useState<(number | null)[]>([])
   const [active, setActive] = useState<number | null>(null)
+  /** A beírt válaszok, hézagonként. */
+  const [typed, setTyped] = useState<string[]>([])
   const question = view?.question ?? null
   const mine = view?.me ?? null
   const revealed = view?.phase === 'REVEAL'
@@ -45,6 +48,7 @@ export function ClassicStudentGame({
     setMarked([])
     setLinks([])
     setActive(null)
+    setTyped([])
   }, [question?.number])
   useEffect(() => {
     if (remaining === null) return
@@ -127,7 +131,65 @@ export function ClassicStudentGame({
             </div>
           ) : null}
 
-          <div className="gq-stu-choices">
+          {question.textEntry ? (
+            <div className="gq-stu-texts">
+              <p className="gq-hint">
+                {question.gaps > 1
+                  ? t('game.student.fillHint', { count: question.gaps })
+                  : t('game.student.writeHint')}
+              </p>
+              {Array.from({ length: question.gaps }, (_, index) => {
+                const right = revealed ? (question.rightBlanks?.[index] ?? null) : null
+                const value = typed[index] ?? ''
+                // Hézagoknál a helyes válasz a felfedésnél érkezik meg, rövid
+                // válasznál a tanár ítélete (`me.right`) mondja meg, jó-e.
+                const tone = right !== null
+                  ? !value
+                    ? undefined
+                    : textIsRight(value, acceptedAnswersOf(right))
+                      ? 'correct'
+                      : 'wrong'
+                  : revealed && mine?.right !== null && mine?.right !== undefined
+                    ? mine.right
+                      ? 'correct'
+                      : 'wrong'
+                    : undefined
+                return (
+                  <label key={index} className="gq-stu-text" data-tone={tone}>
+                    {question.gaps > 1 ? (
+                      <span className="gq-stu-text-gap">{index + 1}.</span>
+                    ) : null}
+                    <input
+                      type="text"
+                      inputMode="text"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      maxLength={120}
+                      value={value}
+                      disabled={view?.phase !== 'QUESTION' || mine?.canAnswer === false || sent !== null}
+                      placeholder={t('game.student.writePlaceholder')}
+                      onChange={(event) => {
+                        const next = [...typed]
+                        next[index] = event.target.value
+                        setTyped(next)
+                      }}
+                      onKeyDown={(event) => {
+                        // Enterrel is elküldhető, ha minden hézag ki van töltve.
+                        if (event.key !== 'Enter') return
+                        const complete = Array.from({ length: question.gaps }, (_, i) =>
+                          (typed[i] ?? '').trim(),
+                        )
+                        if (complete.every(Boolean)) onAnswer([], complete)
+                      }}
+                    />
+                  </label>
+                )
+              })}
+            </div>
+          ) : null}
+
+          <div className="gq-stu-choices" hidden={question.textEntry}>
             {question.choices.map((choice, index) => {
               const mine_ = mine?.answers ?? (mine ? [mine.answer ?? -1] : [])
               const picked = (sent ?? []).includes(index) || marked.includes(index) || mine_.includes(index)
@@ -182,40 +244,63 @@ export function ClassicStudentGame({
             })}
           </div>
 
-          {(question.multi || question.ordered || question.matching) &&
+          {(question.multi || question.ordered || question.matching || question.textEntry) &&
           view?.phase === 'QUESTION' ? (
             <div className="gq-stu-confirm">
               <p className="gq-hint">
-                {question.matching
-                  ? t('game.student.matchSendHint')
-                  : question.ordered
-                    ? t('game.student.orderHint')
-                    : t('game.student.multiHint')}
+                {question.textEntry
+                  ? t('game.student.textSendHint')
+                  : question.matching
+                    ? t('game.student.matchSendHint')
+                    : question.ordered
+                      ? t('game.student.orderHint')
+                      : t('game.student.multiHint')}
               </p>
               <button
                 type="button"
                 className="primary-button"
                 disabled={
-                  question.matching
-                    ? links.length !== (question.prompts?.length ?? 0) ||
-                      links.some((linked) => linked === null) ||
-                      sent !== null
-                    : marked.length === 0 || sent !== null
+                  question.textEntry
+                    ? Array.from({ length: question.gaps }, (_, index) =>
+                        (typed[index] ?? '').trim(),
+                      ).some((text) => !text) || sent !== null
+                    : question.matching
+                      ? links.length !== (question.prompts?.length ?? 0) ||
+                        links.some((linked) => linked === null) ||
+                        sent !== null
+                      : marked.length === 0 || sent !== null
                 }
                 onClick={() =>
-                  onAnswer(question.matching ? links.map((linked) => linked ?? -1) : marked)
+                  onAnswer(
+                    question.matching ? links.map((linked) => linked ?? -1) : marked,
+                    question.textEntry
+                      ? Array.from({ length: question.gaps }, (_, index) => (typed[index] ?? '').trim())
+                      : undefined,
+                  )
                 }
               >
-                {question.matching
-                  ? t('game.student.matchSend')
-                  : question.ordered
-                    ? t('game.student.orderSend')
-                    : t('game.student.multiSend')}
+                {question.textEntry
+                  ? t('game.student.textSend')
+                  : question.matching
+                    ? t('game.student.matchSend')
+                    : question.ordered
+                      ? t('game.student.orderSend')
+                      : t('game.student.multiSend')}
               </button>
             </div>
           ) : null}
 
-          {revealed && question.correct !== null ? (
+          {revealed && question.textEntry ? (
+            <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
+              {mine?.right
+                ? t('game.student.right')
+                : t('game.student.textWrong', {
+                    answer: (question.rightBlanks ?? question.accepted ?? []).join(' · '),
+                  })}
+            </p>
+          ) : null}
+
+          {revealed && !question.textEntry && question.correct !== null ? (
             <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
               {mine?.right
                 ? t('game.student.right')

@@ -142,6 +142,39 @@ export function ClassicStage({
             </ol>
           ) : null}
 
+          {/* Beírt válasz: a táblán a kérdés áll, a felfedésnél a helyes
+              válaszok; a válaszok a kártyák helyén, sorszámozva. */}
+          {question.textEntry ? (
+            <div className="gq-written">
+              {view.phase === 'QUESTION' ? (
+                <p className="gq-written-hint">
+                  {view.noDevices
+                    ? t('game.stage.writeOnPaper')
+                    : t('game.stage.writeOnPhones')}
+                </p>
+              ) : (
+                <ol className="gq-match">
+                  {question.rightBlanks ? (
+                    // Kiegészítés: hézagonként a maga válasza, sorszámozva.
+                    question.rightBlanks.map((answer, index) => (
+                      <li key={index}>
+                        <span className="gq-match-prompt">{index + 1}.</span>
+                        <span className="gq-match-letter gq-written-answer">{answer}</span>
+                      </li>
+                    ))
+                  ) : (
+                    // Rövid válasz: az elfogadható alakok egy sorban.
+                    <li>
+                      <span className="gq-match-prompt">{t('game.stage.rightAnswer')}</span>
+                      <span className="gq-match-letter gq-written-answer">
+                        {(question.accepted ?? []).join(' · ')}
+                      </span>
+                    </li>
+                  )}
+                </ol>
+              )}
+            </div>
+          ) : (
           <div className="gq-choices" data-count={shown.choices.length}>
             {shown.choices.map((choiceWords, index) => {
               // Több helyes válasznál mindegyik helyes válasz pipát és szegélyt kap;
@@ -179,6 +212,7 @@ export function ClassicStage({
               )
             })}
           </div>
+          )}
 
           <div className="gq-foot">
             <p className="gq-status">

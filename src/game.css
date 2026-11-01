@@ -1103,3 +1103,77 @@ select.gq-input-small { text-align: center; }
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Beírt válasz a színpadon ────────────────────────────────────────────── */
+
+.gq-written {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.gq-written-hint {
+  margin: 0;
+  font-size: clamp(15px, 1.7vw, 21px);
+  color: rgb(255 250 243 / 0.72);
+}
+
+.gq-written-answer {
+  min-width: auto;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-variant-numeric: normal;
+  white-space: normal;
+  text-align: start;
+}
+
+/* ── Beíró mezők a telefonon ──────────────────────────────────────────────── */
+
+.gq-stu-texts {
+  display: grid;
+  gap: 8px;
+}
+
+.gq-stu-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gq-stu-text-gap {
+  flex: 0 0 auto;
+  min-width: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: rgb(36 28 23 / 0.55);
+}
+
+.gq-stu-text input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(36 28 23 / 0.18);
+  background: #fffdf8;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+}
+
+.gq-stu-text input:focus {
+  outline: none;
+  border-color: #b38418;
+  box-shadow: 0 0 0 2px rgb(179 132 24 / 0.25);
+}
+
+.gq-stu-text[data-tone='correct'] input {
+  border-color: #3c7150;
+  background: rgb(60 113 80 / 0.1);
+}
+
+.gq-stu-text[data-tone='wrong'] input {
+  border-color: #b23f2c;
+  background: rgb(178 63 44 / 0.1);
+}

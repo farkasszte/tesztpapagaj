@@ -268,9 +268,14 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
         sent={sent}
         nickname={nickname}
         problem={problem}
-        onAnswer={(choices) => {
+        onAnswer={(choices, texts) => {
           setSent(choices)
-          reply({ kind: 'answer', choice: choices[0], choices })
+          reply({
+            kind: 'answer',
+            choice: choices[0],
+            choices,
+            ...(texts ? { texts } : {}),
+          })
         }}
       />
     )

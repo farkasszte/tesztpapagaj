@@ -1,6 +1,8 @@
 import type { Question as BankQuestion } from '../exam'
 import { t } from '../i18n'
 import { choiceIsCorrect, choiceNodesOf, stemNodesOf, type ProseMirrorJSON } from '../question-doc'
+import { BLANK_LINE, blankAnswerText, blankAnswersOf } from '../blank'
+import { acceptedAnswersOf } from './text-match'
 import { SECTION_LABELS } from '../exam'
 import { isPlain, plainOf, type RichNode, type RichText } from './rich-text'
 import type { Question } from './types'
@@ -179,11 +181,35 @@ const PLAYABLE_TYPES = new Set<string>([
   'multiple-answer',
   'ordering',
   'matching',
+  'fill-in-the-blank',
+  'open',
 ])
 
 /** Az Igaz/Hamis kérdés két válasza: a dokumentumban angolul állnak. */
 function trueFalseLabel(index: number): string {
   return index === 0 ? t('game.trueFalse.true') : t('game.trueFalse.false')
+}
+
+/** Egyszerre ennyi hézag fér ki egy képernyőre. */
+const MAX_BLANKS = 4
+
+/**
+ * A stem, a hézagok helyén vonallal: a játék a választ soha nem mutatja, a
+ * hézagot viszont látni kell. Több hézagnál sorszám áll mellette, hogy a
+ * telefonon a mezők összeköthetők legyenek a helyükkel.
+ */
+function blankMarked(nodes: readonly ProseMirrorJSON[], count: number): ProseMirrorJSON[] {
+  let seen = 0
+  const walk = (node: ProseMirrorJSON): ProseMirrorJSON => {
+    if (node.type === 'blank') {
+      seen += 1
+      return { type: 'text', text: count > 1 ? `${BLANK_LINE} (${seen})` : BLANK_LINE }
+    }
+    const children = childrenOf(node)
+    if (!children.length) return node
+    return { ...node, content: children.map(walk) }
+  }
+  return nodes.map(walk)
 }
 
 /** Egy párosítás kérdés darabjai: a fogalmak, a válaszok, és fogalmanként a válasz. */
@@ -242,10 +268,31 @@ function problemOf(question: BankQuestion, classic: boolean): string | null {
   if (
     (question.type === 'multiple-answer' ||
       question.type === 'ordering' ||
-      question.type === 'matching') &&
+      question.type === 'matching' ||
+      question.type === 'fill-in-the-blank' ||
+      question.type === 'open') &&
     !classic
   )
     return t('game.skip.multipleMode', { type: SECTION_LABELS[question.type] })
+  if (question.type === 'fill-in-the-blank') {
+    const blanks = blankAnswersOf(question.doc).map((answer) => blankAnswerText(answer).trim())
+    if (blanks.length === 0) return t('game.skip.emptyBlank')
+    if (blanks.length > MAX_BLANKS) return t('game.skip.choiceCount', { count: blanks.length })
+    if (blanks.some((answer) => !answer)) return t('game.skip.emptyBlank')
+    const stem = blankMarked(stemNodesOf(question.doc), blanks.length)
+    if (hasUnshowable(stem)) return t('game.skip.layout')
+    if (!plainOf(gameNodes(stem)).trim()) return t('game.skip.emptyStem')
+    return null
+  }
+  if (question.type === 'open') {
+    const suggested = question.suggestedAnswer
+    if (!suggested) return t('game.skip.noAnswer')
+    if (acceptedAnswersOf(plainOf(gameNodes(childrenOf(suggested)))).length === 0)
+      return t('game.skip.noAnswer')
+    if (hasUnshowable(stemNodesOf(question.doc))) return t('game.skip.layout')
+    if (!plainOf(gameNodes(stemNodesOf(question.doc))).trim()) return t('game.skip.emptyStem')
+    return null
+  }
   if (question.type === 'matching') {
     const pairs = matchingParts(question.doc)
     if (!pairs) return t('game.skip.unpaired')
@@ -299,7 +346,43 @@ export function playableQuestions(
     }
     const stemNodes = stemNodesOf(question.doc)
     const explanationNodes = question.explanation ? childrenOf(question.explanation) : []
-    const stem = gameNodes(stemNodes)
+    if (question.type === 'fill-in-the-blank' || question.type === 'open') {
+      const blanks =
+        question.type === 'fill-in-the-blank'
+          ? blankAnswersOf(question.doc).map((answer) => blankAnswerText(answer).trim())
+          : null
+      const accepted =
+        question.type === 'open' && question.suggestedAnswer
+          ? acceptedAnswersOf(plainOf(gameNodes(childrenOf(question.suggestedAnswer))))
+          : null
+      const stem = gameNodes(blankMarked(stemNodes, blanks?.length ?? 0))
+      const explanationRich = explanationNodes.length ? gameNodes(explanationNodes) : []
+      words.set(question.id, {
+        stem: blankMarked(stemNodes, blanks?.length ?? 0),
+        choices: [],
+        ...(explanationNodes.length ? { explanation: explanationNodes } : {}),
+      })
+      playable.push({
+        id: question.id,
+        prompt: plain(stem),
+        choices: [],
+        correct: 0,
+        ...(blanks ? { blanks } : {}),
+        ...(accepted ? { accepted } : {}),
+        ...(question.topics?.length ? { topics: [...question.topics] } : {}),
+        ...(explanationNodes.length ? { explanation: plain(explanationRich) } : {}),
+        ...(!isPlain(stem) || explanationNodes.length
+          ? {
+              rich: {
+                prompt: stem,
+                choices: [],
+                ...(explanationNodes.length ? { explanation: explanationRich } : {}),
+              },
+            }
+          : {}),
+      })
+      return
+    }
     if (question.type === 'matching') {
       const parts = matchingParts(question.doc)!
       const shown = scrambledIndices(parts.answers.length, `${question.id}:answers`).map(
@@ -344,6 +427,7 @@ export function playableQuestions(
       })
       return
     }
+    const stem = gameNodes(stemNodes)
     const authored = choiceNodesOf(question.doc)
     const labelled =
       question.type === 'true-false'

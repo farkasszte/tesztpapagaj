@@ -82,7 +82,7 @@ describe('what the projector plays', () => {
   })
 
   test('every other type of the Tesztpapagáj is left out, and the reason names the type', () => {
-    const types: QuestionType[] = ['fill-in-the-blank', 'open', 'multipart']
+    const types: QuestionType[] = ['multipart']
     for (const type of types) {
       const result = playableQuestions([question([choice('A', true), choice('B')], { type })], {
         classic: true,
@@ -95,6 +95,79 @@ describe('what the projector plays', () => {
     expect(ordering.skipped[0].reason).toBe(
       t('game.skip.multipleMode', { type: SECTION_LABELS['ordering'] }),
     )
+  })
+
+  test('a Fill in the Blank question is played with its gaps, and the answers stay on the teacher’s side', () => {
+    const blank = (answer: string): ProseMirrorJSON => ({
+      type: 'blank',
+      content: [{ type: 'text', text: answer }],
+    })
+    const bankQuestion: BankQuestion = {
+      id: 'fb1',
+      type: 'fill-in-the-blank',
+      columns: 1,
+      doc: {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'A növény a ' },
+              blank('fotoszintézis'),
+              { type: 'text', text: ' során cukrot termel a ' },
+              blank('levélben'),
+              { type: 'text', text: '.' },
+            ],
+          },
+        ],
+      },
+    }
+    const result = playableQuestions([bankQuestion], { classic: true })
+    expect(result.skipped).toEqual([])
+    const played = result.questions[0]!
+    expect(played.blanks).toEqual(['fotoszintézis', 'levélben'])
+    expect(played.choices).toEqual([])
+    // A stem vonalat mutat a válasz helyén, és nem árulja el a választ.
+    expect(played.prompt).toContain('_____ (1)')
+    expect(played.prompt).toContain('_____ (2)')
+    expect(played.prompt).not.toContain('fotoszintézis')
+    expect(played.prompt).not.toContain('levélben')
+
+    // Üres hézaggal nem játszható.
+    const empty: BankQuestion = {
+      ...bankQuestion,
+      doc: { type: 'doc', content: [{ type: 'paragraph', content: [blank('')] }] },
+    }
+    const skipped = playableQuestions([empty], { classic: true })
+    expect(skipped.skipped[0]!.reason).toBe(t('game.skip.emptyBlank'))
+  })
+
+  test('a Short Answer question is played against the suggested answer, and never shows it while answering', () => {
+    const bankQuestion: BankQuestion = {
+      id: 'sa1',
+      type: 'open',
+      columns: 1,
+      doc: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Mi a fotoszintézis terméke?' }] }],
+      },
+      suggestedAnswer: {
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'glükóz / cukor' }] }],
+      },
+    }
+    const result = playableQuestions([bankQuestion], { classic: true })
+    expect(result.skipped).toEqual([])
+    const played = result.questions[0]!
+    expect(played.accepted).toEqual(['glükóz', 'cukor'])
+    expect(played.prompt).not.toContain('glükóz')
+    expect(played.blanks).toBeUndefined()
+
+    // Javasolt válasz nélkül nincs mihez mérni.
+    const { suggestedAnswer: _drop, ...without } = bankQuestion
+    void _drop
+    const skipped = playableQuestions([without], { classic: true })
+    expect(skipped.skipped[0]!.reason).toBe(t('game.skip.noAnswer'))
   })
 
   test('a Matching question is played with shuffled answers, and every concept keeps its pair', () => {

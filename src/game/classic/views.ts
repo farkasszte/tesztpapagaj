@@ -46,6 +46,14 @@ export type ClassicView = {
     matchAnswers: number[] | null;
     /** The right order once the answer shows: choice indices, in sequence. */
     correctOrder: number[] | null;
+    /** The student types the answer instead of tapping a choice. */
+    textEntry: boolean;
+    /** How many places the student writes in: one for a short answer, one per gap. */
+    gaps: number;
+    /** The right text of each gap once the answer shows. */
+    rightBlanks: string[] | null;
+    /** What counts as a right short answer, once it shows. */
+    accepted: string[] | null;
     counts: number[] | null;
     explanation: string | null;
   };
@@ -58,6 +66,8 @@ export type ClassicView = {
     answer: number | null;
     /** Every choice this student ticked; one for a single-answer question. */
     answers: number[] | null;
+    /** What this student typed, when the question asks for words. */
+    texts: string[] | null;
     /** Null until the answer shows. */
     right: boolean | null;
     correctSoFar: number;
@@ -104,6 +114,10 @@ export function buildClassicView(session: ClassicSession, options: { now: number
             prompts: question.prompts ?? null,
             matchAnswers: revealed ? (question.matches ?? null) : null,
             correctOrder: revealed ? (question.correctOrder ?? null) : null,
+            textEntry: !!question.blanks || !!question.accepted,
+            gaps: question.blanks ? question.blanks.length : question.accepted ? 1 : 0,
+            rightBlanks: revealed ? (question.blanks ?? null) : null,
+            accepted: revealed ? (question.accepted ?? null) : null,
             counts: revealed ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length) : null,
             explanation: revealed ? question.explanation?.trim() || null : null,
           }
@@ -124,10 +138,17 @@ export function buildClassicView(session: ClassicSession, options: { now: number
     id: viewer.id,
     nickname: viewer.nickname,
     canAnswer: s.phase === 'QUESTION' && !mine,
-    answer: shown ? (mine?.choice ?? null) : null,
-    answers: shown ? (mine?.choices ?? (mine ? [mine.choice] : null)) : null,
-    right: revealed && mine ? answerIsRight(question, mine.choices ?? [mine.choice]) : null,
-    correctSoFar: results.filter(({ answer, question: q }) => answer?.choice === q.correct).length,
+    answer: shown && mine && mine.choice >= 0 ? mine.choice : null,
+    answers:
+      shown && mine && mine.choice >= 0 ? (mine.choices ?? [mine.choice]) : null,
+    texts: shown ? (mine?.texts ?? null) : null,
+    right: revealed && mine ? answerIsRight(question, mine.choices ?? [mine.choice], mine.texts ?? []) : null,
+    // Minden típus a maga szabálya szerint számít: a több helyes válasz, a
+    // sorrend, a párosítás és a beírt szöveg is.
+    correctSoFar: results.filter(
+      ({ answer, question: q }) =>
+        !!answer && answerIsRight(q, answer.choices ?? [answer.choice], answer.texts ?? []),
+    ).length,
     asked: results.length,
     points: viewer.points,
   };

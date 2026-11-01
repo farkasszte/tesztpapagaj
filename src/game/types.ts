@@ -31,6 +31,16 @@ export type Question = {
    */
   prompts?: string[];
   matches?: number[];
+  /**
+   * Kiegészítés: a hézagok helyes szövege, sorrendben. A stem ezek helyén álló
+   * vonalat mutat, a válaszok csak a felfedésnél kerülnek a nézetbe.
+   */
+  blanks?: string[];
+  /**
+   * Rövid válasz: a tanár javasolt válaszából készült elfogadható alakok. Nincs
+   * válaszkulcs a bankban, ezért laza egyezéssel bíráljuk el.
+   */
+  accepted?: string[];
   explanation?: string;
   /** Concepts the question covers; a Topic gathers questions across banks. */
   topics?: string[];

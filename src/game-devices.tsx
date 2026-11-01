@@ -96,7 +96,7 @@ export function ClassicDevices({
         reply: (from, payload) => {
           const message = payload as
             | { kind: 'join'; nickname: string; playerId?: string; secret?: string }
-            | { kind: 'answer'; choice?: number; choices?: number[] }
+            | { kind: 'answer'; choice?: number; choices?: number[]; texts?: string[] }
           if (message?.kind === 'join') {
             const result = engine.join({
               ...(message.playerId ? { playerId: message.playerId } : {}),
@@ -121,7 +121,9 @@ export function ClassicDevices({
           if (message?.kind === 'answer') {
             const playerId = seats.current.get(from)
             if (!playerId) return
-            const result = engine.answerMany(playerId, message.choices ?? [message.choice ?? -1])
+            const result = message.texts
+              ? engine.answerTexts(playerId, message.texts)
+              : engine.answerMany(playerId, message.choices ?? [message.choice ?? -1])
             if (!result.ok) return
             bump()
             broadcast()

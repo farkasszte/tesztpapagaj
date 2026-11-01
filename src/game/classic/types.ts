@@ -42,6 +42,8 @@ export type ClassicAnswer = {
   choice: number;
   /** Every choice ticked, in order — a Multiple Answer question has more than one. */
   choices?: number[];
+  /** A beírt válaszok, hézagonként, sorrendben — kiegészítésnél és rövid válasznál. */
+  texts?: string[];
   ms: number;
 };
 
