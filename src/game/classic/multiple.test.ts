@@ -86,3 +86,50 @@ describe('több helyes válasz', () => {
     expect(answerIsRight(single[0]!, [1, 0])).toBe(false)
   })
 })
+
+describe('sorrendezés', () => {
+  const ordered: Question = {
+    id: 'o1',
+    prompt: 'Tedd sorrendbe a történéseket.',
+    choices: ['Elindul', 'Megérkezik', 'Visszafordul'],
+    correct: 1,
+    correctOrder: [1, 2, 0],
+  }
+
+  test('a sorrend számít: az elemek sorrendje a válasz, nem a halmaz', () => {
+    expect(answerIsRight(ordered, [1, 2, 0])).toBe(true)
+    expect(answerIsRight(ordered, [0, 2, 1])).toBe(false)
+    expect(answerIsRight(ordered, [1, 2])).toBe(false)
+    expect(answerIsRight(ordered, [1, 2, 0, 0])).toBe(false)
+  })
+
+  function started() {
+    const now = 1_000_000
+    const clock = { now: () => now, random: () => 0.5 }
+    const engine = new ClassicEngine(
+      createClassicSession({
+        code: 'ORD123',
+        title: 'Sorrend',
+        questions: [ordered],
+        settings: { timerSeconds: 30, scoring: true, shuffleQuestions: false },
+        clock,
+      }),
+      clock,
+    )
+    const joined = engine.join({ nickname: 'Bence' })
+    if (!joined.ok) throw new Error(joined.message)
+    engine.start()
+    return { engine, playerId: joined.player.id }
+  }
+
+  test('a beküldött sorrend változatlanul tárolódik, és pontot csak a helyes ad', () => {
+    const good = started()
+    expect(good.engine.answerOrder(good.playerId, [1, 2, 0]).ok).toBe(true)
+    expect(good.engine.session.answers[0]![0]!.choices).toEqual([1, 2, 0])
+    expect(good.engine.session.players[0]!.points).toBeGreaterThan(500)
+
+    const bad = started()
+    expect(bad.engine.answerOrder(bad.playerId, [0, 1, 2]).ok).toBe(true)
+    expect(bad.engine.session.players[0]!.points).toBe(0)
+  })
+})

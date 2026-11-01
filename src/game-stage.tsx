@@ -126,10 +126,18 @@ export function ClassicStage({
 
           <div className="gq-choices" data-count={shown.choices.length}>
             {shown.choices.map((choiceWords, index) => {
-              // Több helyes válasznál mindegyik helyes válasz pipát és szegélyt kap.
+              // Több helyes válasznál mindegyik helyes válasz pipát és szegélyt kap;
+              // sorrendnél a válasz maga a sorrend, ezért sorszám áll a kártyán.
               const right = question.correctChoices
+              const order = question.correctOrder
               const state =
-                right === null ? 'idle' : right.includes(index) ? 'correct' : 'faded'
+                order !== null
+                  ? 'idle'
+                  : right === null
+                    ? 'idle'
+                    : right.includes(index)
+                      ? 'correct'
+                      : 'faded'
               return (
                 <div
                   key={index}
@@ -142,6 +150,11 @@ export function ClassicStage({
                   <Shape index={index} />
                   <DocView content={choiceWords} />
                   {state === 'correct' ? <span className="gq-tick" aria-hidden="true">✓</span> : null}
+                  {order !== null && order.includes(index) ? (
+                    <span className="gq-order" aria-hidden="true">
+                      {order.indexOf(index) + 1}
+                    </span>
+                  ) : null}
                 </div>
               )
             })}

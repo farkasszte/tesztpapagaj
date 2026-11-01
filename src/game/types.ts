@@ -19,6 +19,12 @@ export type Question = {
    * still has something to point at.
    */
   correctChoices?: number[];
+  /**
+   * A sorrendezés kérdés helyes sorrendje: a `choices` indexei abban a
+   * sorrendben, ahogy a válasznak állnia kell. Ilyenkor a `choices` felkeverve
+   * áll (a szerzői sorrend a megoldás), és a `correct` az első elem.
+   */
+  correctOrder?: number[];
   explanation?: string;
   /** Concepts the question covers; a Topic gathers questions across banks. */
   topics?: string[];

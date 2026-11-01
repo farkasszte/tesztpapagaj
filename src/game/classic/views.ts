@@ -36,6 +36,10 @@ export type ClassicView = {
     correctChoices: number[] | null;
     /** Several choices are right, so a student ticks more than one. */
     multi: boolean;
+    /** The choices are a sequence to put in order. */
+    ordered: boolean;
+    /** The right order once the answer shows: choice indices, in sequence. */
+    correctOrder: number[] | null;
     counts: number[] | null;
     explanation: string | null;
   };
@@ -83,8 +87,14 @@ export function buildClassicView(session: ClassicSession, options: { now: number
             answering: s.players.filter((p) => p.connected || answers.some((a) => a.playerId === p.id)).length,
             remainingMs: s.phase === 'QUESTION' && s.deadline !== null ? Math.max(0, s.deadline - options.now) : null,
             correct: revealed ? question.correct : null,
-            correctChoices: revealed ? (question.correctChoices ?? [question.correct]) : null,
+            correctChoices: revealed
+              ? question.correctOrder
+                ? null
+                : (question.correctChoices ?? [question.correct])
+              : null,
             multi: !!question.correctChoices,
+            ordered: !!question.correctOrder,
+            correctOrder: revealed ? (question.correctOrder ?? null) : null,
             counts: revealed ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length) : null,
             explanation: revealed ? question.explanation?.trim() || null : null,
           }

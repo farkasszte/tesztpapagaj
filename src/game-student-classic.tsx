@@ -114,7 +114,9 @@ export function ClassicStudentGame({
                   data-tone={tone}
                   disabled={disabled}
                   onClick={() => {
-                    if (!question.multi) {
+                    // Egy válasz: azonnal megy. Több válasz: jelölés. Sorrend:
+                    // a koppintás sorrendje maga a válasz.
+                    if (!question.multi && !question.ordered) {
                       onAnswer([index])
                       return
                     }
@@ -123,7 +125,11 @@ export function ClassicStudentGame({
                     )
                   }}
                 >
-                  <span className="gq-stu-letter">{'ABCD'[index] ?? index + 1}</span>
+                  <span className="gq-stu-letter">
+                    {question.ordered && marked.includes(index)
+                      ? marked.indexOf(index) + 1
+                      : ('ABCD'[index] ?? index + 1)}
+                  </span>
                   <span className="gq-stu-choice-words">
                     <StudentBlocks rich={question.rich?.choices?.[index]} plain={choice} />
                   </span>
@@ -132,16 +138,18 @@ export function ClassicStudentGame({
             })}
           </div>
 
-          {question.multi && view?.phase === 'QUESTION' ? (
+          {(question.multi || question.ordered) && view?.phase === 'QUESTION' ? (
             <div className="gq-stu-confirm">
-              <p className="gq-hint">{t('game.student.multiHint')}</p>
+              <p className="gq-hint">
+                {question.ordered ? t('game.student.orderHint') : t('game.student.multiHint')}
+              </p>
               <button
                 type="button"
                 className="primary-button"
                 disabled={marked.length === 0 || sent !== null}
                 onClick={() => onAnswer(marked)}
               >
-                {t('game.student.multiSend')}
+                {question.ordered ? t('game.student.orderSend') : t('game.student.multiSend')}
               </button>
             </div>
           ) : null}

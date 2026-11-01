@@ -995,3 +995,19 @@ select.gq-input-small { text-align: center; }
   justify-items: start;
   padding-top: 4px;
 }
+
+.gq-order {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 10px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgb(240 210 124 / 0.9);
+  color: #241c17;
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}

@@ -171,20 +171,49 @@ function hasUnshowable(nodes: readonly ProseMirrorJSON[]): boolean {
  * de azok nem „egy helyes válasz a válaszok közül" alakúak, tehát a játék
  * nem tudja őket tisztességesen lejátszani — ezek kimaradnak, indoklással.
  */
-const PLAYABLE_TYPES = new Set<string>(['multiple-choice', 'true-false', 'multiple-answer'])
+const PLAYABLE_TYPES = new Set<string>([
+  'multiple-choice',
+  'true-false',
+  'multiple-answer',
+  'ordering',
+])
 
 /** Az Igaz/Hamis kérdés két válasza: a dokumentumban angolul állnak. */
 function trueFalseLabel(index: number): string {
   return index === 0 ? t('game.trueFalse.true') : t('game.trueFalse.false')
 }
 
+/**
+ * Az elemek felkevert sorrendje, a kérdés azonosítójából számolva: minden
+ * eszköz ugyanazt a sorrendet látja, és a tanár bankja sem változik meg.
+ */
+function scrambledIndices(count: number, seed: string): number[] {
+  let hash = 2166136261
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index)
+    hash = Math.imul(hash, 16777619) >>> 0
+  }
+  const order = Array.from({ length: count }, (_, index) => index)
+  for (let index = count - 1; index > 0; index -= 1) {
+    hash = Math.imul(hash ^ (hash >>> 15), 2246822507) >>> 0
+    const pick = hash % (index + 1)
+    const swap_ = order[index]!
+    order[index] = order[pick]!
+    order[pick] = swap_
+  }
+  // Ha véletlenül a szerzői sorrend jönne ki, megfordítjuk: a feladat az legyen,
+  // hogy sorrendbe kell tenni.
+  if (order.every((value, index) => value === index)) order.reverse()
+  return order
+}
+
 /** Why a question can't be played, or null when it can. */
-function problemOf(question: BankQuestion, multiple: boolean): string | null {
+function problemOf(question: BankQuestion, classic: boolean): string | null {
   if (!PLAYABLE_TYPES.has(question.type))
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
   // A több helyes válasz csak a Klasszikus módban játszható: a Bajnok és a
   // Veszély! egyetlen választ vár, ott ez a típus félrevezetne.
-  if (question.type === 'multiple-answer' && !multiple)
+  if ((question.type === 'multiple-answer' || question.type === 'ordering') && !classic)
     return t('game.skip.multipleMode', { type: SECTION_LABELS[question.type] })
   const choices = choiceNodesOf(question.doc)
   if (choices.length < 2 || choices.length > 4)
@@ -193,9 +222,12 @@ function problemOf(question: BankQuestion, multiple: boolean): string | null {
   // dokumentumban másmilyen áll, az nem az a kérdés, amit a tanár írt.
   if (question.type === 'true-false' && choices.length !== 2)
     return t('game.skip.choiceCount', { count: choices.length })
+  if (question.type === 'ordering' && choices.length < 2)
+    return t('game.skip.choiceCount', { count: choices.length })
+  // Sorrendezésnél nincs megjelölt helyes válasz: a szerzői sorrend a megoldás.
   const correct = choices.filter(choiceIsCorrect).length
-  if (correct === 0) return t('game.skip.noCorrect')
-  if (question.type !== 'multiple-answer' && correct > 1) return t('game.skip.manyCorrect')
+  if (question.type !== 'ordering' && correct === 0) return t('game.skip.noCorrect')
+  if (question.type === 'multiple-choice' && correct > 1) return t('game.skip.manyCorrect')
   if (choices.some((node) => !plainOf(gameNodes(childrenOf(node))).trim()))
     return t('game.skip.blankChoice')
   const said = choices.map((node) => plainOf(gameNodes(childrenOf(node))).trim().toLowerCase())
@@ -213,15 +245,15 @@ function problemOf(question: BankQuestion, multiple: boolean): string | null {
  */
 export function playableQuestions(
   questions: readonly BankQuestion[],
-  options: { multiple?: boolean } = {},
+  options: { classic?: boolean } = {},
 ): PlayableQuestions {
-  const multiple = options.multiple ?? false
+  const classic = options.classic ?? false
   const playable: Question[] = []
   const skipped: SkippedQuestion[] = []
   const words = new Map<string, PlayableWords>()
   const plain = (rich: RichText) => plainOf(rich).trim()
   questions.forEach((question, index) => {
-    const problem = problemOf(question, multiple)
+    const problem = problemOf(question, classic)
     if (problem) {
       skipped.push({ number: index + 1, reason: problem })
       return
@@ -229,9 +261,10 @@ export function playableQuestions(
     const stemNodes = stemNodesOf(question.doc)
     const explanationNodes = question.explanation ? childrenOf(question.explanation) : []
     const stem = gameNodes(stemNodes)
-    const choiceNodes =
+    const authored = choiceNodesOf(question.doc)
+    const labelled =
       question.type === 'true-false'
-        ? choiceNodesOf(question.doc).map((node, index) => ({
+        ? authored.map((node, index) => ({
             type: 'multipleChoiceChoice',
             attrs: node.attrs,
             content: [
@@ -241,9 +274,20 @@ export function playableQuestions(
               },
             ],
           }))
-        : choiceNodesOf(question.doc)
+        : authored
+    // A sorrendezés elemei felkeverve állnak (a szerzői sorrend a megoldás); a
+    // keverés a kérdés azonosítójából jön, tehát minden eszközön ugyanaz.
+    const choiceNodes =
+      question.type === 'ordering'
+        ? scrambledIndices(labelled.length, question.id).map((index) => labelled[index]!)
+        : labelled
     const choices = choiceNodes.map((node) => gameNodes(childrenOf(node)))
-    const correct = choiceNodes.findIndex(choiceIsCorrect)
+    // A helyes sorrend a felkínált elemek indexeivel: az első szerzői elem
+    // hányadikként áll a felkínált sorban, és így tovább.
+    const correctOrder =
+      question.type === 'ordering' ? labelled.map((node) => choiceNodes.indexOf(node)) : undefined
+    const correct =
+      question.type === 'ordering' ? (correctOrder?.[0] ?? 0) : choiceNodes.findIndex(choiceIsCorrect)
     const correctChoices =
       question.type === 'multiple-answer'
         ? choiceNodes.flatMap((node, index) => (choiceIsCorrect(node) ? [index] : []))
@@ -261,6 +305,7 @@ export function playableQuestions(
       choices: choices.map(plain),
       correct,
       ...(correctChoices ? { correctChoices } : {}),
+      ...(correctOrder ? { correctOrder } : {}),
       ...(question.topics?.length ? { topics: [...question.topics] } : {}),
       ...(explanationNodes.length ? { explanation: plain(explanationRich) } : {}),
       // The words with their formatting, maths and pictures, when they have any.

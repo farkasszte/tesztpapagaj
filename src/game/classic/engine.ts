@@ -167,6 +167,11 @@ export class ClassicEngine {
     return this.answerMany(playerId, [choice])
   }
 
+  /** A sorrendezés kérdés: a válasz a felkínált elemek sorrendje. */
+  answerOrder(playerId: string, order: number[]): Result {
+    return this.answerMany(playerId, order)
+  }
+
   /** A Multiple Answer question: every ticked choice, in the order they were tapped. */
   answerMany(playerId: string, choices: number[]): Result {
     const s = this.session;
@@ -175,7 +180,12 @@ export class ClassicEngine {
     if (!this.player(playerId)) return no('Join the game first.');
     const answers = s.answers[s.index];
     if (answers.some((a) => a.playerId === playerId)) return no('You’ve already answered.');
-    const picked = [...new Set(choices)].sort((a, b) => a - b);
+    // Sorrendnél a sorrend számít, tehát az ismétlődés és a sorrend marad;
+    // minden más kérdésnél a jelölés halmaz.
+    const ordered = !!question.correctOrder;
+    const picked = ordered
+      ? [...choices]
+      : [...new Set(choices)].sort((a, b) => a - b);
     if (picked.length === 0) return no('Pick one of the answers.');
     if (picked.some((choice) => !Number.isInteger(choice) || choice < 0 || choice >= question.choices.length))
       return no('Pick one of the answers.');
@@ -244,6 +254,11 @@ export class ClassicEngine {
  * A Multiple Answer question is all or nothing — a half-right tick is wrong.
  */
 export function answerIsRight(question: Question, choices: readonly number[]): boolean {
+  // A sorrendezés válasza maga a sorrend: nem halmaz, hanem szekvencia.
+  if (question.correctOrder) {
+    if (choices.length !== question.correctOrder.length) return false
+    return question.correctOrder.every((choice, index) => choice === choices[index])
+  }
   const right = question.correctChoices ?? [question.correct];
   const picked = [...new Set(choices)].sort((a, b) => a - b);
   const expected = [...new Set(right)].sort((a, b) => a - b);

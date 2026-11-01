@@ -82,12 +82,38 @@ describe('what the projector plays', () => {
   })
 
   test('every other type of the Tesztpapagáj is left out, and the reason names the type', () => {
-    const types: QuestionType[] = ['matching', 'ordering', 'fill-in-the-blank', 'open', 'multipart']
+    const types: QuestionType[] = ['matching', 'fill-in-the-blank', 'open', 'multipart']
     for (const type of types) {
-      const result = playableQuestions([question([choice('A', true), choice('B')], { type })])
+      const result = playableQuestions([question([choice('A', true), choice('B')], { type })], {
+        classic: true,
+      })
       expect(result.questions).toHaveLength(0)
       expect(result.skipped[0].reason).toBe(t('game.skip.type', { type: SECTION_LABELS[type] }))
     }
+    // A sorrendezés a Klasszikuson kívül nem játszható.
+    const ordering = playableQuestions([question([choice('A'), choice('B')], { type: 'ordering' })])
+    expect(ordering.skipped[0].reason).toBe(
+      t('game.skip.multipleMode', { type: SECTION_LABELS['ordering'] }),
+    )
+  })
+
+  test('an Ordering question is played scrambled, and its right order points at the shown items', () => {
+    const items = [choice('Első'), choice('Második'), choice('Harmadik'), choice('Negyedik')]
+    const result = playableQuestions([question(items, { type: 'ordering' })], { classic: true })
+    expect(result.skipped).toEqual([])
+    const played = result.questions[0]!
+    // A felkínált sor nem a szerzői sorrend.
+    expect(played.choices).not.toEqual(['Első', 'Második', 'Harmadik', 'Negyedik'])
+    expect([...played.choices].sort()).toEqual(['Első', 'Harmadik', 'Második', 'Negyedik'])
+    // A helyes sorrend a felkínált indexekkel: az első szerzői elem helye elöl.
+    expect(played.correctOrder).toHaveLength(4)
+    expect(new Set(played.correctOrder)).toEqual(new Set([0, 1, 2, 3]))
+    expect(played.correctOrder![0]).toBe(played.choices.indexOf('Első'))
+    expect(played.correctOrder![1]).toBe(played.choices.indexOf('Második'))
+    expect(played.correct).toBe(played.correctOrder![0])
+    // Ugyanaz a kérdés minden futásban ugyanazt a sorrendet adja (minden eszközön ez kell).
+    const again = playableQuestions([question(items, { type: 'ordering' })], { classic: true })
+    expect(again.questions[0]!.choices).toEqual(played.choices)
   })
 
   test('a Multiple Answer question is played in Classic, with every right choice, and left out elsewhere', () => {
@@ -95,7 +121,7 @@ describe('what the projector plays', () => {
       [choice('Párizs', true), choice('Lyon'), choice('Róma', true)],
       { type: 'multiple-answer' },
     )
-    const classic = playableQuestions([bank], { multiple: true })
+    const classic = playableQuestions([bank], { classic: true })
     expect(classic.skipped).toEqual([])
     expect(classic.questions[0]).toMatchObject({
       choices: ['Párizs', 'Lyon', 'Róma'],
@@ -114,7 +140,7 @@ describe('what the projector plays', () => {
   test('a Multiple Answer question marks one right answer as a plain single choice', () => {
     const result = playableQuestions(
       [question([choice('A', true), choice('B')], { type: 'multiple-answer' })],
-      { multiple: true },
+      { classic: true },
     )
     expect(result.questions[0]).toMatchObject({ correct: 0, correctChoices: [0] })
   })
