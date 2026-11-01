@@ -8,8 +8,8 @@ import type { PlayableWords } from './game/projection'
  * nézzen ki.
  */
 
-/** A válaszok színei: vörös, kék, arany, zöld (gules, azure, or, vert). */
-export const TINCTURES = ['var(--gules)', 'var(--azure)', 'var(--or)', 'var(--plum)'] as const
+/** A válaszok színei: vörös sarok, kék sarok, mély arany, szilva. */
+export const TINCTURES = ['var(--gules)', 'var(--azure)', 'var(--or-card)', 'var(--plum)'] as const
 
 export const LETTERS = ['A', 'B', 'C', 'D'] as const
 

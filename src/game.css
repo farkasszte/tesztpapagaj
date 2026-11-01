@@ -87,6 +87,9 @@
   --gules: #c4402f;
   --azure: #2f5c8c;
   --or: #d9a72c;
+  /* A válaszkártya aranya mélyebb: fehér betűvel olvasható, és így nem kell
+     külön betsűszínt adni neki. Az öv és a keret marad élénk arany (`--or`). */
+  --or-card: #9a6e0d;
   --plum: #6c4a86;
   /* Csapatok ötödik-hatodik színe. */
   --bone: #d8cfbc;
@@ -328,10 +331,6 @@
   transition: transform 0.12s, opacity 0.3s, filter 0.3s;
 }
 @media (min-width: 1600px) { .gq-answer { min-height: 138px; padding: 22px 36px; } }
-/* Az arany kártya világosabb: sötét betűvel olvasható, és így szándékosnak hat. */
-.gq-answer[data-tint='2'] { background: #d9b154; color: #241a10; }
-/* Az arany (öv) kártyán sötét a betű: fehéren olvashatatlan lenne. */
-.gq-answer[data-tint='2'] .doc-content { color: #241a10; text-shadow: none; }
 .gq-answer .doc-content {
   font-family: var(--serif); font-weight: 700; font-size: clamp(22px, 1.7vw, 38px); line-height: 1.2;
   overflow-wrap: anywhere; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
@@ -351,10 +350,6 @@
 @media (min-width: 1600px) {
   .gq-letter { width: 56px; height: 56px; font-size: 29px; }
 }
-.gq-answer[data-tint='2'] .gq-letter {
-  border-color: rgb(36 26 16 / 0.55); background: rgb(36 26 16 / 0.08); color: #241a10;
-}
-
 /* A gong: a helyes válasz jelvénye, arany karikában. */
 .gq-tick {
   flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px;
@@ -364,8 +359,9 @@
 
 /* A helyes válasz: arany keret (az öv színe) és gong — a krémes keret a régi,
    heraldikai palettából maradt. */
+/* A keret krémes, nem arany: az arany kártyán az arany keret olvadna bele. */
 .gq-answer[data-state='correct'] {
-  outline: 5px solid var(--or); outline-offset: -5px;
+  outline: 5px solid var(--paper); outline-offset: -5px;
   box-shadow:
     0 0 0 1px rgb(217 167 44 / 0.5),
     0 8px 26px rgb(217 167 44 / 0.28),
