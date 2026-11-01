@@ -55,7 +55,8 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [view, setView] = useState<StudentView | null>(null)
   const [status, setStatus] = useState<'idle' | 'connecting' | 'open' | 'denied'>('idle')
   const [problem, setProblem] = useState<string | null>(null)
-  const [sent, setSent] = useState<number | null>(null)
+  /** Amit már elküldtem: egy válasz, vagy több egy több helyes válaszos kérdésnél. */
+  const [sent, setSent] = useState<number[] | null>(null)
   const connection = useRef<RoomConnection | null>(null)
 
   // Belépés: a kód ismeretében csatlakozunk, és vagy a régi helyünkre
@@ -228,13 +229,13 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           view={view}
           nickname={nickname}
           problem={problem}
-          sent={sent}
+          sent={sent?.[0] ?? null}
           onAnswer={(attemptId, choice) => {
-            setSent(choice)
+            setSent([choice])
             reply({ kind: 'answer', attemptId, choice })
           }}
           onOneAnswer={(attemptId, choice) => {
-            setSent(choice)
+            setSent([choice])
             reply({ kind: 'one', attemptId, choice })
           }}
           onHelp={(help: Help) => reply({ kind: 'help', help })}
@@ -249,13 +250,13 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           view={view}
           nickname={nickname}
           problem={problem}
-          sent={sent}
+          sent={sent?.[0] ?? null}
           onChooseTeam={(teamId) => reply({ kind: 'team', teamId })}
           onPick={(column, row) => reply({ kind: 'pick', column, row })}
           onBuzz={() => reply({ kind: 'buzz' })}
           onWager={(amount) => reply({ kind: 'wager', amount })}
           onAnswer={(choice) => {
-            setSent(choice)
+            setSent([choice])
             reply({ kind: 'answer', choice })
           }}
         />
@@ -267,13 +268,21 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
         sent={sent}
         nickname={nickname}
         problem={problem}
-        onAnswer={(choice) => {
-          setSent(choice)
-          reply({ kind: 'answer', choice })
+        onAnswer={(choices) => {
+          setSent(choices)
+          reply({ kind: 'answer', choice: choices[0], choices })
         }}
       />
     )
   }
 
-  return <ClassicStudentGame view={null} sent={sent} nickname={nickname} problem={problem} onAnswer={() => undefined} />
+  return (
+    <ClassicStudentGame
+      view={null}
+      sent={sent}
+      nickname={nickname}
+      problem={problem}
+      onAnswer={() => undefined}
+    />
+  )
 }

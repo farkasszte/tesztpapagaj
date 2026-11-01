@@ -126,8 +126,10 @@ export function ClassicStage({
 
           <div className="gq-choices" data-count={shown.choices.length}>
             {shown.choices.map((choiceWords, index) => {
+              // Több helyes válasznál mindegyik helyes válasz pipát és szegélyt kap.
+              const right = question.correctChoices
               const state =
-                question.correct === null ? 'idle' : index === question.correct ? 'correct' : 'faded'
+                right === null ? 'idle' : right.includes(index) ? 'correct' : 'faded'
               return (
                 <div
                   key={index}

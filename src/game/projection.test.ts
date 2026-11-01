@@ -82,19 +82,41 @@ describe('what the projector plays', () => {
   })
 
   test('every other type of the Tesztpapagáj is left out, and the reason names the type', () => {
-    const types: QuestionType[] = [
-      'multiple-answer',
-      'matching',
-      'ordering',
-      'fill-in-the-blank',
-      'open',
-      'multipart',
-    ]
+    const types: QuestionType[] = ['matching', 'ordering', 'fill-in-the-blank', 'open', 'multipart']
     for (const type of types) {
       const result = playableQuestions([question([choice('A', true), choice('B')], { type })])
       expect(result.questions).toHaveLength(0)
       expect(result.skipped[0].reason).toBe(t('game.skip.type', { type: SECTION_LABELS[type] }))
     }
+  })
+
+  test('a Multiple Answer question is played in Classic, with every right choice, and left out elsewhere', () => {
+    const bank = question(
+      [choice('Párizs', true), choice('Lyon'), choice('Róma', true)],
+      { type: 'multiple-answer' },
+    )
+    const classic = playableQuestions([bank], { multiple: true })
+    expect(classic.skipped).toEqual([])
+    expect(classic.questions[0]).toMatchObject({
+      choices: ['Párizs', 'Lyon', 'Róma'],
+      correct: 0,
+      correctChoices: [0, 2],
+    })
+
+    // A Bajnok és a Veszély! egy választ vár: ott ez a típus kimarad, indoklással.
+    const single = playableQuestions([bank])
+    expect(single.questions).toHaveLength(0)
+    expect(single.skipped[0].reason).toBe(
+      t('game.skip.multipleMode', { type: SECTION_LABELS['multiple-answer'] }),
+    )
+  })
+
+  test('a Multiple Answer question marks one right answer as a plain single choice', () => {
+    const result = playableQuestions(
+      [question([choice('A', true), choice('B')], { type: 'multiple-answer' })],
+      { multiple: true },
+    )
+    expect(result.questions[0]).toMatchObject({ correct: 0, correctChoices: [0] })
   })
 
   test('a question with no right answer, or with two, is left out', () => {

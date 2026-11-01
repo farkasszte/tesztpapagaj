@@ -20,12 +20,15 @@ export function ClassicStudentGame({
 }: {
   view: ClassicView | null
   /** Amit már elküldtem, de még nem jött vissza a tanártól. */
-  sent: number | null
+  sent: number[] | null
   nickname: string
   problem: string | null
-  onAnswer: (choice: number) => void
+  /** Egy válasz, vagy egy több helyes válaszos kérdésnél a megjelöltek. */
+  onAnswer: (choices: number[]) => void
 }) {
   const t = useT()
+  /** A több helyes válaszos kérdésnél a beküldés előtt összegyűjtött jelölések. */
+  const [marked, setMarked] = useState<number[]>([])
   const question = view?.question ?? null
   const mine = view?.me ?? null
   const revealed = view?.phase === 'REVEAL'
@@ -34,6 +37,10 @@ export function ClassicStudentGame({
   // A visszaszámláló a legutóbb kapott nézetből indul, és magától ketyeg.
   const remaining = question?.remainingMs ?? null
   const [left, setLeft] = useState(0)
+  // Új kérdésnél a jelölések elölről kezdődnek.
+  useEffect(() => {
+    setMarked([])
+  }, [question?.number])
   useEffect(() => {
     if (remaining === null) return
     setLeft(Math.ceil(remaining / 1000))
@@ -92,8 +99,12 @@ export function ClassicStudentGame({
 
           <div className="gq-stu-choices">
             {question.choices.map((choice, index) => {
-              const picked = sent === index || mine?.answer === index
-              const tone = choiceTone({ index, correctIndex: revealed ? question.correct : null, picked })
+              const mine_ = mine?.answers ?? (mine ? [mine.answer ?? -1] : [])
+              const picked = (sent ?? []).includes(index) || marked.includes(index) || mine_.includes(index)
+              const correctIndexes = revealed
+                ? (question.correctChoices ?? (question.correct === null ? [] : [question.correct]))
+                : null
+              const tone = choiceTone({ index, correctIndexes, picked })
               const disabled = view?.phase !== 'QUESTION' || mine?.canAnswer === false || sent !== null
               return (
                 <button
@@ -102,7 +113,15 @@ export function ClassicStudentGame({
                   className="gq-stu-choice"
                   data-tone={tone}
                   disabled={disabled}
-                  onClick={() => onAnswer(index)}
+                  onClick={() => {
+                    if (!question.multi) {
+                      onAnswer([index])
+                      return
+                    }
+                    setMarked((current) =>
+                      current.includes(index) ? current.filter((one) => one !== index) : [...current, index],
+                    )
+                  }}
                 >
                   <span className="gq-stu-letter">{'ABCD'[index] ?? index + 1}</span>
                   <span className="gq-stu-choice-words">
@@ -112,6 +131,20 @@ export function ClassicStudentGame({
               )
             })}
           </div>
+
+          {question.multi && view?.phase === 'QUESTION' ? (
+            <div className="gq-stu-confirm">
+              <p className="gq-hint">{t('game.student.multiHint')}</p>
+              <button
+                type="button"
+                className="primary-button"
+                disabled={marked.length === 0 || sent !== null}
+                onClick={() => onAnswer(marked)}
+              >
+                {t('game.student.multiSend')}
+              </button>
+            </div>
+          ) : null}
 
           {revealed && question.correct !== null ? (
             <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>

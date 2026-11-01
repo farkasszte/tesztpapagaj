@@ -6,14 +6,15 @@
  */
 export function choiceTone({
   index,
-  correctIndex,
+  correctIndexes,
   picked,
 }: {
   index: number
-  correctIndex: number | null
+  /** Every right choice once the answer shows; null while it is still hidden. */
+  correctIndexes: readonly number[] | null
   picked: boolean
 }): 'idle' | 'picked' | 'correct' | 'wrong' | 'faded' {
-  if (correctIndex === null) return picked ? 'picked' : 'idle'
-  if (index === correctIndex) return 'correct'
+  if (correctIndexes === null) return picked ? 'picked' : 'idle'
+  if (correctIndexes.includes(index)) return 'correct'
   return picked ? 'wrong' : 'faded'
 }

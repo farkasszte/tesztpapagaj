@@ -171,7 +171,7 @@ function hasUnshowable(nodes: readonly ProseMirrorJSON[]): boolean {
  * de azok nem „egy helyes válasz a válaszok közül" alakúak, tehát a játék
  * nem tudja őket tisztességesen lejátszani — ezek kimaradnak, indoklással.
  */
-const PLAYABLE_TYPES = new Set<string>(['multiple-choice', 'true-false'])
+const PLAYABLE_TYPES = new Set<string>(['multiple-choice', 'true-false', 'multiple-answer'])
 
 /** Az Igaz/Hamis kérdés két válasza: a dokumentumban angolul állnak. */
 function trueFalseLabel(index: number): string {
@@ -179,9 +179,13 @@ function trueFalseLabel(index: number): string {
 }
 
 /** Why a question can't be played, or null when it can. */
-function problemOf(question: BankQuestion): string | null {
+function problemOf(question: BankQuestion, multiple: boolean): string | null {
   if (!PLAYABLE_TYPES.has(question.type))
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
+  // A több helyes válasz csak a Klasszikus módban játszható: a Bajnok és a
+  // Veszély! egyetlen választ vár, ott ez a típus félrevezetne.
+  if (question.type === 'multiple-answer' && !multiple)
+    return t('game.skip.multipleMode', { type: SECTION_LABELS[question.type] })
   const choices = choiceNodesOf(question.doc)
   if (choices.length < 2 || choices.length > 4)
     return t('game.skip.choiceCount', { count: choices.length })
@@ -191,7 +195,7 @@ function problemOf(question: BankQuestion): string | null {
     return t('game.skip.choiceCount', { count: choices.length })
   const correct = choices.filter(choiceIsCorrect).length
   if (correct === 0) return t('game.skip.noCorrect')
-  if (correct > 1) return t('game.skip.manyCorrect')
+  if (question.type !== 'multiple-answer' && correct > 1) return t('game.skip.manyCorrect')
   if (choices.some((node) => !plainOf(gameNodes(childrenOf(node))).trim()))
     return t('game.skip.blankChoice')
   const said = choices.map((node) => plainOf(gameNodes(childrenOf(node))).trim().toLowerCase())
@@ -207,13 +211,17 @@ function problemOf(question: BankQuestion): string | null {
  * reason a teacher can act on. Question numbers are counted from 1 as the bank
  * lists them, so a number names the same question on both sides.
  */
-export function playableQuestions(questions: readonly BankQuestion[]): PlayableQuestions {
+export function playableQuestions(
+  questions: readonly BankQuestion[],
+  options: { multiple?: boolean } = {},
+): PlayableQuestions {
+  const multiple = options.multiple ?? false
   const playable: Question[] = []
   const skipped: SkippedQuestion[] = []
   const words = new Map<string, PlayableWords>()
   const plain = (rich: RichText) => plainOf(rich).trim()
   questions.forEach((question, index) => {
-    const problem = problemOf(question)
+    const problem = problemOf(question, multiple)
     if (problem) {
       skipped.push({ number: index + 1, reason: problem })
       return
@@ -236,6 +244,10 @@ export function playableQuestions(questions: readonly BankQuestion[]): PlayableQ
         : choiceNodesOf(question.doc)
     const choices = choiceNodes.map((node) => gameNodes(childrenOf(node)))
     const correct = choiceNodes.findIndex(choiceIsCorrect)
+    const correctChoices =
+      question.type === 'multiple-answer'
+        ? choiceNodes.flatMap((node, index) => (choiceIsCorrect(node) ? [index] : []))
+        : undefined
     const rich = ![stem, ...choices].every(isPlain)
     words.set(question.id, {
       stem: stemNodes,
@@ -248,6 +260,7 @@ export function playableQuestions(questions: readonly BankQuestion[]): PlayableQ
       prompt: plain(stem),
       choices: choices.map(plain),
       correct,
+      ...(correctChoices ? { correctChoices } : {}),
       ...(question.topics?.length ? { topics: [...question.topics] } : {}),
       ...(explanationNodes.length ? { explanation: plain(explanationRich) } : {}),
       // The words with their formatting, maths and pictures, when they have any.

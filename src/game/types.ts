@@ -11,8 +11,14 @@ export type Question = {
   prompt: string;
   /** Two to four answers. The original game used three. */
   choices: string[];
-  /** Index into `choices`. */
+  /** Index into `choices`. For a question with several right answers, the first of them. */
   correct: number;
+  /**
+   * Every right choice, when more than one is (a Multiple Answer question). The
+   * stage marks them all; `correct` stays the first so a single-answer screen
+   * still has something to point at.
+   */
+  correctChoices?: number[];
   explanation?: string;
   /** Concepts the question covers; a Topic gathers questions across banks. */
   topics?: string[];

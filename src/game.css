@@ -988,3 +988,10 @@ select.gq-input-small { text-align: center; }
   font-weight: 700;
   color: #fffaf3;
 }
+
+.gq-stu-confirm {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding-top: 4px;
+}

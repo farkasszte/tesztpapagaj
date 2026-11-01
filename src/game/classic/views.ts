@@ -1,4 +1,4 @@
-import { reportOf } from './engine';
+import { answerIsRight, reportOf } from './engine';
 import type { ClassicPhase, ClassicReport, ClassicSession } from './types';
 import { richShown, type RichQuestion } from '../rich-text';
 
@@ -32,6 +32,10 @@ export type ClassicView = {
     answering: number;
     remainingMs: number | null;
     correct: number | null;
+    /** Every right choice once the answer shows; a Multiple Answer question has several. */
+    correctChoices: number[] | null;
+    /** Several choices are right, so a student ticks more than one. */
+    multi: boolean;
     counts: number[] | null;
     explanation: string | null;
   };
@@ -42,6 +46,8 @@ export type ClassicView = {
     nickname: string;
     canAnswer: boolean;
     answer: number | null;
+    /** Every choice this student ticked; one for a single-answer question. */
+    answers: number[] | null;
     /** Null until the answer shows. */
     right: boolean | null;
     correctSoFar: number;
@@ -77,6 +83,8 @@ export function buildClassicView(session: ClassicSession, options: { now: number
             answering: s.players.filter((p) => p.connected || answers.some((a) => a.playerId === p.id)).length,
             remainingMs: s.phase === 'QUESTION' && s.deadline !== null ? Math.max(0, s.deadline - options.now) : null,
             correct: revealed ? question.correct : null,
+            correctChoices: revealed ? (question.correctChoices ?? [question.correct]) : null,
+            multi: !!question.correctChoices,
             counts: revealed ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length) : null,
             explanation: revealed ? question.explanation?.trim() || null : null,
           }
@@ -98,7 +106,8 @@ export function buildClassicView(session: ClassicSession, options: { now: number
     nickname: viewer.nickname,
     canAnswer: s.phase === 'QUESTION' && !mine,
     answer: shown ? (mine?.choice ?? null) : null,
-    right: revealed && mine ? mine.choice === question.correct : null,
+    answers: shown ? (mine?.choices ?? (mine ? [mine.choice] : null)) : null,
+    right: revealed && mine ? answerIsRight(question, mine.choices ?? [mine.choice]) : null,
     correctSoFar: results.filter(({ answer, question: q }) => answer?.choice === q.correct).length,
     asked: results.length,
     points: viewer.points,

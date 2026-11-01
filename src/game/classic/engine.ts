@@ -162,18 +162,27 @@ export class ClassicEngine {
     return this.changed();
   }
 
+  /** One tap, one answer: the shape every single-answer screen uses. */
   answer(playerId: string, choice: number): Result {
+    return this.answerMany(playerId, [choice])
+  }
+
+  /** A Multiple Answer question: every ticked choice, in the order they were tapped. */
+  answerMany(playerId: string, choices: number[]): Result {
     const s = this.session;
     const question = this.question;
     if (s.phase !== 'QUESTION' || !question) return no('Wait for the next question.');
     if (!this.player(playerId)) return no('Join the game first.');
     const answers = s.answers[s.index];
     if (answers.some((a) => a.playerId === playerId)) return no('You’ve already answered.');
-    if (!Number.isInteger(choice) || choice < 0 || choice >= question.choices.length) return no('Pick one of the answers.');
+    const picked = [...new Set(choices)].sort((a, b) => a - b);
+    if (picked.length === 0) return no('Pick one of the answers.');
+    if (picked.some((choice) => !Number.isInteger(choice) || choice < 0 || choice >= question.choices.length))
+      return no('Pick one of the answers.');
     const ms = this.clock.now() - (s.openedAt ?? this.clock.now());
-    answers.push({ playerId, choice, ms });
+    answers.push({ playerId, choice: picked[0]!, choices: picked, ms });
     // With scoring on, a right answer earns 1000 at once, falling to 500 as time runs out.
-    if (s.settings.scoring && choice === question.correct) {
+    if (s.settings.scoring && answerIsRight(question, picked)) {
       const limit = s.settings.timerSeconds * 1000;
       this.player(playerId)!.points += Math.round(1000 - 500 * Math.min(1, ms / limit));
     }
@@ -230,19 +239,34 @@ export class ClassicEngine {
 }
 
 /** How the class did on each question asked, and how each student did. */
+/**
+ * Whether an answer got the question right: every right choice, and nothing else.
+ * A Multiple Answer question is all or nothing — a half-right tick is wrong.
+ */
+export function answerIsRight(question: Question, choices: readonly number[]): boolean {
+  const right = question.correctChoices ?? [question.correct];
+  const picked = [...new Set(choices)].sort((a, b) => a - b);
+  const expected = [...new Set(right)].sort((a, b) => a - b);
+  return picked.length === expected.length && picked.every((choice, index) => choice === expected[index]);
+}
+
 export function reportOf(s: ClassicSession): ClassicReport {
   const asked = s.answers.map((answers, i) => ({ answers, question: s.questions[i] }));
   return {
     questions: asked.map(({ answers, question }) => ({
       prompt: question.prompt,
-      correct: answers.filter((a) => a.choice === question.correct).length,
+      correct: answers.filter((a) => answerIsRight(question, a.choices ?? [a.choice])).length,
       answered: answers.length,
-      counts: question.choices.map((_, c) => answers.filter((a) => a.choice === c).length),
+      counts: question.choices.map(
+        (_, c) => answers.filter((a) => (a.choices ?? [a.choice]).includes(c)).length,
+      ),
     })),
     students: s.players
       .map((p) => {
         const mine = asked.flatMap(({ answers, question }) =>
-          answers.filter((a) => a.playerId === p.id).map((a) => a.choice === question.correct),
+          answers
+            .filter((a) => a.playerId === p.id)
+            .map((a) => answerIsRight(question, a.choices ?? [a.choice])),
         );
         return { nickname: p.nickname, correct: mine.filter(Boolean).length, answered: mine.length, points: p.points };
       })

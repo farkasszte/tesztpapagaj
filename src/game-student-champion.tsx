@@ -165,7 +165,7 @@ export function ChampionStudentGame({
           <div className="gq-stu-choices">
             {choices.map((choice, index) => {
               const picked = sent === index || myChoice === index
-              const tone = choiceTone({ index, correctIndex, picked })
+              const tone = choiceTone({ index, correctIndexes: correctIndex === null ? null : [correctIndex], picked })
               return (
                 <button
                   key={index}

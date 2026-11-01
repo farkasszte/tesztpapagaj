@@ -112,7 +112,12 @@ export function GamePage({
     }
   }, [banks, bankId])
 
-  const playable = useMemo(() => (bank ? playableQuestions(bank.questions) : null), [bank])
+  // A több helyes válasz csak a Klasszikus módban játszható, ezért a mód is
+  // beleszámít abba, mi játszható.
+  const playable = useMemo(
+    () => (bank ? playableQuestions(bank.questions, { multiple: mode === 'classic' }) : null),
+    [bank, mode],
+  )
   const canStart = !!playable && playable.questions.length > 0
 
   const resumed = restored

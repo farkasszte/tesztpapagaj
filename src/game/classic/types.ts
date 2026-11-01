@@ -36,7 +36,14 @@ export type ClassicPhase =
   | 'REPORT'
   | 'ENDED';
 
-export type ClassicAnswer = { playerId: string; choice: number; ms: number };
+export type ClassicAnswer = {
+  playerId: string;
+  /** The first choice ticked; a single-answer question has only this. */
+  choice: number;
+  /** Every choice ticked, in order — a Multiple Answer question has more than one. */
+  choices?: number[];
+  ms: number;
+};
 
 export type ClassicSession = {
   mode: 'classic';
