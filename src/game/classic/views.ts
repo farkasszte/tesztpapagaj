@@ -102,12 +102,16 @@ export function buildClassicView(session: ClassicSession, options: { now: number
             answered: answers.length,
             answering: s.players.filter((p) => p.connected || answers.some((a) => a.playerId === p.id)).length,
             remainingMs: s.phase === 'QUESTION' && s.deadline !== null ? Math.max(0, s.deadline - options.now) : null,
-            correct: revealed ? question.correct : null,
-            correctChoices: revealed
-              ? question.correctOrder
-                ? null
-                : (question.correctChoices ?? [question.correct])
-              : null,
+            // Sorrendnél és párosításnál nincs egyetlen helyes válasz: a válasz
+            // maga a sorrend, illetve a párok. Ilyenkor nem adunk betűt, mert a
+            // diák „A helyes válasz: C" szöveget kapna egy sorrendre.
+            correct: revealed && !question.correctOrder && !question.matches ? question.correct : null,
+            // Csak a kártyás kérdésnek van „ helyes válasza": sorrendnél a sorrend,
+            // párosításnál a párok a válasz, ott egyik kártya sem jelölhető meg.
+            correctChoices:
+              revealed && !question.correctOrder && !question.matches
+                ? (question.correctChoices ?? [question.correct])
+                : null,
             multi: !!question.correctChoices,
             ordered: !!question.correctOrder,
             matching: !!question.matches,
@@ -118,7 +122,12 @@ export function buildClassicView(session: ClassicSession, options: { now: number
             gaps: question.blanks ? question.blanks.length : question.accepted ? 1 : 0,
             rightBlanks: revealed ? (question.blanks ?? null) : null,
             accepted: revealed ? (question.accepted ?? null) : null,
-            counts: revealed ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length) : null,
+            // A megoszlás csak kártyás kérdésnél értelmes; sorrendnél és
+            // párosításnál a válasz nem egy kiválasztott elem.
+            counts:
+              revealed && !question.correctOrder && !question.matches
+                ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length)
+                : null,
             explanation: revealed ? question.explanation?.trim() || null : null,
           }
         : null,

@@ -47,3 +47,50 @@ test('the Report goes only to the teacher’s screen; a student sees just their 
   expect(view(ids[1]).report).toBeNull();
   expect(view(ids[1]).me).toMatchObject({ correctSoFar: 0, asked: 1 });
 });
+
+test('sorrendnél és párosításnál nincs „egy helyes válasz": nincs betű, nincs megoszlás', () => {
+  const ordering = [
+    {
+      id: 'o1',
+      prompt: 'Tedd sorrendbe!',
+      choices: ['Első', 'Második', 'Harmadik'],
+      correct: 0,
+      correctOrder: [1, 2, 0],
+    },
+  ];
+  const matching = [
+    {
+      id: 'm1',
+      prompt: 'Párosítsd!',
+      choices: ['Cukor', 'Energia'],
+      prompts: ['Fotoszintézis', 'Légzés'],
+      matches: [0, 1],
+      correct: 0,
+    },
+  ];
+
+  const cases: [typeof ordering, number[]][] = [
+    [ordering, [0, 1, 2]],
+    [matching, [0, 1]],
+  ];
+  for (const [questions_, answer] of cases) {
+    const clock = { now: () => 0, random: () => 0.5 };
+    const engine = new ClassicEngine(
+      createClassicSession({ code: '123456', title: 'Sorrend', questions: questions_ as never, clock }),
+      clock,
+    );
+    const joined = engine.join({ nickname: 'Panni' });
+    if (!joined.ok) throw new Error(joined.message);
+    engine.start();
+    expect(engine.answerMany(joined.player.id, answer).ok).toBe(true);
+    engine.lock();
+
+    const question = buildClassicView(engine.session, { now: 0 }).question!;
+    // A válasz nem egy kiválasztott elem: se betű, se megoszlás.
+    expect(question.correct).toBeNull();
+    expect(question.counts).toBeNull();
+    expect(question.correctChoices).toBeNull();
+    // A sorrend viszont megvan, hogy a diák kiírhassa a helyeset.
+    expect(question.correctOrder ?? question.matchAnswers).not.toBeNull();
+  }
+});

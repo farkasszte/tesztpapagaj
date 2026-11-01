@@ -300,7 +300,28 @@ export function ClassicStudentGame({
             </p>
           ) : null}
 
-          {revealed && !question.textEntry && question.correct !== null ? (
+          {/* Sorrend: a helyes sorrendet írjuk ki, nem egy betűt. */}
+          {revealed && question.ordered && question.correctOrder ? (
+            <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
+              {mine?.right
+                ? t('game.student.right')
+                : t('game.student.orderWrong', {
+                    order: question.correctOrder
+                      .map((order) => question.choices[order] ?? '')
+                      .join(' → '),
+                  })}
+            </p>
+          ) : null}
+
+          {/* Párosítás: a párok a táblán látszanak, itt csak a tény. */}
+          {revealed && question.matching ? (
+            <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
+              {mine?.right ? t('game.student.right') : t('game.student.matchWrong')}
+            </p>
+          ) : null}
+
+          {revealed && !question.textEntry && !question.ordered && !question.matching &&
+          question.correct !== null ? (
             <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
               {mine?.right
                 ? t('game.student.right')
