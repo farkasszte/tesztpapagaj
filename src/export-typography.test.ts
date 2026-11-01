@@ -8,6 +8,7 @@
 
 import { DEFAULT_HEADER } from './page-header'
 import { describe, expect, test } from 'bun:test'
+import { fileURLToPath } from 'node:url'
 import JSZip from 'jszip'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { createExamDocx } from './docx-export'
@@ -37,7 +38,7 @@ const fontFile = {
   mono: 'FreeMono.ttf',
 } as const
 const fonts: PdfFontLoader = async (style) =>
-  Bun.file(new URL(`../public/fonts/${fontFile[style]}`, import.meta.url).pathname).arrayBuffer()
+  Bun.file(fileURLToPath(new URL(`../public/fonts/${fontFile[style]}`, import.meta.url))).arrayBuffer()
 
 function plansOfFixture(name: string) {
   const fixture = FIXTURES.find((candidate) => candidate.name === name)!
@@ -57,7 +58,10 @@ function plansOfFixture(name: string) {
 const FIXTURE = 'all four sections on one paper'
 
 describe('print’s stylesheet is the table', () => {
-  const css = Bun.file(new URL('./styles.css', import.meta.url).pathname).text()
+  // A fájl sorvége platformfüggő; a szelektorok összevetése sortörésre érzéketlen.
+  const css = Bun.file(fileURLToPath(new URL('./styles.css', import.meta.url)))
+    .text()
+    .then((source) => source.replace(/\r\n/g, '\n'))
 
   // The declaration block of a selector exactly as styles.css spells it.
   async function rule(selector: string): Promise<string> {

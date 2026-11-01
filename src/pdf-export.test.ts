@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test'
+import { t } from './i18n'
+import { fileURLToPath } from 'node:url'
 import { BODY_LINE_HEIGHT, bodyPoints, pointsOf, sectionHeadingPoints, titlePoints } from './export-typography'
 import { PDFDocument } from 'pdf-lib'
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs'
@@ -17,11 +19,11 @@ import {
 } from './export-preparation'
 
 const fontFiles = {
-  regular: new URL('../public/fonts/FreeSerif.ttf', import.meta.url).pathname,
-  bold: new URL('../public/fonts/FreeSerifBold.ttf', import.meta.url).pathname,
-  italic: new URL('../public/fonts/FreeSerifItalic.ttf', import.meta.url).pathname,
-  boldItalic: new URL('../public/fonts/FreeSerifBoldItalic.ttf', import.meta.url).pathname,
-  mono: new URL('../public/fonts/FreeMono.ttf', import.meta.url).pathname,
+  regular: fileURLToPath(new URL('../public/fonts/FreeSerif.ttf', import.meta.url)),
+  bold: fileURLToPath(new URL('../public/fonts/FreeSerifBold.ttf', import.meta.url)),
+  italic: fileURLToPath(new URL('../public/fonts/FreeSerifItalic.ttf', import.meta.url)),
+  boldItalic: fileURLToPath(new URL('../public/fonts/FreeSerifBoldItalic.ttf', import.meta.url)),
+  mono: fileURLToPath(new URL('../public/fonts/FreeMono.ttf', import.meta.url)),
 } as const
 
 const fonts: PdfFontLoader = async (style) => Bun.file(fontFiles[style]).arrayBuffer()
@@ -92,7 +94,7 @@ describe('PDF Export Adapter', () => {
 
     expect(text).toContain('Könnyű')
     expect(text).toContain('Acids')
-    expect(text).toContain('Hard')
+    expect(text).toContain('Nehéz')
     expect(text).toContain('Titration')
   })
 
@@ -297,7 +299,7 @@ describe('PDF Export Adapter', () => {
     for (let page = 0; page < testPageCount; page += 1) {
       expect(textOf(page).includes('Turn over')).toBe(page < testPageCount - 1)
     }
-    expect(pages[1]!.slice(0, 2).map((item) => item.text)).toEqual(['2', 'Name: __________________'])
+    expect(pages[1]!.slice(0, 2).map((item) => item.text)).toEqual(['2', 'Név: __________________'])
     // The Answer Key keeps the sheet's own: no Turn over, and no total but
     // its own.
     const key = pages.slice(testPageCount).map((page) => page.map((item) => item.text).join(' ')).join(' ')
@@ -428,8 +430,9 @@ describe('PDF Export Adapter', () => {
       throw new Error('expected unsupported character failure')
     } catch (error) {
       expect(isPdfUnsupportedCharacterError(error)).toBe(true)
-      expect((error as Error).message).toContain('\u0378')
-      expect((error as Error).message).toContain('Távolítsd el vagy cseréld ki')
+      expect((error as Error).message).toBe(
+        t('errors.pdfCharUnsupported', { character: '\u0378', code: '378' }),
+      )
     }
   })
 
@@ -655,7 +658,7 @@ describe('PDF Export Adapter', () => {
   // them, and the Answer Key keeps its capitals.
   test.each([
     ['classic', '_______ 1.', 'b. Carbon dioxide'],
-    ['condensed', 'T F 2.', 'B. Carbon dioxide'],
+    ['condensed', 'I H 2.', 'B. Carbon dioxide'],
   ] as const)('draws the %s paper style’s blanks and letters', async (style, blank, answer) => {
     const { plans } = plansOf(`every question type in the ${style} paper style`)
     const { bytes } = await createPublicationPdf(plans, noImages, fonts)

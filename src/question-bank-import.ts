@@ -1101,7 +1101,10 @@ function structuralParse(value: unknown): DeclaredRecord {
   if (!parser) {
     throw new QuestionBankImportError(
       'unsupported-version',
-      `Question Bank format version “${version}” is unsupported. Supported versions: ${Object.keys(SUPPORTED_QUESTION_BANK_VERSIONS).join(', ')}.`,
+      t('errors.unsupportedVersion', {
+        version,
+        list: Object.keys(SUPPORTED_QUESTION_BANK_VERSIONS).join(', '),
+      }),
     )
   }
   return parser(value)

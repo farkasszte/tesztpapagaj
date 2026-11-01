@@ -377,6 +377,8 @@ const en = {
   'imports.pageOne': 'Page 1',
 
   // A felület angolul maradt szövegei — import, szerkesztő, export, hibák
+  'errors.pdfCharUnsupported': 'PDF export does not support the character “{character}” (U+{code}). Remove or replace it, then try exporting again.',
+  'errors.unsupportedVersion': 'Question Bank format version “{version}” is unsupported. Supported versions: {list}.',
   'errors.unsafeLink': 'The link “{href}” is unsafe. Question Bank links must use absolute HTTP or HTTPS URLs.',
   'errors.exportNeedsTwoChoices': '{where} must have at least two choices.',
   'errors.exportOneCorrect': '{where} must have zero or one correct choice.',
@@ -1680,6 +1682,8 @@ const hu: Record<TextKey, string> = {
   'imports.pageOne': '1. oldal',
 
   // A felület angolul maradt szövegei
+  'errors.pdfCharUnsupported': 'A PDF-export nem támogatja a(z) „{character}” karaktert (U+{code}). Távolítsd el vagy cseréld ki, majd próbáld újra az exportot.',
+  'errors.unsupportedVersion': 'A kérdésbank „{version}” formátumverziója nem támogatott. Támogatott verziók: {list}.',
   'errors.unsafeLink': 'A(z) „{href}” hivatkozás nem biztonságos. A kérdésbankban csak teljes HTTP vagy HTTPS hivatkozás lehet.',
   'errors.exportNeedsTwoChoices': '{where}: legalább két válasz kell.',
   'errors.exportOneCorrect': '{where}: legfeljebb egy helyes válasz lehet.',

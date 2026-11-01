@@ -143,10 +143,7 @@ export const browserPdfFonts: PdfFontLoader = async (style) => {
 export class PdfUnsupportedCharacterError extends Error {
   constructor(character: string) {
     const code = character.codePointAt(0)?.toString(16).toUpperCase() ?? 'unknown'
-    super(
-      `PDF export does not support the character “${character}” (U+${code}). `
-      + 'Remove or replace it, then try exporting again.',
-    )
+    super(t('errors.pdfCharUnsupported', { character, code }))
     this.name = 'PdfUnsupportedCharacterError'
   }
 }

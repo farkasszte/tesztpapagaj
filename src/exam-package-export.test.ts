@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { fileURLToPath } from 'node:url'
 import {
   choicesOf,
   orderedChoices,
@@ -38,7 +39,7 @@ const fontFiles = {
   mono: 'FreeMono.ttf',
 } as const
 const fonts: PdfFontLoader = async (style) =>
-  Bun.file(new URL(`../public/fonts/${fontFiles[style]}`, import.meta.url).pathname).arrayBuffer()
+  Bun.file(fileURLToPath(new URL(`../public/fonts/${fontFiles[style]}`, import.meta.url))).arrayBuffer()
 const noImages = async () => null
 
 const paragraph = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] })

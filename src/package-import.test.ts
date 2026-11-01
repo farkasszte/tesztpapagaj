@@ -332,7 +332,7 @@ describe('rejecting a Test Parrot Package whole', () => {
     await rejected(
       packageOf([{ id: 'chem', record: { ...chemistry(), formatVersion: '9.0.0' } }]),
       'unsupported-version',
-      'Question Bank',
+      'nem támogatott',
     )
     await rejected(
       packageOf([{ id: 'chem', record: chemistry() }], [{ ...examRecord('Future', []), formatVersion: '9.0.0' }]),

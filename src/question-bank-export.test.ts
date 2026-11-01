@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { fileURLToPath } from 'node:url'
 import { t } from './i18n'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { partsOf, type Question } from './exam'
@@ -42,11 +43,11 @@ async function pagesText(reader: Awaited<ReturnType<typeof getDocument>['promise
 }
 
 const fontFiles = {
-  regular: new URL('../public/fonts/FreeSans.ttf', import.meta.url).pathname,
-  bold: new URL('../public/fonts/FreeSansBold.ttf', import.meta.url).pathname,
-  italic: new URL('../public/fonts/FreeSansOblique.ttf', import.meta.url).pathname,
-  boldItalic: new URL('../public/fonts/FreeSansBoldOblique.ttf', import.meta.url).pathname,
-  mono: new URL('../public/fonts/FreeMono.ttf', import.meta.url).pathname,
+  regular: fileURLToPath(new URL('../public/fonts/FreeSans.ttf', import.meta.url)),
+  bold: fileURLToPath(new URL('../public/fonts/FreeSansBold.ttf', import.meta.url)),
+  italic: fileURLToPath(new URL('../public/fonts/FreeSansOblique.ttf', import.meta.url)),
+  boldItalic: fileURLToPath(new URL('../public/fonts/FreeSansBoldOblique.ttf', import.meta.url)),
+  mono: fileURLToPath(new URL('../public/fonts/FreeMono.ttf', import.meta.url)),
 } as const
 const fonts: QuestionBankPdfFontLoader = async (style) =>
   Bun.file(fontFiles[style]).arrayBuffer()
@@ -681,14 +682,14 @@ describe('Question Bank exchange export seam', () => {
     expect(preview).toContain('TEST PARROT')
     expect(preview).toContain('QUESTION BANK FILE')
     expect(preview).toContain('Chemistry / Review')
-    expect(preview).toContain('2 Questions')
+    expect(preview).toContain('2 kérdés')
     expect(preview).toContain('A digital file for importing into Test Parrot')
     expect(preview).toContain('answers included')
     expect(preview).toContain('saving it again as a PDF')
     expect(preview).toContain('Rövid válasz')
     expect(preview).toContain('Feleletválasztós')
     expect(preview).toMatch(/Difficulty:\s+Hard/)
-    expect(preview).toMatch(/Topics:\s+Matter, Lab/)
+    expect(preview).toMatch(/Témák:\s+Matter, Lab/)
     expect(preview).toContain('Suggested Answer')
     expect(preview).toContain('Mass is conserved.')
     expect(preview).toContain('Neutron')
@@ -700,7 +701,7 @@ describe('Question Bank exchange export seam', () => {
   })
 
   test('draws Test Parrot’s logo atop the file and teacher.dev’s beside its credit, both linked where they belong', async () => {
-    const png = async () => new Uint8Array(await Bun.file(new URL('../public/logo.png', import.meta.url).pathname).arrayBuffer())
+    const png = async () => new Uint8Array(await Bun.file(fileURLToPath(new URL('../public/logo.png', import.meta.url))).arrayBuffer())
     const prepared = await prepareQuestionBankExport(bank([multipleChoice]))
     const plain = await createQuestionBankPdf(prepared, fonts)
     const branded = await createQuestionBankPdf(prepared, fonts, { logo: png, teacherDevLogo: png })
@@ -788,8 +789,8 @@ describe('Question Bank exchange export seam', () => {
     const outline = await reader.getOutline()
     expect(outline.map((item) => item.title)).toEqual([
       'About this Question Bank',
-      'Multiple Choice (3)',
-      'Short Answer (1)',
+      'Feleletválasztós (3)',
+      'Rövid válasz (1)',
     ])
     expect(outline[1]!.items.map((item) => item.title)).toEqual(['Atoms (1)', 'Waves (1)', 'No topic (1)'])
   })
@@ -820,7 +821,7 @@ describe('Question Bank exchange export seam', () => {
       'Identify an issue',
       'Suggested Answer',
       'Its harbors silted up.',
-      'No Parts yet.',
+      t('ui.noParts'),
     ].map((fragment) => preview.indexOf(fragment))
     expect(order.every((position) => position >= 0)).toBe(true)
     expect(order).toEqual([...order].sort((left, right) => left - right))
@@ -931,7 +932,7 @@ describe('a Question Bank with Pending Images', () => {
     const bytes = await createQuestionBankPdf(prepared, fonts)
     const reader = await getDocument({ data: bytes.slice(), disableWorker: true }).promise
     const preview = (await pagesText(reader)).join(' ')
-    expect(preview).toContain('Picture needed')
+    expect(preview).toContain('Kép kell')
     expect(preview).toContain('IMG 3')
     expect(preview).toContain('page 2')
 
@@ -1104,7 +1105,7 @@ describe('a picture’s Authored Image Size and Picture Crop in Record 0.7.0', (
 
   test('a sized, cropped picture reads back as the same size and crop, with its Media Asset’s pixel size', async () => {
     const example = await Bun.file(
-      new URL('../public/formats/question-bank/0.7.0/examples/cropped-picture.json', import.meta.url).pathname,
+      fileURLToPath(new URL('../public/formats/question-bank/0.7.0/examples/cropped-picture.json', import.meta.url)),
     ).json()
     const asset = example.media[0]
     const crop = { left: 0.1, top: 0.2, right: 0.6, bottom: 0.9, width: asset.width, height: asset.height }
