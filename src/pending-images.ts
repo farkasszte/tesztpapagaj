@@ -1,4 +1,5 @@
 import { bankLetter } from './matching'
+import { t } from './i18n'
 import {
   holdsSubparts,
   partLetter,
@@ -293,7 +294,7 @@ export async function mediaAssetOf(
   // Loaded on demand: the record parsers are not wanted until a picture is.
   const { mediaDimensions } = await import('./question-bank-import')
   const dimensions = mediaDimensions(mimeType, bytes)
-  if (!dimensions) throw new Error(`This picture is not a valid ${mimeType} image.`)
+  if (!dimensions) throw new Error(t('errors.pictureInvalidType', { mime: mimeType }))
   const digest = hex(await crypto.subtle.digest('SHA-256', bytes.slice().buffer as ArrayBuffer))
   return { id: `sha256:${digest}`, mimeType, ...dimensions, bytes: bytes.slice() }
 }

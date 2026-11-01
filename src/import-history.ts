@@ -113,8 +113,8 @@ function open(): Promise<IDBDatabase> {
       }
     }
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error ?? new Error('The import history could not be opened.'))
-    request.onblocked = () => reject(new Error('The import history could not be opened.'))
+    request.onerror = () => reject(request.error ?? new Error(t('errors.importHistoryOpen')))
+    request.onblocked = () => reject(new Error(t('errors.importHistoryOpen')))
   })
 }
 

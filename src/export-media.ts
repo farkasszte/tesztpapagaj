@@ -20,8 +20,7 @@ export type MediaLoader = (src: string, crop?: CropBox) => Promise<ExportImage |
 export class RequiredMediaError extends Error {
   constructor(questionNumber: number | null) {
     super(
-      `Required media for question ${questionNumber ?? 'unknown'} could not be resolved. `
-      + t('errors.readdImage'),
+      t('errors.mediaForQuestion', { number: questionNumber ?? '?' }) + t('errors.readdImage'),
     )
     this.name = 'RequiredMediaError'
   }

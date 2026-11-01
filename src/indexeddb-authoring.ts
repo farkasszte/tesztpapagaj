@@ -82,7 +82,7 @@ function openDatabase(databaseName: string): Promise<IDBDatabase> {
       resolve(request.result)
     }
     request.onerror = () => reject(request.error)
-    request.onblocked = () => reject(new Error(`Could not open ${databaseName}`))
+    request.onblocked = () => reject(new Error(t('errors.storageOpen', { name: databaseName })))
   })
 }
 
@@ -96,8 +96,8 @@ function resultOf<T>(request: IDBRequest<T>): Promise<T> {
 function completionOf(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve()
-    transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted'))
-    transaction.onerror = () => reject(transaction.error ?? new Error('IndexedDB transaction failed'))
+    transaction.onabort = () => reject(transaction.error ?? new Error(t('errors.txnAborted')))
+    transaction.onerror = () => reject(transaction.error ?? new Error(t('errors.txnFailed')))
   })
 }
 

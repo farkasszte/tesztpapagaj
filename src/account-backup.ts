@@ -73,7 +73,7 @@ export function encodeValue(
   }
   if (ArrayBuffer.isView(value)) {
     const kind = value.constructor.name
-    if (!(kind in TYPED_ARRAYS)) throw new Error(`Cannot back up a ${kind}.`)
+    if (!(kind in TYPED_ARRAYS)) throw new Error(t('errors.backupKind', { kind }))
     const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength).slice()
     return { $tp: 'typed', kind, file: addBinary(bytes) }
   }
@@ -83,14 +83,14 @@ export function encodeValue(
   }
   if (value instanceof Set) return { $tp: 'set', values: [...value].map((v) => encodeValue(v, addBinary)) }
   if (typeof value === 'object') {
-    if (value instanceof Blob) throw new Error('Blobs must be read before encoding.')
+    if (value instanceof Blob) throw new Error(t('errors.backupBlobs'))
     const out: Record<string, Encoded> = {}
     for (const [key, item] of Object.entries(value)) out[key] = encodeValue(item, addBinary)
     // A record that happens to own a `$tp` field is wrapped, so decoding can
     // never mistake it for one of the markers above.
     return '$tp' in out ? { $tp: 'object', value: out } : out
   }
-  throw new Error(`Cannot back up a ${typeof value}.`)
+  throw new Error(t('errors.backupValue', { type: typeof value }))
 }
 
 export function decodeValue(
@@ -108,14 +108,14 @@ export function decodeValue(
       case 'bytes': return binary(marker.file as string).slice().buffer
       case 'typed': {
         const Kind = TYPED_ARRAYS[marker.kind as TypedArrayName]
-        if (!Kind) throw new Error(`Unknown array type ${String(marker.kind)}.`)
+        if (!Kind) throw new Error(t('errors.backupArrayType', { kind: String(marker.kind) }))
         const bytes = binary(marker.file as string).slice()
         return new Kind(bytes.buffer, 0, bytes.byteLength / Kind.BYTES_PER_ELEMENT)
       }
       case 'map': return new Map((marker.entries as Encoded[][]).map(([k, v]) => [decodeValue(k!, binary), decodeValue(v!, binary)]))
       case 'set': return new Set((marker.values as Encoded[]).map((v) => decodeValue(v, binary)))
       case 'object': return decodePlain(marker.value as Record<string, Encoded>, binary)
-      default: throw new Error(`Unknown backup value ${String(marker.$tp)}.`)
+      default: throw new Error(t('errors.backupValueType', { type: String(marker.$tp) }))
     }
   }
   return decodePlain(value, binary)
@@ -140,8 +140,8 @@ function requestOf<T>(request: IDBRequest<T>): Promise<T> {
 function completion(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve()
-    transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted'))
-    transaction.onerror = () => reject(transaction.error ?? new Error('IndexedDB transaction failed'))
+    transaction.onabort = () => reject(transaction.error ?? new Error(t('errors.txnAborted')))
+    transaction.onerror = () => reject(transaction.error ?? new Error(t('errors.txnFailed')))
   })
 }
 
@@ -152,7 +152,7 @@ function openExisting(name: string): Promise<IDBDatabase> {
     const request = indexedDB.open(name)
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-    request.onblocked = () => reject(new Error(`Could not open ${name}.`))
+    request.onblocked = () => reject(new Error(t('errors.storageOpen', { name })))
   })
 }
 
@@ -335,7 +335,7 @@ function deleteDatabase(name: string): Promise<void> {
     const request = indexedDB.deleteDatabase(name)
     request.onsuccess = () => resolve()
     request.onerror = () => reject(request.error)
-    request.onblocked = () => reject(new Error(`${name} is still open in another tab.`))
+    request.onblocked = () => reject(new Error(t('errors.storageBusy', { name })))
   })
 }
 
@@ -355,7 +355,7 @@ function createDatabase(snapshot: DatabaseSnapshot): Promise<IDBDatabase> {
     }
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-    request.onblocked = () => reject(new Error(`${snapshot.name} is still open in another tab.`))
+    request.onblocked = () => reject(new Error(t('errors.storageBusy', { name: snapshot.name })))
   })
 }
 

@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'bun:test'
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import { setLanguage } from './i18n'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { QuestionView } from './exam-page'
@@ -62,6 +63,11 @@ function pointsControls(markup: string): string[] {
   return [...markup.matchAll(/<button[^>]*aria-label="(Points for [^"]*)"[^>]*>([^<]*)<\/button>/g)]
     .map((match) => `${match[1]} ${match[2]}`)
 }
+
+// A feliratok angolul allnak ebben a tesztben, ezert angolra valtunk, es a
+// vegén vissza, hogy a tobbi tesztfajl magyar szotarral fusson.
+beforeAll(() => setLanguage('en'))
+afterAll(() => setLanguage('hu'))
 
 describe('Points on the exam sheet', () => {
   test('a Paper Style that prints no Points shows none, and offers no control for them', () => {

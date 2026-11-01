@@ -493,7 +493,7 @@ function drawImage(context: Context, node: SemanticNode, x: number, width: numbe
     return
   }
   const embedded = node.asset ? context.images.get(node.asset) : undefined
-  if (!embedded) throw new Error(`Required Media Asset “${node.asset ?? 'missing'}” is unavailable for the PDF preview.`)
+  if (!embedded) throw new Error(t('errors.mediaAssetPdf', { asset: node.asset ?? '?' }))
   // A Picture Crop shows only the part it keeps: the whole picture is drawn
   // behind a clip the kept part's size. The bank's own record carries every
   // Media Asset whole, so nothing the clip hides is kept from this file.
@@ -1181,7 +1181,7 @@ export const browserTeacherDevLogo = async (): Promise<Uint8Array | null> => {
   canvas.height = 96
   canvas.getContext('2d')!.drawImage(image, 0, 0, 96, 96)
   const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
-  if (!png) throw new Error('The teacher.dev logo could not be drawn.')
+  if (!png) throw new Error(t('errors.logoDraw'))
   return new Uint8Array(await png.arrayBuffer())
 }
 

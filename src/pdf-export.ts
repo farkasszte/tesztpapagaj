@@ -135,7 +135,7 @@ export const browserPdfFonts: PdfFontLoader = async (style) => {
   }
   const response = await fetch(files[style])
   if (!response.ok) {
-    throw new Error(`The bundled PDF font (${style}) could not be loaded. Try again.`)
+    throw new Error(t('errors.pdfFontLoad', { style }))
   }
   return response.arrayBuffer()
 }
@@ -1393,7 +1393,7 @@ async function createPdf(
   attachment?: Uint8Array | string,
 ): Promise<PublicationPdf> {
   if (typeof Uint8Array === 'undefined' || typeof Promise === 'undefined') {
-    throw new Error('This browser does not support local PDF generation. Choose DOCX instead.')
+    throw new Error(t('errors.pdfUnsupported'))
   }
   const document = await PDFDocument.create()
   document.registerFontkit(fontkit)

@@ -10,6 +10,7 @@
 // Test and diagnostic code only. Nothing in the application imports it.
 
 import JSZip from 'jszip'
+import { t } from './i18n'
 import {
   line,
   renderInline,
@@ -74,7 +75,7 @@ async function readPackage(bytes: Uint8Array | ArrayBuffer): Promise<Package> {
   }
 
   const document = await read('word/document.xml')
-  if (!document) throw new Error('The package has no word/document.xml')
+  if (!document) throw new Error(t('errors.docxNoDocument'))
   // Document metadata is a package-level part, not one the document body links.
   const core = await read('docProps/core.xml')
 
@@ -463,7 +464,7 @@ export async function docxFingerprint(
   const reader: Reader = { package: pkg, nextImage: () => (images += 1) }
 
   const body = child(pkg.document, 'w:body')
-  if (!body) throw new Error('The document part has no body')
+  if (!body) throw new Error(t('errors.docxNoBody'))
 
   const sections = sectionsOf(body)
   return {

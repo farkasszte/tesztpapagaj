@@ -25,7 +25,7 @@ function hex(bytes: ArrayBuffer): string {
 async function imageMetadata(blob: Blob): Promise<Pick<MediaAsset, 'width' | 'height'>> {
   const bitmap = await createImageBitmap(blob)
   try {
-    if (bitmap.width < 1 || bitmap.height < 1) throw new Error('Image has no intrinsic size.')
+    if (bitmap.width < 1 || bitmap.height < 1) throw new Error(t('errors.imageNoSize'))
     return { width: bitmap.width, height: bitmap.height }
   } finally {
     bitmap.close()
@@ -43,29 +43,29 @@ async function openMediaDatabase(): Promise<IDBDatabase> {
       }
     }
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error ?? new Error('Could not open Media Store.'))
-    request.onblocked = () => reject(new Error('Could not open Media Store.'))
+    request.onerror = () => reject(request.error ?? new Error(t('errors.mediaStoreOpen')))
+    request.onblocked = () => reject(new Error(t('errors.mediaStoreOpen')))
   })
 }
 
 function requestOf<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error ?? new Error('Media Store request failed.'))
+    request.onerror = () => reject(request.error ?? new Error(t('errors.mediaStoreRequest')))
   })
 }
 
 function completed(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve()
-    transaction.onabort = () => reject(transaction.error ?? new Error('Media Store transaction aborted.'))
-    transaction.onerror = () => reject(transaction.error ?? new Error('Media Store transaction failed.'))
+    transaction.onabort = () => reject(transaction.error ?? new Error(t('errors.mediaStoreAborted')))
+    transaction.onerror = () => reject(transaction.error ?? new Error(t('errors.mediaStoreFailed')))
   })
 }
 
 /** Ingests image bytes as an immutable, content-addressed Media Asset. */
 export async function saveImage(file: Blob): Promise<string> {
-  if (!file.type.startsWith('image/')) throw new Error('Please choose an image file.')
+  if (!file.type.startsWith('image/')) throw new Error(t('errors.chooseImage'))
 
   let bytes: ArrayBuffer
   let metadata: Pick<MediaAsset, 'width' | 'height'>

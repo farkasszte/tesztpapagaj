@@ -578,7 +578,7 @@ function QuestionHandles({
   return (
     <aside
       className="question-handles"
-      aria-label={`Question ${numberLabelOf(question)} controls`}
+      aria-label={t('exam.questionControls', { number: numberLabelOf(question) })}
       onClick={(event) => event.stopPropagation()}
       onDoubleClick={(event) => event.stopPropagation()}
     >
@@ -782,7 +782,7 @@ function EditablePoints({
           className="points-after-input"
           type="text"
           inputMode="numeric"
-          aria-label={`Points for ${label}`}
+          aria-label={t('exam.pointsFor', { label })}
           aria-invalid={parsePointsInput(typed) === undefined ? true : undefined}
           size={3}
           autoFocus
@@ -805,7 +805,7 @@ function EditablePoints({
         <button
           type="button"
           className="points-after-button"
-          aria-label={`Points for ${label}: ${pointsLabel(points)}`}
+          aria-label={t('exam.pointsFor', { label }) + ': ' + pointsLabel(points)}
           title={t('page.changePoints')}
           {...stop}
           onClick={(event) => {
@@ -925,7 +925,7 @@ export function QuestionView({
       <div className="part-work-space">
         <WorkSpaceView space={space} points={points} />
         <WorkSpaceHandle
-          label={`Work space for question ${numberLabelOf(question)} part ${here?.name ?? ''}`}
+          label={t('exam.workspacePart', { number: numberLabelOf(question), part: here?.name ?? '' })}
           space={here?.part.workSpace ?? space}
           max={maxWorkSpace}
           selected={pieces?.selected === spacePieceOf(partId)}
@@ -1108,7 +1108,7 @@ export function QuestionView({
       )}
       {item.workSpace && (
         <WorkSpaceHandle
-          label={`Work space for question ${numberLabelOf(question)}`}
+          label={t('exam.workspace', { number: numberLabelOf(question) })}
           space={item.workSpace}
           max={maxWorkSpace}
           selected={pieces?.selected === spacePieceOf(question.id)}

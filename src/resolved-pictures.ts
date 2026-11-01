@@ -159,7 +159,7 @@ async function mediaAssetOfPicture(picture: Blob): Promise<MediaAssetDeclaration
   if (SUPPORTED.has(type)) {
     return mediaAssetOf(new Uint8Array(await picture.arrayBuffer()), type as MediaAssetDeclaration['mimeType'])
   }
-  if (!type.startsWith('image/') || type === 'image/svg+xml') throw new Error('Choose a PNG, JPEG or WebP picture.')
+  if (!type.startsWith('image/') || type === 'image/svg+xml') throw new Error(t('errors.pictureType'))
   const bitmap = await createImageBitmap(picture)
   try {
     const canvas = document.createElement('canvas')
@@ -167,7 +167,7 @@ async function mediaAssetOfPicture(picture: Blob): Promise<MediaAssetDeclaration
     canvas.height = bitmap.height
     canvas.getContext('2d')?.drawImage(bitmap, 0, 0)
     const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
-    if (!png) throw new Error('This picture could not be read.')
+    if (!png) throw new Error(t('errors.pictureUnreadable'))
     return mediaAssetOf(new Uint8Array(await png.arrayBuffer()), 'image/png')
   } finally {
     bitmap.close()

@@ -293,7 +293,7 @@ function WaitingPreview({ waiting }: { waiting: WaitingImport }) {
         ? <img src={source.url} alt={name} />
         : waiting.kind === 'word' || failed
           ? <span className="import-sheet-placeholder"><FileText aria-hidden="true" />{waiting.kind === 'word' ? t('imports.wordDoc') : t('imports.noPreview')}</span>
-          : <span className="import-sheet-placeholder" role="status">Drawing page {pageNumber}…</span>}
+          : <span className="import-sheet-placeholder" role="status">{t('imports.drawingPage', { page: pageNumber })}</span>}
       {pages > 1 && <>
         <button
           type="button"
@@ -314,7 +314,7 @@ function WaitingPreview({ waiting }: { waiting: WaitingImport }) {
       </>}
     </div>
     {pages > 0 && <figcaption>
-      {pages > 1 ? `Page ${pageNumber} of ${pages}` : t('imports.pageOne')}
+      {pages > 1 ? t('imports.pageOf', { page: pageNumber, pages }) : t('imports.pageOne')}
       {labeled ? t('imports.labeledHint') : ''}
     </figcaption>}
   </figure>

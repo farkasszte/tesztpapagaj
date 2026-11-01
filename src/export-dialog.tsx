@@ -181,7 +181,7 @@ function ExportSettings({
         {!frozen && (
           <p className="export-hint" id={`${id}-version-hint`}>
             {shuffling
-              ? `Each Version gets its own name, printed at the top right. Up to ${Math.max(0, maxVersions ?? 0)} for this Exam.`
+              ? t('export.versionsNamed', { count: Math.max(0, maxVersions ?? 0) })
               : t('export.versionsHint')}
           </p>
         )}

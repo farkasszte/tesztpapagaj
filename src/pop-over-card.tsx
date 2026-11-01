@@ -80,7 +80,7 @@ function Answers({ answers, columns }: { answers: readonly ProseMirrorJSON[][]; 
 
 function Rules({ count }: { count: number }) {
   return count > 0
-    ? <div className="pop-over-rules" aria-label={`${count} answer lines`}>{Array.from({ length: count }, (_unused, index) => <span key={index} />)}</div>
+    ? <div className="pop-over-rules" aria-label={t('editor.answerLines', { count })}>{Array.from({ length: count }, (_unused, index) => <span key={index} />)}</div>
     : null
 }
 
@@ -187,7 +187,7 @@ function body(question: Question, format: CopyFormat, onFormat: (format: CopyFor
       return { controls: null, stem, answers: null }
     case 'open':
       return {
-        controls: <FormatSelect label={t('editor.answerLines')} value={format.lines ?? 0} options={LINE_OPTIONS} onChange={(value) => onFormat({ ...format, lines: value })} />,
+        controls: <FormatSelect label={t('editor.answerLinesLabel')} value={format.lines ?? 0} options={LINE_OPTIONS} onChange={(value) => onFormat({ ...format, lines: value })} />,
         stem,
         answers: (format.lines ?? 0) > 0 ? <Rules count={format.lines ?? 0} /> : null,
       }

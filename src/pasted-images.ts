@@ -1,4 +1,5 @@
 import type { Ctx } from '@milkdown/kit/ctx'
+import { t } from './i18n'
 import { editorViewOptionsCtx } from '@milkdown/kit/core'
 import { Fragment, Slice, type Node as ProseMirrorNode } from '@milkdown/kit/prose/model'
 import type { EditorView } from '@milkdown/kit/prose/view'
@@ -54,7 +55,7 @@ export async function capturePastedImage(
   file: File | undefined,
 ): Promise<string> {
   if (file) return saveImage(file)
-  if (!source) throw new Error('This image could not be captured.')
+  if (!source) throw new Error(t('errors.imageCapture'))
   return captureImageSource(source)
 }
 

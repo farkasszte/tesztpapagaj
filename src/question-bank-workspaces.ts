@@ -211,8 +211,8 @@ function requestOf<T>(request: IDBRequest<T>): Promise<T> {
 function completionOf(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve()
-    transaction.onerror = () => reject(transaction.error ?? new Error('IndexedDB transaction failed'))
-    transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted'))
+    transaction.onerror = () => reject(transaction.error ?? new Error(t('errors.txnFailed')))
+    transaction.onabort = () => reject(transaction.error ?? new Error(t('errors.txnAborted')))
   })
 }
 
@@ -232,7 +232,7 @@ function openRegistry(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => createGlobalStores(request.result)
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-    request.onblocked = () => reject(new Error(`Could not open ${STORAGE_NAME}`))
+    request.onblocked = () => reject(new Error(t('errors.storageOpen', { name: STORAGE_NAME })))
   })
 }
 

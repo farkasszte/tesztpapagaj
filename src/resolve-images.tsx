@@ -67,7 +67,7 @@ export function TagChooser({
   return <div className="resolve-image-chooser" role="group" aria-label={`Pictures in ${source.fileName}`}>
     {pages.map((number) => (
       <section key={number}>
-        {hasPages(source) && <h5>Page {number}</h5>}
+        {hasPages(source) && <h5>{t('imports.pageLabel', { page: number })}</h5>}
         <div>
           {source.tags.filter((tag) => tag.page === number).map((tag) => (
             <button
@@ -139,14 +139,14 @@ export function PageCropper({
   return <div className="resolve-image-cropper" role="group" aria-label={t('imports.cropFromPage')}>
     <div className="resolve-image-cropper-bar">
       <button type="button" className="secondary-button" disabled={page <= 1} onClick={() => setPage(page - 1)}>{t('pictures.previousPage')}</button>
-      <span>Page {page} of {source.pageCount}</span>
+      <span>{t('imports.pageOf', { page, pages: source.pageCount })}</span>
       <button type="button" className="secondary-button" disabled={page >= source.pageCount} onClick={() => setPage(page + 1)}>{t('pictures.nextPage')}</button>
     </div>
     <p className="resolve-image-note">{t('imports.dragBox')}</p>
     <div
       ref={frame}
       className="resolve-image-page"
-      aria-label={`Page ${page}`}
+      aria-label={t('imports.pageLabel', { page })}
       role="img"
       onPointerDown={(event) => {
         event.currentTarget.setPointerCapture(event.pointerId)
@@ -156,7 +156,7 @@ export function PageCropper({
       onPointerMove={extend}
       onPointerUp={(event) => { extend(event); drag.current = null }}
     >
-      {image ? <img src={image} alt="" draggable={false} /> : <p role="status">Rendering page {page}…</p>}
+      {image ? <img src={image} alt="" draggable={false} /> : <p role="status">{t('imports.renderingPage', { page })}</p>}
       {box && <span
         className="resolve-image-box"
         style={{

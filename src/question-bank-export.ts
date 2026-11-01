@@ -377,7 +377,7 @@ function safeHttpUrl(value: unknown): string {
     )
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new Error('Question Bank export supports only HTTP or HTTPS links.')
+    throw new Error(t('errors.onlyHttpLinks'))
   }
   return href
 }
@@ -424,7 +424,7 @@ function imageSemanticNode(
   const source = stringValue(attrs.src)
   const media = pending ? undefined : mediaIds.get(source)
   if (!pending && !media) {
-    throw new Error(`Required media “${source || 'without a source'}” could not be resolved. Re-add the image and try again.`)
+    throw new Error(t('errors.mediaSourceUnresolved', { source: source || '?' }))
   }
   const block = node.type !== 'image'
   const authoredSize = block ? recordSize(attrs, media) : undefined
@@ -472,7 +472,7 @@ function semanticNode(node: ProseMirrorJSON, mediaIds: ReadonlyMap<string, Embed
   switch (node.type) {
     case 'sideBySide':
     case 'sideBySidePanel':
-      throw new Error('A Side-by-Side may appear only as a top-level block of a stem.')
+      throw new Error(t('errors.sideBySideTopLevel'))
     case 'text': {
       const marks = semanticMarks(node)
       return {
@@ -549,11 +549,11 @@ function semanticNode(node: ProseMirrorJSON, mediaIds: ReadonlyMap<string, Embed
     case 'matching':
     case 'matchingPrompt':
     case 'matchingAnswer':
-      throw new Error('Matching structure must remain separate from its stem.')
+      throw new Error(t('errors.matchingSeparate'))
     case 'multipartParts':
     case 'multipartPart':
     case 'multipartPartStem':
-      throw new Error('Multipart Parts must remain separate from their question’s stem.')
+      throw new Error(t('errors.multipartSeparate'))
     case 'image':
     case 'image-block':
       return imageSemanticNode(node, mediaIds)
@@ -685,11 +685,11 @@ function portableQuestion(
     const prompts = promptsOf(question)
     const bank = choicesOf(question)
     if (prompts.length < 1) {
-      throw new Error(`Question ${index + 1} is a matching set and must have an item to match.`)
+      throw new Error(t('errors.importMatchingItem', { number: index + 1 }))
     }
     if (bank.length < 2) {
       throw new Error(
-        `Question ${index + 1} is a matching set and must have at least two Word Bank answers.`,
+        t('errors.importMatchingBank', { number: index + 1 }),
       )
     }
     const answerIds = new Map(
@@ -742,12 +742,10 @@ function portableQuestion(
   }
   const choices = choicesOf(question)
   if (choices.length < 2) {
-    throw new Error(`Question ${index + 1} must have at least two choices.`)
+    throw new Error(t('errors.importNeedsTwoChoices', { number: index + 1 }))
   }
   if (question.type === 'true-false' && choices.length !== 2) {
-    throw new Error(
-      `Question ${index + 1} is True/False and must have exactly two choices.`,
-    )
+    throw new Error(t('errors.trueFalseTwo', { number: index + 1 }))
   }
   // Several correct answers belong to Multiple Answer alone: every other
   // question marks one, so a second one there is a mistake worth refusing.
@@ -755,8 +753,8 @@ function portableQuestion(
   const several = question.type === 'multiple-answer'
   if (several ? correctChoices === 0 : correctChoices > 1) {
     throw new Error(several
-      ? `Question ${index + 1} is Multiple Answer and must mark at least one correct choice.`
-      : `Question ${index + 1} must have zero or one correct choice.`)
+      ? t('errors.multiAnswerOneCorrect', { number: index + 1 })
+      : t('errors.questionOneCorrect', { number: index + 1 }))
   }
   return {
     ...base,
@@ -792,10 +790,10 @@ function recordAnsweringPart(
     }
   }
   if (part.choices.length < 2) {
-    throw new Error(`${where} must have at least two choices.`)
+    throw new Error(t('errors.exportNeedsTwoChoices', { where }))
   }
   if (part.choices.filter((choice) => choice.correct).length > 1) {
-    throw new Error(`${where} must have zero or one correct choice.`)
+    throw new Error(t('errors.exportOneCorrect', { where }))
   }
   return {
     id,
@@ -951,7 +949,7 @@ export async function prepareQuestionBankExport(
   const previewMedia = new Map<string, NonNullable<PreparedQuestionBankExport['previewMedia']> extends Map<string, infer V> ? V : never>()
   for (const [index, source] of sources.entries()) {
     const asset = loaded[index]
-    if (!asset) throw new Error(`Required media for “${source}” could not be resolved. Re-add the image and try again.`)
+    if (!asset) throw new Error(t('errors.mediaReadd', { source }))
     const digest = hex(await crypto.subtle.digest('SHA-256', asset.data))
     const id = `sha256:${digest}`
     mediaIds.set(source, { id, width: asset.width })

@@ -1,3 +1,4 @@
+import { t } from './i18n'
 import {
   DEFAULT_EXAM_TITLE,
   snapWorkSpaceHeight,
@@ -106,7 +107,7 @@ export function planImport(
     if (!selection.exams[exam.key]?.allowed) return []
     const missing = exam.banks.filter((id) => !identities.has(id))
     if (missing.length > 0) {
-      throw new Error(`“${exam.name}” needs a Question Bank that is not being imported: ${missing.join(', ')}.`)
+      throw new Error(t('errors.examNeedsBank', { exam: exam.name, list: missing.join(', ') }))
     }
     const questions: Question[] = []
     const columns: Record<string, ColumnSetting> = {}

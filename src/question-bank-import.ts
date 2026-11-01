@@ -934,7 +934,7 @@ function parseWith(
       const href = valueAt(value, unsafeLink.instancePath)
       throw new QuestionBankImportError(
         'unsafe-url',
-        `The link “${String(href)}” is unsafe. Question Bank links must use absolute HTTP or HTTPS URLs.`,
+        t('errors.unsafeLink', { href: String(href) }),
       )
     }
     const cropError = malformedCrop(validate.errors, value, sourceVersion)
@@ -1124,7 +1124,7 @@ function assertSafeUrl(value: string): void {
   }
   throw new QuestionBankImportError(
     'unsafe-url',
-    `The link “${value}” is unsafe. Question Bank links must use absolute HTTP or HTTPS URLs.`,
+    t('errors.unsafeLink', { href: value }),
   )
 }
 
@@ -1389,7 +1389,7 @@ async function validateSemantics(
         if (!part.choices || part.choices.length < 2) {
           throw new QuestionBankImportError(
             'invalid-question',
-            `${where} is ${label} and must have at least two choices.`,
+            t('errors.importWhereTwoChoices', { where, label }),
           )
         }
         const correct = part.choices.filter((choice) => choice.correct).length
@@ -1469,7 +1469,7 @@ async function validateSemantics(
       if (!question.choices || question.choices.length < 2) {
         throw new QuestionBankImportError(
           'invalid-question',
-          `${label} Question “${question.id}” must have at least two choices.`,
+          t('errors.importLabeledTwoChoices', { label, id: question.id }),
         )
       }
       if (question.type === 'true-false' && question.choices.length !== 2) {

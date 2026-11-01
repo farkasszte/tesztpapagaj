@@ -1057,7 +1057,7 @@ export function QuestionBankImportDialog({
         <header className="dialog-header">
           <div className="bank-import-title">
             <h2 id={titleId}>{t('import.action')}</h2>
-            {proposal?.reading && <span className="bank-import-read-as">Read as {proposal.reading.label}</span>}
+            {proposal?.reading && <span className="bank-import-read-as">{t('imports.readAs', { label: proposal.reading.label })}</span>}
           </div>
           <a className="bank-import-help" href={supportMailto(t('import.troubleTitle'), { askForFile: true })}>
             {t('import.troubleLink')}
@@ -1129,7 +1129,7 @@ export function QuestionBankImportDialog({
         {proposal && mismatch && waiting && (
           <div className="bank-import-mismatch" role="alert">
             <p>
-              <strong>This file seems to come from a different test than {waiting.fileName}.</strong>{' '}
+              <strong>{t('imports.otherTest', { file: waiting.fileName })}</strong>{' '}
               {paired!.unknownTags.length > 0
                 ? `It names ${paired!.unknownTags.map((tag) => `IMG ${tag}`).join(', ')}, which your test does not have. `
                 : ''}
@@ -1266,7 +1266,7 @@ export function QuestionBankImportDialog({
             </div>
 
             {pickedOccurrence && (
-              <aside className="bank-import-controls bank-import-picture" aria-label={`Picture for ${placeName(pickedOccurrence)}`}>
+              <aside className="bank-import-controls bank-import-picture" aria-label={t('bankImport.pictureFor', { place: placeName(pickedOccurrence) })}>
                 <header className="bank-import-rail-head" data-kind="picture">
                   <p><ImageIcon aria-hidden="true" />{t('import.picture')}</p>
                   {/* Named by what it shows: a Test numbers its Questions by
@@ -1300,7 +1300,7 @@ export function QuestionBankImportDialog({
               return <aside
                 className="bank-import-controls"
                 data-allowed={chosen.allowed ? 'true' : 'false'}
-                aria-label={`Question Bank ${name}`}
+                aria-label={t('bankImport.bankNamed', { name })}
               >
                 <RailHead kind="bank" name={name} allowed={chosen.allowed} />
 
@@ -1358,7 +1358,7 @@ export function QuestionBankImportDialog({
                   </label>
                   {chosen.target.kind === 'existing' && <select
                     className="bank-import-target-bank"
-                    aria-label={`Existing Question Bank for ${name}`}
+                    aria-label={t('bankImport.existingBank', { name })}
                     value={chosen.target.bankId}
                     onChange={(event) => setSelection(setBankTarget(selection, bank.id, { kind: 'existing', bankId: event.target.value }))}
                   >

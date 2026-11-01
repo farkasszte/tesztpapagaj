@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { t } from './i18n'
 import { PDFDocument } from 'pdf-lib'
 import { PIXEL_PNG } from './export-fixtures'
 import { choicesOf, partsOf, promptsOf } from './exam'
@@ -767,7 +768,7 @@ describe('hostile Question Bank File inspection', () => {
     unsafe.bank.questions[0]!.stem.content[0] = {
       type: 'text', text: 'click', marks: [{ type: 'link', href: 'javascript:alert(1)' }],
     }
-    await rejected(inspectQuestionBankRecord(bytesOf(unsafe as QuestionBankRecord & Record<string, unknown>)), 'unsafe-url', 'HTTP or HTTPS')
+    await rejected(inspectQuestionBankRecord(bytesOf(unsafe as QuestionBankRecord & Record<string, unknown>)), 'unsafe-url', t('errors.unsafeLink', { href: 'javascript:alert(1)' }))
   })
 
   test('checks PDF and decoded record byte boundaries before parsing', async () => {

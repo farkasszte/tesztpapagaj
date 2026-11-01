@@ -2313,7 +2313,9 @@ function ExamEditor({
         setBankRevision((revision) => revision + 1)
       } catch (error) {
         setStorageNotice(
-          `The Points could not be saved${error instanceof Error ? `: ${error.message}` : '.'}`,
+          error instanceof Error && error.message
+            ? t('errors.pointsNotSavedWhy', { reason: error.message })
+            : t('errors.pointsNotSaved'),
         )
       }
     })()

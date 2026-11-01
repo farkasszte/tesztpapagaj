@@ -8,6 +8,7 @@
 // relationships and parts rather than as text about them.
 
 import { describe, expect, test } from 'bun:test'
+import { t } from './i18n'
 import JSZip from 'jszip'
 import {
   createExamDocx,
@@ -265,7 +266,7 @@ describe('links and pictures', () => {
     })
 
     expect(createPublicationDocx([plan], async () => null)).rejects.toThrow(
-      'question 1',
+      t('errors.mediaForQuestion', { number: 1 }),
     )
   })
 })

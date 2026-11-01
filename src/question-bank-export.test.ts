@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { t } from './i18n'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { partsOf, type Question } from './exam'
 import { PIXEL_PNG, mark, paragraph, text } from './export-fixtures'
@@ -370,7 +371,7 @@ describe('Question Bank exchange export seam', () => {
       },
     }
     await expect(prepareQuestionBankExport(bank([extra]))).rejects.toThrow(
-      /True\/False and must have exactly two choices/,
+      t('errors.trueFalseTwo', { number: 1 }),
     )
   })
 
@@ -421,7 +422,7 @@ describe('Question Bank exchange export seam', () => {
       },
     }
     await expect(prepareQuestionBankExport(bank([thin]))).rejects.toThrow(
-      /at least two Word Bank answers/,
+      t('errors.importMatchingBank', { number: 1 }),
     )
   })
 
@@ -524,7 +525,7 @@ describe('Question Bank exchange export seam', () => {
       .content as { content: { content: unknown[] }[] }[]
     partA!.content[1]!.content.splice(1)
     await expect(prepareQuestionBankExport(bank([thin]))).rejects.toThrow(
-      'Question 1, Part a must have at least two choices.',
+      t('errors.exportNeedsTwoChoices', { where: 'Question 1, Part a' }),
     )
   })
 
@@ -587,9 +588,7 @@ describe('Question Bank exchange export seam', () => {
         unknown
       >
     ).href = 'javascript:alert(1)'
-    await expect(prepareQuestionBankExport(bank([unsafe]))).rejects.toThrow(
-      'HTTP or HTTPS',
-    )
+    await expect(prepareQuestionBankExport(bank([unsafe]))).rejects.toThrow(t('errors.onlyHttpLinks'))
 
     const image = structuredClone(shortAnswer)
     ;(image.doc.content as Record<string, unknown>[]).push({
@@ -597,7 +596,7 @@ describe('Question Bank exchange export seam', () => {
       attrs: { src: '/local-images/deadbeef' },
     })
     await expect(prepareQuestionBankExport(bank([image]))).rejects.toThrow(
-      'Required media',
+      t('errors.mediaSourceUnresolved', { source: '/local-images/deadbeef' }),
     )
 
     const twoCorrect = structuredClone(multipleChoice)
@@ -605,14 +604,14 @@ describe('Question Bank exchange export seam', () => {
       .content as Record<string, unknown>[]
     ;(choices[0]!.attrs as Record<string, unknown>).correct = true
     await expect(prepareQuestionBankExport(bank([twoCorrect]))).rejects.toThrow(
-      'zero or one correct choice',
+      t('errors.questionOneCorrect', { number: 1 }),
     )
 
     const oneChoice = structuredClone(multipleChoice)
     ;((oneChoice.doc.content as Record<string, unknown>[])[1]!
       .content as unknown[]) = [choice('one', false, 'Only')]
     await expect(prepareQuestionBankExport(bank([oneChoice]))).rejects.toThrow(
-      'at least two choices',
+      t('errors.importNeedsTwoChoices', { number: 1 }),
     )
   })
 
@@ -1079,8 +1078,8 @@ describe('a Question Bank with Side-by-Sides', () => {
       doc: { type: 'doc', content: [sideBySide(panel(paragraph(text('Alone'))))] },
     }
 
-    await expect(prepareQuestionBankExport(bank([inChoice]), pixels)).rejects.toThrow(/only as a top-level block of a stem/)
-    await expect(prepareQuestionBankExport(bank([inBlockquote]), pixels)).rejects.toThrow(/only as a top-level block of a stem/)
+    await expect(prepareQuestionBankExport(bank([inChoice]), pixels)).rejects.toThrow(t('errors.sideBySideTopLevel'))
+    await expect(prepareQuestionBankExport(bank([inBlockquote]), pixels)).rejects.toThrow(t('errors.sideBySideTopLevel'))
     await expect(prepareQuestionBankExport(bank([onePanel]), pixels)).rejects.toThrow(/kettő vagy három panelt/)
   })
 })
