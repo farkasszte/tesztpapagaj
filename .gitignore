@@ -36,3 +36,19 @@ uploads/
 
 # A szoba-relay helyi wrangler-kimenete
 workers/room/.wrangler/
+
+# Fordítás- és teszt-melléktermékek
+coverage/
+.turbo/
+*.log
+npm-debug.log*
+bun-error.log
+
+# Szerkesztő- és rendszermaradványok
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+*.orig
+*.rej
+*.bak
