@@ -162,7 +162,6 @@ export function ChampionStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
-      <div className="gq-mat" aria-hidden="true" />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">

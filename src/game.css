@@ -157,66 +157,32 @@
 
 .gq-stage {
   position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; gap: 18px;
-  padding: 52px 62px 48px;
+  padding: 34px 44px 32px;
   /* Kivetítésnél görgetősáv nem látszódik: ha mégis kell, a kerék és a
      billentyűk görgetnek, de a sáv nem vesz el helyet a színpadból. */
   overflow: auto; scrollbar-width: none;
-  /* A vászon: fölülről jövő fény, a padló közepe világosabb, a sarkok sötétek. */
+  /* A vászon: a padló közepe világosabb, a szélek felé sötétedik. */
   background:
-    radial-gradient(ellipse 62% 46% at 50% 8%, rgb(255 226 170 / 0.16), transparent 72%),
     radial-gradient(ellipse 90% 70% at 50% 42%, var(--night-2), var(--night) 78%);
   color: var(--paper);
   font-family: var(--serif);
 }
-/* A ring: fönn és lenn három kötél, a sarkokban oszlopok, belül a vászon.
-   A kötelek a sarokoszlopok közé feszülnek (ezért beljebb kezdődnek), és
-   megroppannak a közepükön — így látszik, hogy kötél, nem vonal. */
-.gq-stage {
-  --ring-inset: 42px;
-}
+/* Az aréna fénye: felülről jövő szűrt fénykúp, a vászon közepének derengése és
+   a szélek felé sötétedő vignetta. Kötél, oszlop és matrac nincs: a színpad
+   tartalma szabadon lélegzik, a téma a palettában, a kesztyűkben és a
+   tipográfiában él. */
 .gq-stage::before {
   content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    /* felső három kötél: fényes él és alatta árnyék */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cg fill='none' vector-effect='non-scaling-stroke' stroke-linecap='round'%3E%3Cg stroke='%23120e0b' stroke-opacity='.6' stroke-width='6'%3E%3Cpath d='M0 22 Q50 78 100 22'/%3E%3Cpath d='M0 64 Q50 120 100 64'/%3E%3Cpath d='M0 106 Q50 162 100 106'/%3E%3C/g%3E%3Cg stroke='%23f7eddd' stroke-opacity='.68' stroke-width='4'%3E%3Cpath d='M0 18 Q50 74 100 18'/%3E%3Cpath d='M0 60 Q50 116 100 60'/%3E%3Cpath d='M0 102 Q50 158 100 102'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-      top var(--ring-inset) left var(--ring-inset) / calc(100% - 2 * var(--ring-inset)) 130px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cg fill='none' vector-effect='non-scaling-stroke' stroke-linecap='round'%3E%3Cg stroke='%23120e0b' stroke-opacity='.6' stroke-width='6'%3E%3Cpath d='M0 108 Q50 52 100 108'/%3E%3Cpath d='M0 66 Q50 10 100 66'/%3E%3Cpath d='M0 24 Q50 -32 100 24'/%3E%3C/g%3E%3Cg stroke='%23f7eddd' stroke-opacity='.68' stroke-width='4'%3E%3Cpath d='M0 112 Q50 56 100 112'/%3E%3Cpath d='M0 70 Q50 14 100 70'/%3E%3Cpath d='M0 28 Q50 -28 100 28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-      bottom var(--ring-inset) left var(--ring-inset) / calc(100% - 2 * var(--ring-inset)) 130px no-repeat,
-    /* az aréna fénye */
-    radial-gradient(ellipse 44% 32% at 50% 0%, rgb(255 232 186 / 0.13), transparent 70%),
-    radial-gradient(ellipse 60% 44% at 50% 64%, rgb(255 226 168 / 0.05), transparent 72%);
+    radial-gradient(ellipse 52% 38% at 50% -4%, rgb(255 232 186 / 0.16), transparent 72%),
+    radial-gradient(ellipse 62% 46% at 50% 60%, rgb(255 226 168 / 0.05), transparent 74%),
+    radial-gradient(ellipse 78% 74% at 50% 46%, transparent 42%, rgb(0 0 0 / 0.42) 100%);
 }
 
-/* A négy sarokoszlop: arany henger csúcsgombmal (turnbuckle), a kötelek
-   végénél; a vászon kerete ugyanoda fut. */
-.gq-stage::after {
-  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 150'%3E%3Crect x='5' y='10' width='30' height='140' rx='13' fill='%23c1922a'/%3E%3Crect x='5' y='10' width='11' height='140' rx='5' fill='%23efd69b' fill-opacity='.85'/%3E%3Crect x='5' y='10' width='30' height='16' rx='8' fill='%23f4dca6'/%3E%3Crect x='5' y='54' width='30' height='9' fill='%237d5f1a'/%3E%3Crect x='5' y='114' width='30' height='9' fill='%237d5f1a'/%3E%3Ccircle cx='20' cy='28' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='88' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='6' r='9' fill='%23f4dca6'/%3E%3Ccircle cx='20' cy='6' r='9' fill='none' stroke='%237d5f1a' stroke-width='2'/%3E%3C/svg%3E") left 24px top 22px / 40px 150px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 150'%3E%3Crect x='5' y='10' width='30' height='140' rx='13' fill='%23c1922a'/%3E%3Crect x='5' y='10' width='11' height='140' rx='5' fill='%23efd69b' fill-opacity='.85'/%3E%3Crect x='5' y='10' width='30' height='16' rx='8' fill='%23f4dca6'/%3E%3Crect x='5' y='54' width='30' height='9' fill='%237d5f1a'/%3E%3Crect x='5' y='114' width='30' height='9' fill='%237d5f1a'/%3E%3Ccircle cx='20' cy='28' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='88' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='6' r='9' fill='%23f4dca6'/%3E%3Ccircle cx='20' cy='6' r='9' fill='none' stroke='%237d5f1a' stroke-width='2'/%3E%3C/svg%3E") right 24px top 22px / 40px 150px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 150'%3E%3Crect x='5' y='10' width='30' height='140' rx='13' fill='%23c1922a'/%3E%3Crect x='5' y='10' width='11' height='140' rx='5' fill='%23efd69b' fill-opacity='.85'/%3E%3Crect x='5' y='10' width='30' height='16' rx='8' fill='%23f4dca6'/%3E%3Crect x='5' y='54' width='30' height='9' fill='%237d5f1a'/%3E%3Crect x='5' y='114' width='30' height='9' fill='%237d5f1a'/%3E%3Ccircle cx='20' cy='28' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='88' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='6' r='9' fill='%23f4dca6'/%3E%3Ccircle cx='20' cy='6' r='9' fill='none' stroke='%237d5f1a' stroke-width='2'/%3E%3C/svg%3E") left 24px bottom 22px / 40px 150px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 150'%3E%3Crect x='5' y='10' width='30' height='140' rx='13' fill='%23c1922a'/%3E%3Crect x='5' y='10' width='11' height='140' rx='5' fill='%23efd69b' fill-opacity='.85'/%3E%3Crect x='5' y='10' width='30' height='16' rx='8' fill='%23f4dca6'/%3E%3Crect x='5' y='54' width='30' height='9' fill='%237d5f1a'/%3E%3Crect x='5' y='114' width='30' height='9' fill='%237d5f1a'/%3E%3Ccircle cx='20' cy='28' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='88' r='7' fill='%23463a2a' stroke='%23cbb27a' stroke-width='2.2'/%3E%3Ccircle cx='20' cy='6' r='9' fill='%23f4dca6'/%3E%3Ccircle cx='20' cy='6' r='9' fill='none' stroke='%237d5f1a' stroke-width='2'/%3E%3C/svg%3E") right 24px bottom 22px / 40px 150px no-repeat;
-}
-
-/* A matrac: a kötelek között futó vászon, vékony szegéllyel és sarokjelekkel.
-   Szövésminta nincs: a vetítőn moarét csinálna. */
-.gq-mat {
-  position: fixed; inset: 96px 46px 92px; z-index: 0; pointer-events: none;
-  border-radius: 6px;
-  border: 1px solid rgb(245 236 220 / 0.1);
-  background:
-    radial-gradient(ellipse 74% 64% at 50% 42%, rgb(255 231 176 / 0.05), transparent 74%),
-    linear-gradient(180deg, rgb(255 244 224 / 0.02), transparent 30%);
-  box-shadow:
-    inset 0 0 140px rgb(0 0 0 / 0.42),
-    inset 0 1px 0 rgb(255 244 224 / 0.05);
-}
-@media (max-width: 1279px) { .gq-mat { inset: 84px 40px 82px; } }
-
-/* A tartalom a kötelek között, a vásznon áll. */
+/* A tartalom a fény fölött áll. */
 .gq-stage > * { position: relative; z-index: 1; }
-@media (min-width: 1600px) { .gq-stage { padding: 62px 74px 56px; } }
-@media (max-width: 1023px) { .gq-stage { padding: 44px 34px 40px; } }
+@media (min-width: 1600px) { .gq-stage { padding: 40px 56px 38px; } }
+@media (max-width: 1023px) { .gq-stage { padding: 26px 24px 24px; } }
 
 .gq-stage-bar {
   position: relative; display: flex; align-items: center; justify-content: space-between;
@@ -351,7 +317,7 @@
 }
 @media (min-width: 1600px) { .gq-answer { min-height: 138px; padding: 22px 36px; } }
 /* Az arany kártya világosabb: sötét betűvel olvasható, és így szándékosnak hat. */
-.gq-answer[data-tint='2'] { background: #e3bd63; color: #241a10; }
+.gq-answer[data-tint='2'] { background: #d9b154; color: #241a10; }
 /* Az arany (öv) kártyán sötét a betű: fehéren olvashatatlan lenne. */
 .gq-answer[data-tint='2'] .doc-content { color: #241a10; text-shadow: none; }
 .gq-answer .doc-content {
@@ -404,8 +370,10 @@
 
 .gq-done { display: grid; place-items: center; gap: 18px; flex: 1; text-align: center; }
 .gq-big {
-  margin: 0; font-family: var(--display); font-weight: 400; line-height: 1.1;
-  font-size: clamp(46px, 6vw, 78px); text-wrap: balance;
+  margin: 0; font-family: var(--display); font-weight: 700; line-height: 1.05;
+  font-size: clamp(54px, 7.2vw, 96px); letter-spacing: 0.02em; text-transform: uppercase;
+  text-wrap: balance; color: var(--paper);
+  text-shadow: 0 0 34px rgb(255 226 168 / 0.22);
 }
 .gq-done p { margin: 0; font-size: 19px; color: rgb(255 250 243 / 0.85); }
 

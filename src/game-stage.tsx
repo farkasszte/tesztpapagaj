@@ -93,7 +93,6 @@ export function ClassicStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.title')}>
-      <div className="gq-mat" aria-hidden="true" />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         {session.noDevices || !question ? null : (
