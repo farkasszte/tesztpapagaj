@@ -56,10 +56,45 @@ describe('what the projector plays', () => {
     expect(five.skipped[0].reason).toBe(t('game.skip.choiceCount', { count: 5 }))
   })
 
-  test('another type of question is left out, and the reason names the type', () => {
+  test('a True/False question is played, with the two answers in the interface’s language', () => {
     const result = playableQuestions([question([choice('True', true), choice('False')], { type: 'true-false' })])
-    expect(result.questions).toHaveLength(0)
-    expect(result.skipped[0].reason).toBe(t('game.skip.type', { type: SECTION_LABELS['true-false'] }))
+    expect(result.skipped).toEqual([])
+    expect(result.questions[0]).toMatchObject({
+      prompt: 'Which number is prime?',
+      choices: [t('game.trueFalse.true'), t('game.trueFalse.false')],
+      correct: 0,
+    })
+    // A második válasz a helyes: a sorrend és a jelölés is megmarad.
+    const swapped = playableQuestions([question([choice('True'), choice('False', true)], { type: 'true-false' })])
+    expect(swapped.questions[0]).toMatchObject({
+      choices: [t('game.trueFalse.true'), t('game.trueFalse.false')],
+      correct: 1,
+    })
+  })
+
+  test('a True/False question without exactly two answers is still left out', () => {
+    const one = playableQuestions([question([choice('True', true)], { type: 'true-false' })])
+    expect(one.skipped[0].reason).toBe(t('game.skip.choiceCount', { count: 1 }))
+    const three = playableQuestions([
+      question([choice('True', true), choice('False'), choice('Maybe')], { type: 'true-false' }),
+    ])
+    expect(three.skipped[0].reason).toBe(t('game.skip.choiceCount', { count: 3 }))
+  })
+
+  test('every other type of the Tesztpapagáj is left out, and the reason names the type', () => {
+    const types: QuestionType[] = [
+      'multiple-answer',
+      'matching',
+      'ordering',
+      'fill-in-the-blank',
+      'open',
+      'multipart',
+    ]
+    for (const type of types) {
+      const result = playableQuestions([question([choice('A', true), choice('B')], { type })])
+      expect(result.questions).toHaveLength(0)
+      expect(result.skipped[0].reason).toBe(t('game.skip.type', { type: SECTION_LABELS[type] }))
+    }
   })
 
   test('a question with no right answer, or with two, is left out', () => {

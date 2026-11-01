@@ -165,12 +165,29 @@ function hasUnshowable(nodes: readonly ProseMirrorJSON[]): boolean {
   return nodes.some((node) => UNSHOWABLE.has(String(node.type)) || hasUnshowable(childrenOf(node)))
 }
 
+/**
+ * A típusok, amiket a színpad le tud játszani. A Tesztpapagájban ennél több
+ * típus van (párosítás, sorrendezés, kiegészítés, rövid válasz, részkérdések),
+ * de azok nem „egy helyes válasz a válaszok közül" alakúak, tehát a játék
+ * nem tudja őket tisztességesen lejátszani — ezek kimaradnak, indoklással.
+ */
+const PLAYABLE_TYPES = new Set<string>(['multiple-choice', 'true-false'])
+
+/** Az Igaz/Hamis kérdés két válasza: a dokumentumban angolul állnak. */
+function trueFalseLabel(index: number): string {
+  return index === 0 ? t('game.trueFalse.true') : t('game.trueFalse.false')
+}
+
 /** Why a question can't be played, or null when it can. */
 function problemOf(question: BankQuestion): string | null {
-  if (question.type !== 'multiple-choice')
+  if (!PLAYABLE_TYPES.has(question.type))
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
   const choices = choiceNodesOf(question.doc)
   if (choices.length < 2 || choices.length > 4)
+    return t('game.skip.choiceCount', { count: choices.length })
+  // Az igaz/hamis kérdésnek pontosan a két rögzített válasza van; ha a
+  // dokumentumban másmilyen áll, az nem az a kérdés, amit a tanár írt.
+  if (question.type === 'true-false' && choices.length !== 2)
     return t('game.skip.choiceCount', { count: choices.length })
   const correct = choices.filter(choiceIsCorrect).length
   if (correct === 0) return t('game.skip.noCorrect')
@@ -204,7 +221,19 @@ export function playableQuestions(questions: readonly BankQuestion[]): PlayableQ
     const stemNodes = stemNodesOf(question.doc)
     const explanationNodes = question.explanation ? childrenOf(question.explanation) : []
     const stem = gameNodes(stemNodes)
-    const choiceNodes = choiceNodesOf(question.doc)
+    const choiceNodes =
+      question.type === 'true-false'
+        ? choiceNodesOf(question.doc).map((node, index) => ({
+            type: 'multipleChoiceChoice',
+            attrs: node.attrs,
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: trueFalseLabel(index) }],
+              },
+            ],
+          }))
+        : choiceNodesOf(question.doc)
     const choices = choiceNodes.map((node) => gameNodes(childrenOf(node)))
     const correct = choiceNodes.findIndex(choiceIsCorrect)
     const rich = ![stem, ...choices].every(isPlain)
