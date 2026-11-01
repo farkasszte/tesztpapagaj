@@ -117,6 +117,7 @@ export function PerilStage({
   if (!engine || !session || !view) {
     return (
       <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
+      <div className="gq-mat" aria-hidden="true" />
         <div className="gq-stage-bar">
           {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
           <span className="gq-where">{title}</span>
@@ -306,7 +307,8 @@ export function PerilStage({
                 className="gq-answer"
                 data-state="idle"
                 data-pickable={view.noDevices ? 'true' : 'false'}
-                style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
+                data-tint={index}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                 role="button"
                 tabIndex={0}
                 aria-label={`${LETTERS[index]}: ${open.choices?.[index] ?? ''}`}
@@ -320,7 +322,7 @@ export function PerilStage({
                   }
                 }}
               >
-                <Shape index={index} />
+                <Shape index={index} letter={LETTERS[index]} />
                 <DocView content={shown?.choices[index] ?? []} />
               </div>
             ))}
@@ -341,11 +343,12 @@ export function PerilStage({
                 key={index}
                 className="gq-answer"
                 data-state={index === open.correct ? 'correct' : 'faded'}
-                style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
+                data-tint={index}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                 role="group"
                 aria-label={`${LETTERS[index]}: ${open.choices?.[index] ?? ''}`}
               >
-                <Shape index={index} />
+                <Shape index={index} letter={LETTERS[index]} />
                 <DocView content={shown?.choices[index] ?? []} />
                 {index === open.correct ? (
                   <span className="gq-tick" aria-hidden="true">

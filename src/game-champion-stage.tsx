@@ -6,7 +6,7 @@ import { Engine, createSession } from './game/engine'
 import type { EndReason, Help, Settings } from './game/types'
 import type { Session } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
-import { Ring, Shape } from './game-shapes'
+import { Belt, Ring, Shape, Strike } from './game-shapes'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import type { SavedGame } from './game-store'
@@ -130,7 +130,8 @@ export function ChampionStage({
             className="gq-answer"
             data-state={state}
             data-pickable={onPick ? 'true' : 'false'}
-            style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
+            data-tint={index}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
             role={onPick ? 'button' : 'group'}
             tabIndex={onPick ? 0 : undefined}
             aria-label={`${LETTERS[index]}: ${label}`}
@@ -146,7 +147,7 @@ export function ChampionStage({
                 : undefined
             }
           >
-            <Shape index={index} />
+            <Shape index={index} letter={LETTERS[index]} />
             <DocView content={shown?.choices[index] ?? []} />
             {state === 'correct' ? (
               <span className="gq-tick" aria-hidden="true">
@@ -161,6 +162,7 @@ export function ChampionStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
+      <div className="gq-mat" aria-hidden="true" />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">
@@ -169,15 +171,25 @@ export function ChampionStage({
               <span>{t('game.champion.round', { round: game.ordinal })}</span>
               {one ? <span className="gq-one-name">{one.nickname}</span> : null}
               <span className="gq-stat">
+                <Belt />
                 {t('game.champion.pot')} <strong>{game.bank}</strong>
               </span>
               <span
                 className="gq-stat gq-hearts"
                 aria-label={`${t('game.champion.strikes')}: ${game.strikes}`}
               >
-                <span className="gq-heart">{'♥'.repeat(Math.max(0, game.strikes))}</span>
+                <span className="gq-heart">
+                  {Array.from({ length: Math.max(0, game.strikes) }, (_, index) => (
+                    <Strike key={index} />
+                  ))}
+                </span>
                 <span className="gq-heart-empty">
-                  {'♡'.repeat(Math.max(0, game.baseStrikes - game.strikes))}
+                  {Array.from(
+                    { length: Math.max(0, game.baseStrikes - game.strikes) },
+                    (_, index) => (
+                      <Strike key={index} />
+                    ),
+                  )}
                 </span>
               </span>
             </>

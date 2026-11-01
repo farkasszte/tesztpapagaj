@@ -120,12 +120,13 @@ NOTICE.md                    (ez a fájl)
     "Class Gauntlet" under the Apache License, Version 2.0, itself adapted from
     "1v100" (Copyright 2026 deadbeef101010 and contributors).
 
-13. **Betűtípusok a játékhoz.** A kvízjáték színpada két SIL Open Font License
-    1.1 alatti betűt használ, `public/game-fonts/` alatt, `unicode-range`
-    részhalmazokkal: **Literata** (Copyright 2017 The Literata Project Authors,
-    <https://github.com/googlefonts/literata>) és **Pirata One**
-    (Copyright (c) 2012, Rodrigo Fuenzalida, Nicolas Massi; Reserved Font Name
-    „Pirata”). A licencek teljes szövege ugyanott:
-    `public/game-fonts/OFL-Literata.txt` és `OFL-PirataOne.txt`. A többi
+13. **Betűtípusok a játékhoz.** A kvízjáték színpada (ökölvívó aréna) két SIL
+    Open Font License 1.1 alatti betűt használ, `public/game-fonts/` alatt,
+    `unicode-range` részhalmazokkal: **Literata** (a kérdések és válaszok
+    szövege; Copyright 2017 The Literata Project Authors,
+    <https://github.com/googlefonts/literata>) és **Oswald** (a címek, a menet
+    és az óra számai; Copyright 2016 The Oswald Project Authors,
+    <https://github.com/googlefonts/OswaldFont>). A licencek teljes szövege
+    ugyanott: `public/game-fonts/OFL-Literata.txt` és `OFL-Oswald.txt`. A többi
     beépített betű (GNU FreeFont) változatlan, saját licence a
     `public/fonts/FREEFONT-LICENSE.txt`-ben.

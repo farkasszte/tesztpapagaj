@@ -6,7 +6,7 @@ import { buildClassicView } from './game/classic/views'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
-import { Ring, Shape } from './game-shapes'
+import { Bell, Ring, Shape } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { useT } from './i18n'
 
@@ -93,6 +93,7 @@ export function ClassicStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.title')}>
+      <div className="gq-mat" aria-hidden="true" />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         {session.noDevices || !question ? null : (
@@ -120,7 +121,7 @@ export function ClassicStage({
               <DocView content={shown.stem} />
             </h1>
             {view.phase === 'QUESTION' && session.deadline !== null ? (
-              <Ring remaining={remaining} total={total} />
+              <Ring remaining={remaining} total={total} unit={t('game.stage.seconds')} />
             ) : null}
           </div>
 
@@ -196,13 +197,18 @@ export function ClassicStage({
                   key={index}
                   className="gq-answer"
                   data-state={state}
+                  data-tint={index}
                   style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                   role="group"
                   aria-label={`${LETTERS[index]}: ${question.choices[index] ?? ''}`}
                 >
-                  <Shape index={index} />
+                  <Shape index={index} letter={LETTERS[index]} />
                   <DocView content={choiceWords} />
-                  {state === 'correct' ? <span className="gq-tick" aria-hidden="true">✓</span> : null}
+                  {state === 'correct' ? (
+                    <span className="gq-tick" aria-hidden="true">
+                      <Bell />
+                    </span>
+                  ) : null}
                   {order !== null && order.includes(index) ? (
                     <span className="gq-order" aria-hidden="true">
                       {order.indexOf(index) + 1}
