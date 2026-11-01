@@ -29,6 +29,9 @@ export function ClassicStudentGame({
   const t = useT()
   /** A több helyes válaszos kérdésnél a beküldés előtt összegyűjtött jelölések. */
   const [marked, setMarked] = useState<number[]>([])
+  /** Párosításnál fogalmanként a válasz indexe, és az épp kiválasztott fogalom. */
+  const [links, setLinks] = useState<(number | null)[]>([])
+  const [active, setActive] = useState<number | null>(null)
   const question = view?.question ?? null
   const mine = view?.me ?? null
   const revealed = view?.phase === 'REVEAL'
@@ -37,9 +40,11 @@ export function ClassicStudentGame({
   // A visszaszámláló a legutóbb kapott nézetből indul, és magától ketyeg.
   const remaining = question?.remainingMs ?? null
   const [left, setLeft] = useState(0)
-  // Új kérdésnél a jelölések elölről kezdődnek.
+  // Új kérdésnél a jelölések és a párok elölről kezdődnek.
   useEffect(() => {
     setMarked([])
+    setLinks([])
+    setActive(null)
   }, [question?.number])
   useEffect(() => {
     if (remaining === null) return
@@ -97,6 +102,31 @@ export function ClassicStudentGame({
             </p>
           ) : null}
 
+          {question.matching && question.prompts ? (
+            <div className="gq-stu-prompts">
+              <p className="gq-hint">{t('game.student.matchHint')}</p>
+              {question.prompts.map((prompt, index) => {
+                const linked = links[index] ?? null
+                const right = question.matchAnswers?.[index] ?? null
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    className="gq-stu-prompt"
+                    data-active={active === index ? 'yes' : 'no'}
+                    data-right={right === null ? undefined : right === linked ? 'yes' : 'no'}
+                    onClick={() => setActive(index)}
+                  >
+                    <span className="gq-stu-prompt-text">{prompt}</span>
+                    <span className="gq-stu-prompt-link">
+                      {linked === null ? '·' : ('ABCD'[linked] ?? linked + 1)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          ) : null}
+
           <div className="gq-stu-choices">
             {question.choices.map((choice, index) => {
               const mine_ = mine?.answers ?? (mine ? [mine.answer ?? -1] : [])
@@ -114,6 +144,20 @@ export function ClassicStudentGame({
                   data-tone={tone}
                   disabled={disabled}
                   onClick={() => {
+                    // Párosítás: a válasz a kiválasztott fogalomhoz kötődik.
+                    if (question.matching) {
+                      const target = active ?? links.findIndex((linked) => linked === null)
+                      if (target < 0) return
+                      setLinks((current) => {
+                        const next = [...current]
+                        const taken = next.indexOf(index)
+                        if (taken >= 0) next[taken] = null
+                        next[target] = index
+                        return next
+                      })
+                      setActive(null)
+                      return
+                    }
                     // Egy válasz: azonnal megy. Több válasz: jelölés. Sorrend:
                     // a koppintás sorrendje maga a válasz.
                     if (!question.multi && !question.ordered) {
@@ -138,18 +182,35 @@ export function ClassicStudentGame({
             })}
           </div>
 
-          {(question.multi || question.ordered) && view?.phase === 'QUESTION' ? (
+          {(question.multi || question.ordered || question.matching) &&
+          view?.phase === 'QUESTION' ? (
             <div className="gq-stu-confirm">
               <p className="gq-hint">
-                {question.ordered ? t('game.student.orderHint') : t('game.student.multiHint')}
+                {question.matching
+                  ? t('game.student.matchSendHint')
+                  : question.ordered
+                    ? t('game.student.orderHint')
+                    : t('game.student.multiHint')}
               </p>
               <button
                 type="button"
                 className="primary-button"
-                disabled={marked.length === 0 || sent !== null}
-                onClick={() => onAnswer(marked)}
+                disabled={
+                  question.matching
+                    ? links.length !== (question.prompts?.length ?? 0) ||
+                      links.some((linked) => linked === null) ||
+                      sent !== null
+                    : marked.length === 0 || sent !== null
+                }
+                onClick={() =>
+                  onAnswer(question.matching ? links.map((linked) => linked ?? -1) : marked)
+                }
               >
-                {question.ordered ? t('game.student.orderSend') : t('game.student.multiSend')}
+                {question.matching
+                  ? t('game.student.matchSend')
+                  : question.ordered
+                    ? t('game.student.orderSend')
+                    : t('game.student.multiSend')}
               </button>
             </div>
           ) : null}

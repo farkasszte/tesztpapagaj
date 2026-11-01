@@ -24,6 +24,8 @@ export type SkippedQuestion = { number: number; reason: string }
 export type PlayableWords = {
   stem: ProseMirrorJSON[]
   choices: ProseMirrorJSON[][]
+  /** A párosítás fogalmai, a fogalmak sorrendjében. */
+  prompts?: ProseMirrorJSON[][]
   /** Why the right answer is right, when the question carries one. */
   explanation?: ProseMirrorJSON[]
 }
@@ -176,11 +178,35 @@ const PLAYABLE_TYPES = new Set<string>([
   'true-false',
   'multiple-answer',
   'ordering',
+  'matching',
 ])
 
 /** Az Igaz/Hamis kérdés két válasza: a dokumentumban angolul állnak. */
 function trueFalseLabel(index: number): string {
   return index === 0 ? t('game.trueFalse.true') : t('game.trueFalse.false')
+}
+
+/** Egy párosítás kérdés darabjai: a fogalmak, a válaszok, és fogalmanként a válasz. */
+function matchingParts(
+  doc: ProseMirrorJSON,
+): { prompts: ProseMirrorJSON[]; answers: ProseMirrorJSON[]; pairs: number[] } | null {
+  const node = childrenOf(doc).find((child) => child.type === 'matching')
+  if (!node) return null
+  const children = childrenOf(node)
+  const prompts = children.filter((child) => child.type === 'matchingPrompt')
+  const answers = children.filter((child) => child.type === 'matchingAnswer')
+  const attr = (node: ProseMirrorJSON, key: string) =>
+    String((node.attrs as Record<string, unknown> | undefined)?.[key] ?? '')
+  const ids = answers.map((answer) => attr(answer, 'id'))
+  const pairs: number[] = []
+  for (const prompt of prompts) {
+    const wanted = attr(prompt, 'answer')
+    const index = wanted ? ids.indexOf(wanted) : -1
+    if (index < 0) return null
+    pairs.push(index)
+  }
+  if (prompts.length === 0 || answers.length === 0) return null
+  return { prompts, answers, pairs }
 }
 
 /**
@@ -213,8 +239,21 @@ function problemOf(question: BankQuestion, classic: boolean): string | null {
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
   // A több helyes válasz csak a Klasszikus módban játszható: a Bajnok és a
   // Veszély! egyetlen választ vár, ott ez a típus félrevezetne.
-  if ((question.type === 'multiple-answer' || question.type === 'ordering') && !classic)
+  if (
+    (question.type === 'multiple-answer' ||
+      question.type === 'ordering' ||
+      question.type === 'matching') &&
+    !classic
+  )
     return t('game.skip.multipleMode', { type: SECTION_LABELS[question.type] })
+  if (question.type === 'matching') {
+    const pairs = matchingParts(question.doc)
+    if (!pairs) return t('game.skip.unpaired')
+    if (pairs.prompts.length < 2 || pairs.prompts.length > 4)
+      return t('game.skip.choiceCount', { count: pairs.prompts.length })
+    if (pairs.answers.length !== pairs.prompts.length) return t('game.skip.unpaired')
+    return null
+  }
   const choices = choiceNodesOf(question.doc)
   if (choices.length < 2 || choices.length > 4)
     return t('game.skip.choiceCount', { count: choices.length })
@@ -261,6 +300,50 @@ export function playableQuestions(
     const stemNodes = stemNodesOf(question.doc)
     const explanationNodes = question.explanation ? childrenOf(question.explanation) : []
     const stem = gameNodes(stemNodes)
+    if (question.type === 'matching') {
+      const parts = matchingParts(question.doc)!
+      const shown = scrambledIndices(parts.answers.length, `${question.id}:answers`).map(
+        (index) => parts.answers[index]!,
+      )
+      const stem = gameNodes(stemNodesOf(question.doc))
+      const prompts = parts.prompts.map((node) => plainOf(gameNodes(childrenOf(node))).trim())
+      const answers = shown.map((node) => plainOf(gameNodes(childrenOf(node))).trim())
+      const matches = parts.pairs.map((authoredAnswer) =>
+        shown.indexOf(parts.answers[authoredAnswer]!),
+      )
+      const explanationNodes = question.explanation ? childrenOf(question.explanation) : []
+      const promptRich = parts.prompts.map((node) => gameNodes(childrenOf(node)))
+      const answerRich = shown.map((node) => gameNodes(childrenOf(node)))
+      const rich = ![stem, ...promptRich, ...answerRich].every(isPlain)
+      words.set(question.id, {
+        stem: stemNodesOf(question.doc),
+        choices: shown.map(childrenOf),
+        prompts: parts.prompts.map(childrenOf),
+        ...(explanationNodes.length ? { explanation: explanationNodes } : {}),
+      })
+      const explanationRich = explanationNodes.length ? gameNodes(explanationNodes) : []
+      playable.push({
+        id: question.id,
+        prompt: plain(stem),
+        choices: answers,
+        prompts,
+        matches,
+        correct: matches[0] ?? 0,
+        ...(question.topics?.length ? { topics: [...question.topics] } : {}),
+        ...(explanationNodes.length ? { explanation: plain(explanationRich) } : {}),
+        ...(rich || explanationNodes.length
+          ? {
+              rich: {
+                prompt: stem,
+                choices: answerRich,
+                prompts: promptRich,
+                ...(explanationNodes.length ? { explanation: explanationRich } : {}),
+              },
+            }
+          : {}),
+      })
+      return
+    }
     const authored = choiceNodesOf(question.doc)
     const labelled =
       question.type === 'true-false'

@@ -38,6 +38,12 @@ export type ClassicView = {
     multi: boolean;
     /** The choices are a sequence to put in order. */
     ordered: boolean;
+    /** The question pairs concepts (its prompts) with the choices. */
+    matching: boolean;
+    /** The concepts to match, in order. */
+    prompts: string[] | null;
+    /** The right pairing once the answer shows: which choice belongs to each concept. */
+    matchAnswers: number[] | null;
     /** The right order once the answer shows: choice indices, in sequence. */
     correctOrder: number[] | null;
     counts: number[] | null;
@@ -94,6 +100,9 @@ export function buildClassicView(session: ClassicSession, options: { now: number
               : null,
             multi: !!question.correctChoices,
             ordered: !!question.correctOrder,
+            matching: !!question.matches,
+            prompts: question.prompts ?? null,
+            matchAnswers: revealed ? (question.matches ?? null) : null,
             correctOrder: revealed ? (question.correctOrder ?? null) : null,
             counts: revealed ? question.choices.map((_, c) => answers.filter((a) => a.choice === c).length) : null,
             explanation: revealed ? question.explanation?.trim() || null : null,

@@ -1011,3 +1011,95 @@ select.gq-input-small { text-align: center; }
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Párosítás a telefonon ───────────────────────────────────────────────── */
+
+.gq-stu-prompts {
+  display: grid;
+  gap: 6px;
+}
+
+.gq-stu-prompt {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(36 28 23 / 0.16);
+  background: #fffdf8;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.gq-stu-prompt[data-active='yes'] {
+  border-color: #b38418;
+  box-shadow: 0 0 0 2px rgb(179 132 24 / 0.25);
+}
+
+.gq-stu-prompt[data-right='yes'] {
+  border-color: #3c7150;
+  background: rgb(60 113 80 / 0.1);
+}
+
+.gq-stu-prompt[data-right='no'] {
+  border-color: #b23f2c;
+  background: rgb(178 63 44 / 0.1);
+}
+
+.gq-stu-prompt-text {
+  min-width: 0;
+  font-size: 16px;
+}
+
+.gq-stu-prompt-link {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgb(36 28 23 / 0.08);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Párosítás a táblán: fogalom és a hozzá tartozó válasz betűje ─────────── */
+
+.gq-match {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  max-width: min(720px, 88vw);
+}
+
+.gq-match li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgb(255 250 243 / 0.06);
+  border: 1px solid rgb(255 250 243 / 0.14);
+}
+
+.gq-match-prompt {
+  font-size: clamp(15px, 1.6vw, 20px);
+  color: rgb(255 250 243 / 0.94);
+}
+
+.gq-match-letter {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgb(240 210 124 / 0.9);
+  color: #241c17;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}

@@ -1027,6 +1027,7 @@ const en = {
   'game.skip.sameChoices': 'two answers say the same thing.',
   'game.skip.emptyStem': 'the question has no words.',
   'game.skip.layout': 'its words stand in a Side-by-Side, which the projector cannot show.',
+  'game.skip.unpaired': 'a concept has no pair, so it cannot be played.',
 
   // --- kvízjáték: folytatás
   'game.resume.title': 'A game is under way',
@@ -1099,6 +1100,9 @@ const en = {
   'game.student.multiSend': 'Send my answers',
   'game.student.orderHint': 'Put them in order: tap them one after the other.',
   'game.student.orderSend': 'Send my order',
+  'game.student.matchHint': 'Tap a concept, then the answer that belongs to it.',
+  'game.student.matchSendHint': 'Every concept needs an answer before you send.',
+  'game.student.matchSend': 'Send my pairs',
   'game.resume.hint': 'It is kept in this browser, so the projector carries on where you stopped.',
   'game.timer': 'Time per question (seconds)',
   'game.shuffle': 'Shuffle the questions',
@@ -2218,6 +2222,7 @@ const hu: Record<TextKey, string> = {
   'game.skip.sameChoices': 'két válasz ugyanazt mondja.',
   'game.skip.emptyStem': 'a kérdésnek nincs szövege.',
   'game.skip.layout': 'a szövege oldalsó elrendezésben (side-by-side) áll, amit a kivetítő nem tud megjeleníteni.',
+  'game.skip.unpaired': 'egy fogalomnak nincs párja, így nem játszható.',
 
   // --- kvízjáték: folytatás
   'game.resume.title': 'Félbehagyott játék',
@@ -2290,6 +2295,9 @@ const hu: Record<TextKey, string> = {
   'game.student.multiSend': 'Válaszaim elküldése',
   'game.student.orderHint': 'Tedd sorrendbe: koppints rájuk egymás után.',
   'game.student.orderSend': 'Sorrendem elküldése',
+  'game.student.matchHint': 'Koppints egy fogalomra, majd a hozzá tartozó válaszra.',
+  'game.student.matchSendHint': 'Minden fogalomhoz válassz választ, aztán küldd el.',
+  'game.student.matchSend': 'Párjaim elküldése',
   'game.resume.hint': 'Ebben a böngészőben maradt meg, tehát a vetítés onnan folytatódik, ahol abbahagytad.',
   'game.timer': 'Idő kérdésenként (másodperc)',
   'game.shuffle': 'Kérdések összekeverése',

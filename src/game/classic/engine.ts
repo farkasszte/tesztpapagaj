@@ -167,6 +167,11 @@ export class ClassicEngine {
     return this.answerMany(playerId, [choice])
   }
 
+  /** Párosítás: fogalmanként a válasz indexe. */
+  answerPairs(playerId: string, pairs: number[]): Result {
+    return this.answerMany(playerId, pairs)
+  }
+
   /** A sorrendezés kérdés: a válasz a felkínált elemek sorrendje. */
   answerOrder(playerId: string, order: number[]): Result {
     return this.answerMany(playerId, order)
@@ -182,11 +187,13 @@ export class ClassicEngine {
     if (answers.some((a) => a.playerId === playerId)) return no('You’ve already answered.');
     // Sorrendnél a sorrend számít, tehát az ismétlődés és a sorrend marad;
     // minden más kérdésnél a jelölés halmaz.
-    const ordered = !!question.correctOrder;
-    const picked = ordered
-      ? [...choices]
-      : [...new Set(choices)].sort((a, b) => a - b);
-    if (picked.length === 0) return no('Pick one of the answers.');
+    // Sorrendnél és párosításnál a sorrend számít (fogalmanként egy válasz),
+    // minden más kérdésnél a jelölés halmaz.
+    const sequence = !!question.correctOrder || !!question.matches
+    const picked = sequence ? [...choices] : [...new Set(choices)].sort((a, b) => a - b)
+    if (picked.length === 0) return no('Pick one of the answers.')
+    if (question.matches && picked.length !== question.matches.length)
+      return no('Match every one of them.')
     if (picked.some((choice) => !Number.isInteger(choice) || choice < 0 || choice >= question.choices.length))
       return no('Pick one of the answers.');
     const ms = this.clock.now() - (s.openedAt ?? this.clock.now());
@@ -254,6 +261,11 @@ export class ClassicEngine {
  * A Multiple Answer question is all or nothing — a half-right tick is wrong.
  */
 export function answerIsRight(question: Question, choices: readonly number[]): boolean {
+  // A párosítás és a sorrendezés válasza szekvencia: a hely számít.
+  if (question.matches) {
+    if (choices.length !== question.matches.length) return false
+    return question.matches.every((match, index) => match === choices[index])
+  }
   // A sorrendezés válasza maga a sorrend: nem halmaz, hanem szekvencia.
   if (question.correctOrder) {
     if (choices.length !== question.correctOrder.length) return false

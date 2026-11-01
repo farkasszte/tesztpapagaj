@@ -39,7 +39,13 @@ export type RichText = RichNode[];
 export type RichMark = RichTextMark;
 
 /** The rich versions of a question's words, choice for choice. */
-export type RichQuestion = { prompt: RichText; choices: RichText[]; explanation?: RichText };
+export type RichQuestion = {
+  prompt: RichText;
+  choices: RichText[];
+  /** A párosítás fogalmai, a fogalmak sorrendjében. */
+  prompts?: RichText[];
+  explanation?: RichText;
+};
 
 const PICTURE = '[picture]';
 

@@ -82,7 +82,7 @@ describe('what the projector plays', () => {
   })
 
   test('every other type of the Tesztpapagáj is left out, and the reason names the type', () => {
-    const types: QuestionType[] = ['matching', 'fill-in-the-blank', 'open', 'multipart']
+    const types: QuestionType[] = ['fill-in-the-blank', 'open', 'multipart']
     for (const type of types) {
       const result = playableQuestions([question([choice('A', true), choice('B')], { type })], {
         classic: true,
@@ -95,6 +95,64 @@ describe('what the projector plays', () => {
     expect(ordering.skipped[0].reason).toBe(
       t('game.skip.multipleMode', { type: SECTION_LABELS['ordering'] }),
     )
+  })
+
+  test('a Matching question is played with shuffled answers, and every concept keeps its pair', () => {
+    const matchingDoc = (pairs: [string, string][], missing = false): ProseMirrorJSON => ({
+      type: 'doc',
+      content: [
+        ...stem('Párosítsd a fogalmakat a jelentésükkel!'),
+        {
+          type: 'matching',
+          content: [
+            ...pairs.map(([prompt, answer]) => ({
+              type: 'matchingPrompt',
+              attrs: { id: `p-${prompt}`, answer: missing ? '' : `a-${answer}` },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: prompt }] }],
+            })),
+            ...pairs.map(([, answer]) => ({
+              type: 'matchingAnswer',
+              attrs: { id: `a-${answer}` },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: answer }] }],
+            })),
+          ],
+        },
+      ],
+    })
+    const bank: BankQuestion = {
+      id: 'mt1',
+      type: 'matching',
+      columns: 2,
+      doc: matchingDoc([
+        ['Fotoszintézis', 'Cukrot termel'],
+        ['Légzés', 'Energiát szabadít fel'],
+        ['Párologtatás', 'Vizet ad le'],
+      ]),
+    }
+    const result = playableQuestions([bank], { classic: true })
+    expect(result.skipped).toEqual([])
+    const played = result.questions[0]!
+    expect(played.prompts).toEqual(['Fotoszintézis', 'Légzés', 'Párologtatás'])
+    expect([...played.choices].sort()).toEqual(
+      ['Cukrot termel', 'Energiát szabadít fel', 'Vizet ad le'].sort(),
+    )
+    // Fogalmanként a felkínált válaszok indexe, a helyes pár szerint.
+    expect(played.matches).toHaveLength(3)
+    expect(played.matches![0]).toBe(played.choices.indexOf('Cukrot termel'))
+    expect(played.matches![1]).toBe(played.choices.indexOf('Energiát szabadít fel'))
+    expect(played.matches![2]).toBe(played.choices.indexOf('Vizet ad le'))
+    expect(played.correct).toBe(played.matches![0])
+
+    // Amelyik fogalomnak nincs párja, az nem játszható.
+    const broken: BankQuestion = {
+      id: 'mt2',
+      type: 'matching',
+      columns: 2,
+      doc: matchingDoc([['Fotoszintézis', 'Cukrot termel']], true),
+    }
+    const skipped = playableQuestions([broken], { classic: true })
+    expect(skipped.questions).toHaveLength(0)
+    expect(skipped.skipped[0]!.reason).toBe(t('game.skip.unpaired'))
   })
 
   test('an Ordering question is played scrambled, and its right order points at the shown items', () => {

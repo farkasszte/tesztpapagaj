@@ -25,6 +25,12 @@ export type Question = {
    * áll (a szerzői sorrend a megoldás), és a `correct` az első elem.
    */
   correctOrder?: number[];
+  /**
+   * Párosítás: a fogalmak (a kérdés szövegében), és a válaszok a `choices`-ban.
+   * A `matches` a fogalmak sorrendjében mondja meg, melyik `choices` elem a párja.
+   */
+  prompts?: string[];
+  matches?: number[];
   explanation?: string;
   /** Concepts the question covers; a Topic gathers questions across banks. */
   topics?: string[];

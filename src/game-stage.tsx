@@ -124,14 +124,34 @@ export function ClassicStage({
             ) : null}
           </div>
 
+          {/* Párosításnál a fogalmak a válaszkártyák fölött állnak, a felfedés
+              után a hozzájuk tartozó válasz betűjével. */}
+          {question.matching && question.prompts ? (
+            <ol className="gq-match">
+              {question.prompts.map((prompt, index) => {
+                const answer = question.matchAnswers?.[index] ?? null
+                return (
+                  <li key={index}>
+                    <span className="gq-match-prompt">{prompt}</span>
+                    <span className="gq-match-letter">
+                      {answer === null ? '·' : ('ABCD'[answer] ?? answer + 1)}
+                    </span>
+                  </li>
+                )
+              })}
+            </ol>
+          ) : null}
+
           <div className="gq-choices" data-count={shown.choices.length}>
             {shown.choices.map((choiceWords, index) => {
               // Több helyes válasznál mindegyik helyes válasz pipát és szegélyt kap;
               // sorrendnél a válasz maga a sorrend, ezért sorszám áll a kártyán.
               const right = question.correctChoices
               const order = question.correctOrder
+              // Párosításnál minden válasz „helyes": a fogalmak mellett álló betű
+              // mondja meg, melyik melyikhez tartozik, ezért itt nincs jelölés.
               const state =
-                order !== null
+                order !== null || question.matching
                   ? 'idle'
                   : right === null
                     ? 'idle'
