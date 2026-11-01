@@ -535,8 +535,34 @@ function CrepeQuestion({
         [Crepe.Feature.Latex]: true,
       },
       featureConfigs: {
+        // A Crepe angolul szállított feliratai: csoportok és menüpontok.
+        // Csak a `label`-t írjuk felül, az ikonokat a Crepe alapértéke adja.
         [Crepe.Feature.BlockEdit]: {
-          advancedGroup: { codeBlock: null },
+          textGroup: {
+            label: t('editor.groupText'),
+            text: { label: t('editor.paragraph') },
+            h1: { label: t('editor.heading', { level: 1 }) },
+            h2: { label: t('editor.heading', { level: 2 }) },
+            h3: { label: t('editor.heading', { level: 3 }) },
+            h4: { label: t('editor.heading', { level: 4 }) },
+            h5: { label: t('editor.heading', { level: 5 }) },
+            h6: { label: t('editor.heading', { level: 6 }) },
+            quote: { label: t('editor.quote') },
+            divider: { label: t('editor.divider') },
+          },
+          listGroup: {
+            label: t('editor.groupList'),
+            bulletList: { label: t('editor.bulletList') },
+            orderedList: { label: t('editor.orderedList') },
+            taskList: { label: t('editor.taskList') },
+          },
+          advancedGroup: {
+            label: t('editor.groupAdvanced'),
+            codeBlock: null,
+            image: { label: t('editor.imageItem') },
+            table: { label: t('editor.tableItem') },
+            math: { label: t('editor.mathItem') },
+          },
           // A Side-by-Side lays two or three Panels across the stem; it goes
           // where the cursor is, and only in a stem (see `side-by-side.ts`).
           buildMenu: (builder) => {
@@ -596,6 +622,13 @@ function CrepeQuestion({
               : t('editor.hintQuestion'),
         },
         [Crepe.Feature.Toolbar]: {
+          // A beépített gombok Tooltipjei (a gyorsbillentyűt a Crepe teszi mögé).
+          boldLabel: t('editor.bold'),
+          italicLabel: t('editor.italic'),
+          strikethroughLabel: t('editor.strikethrough'),
+          codeLabel: t('editor.code'),
+          linkLabel: t('editor.link'),
+          latexLabel: t('editor.formula'),
           buildToolbar: (builder) => {
             builder
               .getGroup('formatting')
