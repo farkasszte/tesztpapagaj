@@ -179,7 +179,15 @@
     radial-gradient(ellipse 78% 74% at 50% 46%, transparent 42%, rgb(0 0 0 / 0.42) 100%);
 }
 
-/* A tartalom a fény fölött áll. */
+.gq-stage::after {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.032;
+  mix-blend-mode: soft-light;
+}
+/* A tartalom a fény és a szemcse fölött áll. */
 .gq-stage > * { position: relative; z-index: 1; }
 @media (min-width: 1600px) { .gq-stage { padding: 40px 56px 38px; } }
 @media (max-width: 1023px) { .gq-stage { padding: 26px 24px 24px; } }
@@ -231,13 +239,17 @@
 }
 /* A hibalehetőség kesztyű: kifogyva körvonal marad. */
 .gq-hearts { gap: 5px; letter-spacing: 0; }
-.gq-heart, .gq-heart-empty { display: inline-flex; gap: 3px; }
-.gq-heart svg, .gq-heart-empty svg { width: 22px; height: 22px; display: block; }
-.gq-heart { color: var(--gules); }
-.gq-heart svg { fill: currentColor; }
-.gq-heart-empty { color: rgb(245 236 220 / 0.3); }
-/* A kifogyott kesztyű csak körvonal. */
-.gq-heart-empty svg { fill: none; stroke: currentColor; stroke-width: 2.4; }
+.gq-heart, .gq-heart-empty { display: inline-flex; gap: 5px; }
+/* Hibalehetőség: teli kör, ami megvan; karika, ami elfogyott. */
+.gq-pip {
+  display: block; width: 11px; height: 11px; border-radius: 999px;
+  background: var(--gules);
+  box-shadow: 0 0 0 1px rgb(196 64 47 / 0.45);
+}
+.gq-pip[data-used='no'] {
+  background: transparent; box-shadow: none;
+  border: 2px solid rgb(245 236 220 / 0.32);
+}
 
 /* A díjalap: bajnoki öv a felirat mellett. */
 .gq-belt { width: 34px; height: 21px; display: block; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
@@ -326,19 +338,23 @@
 }
 @media (min-width: 1600px) { .gq-answer .doc-content { font-size: 38px; } }
 .gq-answer .doc-content p { margin: 0; }
-/* A kesztyű-jelvény: fehér körvonal, benne a válasz betűje. */
-.gq-mark {
-  flex: none; width: 64px; height: 64px; fill: #fff;
-  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35));
+/* A válasz betűjele: vékony karika, benne a betű — szín nélkül is látszik. */
+.gq-letter {
+  flex: none; display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 999px;
+  border: 2.5px solid rgb(255 255 255 / 0.62);
+  background: rgb(255 255 255 / 0.1);
+  font-family: var(--display); font-size: 24px; font-weight: 700; line-height: 1;
+  letter-spacing: 0.02em; color: #fff;
+  text-shadow: none;
 }
-.gq-answer[data-tint='2'] .gq-mark { fill: #2a1d0c; }
-.gq-answer[data-tint='2'] .gq-mark-letter { fill: #f7ebd2; }
-.gq-mark .gq-mark-line { fill: none; stroke: rgb(0 0 0 / 0.28); stroke-width: 1.7; stroke-linejoin: round; }
-.gq-mark .gq-mark-letter {
-  fill: rgb(26 18 14 / 0.85); stroke: none;
-  font-family: var(--display); font-size: 15px; font-weight: 700; text-anchor: middle;
+@media (min-width: 1600px) {
+  .gq-letter { width: 56px; height: 56px; font-size: 29px; }
 }
-@media (min-width: 1600px) { .gq-mark { width: 78px; height: 78px; } .gq-mark .gq-mark-letter { font-size: 18px; } }
+.gq-answer[data-tint='2'] .gq-letter {
+  border-color: rgb(36 26 16 / 0.55); background: rgb(36 26 16 / 0.08); color: #241a10;
+}
+
 /* A gong: a helyes válasz jelvénye, arany karikában. */
 .gq-tick {
   flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px;

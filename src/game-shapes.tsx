@@ -1,46 +1,26 @@
 /**
- * A színpad rajzoló darabjai: a válaszok kesztyűje, a gong, a hibalehetőség
- * kesztyűi, a díjalap öve és a nagy visszaszámláló. A színek és a horgok a
+ * A színpad rajzoló darabjai: a válasz betűjele, a gong, a hibalehetőség
+ * pipája, a díjalap öve és a nagy visszaszámláló. A színek és a horgok a
  * `game-parts.ts`-ben vannak, mert ez a fájl csak komponenst exportál (a Fast
  * Refresh így tud frissülni).
  *
- * A négy válasz ugyanannak a kesztyűnek a négy színe, és a kesztyűn ott a
- * válasz betűje is: szín nélkül, fekete-fehéren is megkülönböztethető.
+ * A válasz jelvénye szándékosan semleges: a betű és a kártya színe hordozza a
+ * megkülönböztetést, nem egy ikon — így a színpad nem vesz fel motívumot,
+ * amit később le kellene venni.
  */
 
-/** Egy kesztyű körvonala: öklön, hüvelykujj, mandzsetta szalagokkal. */
-function GlovePath() {
+/** A válasz betűjele: vékony karika a kártya szélén, benne a betű. */
+export function Letter({ letter }: { letter?: string }) {
   return (
-    <>
-      <path d="M10.4 3.5h7.6a5.6 5.6 0 0 1 5.6 5.6v6.2a4.9 4.9 0 0 1-4.9 4.9h-7.1a5.6 5.6 0 0 1-5.6-5.6V9.1a5.6 5.6 0 0 1 4.4-5.6Z" />
-      <path d="M6 12.6a3.4 3.4 0 0 0 0 6.8h1.9v-6.8Z" />
-      <path d="M8.8 22.2h13a1.4 1.4 0 0 1 1.4 1.4v4.3a1.4 1.4 0 0 1-1.4 1.4h-13a1.4 1.4 0 0 1-1.4-1.4v-4.3a1.4 1.4 0 0 1 1.4-1.4Z" />
-      <path d="M10.8 23.8v4.5M13.6 23.8v4.5M16.4 23.8v4.5M19.2 23.8v4.5" className="gq-mark-line" />
-    </>
+    <span className="gq-letter" aria-hidden="true">
+      {letter}
+    </span>
   )
 }
 
-/** A válasz jelvénye: bokszkesztyű a válasz betűjével. */
-export function Shape({ letter }: { index: number; letter?: string }) {
-  return (
-    <svg className="gq-mark" viewBox="0 0 32 32" aria-hidden="true">
-      <GlovePath />
-      {letter ? (
-        <text className="gq-mark-letter" x="16.4" y="17.4">
-          {letter}
-        </text>
-      ) : null}
-    </svg>
-  )
-}
-
-/** A hibalehetőség jelvénye: ugyanaz a kesztyű, kicsiben. */
-export function Strike() {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true">
-      <GlovePath />
-    </svg>
-  )
+/** Egy hibalehetőség: teli kör, ha megvan, üres, ha elfogyott. */
+export function Pip({ used }: { used?: boolean }) {
+  return <span className="gq-pip" data-used={used ? 'yes' : 'no'} aria-hidden="true" />
 }
 
 /** A gong: a helyes válasz jelvénye. */

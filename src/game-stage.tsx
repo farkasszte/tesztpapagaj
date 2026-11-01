@@ -6,7 +6,7 @@ import { buildClassicView } from './game/classic/views'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
-import { Bell, Ring, Shape } from './game-shapes'
+import { Bell, Letter, Ring } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { useT } from './i18n'
 
@@ -201,7 +201,7 @@ export function ClassicStage({
                   role="group"
                   aria-label={`${LETTERS[index]}: ${question.choices[index] ?? ''}`}
                 >
-                  <Shape index={index} letter={LETTERS[index]} />
+                  <Letter letter={LETTERS[index]} />
                   <DocView content={choiceWords} />
                   {state === 'correct' ? (
                     <span className="gq-tick" aria-hidden="true">

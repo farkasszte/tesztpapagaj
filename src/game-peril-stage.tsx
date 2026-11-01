@@ -7,7 +7,7 @@ import { perilBoard } from './game/peril-board'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
-import { Shape } from './game-shapes'
+import { Letter } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { gameMessage } from './game-messages'
 import { useT } from './i18n'
@@ -321,7 +321,7 @@ export function PerilStage({
                   }
                 }}
               >
-                <Shape index={index} letter={LETTERS[index]} />
+                <Letter letter={LETTERS[index]} />
                 <DocView content={shown?.choices[index] ?? []} />
               </div>
             ))}
@@ -347,7 +347,7 @@ export function PerilStage({
                 role="group"
                 aria-label={`${LETTERS[index]}: ${open.choices?.[index] ?? ''}`}
               >
-                <Shape index={index} letter={LETTERS[index]} />
+                <Letter letter={LETTERS[index]} />
                 <DocView content={shown?.choices[index] ?? []} />
                 {index === open.correct ? (
                   <span className="gq-tick" aria-hidden="true">
