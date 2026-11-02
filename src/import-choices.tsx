@@ -5,7 +5,7 @@ import { t } from './i18n'
 
 /** What an AI assistant converts, named first because most tests arrive as
  *  one of these. */
-const CONVERTED_SOURCES = ['PDFs', t('imports.wordDocs'), 'Photos']
+const convertedSources = () => ['PDFs', t('imports.wordDocs'), 'Photos']
 
 /**
  * What sits under every drop zone that starts an import: what it takes,
@@ -16,7 +16,7 @@ const CONVERTED_SOURCES = ['PDFs', t('imports.wordDocs'), 'Photos']
 export function SupportedSources() {
   return <div className="import-sources" aria-label={t('imports.supportedFiles')}>
     <span>{t('import.supports')}</span>
-    <ul>{[...CONVERTED_SOURCES, ...SUPPORTED_SOURCES].map((source) => <li key={source}>{source}</li>)}</ul>
+    <ul>{[...convertedSources(), ...SUPPORTED_SOURCES].map((source) => <li key={source}>{source}</li>)}</ul>
   </div>
 }
 

@@ -22,13 +22,13 @@ export const TYPE_OPTIONS: FilterOption<QuestionType>[] = SECTION_ORDER.map((typ
 export const DIFFICULTY_OPTIONS: FilterOption<DifficultyFilter>[] = [
   ...DIFFICULTIES.map((value) => ({ value, label: DIFFICULTY_LABELS[value] })),
   // Optional classification must never put a question out of reach.
-  { value: 'unspecified', label: t('ui.unspecified') },
+  { value: 'unspecified', get label() { return t('ui.unspecified') } },
 ]
 
 export const SORT_OPTIONS: readonly FilterOption<QuestionBankSort>[] = [
-  { value: 'newest', label: t('bank.filterNewest') },
-  { value: 'oldest', label: t('bank.filterOldest') },
-  { value: 'type', label: t('bank.questionType') },
-  { value: 'difficulty', label: t('bank.filterDifficulty') },
-  { value: 'topic', label: t('ui.topic') },
+  { value: 'newest', get label() { return t('bank.filterNewest') } },
+  { value: 'oldest', get label() { return t('bank.filterOldest') } },
+  { value: 'type', get label() { return t('bank.questionType') } },
+  { value: 'difficulty', get label() { return t('bank.filterDifficulty') } },
+  { value: 'topic', get label() { return t('ui.topic') } },
 ]

@@ -25,7 +25,7 @@ async function textOnlyPdf() {
 test('the convert page asks only for the test, then opens its import with the path it needs', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/get-started/convert')
-  await expect(page.getByText('Drop your test here to get started')).toBeVisible()
+  await expect(page.getByText('Drop your test or question file here')).toBeVisible()
   const steps = page.getByRole('region', { name: 'Convert your test' })
   await expect(steps).toHaveCount(0)
 
@@ -130,7 +130,9 @@ test('a file from an AI that matches no import in progress, and needs its test�
     mimeType: 'application/json',
     buffer: assistantPackage(),
   })
-  await expect(page.getByRole('alert')).toHaveText('This file doesn’t match any test waiting in Imports. Drop the test it was made from first, then this file.')
+  // Az üzenet mellé odakerült a segítségkérő sor, ezért a lényeget hasonlítjuk.
+  await expect(page.getByRole('alert')).toContainText('This file doesn’t match any test waiting in Imports. Drop the test it was made from first, then this file.')
+  await expect(page.getByRole('alert')).toContainText('Email us your file')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(/\/get-started\/convert$/)
 })

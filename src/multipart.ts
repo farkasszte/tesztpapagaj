@@ -529,15 +529,15 @@ type BoxWords = { className: string; title: string; add: string; empty: string |
 
 const PARTS_WORDS: BoxWords = {
   className: 'multipart-parts',
-  title: t('ui.parts'),
-  add: t('ui.addPart'),
-  empty: 'No parts yet.',
+  get title() { return t('ui.parts') },
+  get add() { return t('ui.addPart') },
+  get empty() { return t('ui.noParts') },
 }
 
 const SUBPARTS_WORDS: BoxWords = {
   className: 'multipart-parts multipart-subparts',
-  title: 'Subparts',
-  add: 'Add Subpart',
+  get title() { return t('ui.subparts') },
+  get add() { return t('ui.addSubpart') },
   // Never empty: removing the last Subpart takes the box away.
   empty: null,
 }

@@ -157,10 +157,11 @@ function columnSettingsOf(exam: Exam): Record<string, ColumnSetting> {
 
 // The answer-column settings, spelled out because a bare number in a menu
 // would not explain itself.
+// A feliratok getterek: a menü a mindenkori nyelven szól, nem a betöltéskorin.
 const COLUMN_MENU_OPTIONS: readonly { label: string; value: ColumnSetting }[] = [
-  { label: t('format.oneColumn'), value: 1 },
-  { label: t('format.twoColumns'), value: 2 },
-  { label: t('format.fourColumns'), value: 4 },
+  { get label() { return t('format.oneColumn') }, value: 1 },
+  { get label() { return t('format.twoColumns') }, value: 2 },
+  { get label() { return t('format.fourColumns') }, value: 4 },
 ]
 
 /** How much room a work space opens with when a teacher picks blank or lined
@@ -201,8 +202,8 @@ function columnsMenu(
 // from the Paper Style when it arrived. Choosing one here is the teacher's,
 // and a change of style then leaves it (ADR-0044).
 const WORD_BANK_MENU_OPTIONS: readonly { label: string; value: WordBankLayout; icon: ReactNode }[] = [
-  { label: t('format.besideItems'), value: 'beside', icon: <Columns2 /> },
-  { label: t('format.aboveItems'), value: 'above', icon: <Rows2 /> },
+  { get label() { return t('format.besideItems') }, value: 'beside', icon: <Columns2 /> },
+  { get label() { return t('format.aboveItems') }, value: 'above', icon: <Rows2 /> },
 ]
 
 function wordBankMenu(layout: WordBankLayout, onSelect: (layout: WordBankLayout) => void): MenuItem {

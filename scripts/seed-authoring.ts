@@ -25,6 +25,24 @@ export async function seedAuthoringState(
       examId = (await workspaces.create()).id
     }
     await workspaces.backendFor(examId).write(snapshot)
+
+    // A Question Bank a saját munkaterületén él: a szerkesztő panelje és a
+    // bankok lapjai ezt olvassák, nem az Exam beágyazott bankját. A vetés ezért
+    // külön létrehozza a bankot ugyanazokkal a kérdés-azonosítókkal, és
+    // megnyitja az Examhez — különben a panel üres, és a „kérdés felvétele”
+    // gombok sincsenek a lapon.
+    if (snapshot.questionBank.questions.length > 0) {
+      const { createQuestionBankWorkspaceService } = await import(
+        /* @vite-ignore */ '/src/question-bank-workspaces.ts'
+      ) as typeof import('../src/question-bank-workspaces')
+      const banks = createQuestionBankWorkspaceService()
+      const bank = await banks.create()
+      await banks.commit(bank.id, {
+        kind: 'create-questions',
+        questions: snapshot.questionBank.questions,
+      })
+      await banks.openTab({ examId }, bank.id)
+    }
   }, state)
   // The bare editor route deliberately restores the registry's active Exam.
   await page.goto('/editor')

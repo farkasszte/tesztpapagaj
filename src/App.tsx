@@ -256,10 +256,12 @@ const STORAGE_NOTICE_DURATION = 8_000
 /** The Exam's menu bar, in the order a document's menus are read. */
 const DOCUMENT_MENUS = ['file', 'edit', 'format'] as const
 type DocumentMenuKind = (typeof DOCUMENT_MENUS)[number]
+// Getterek, nem betöltéskori értékek: a címke a mindenkori nyelvet követi,
+// különben a menü a betöltés nyelvén marad (a nyelvváltást nem követi).
 const DOCUMENT_MENU_LABELS: Record<DocumentMenuKind, string> = {
-  file: t('menu.file'),
-  edit: t('menu.edit'),
-  format: t('menu.format'),
+  get file() { return t('menu.file') },
+  get edit() { return t('menu.edit') },
+  get format() { return t('menu.format') },
 }
 
 /**

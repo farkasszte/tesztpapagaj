@@ -56,9 +56,9 @@ export const HEADING_SIZES: readonly HeadingSize[] = ['small', 'normal', 'large'
 export const DEFAULT_HEADING_SIZE: HeadingSize = 'normal'
 
 export const HEADING_SIZE_LABELS: Record<HeadingSize, string> = {
-  small: t('ui.small'),
-  normal: 'Normal',
-  large: t('ui.large'),
+  get small() { return t('ui.small') },
+  get normal() { return t('ui.normal') },
+  get large() { return t('ui.large') },
 }
 
 /** One section's heading as it prints on this Exam. */

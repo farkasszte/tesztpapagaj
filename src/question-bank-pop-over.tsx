@@ -454,8 +454,16 @@ function ChoiceChip<T extends string>({
 }
 
 const MATH_MODES: readonly { value: CopyMathMode; label: string; detail: string }[] = [
-  { value: 'picture', label: t('bank.copyPictures'), detail: t('bank.copyForDocs') },
-  { value: 'word', label: t('bank.wordEquations'), detail: t('bank.wordEquationsHint') },
+  {
+    value: 'picture',
+    get label() { return t('bank.copyPictures') },
+    get detail() { return t('bank.copyForDocs') },
+  },
+  {
+    value: 'word',
+    get label() { return t('bank.wordEquations') },
+    get detail() { return t('bank.wordEquationsHint') },
+  },
 ]
 
 /** How Questions leave the Pop-over: for now, how their mathematics travels.

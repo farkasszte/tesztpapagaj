@@ -26,7 +26,7 @@ const COLUMN_OPTIONS: readonly { value: ColumnSetting; label: string }[] = [
 ]
 
 const LINE_OPTIONS: readonly { value: number; label: string }[] = [
-  { value: 0, label: t('popOver.noLines') },
+  { value: 0, get label() { return t('popOver.noLines') } },
   { value: 2, get label() { return t('popOver.lines', { count: 2 }) } },
   { value: 4, get label() { return t('popOver.lines', { count: 4 }) } },
   { value: 6, get label() { return t('popOver.lines', { count: 6 }) } },

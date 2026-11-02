@@ -27,12 +27,13 @@ import type { ImportProposal } from './package-import'
  * own page; below them, what every finished import brought in.
  */
 
+// Getterek: a fájltípus neve a mindenkori nyelven, ne a betöltéskorin.
 const KIND_LABELS: Record<ImportFileKind, string> = {
   pdf: 'PDF',
   photo: 'Photo',
-  word: t('imports.wordDoc'),
-  record: t('imports.recordFile'),
-  questions: t('imports.questionFile'),
+  get word() { return t('imports.wordDoc') },
+  get record() { return t('imports.recordFile') },
+  get questions() { return t('imports.questionFile') },
 }
 
 
