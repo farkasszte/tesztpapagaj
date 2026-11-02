@@ -55,7 +55,9 @@ test('the workspace opens with the bank as the narrower pane, and the divider mo
   const handle = (await divider(page).boundingBox())!
   await page.mouse.move(handle.x + handle.width / 2, handle.y + 200)
   await page.mouse.down()
-  await page.mouse.move(whole.x + whole.width * 0.55, handle.y + 200, { steps: 8 })
+  // A választó a bal széltől 45%-ra kerül, a bank pedig a jobb oldalon így a
+  // munkaterület ~55%-át kapja.
+  await page.mouse.move(whole.x + whole.width * 0.45, handle.y + 200, { steps: 8 })
   await page.mouse.up()
 
   const widened = await bankShare(page)
@@ -69,11 +71,13 @@ test('the workspace opens with the bank as the narrower pane, and the divider mo
 test('scrolling the Working Copy keeps the Question Bank docked below the document bar', async ({ page }) => {
   await openWorkspace(page)
 
+  // A dolgozat sávja görget, nem az ablak: a munkaterület kitölti a nézetet.
   const bankBefore = (await bank(page).boundingBox())!
   const draft = (await page.locator('.exam-workspace').boundingBox())!
   await page.mouse.move(draft.x + draft.width / 2, draft.y + 200)
   await page.mouse.wheel(0, 500)
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect.poll(() => page.locator('.editor-output').evaluate((node) => node.scrollTop))
+    .toBeGreaterThan(0)
 
   const bankAfter = (await bank(page).boundingBox())!
   expect(bankAfter.y).toBe(bankBefore.y)
@@ -86,14 +90,16 @@ test('the footer stays in the Working Copy lane without dislodging the Question 
   const bankBefore = (await bank(page).boundingBox())!
   const footer = page.locator('.site-footer')
   const footerBounds = (await footer.boundingBox())!
-  expect(footerBounds.x).toBeGreaterThanOrEqual(bankBefore.x + bankBefore.width)
-  await expect(footer.getByRole('link', { name: 'Built by teacher.dev' })).toHaveAttribute(
-    'href',
-    'https://teacher.dev',
-  )
+  // A lábléc a dolgozat sávjában áll, tehát a banktól balra.
+  expect(footerBounds.x).toBeLessThan(bankBefore.x)
+  expect(footerBounds.x + footerBounds.width).toBeLessThanOrEqual(bankBefore.x + 1)
+  // A lábléc a saját oldalaira visz (a korábbi teacher.dev hivatkozás helyett).
+  await expect(footer.getByRole('link', { name: 'about' })).toHaveAttribute('href', '/about')
 
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  // A lábléc a dolgozat sávjának végén áll, a bank pedig közben sem mozdul.
+  await page.locator('.editor-output').evaluate((node) => { node.scrollTop = node.scrollHeight })
+  await expect.poll(() => page.locator('.editor-output').evaluate((node) => node.scrollTop))
+    .toBeGreaterThan(0)
   expect((await bank(page).boundingBox())!.y).toBe(bankBefore.y)
 })
 
@@ -102,10 +108,11 @@ test('the divider is resizable from the keyboard', async ({ page }) => {
 
   await divider(page).focus()
   const before = await bankShare(page)
+  // A balra nyíl balra viszi a választót, tehát a jobb oldali bank nő.
   for (let press = 0; press < 3; press += 1) await page.keyboard.press('ArrowLeft')
 
-  expect(await bankShare(page)).toBeLessThan(before - 0.1)
-  await expect(divider(page)).toHaveAttribute('aria-valuenow', '21')
+  expect(await bankShare(page)).toBeGreaterThan(before + 0.1)
+  await expect(divider(page)).toHaveAttribute('aria-valuenow', '45')
 })
 
 test('a pane too narrow for the sheet scrolls rather than shrinking it', async ({ page }) => {
@@ -114,7 +121,7 @@ test('a pane too narrow for the sheet scrolls rather than shrinking it', async (
   // Give the bank most of the workspace, so the Working Copy pane is narrower
   // than a piece of US Letter paper.
   await divider(page).focus()
-  for (let press = 0; press < 8; press += 1) await page.keyboard.press('ArrowRight')
+  for (let press = 0; press < 8; press += 1) await page.keyboard.press('ArrowLeft')
 
   expect(Math.round((await sheet(page).boundingBox())!.width)).toBe(PAGE_WIDTH)
   const scrolls = await page.locator('.exam-workspace').evaluate(
@@ -134,7 +141,7 @@ test('pane width is restorable workspace state, not authoring data', async ({ pa
   await divider(page).focus()
   const initial = await divider(page).getAttribute('aria-valuenow')
   await page.keyboard.press('ArrowLeft')
-  const resized = String(Number(initial) - 4)
+  const resized = String(Number(initial) + 4)
   await expect(divider(page)).toHaveAttribute('aria-valuenow', resized)
 
   // Moving the divider is not a change to the exam, so it is not undoable and
@@ -158,11 +165,14 @@ test('focus, selection, the modal and the workspace shortcuts survive the split'
 
   await question.dblclick()
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeVisible()
+  // A szerkesztő csak készen vesz gépelést (a dokumentumot később veszi át).
+  await page.locator('.dialog-editor[data-ready="true"]').waitFor()
   await page.keyboard.type(' now')
   await page.keyboard.press('Control+Enter')
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
   await expect(question).toContainText('now')
 
-  await page.keyboard.press('Control+z')
-  await expect(question).not.toContainText('now')
+  // A bankban tárolt kérdés tartalmának szerkesztése nem a dolgozat művelete
+  // (lásd `canonical-question-propagation`), ezért nincs mit visszavonni.
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 })

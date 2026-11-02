@@ -20,11 +20,23 @@ const field = (page: Page, label: string) =>
 const search = (page: Page, label: string) =>
   dialog(page).getByRole('textbox', { name: `Filter ${label}` })
 
+/** A bank beside the Exam, so there is somewhere to write the Question: an
+ *  empty Exam's pane offers the bank's own New, not a Question. */
+async function openBank(page: Page) {
+  const add = page.getByRole('button', { name: 'Add question', exact: true })
+  if (await add.count() === 0) {
+    await page.getByRole('button', { name: 'New Question Bank' }).first().click()
+  }
+  await expect(add).toBeVisible()
+}
+
 /** The bank's New question, and the Question Section it asks for. */
 async function newQuestion(page: Page, type = 'Multiple choice') {
-  await page.getByRole('button', { name: 'Add Question' }).click()
+  await openBank(page)
+  await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('menuitem', { name: type }).click()
   await expect(dialog(page)).toBeVisible()
+  await page.locator('.dialog-editor[data-ready="true"]').waitFor()
 }
 
 test('a question is classified and saved with its Difficulty and Topics', async ({ page }) => {
@@ -119,7 +131,9 @@ test('a Short Answer question authors and restores its Suggested Answer inline',
   await page.getByRole('button', { name: /^(New Exam|Create your first Exam)$/ }).first().click()
   await newQuestion(page, 'Short answer')
 
-  const editor = dialog(page).locator('.ProseMirror')
+  // A párbeszédben több szerkeszthető terület van (kérdés, válaszok): a
+  // kérdés szövege az első.
+  const editor = dialog(page).locator('.ProseMirror').first()
   await expect(editor.getByText('Suggested Answer', { exact: true })).toBeVisible()
   await page.keyboard.type('Explain osmosis')
   const answer = editor.locator('[data-type="suggested-answer"]')
@@ -128,7 +142,7 @@ test('a Short Answer question authors and restores its Suggested Answer inline',
   await page.getByRole('button', { name: 'Save question' }).click()
 
   await page.getByRole('button', { name: /^Edit / }).click()
-  await expect(dialog(page).locator('.ProseMirror')).toContainText('Explain osmosis')
+  await expect(dialog(page).locator('.ProseMirror').first()).toContainText('Explain osmosis')
   await expect(dialog(page).locator('[data-type="suggested-answer"]')).toContainText(
     'Water crosses a selectively permeable membrane.',
   )

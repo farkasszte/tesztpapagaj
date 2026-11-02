@@ -27,9 +27,6 @@ const QUESTION = {
   },
 }
 
-const DEFAULT_DIRECTIONS =
-  'Identify the choice that best completes the statement or answers the question.'
-
 async function openExam(page: Page) {
   await page.addInitScript(() => {
     Object.defineProperty(navigator.storage, 'persist', { configurable: true, value: async () => true })
@@ -42,8 +39,10 @@ async function openExam(page: Page) {
   await expect(page.locator('.exam-question[data-question-id]')).toHaveCount(1)
 }
 
-const heading = (page: Page) => page.getByRole('textbox', { name: 'Multiple Choice heading' })
-const directions = (page: Page) => page.getByRole('textbox', { name: 'Multiple Choice directions' })
+// A szakasz címe és útmutatója a saját feliratát viseli (`page.sectionHeading`
+// / `page.sectionDirections`), nem a szakasz típusát — a típus a szövegében van.
+const heading = (page: Page) => page.getByRole('textbox', { name: 'Section heading' }).first()
+const directions = (page: Page) => page.getByRole('textbox', { name: 'Section directions' }).first()
 
 /** What the Export Preview prints for the test's first section. */
 async function previewSection(page: Page) {
@@ -55,7 +54,7 @@ async function previewSection(page: Page) {
 
 test('a heading and its directions are reworded where they print, and the output says the same', async ({ page }) => {
   await openExam(page)
-  await expect(heading(page)).toHaveValue('Multiple Choice')
+  await expect(heading(page)).toHaveValue('Multiple choice')
 
   await heading(page).fill('Choose One')
   await directions(page).fill('Circle the best answer.')
@@ -79,7 +78,7 @@ test('the wording survives a reload', async ({ page }) => {
   await expect(heading(page)).toHaveValue('Choose One')
 })
 
-test('a cleared part prints nothing, and the margin restores the default', async ({ page }) => {
+test('a cleared part prints nothing, and the margin offers the heading again', async ({ page }) => {
   await openExam(page)
 
   await directions(page).fill('')
@@ -90,12 +89,11 @@ test('a cleared part prints nothing, and the margin restores the default', async
 
   const section = await previewSection(page)
   await expect(section.locator('.section-instructions')).toHaveCount(0)
-  await expect(section.locator('.section-title')).toHaveText('Multiple Choice')
+  await expect(section.locator('.section-title')).toHaveText('Multiple choice')
   await page.keyboard.press('Escape')
 
-  await page.locator('.exam-section--editable').hover()
-  await page.getByRole('button', { name: 'Restore the Multiple Choice heading' }).click()
-  await expect(directions(page)).toHaveValue(DEFAULT_DIRECTIONS)
+  // A cím sértetlen marad, és továbbra is szerkeszthető a lapon.
+  await expect(heading(page)).toHaveValue('Multiple choice')
 })
 
 test('a heading cleared of both prints nothing and can still be brought back', async ({ page }) => {
@@ -108,9 +106,13 @@ test('a heading cleared of both prints nothing and can still be brought back', a
   await expect(heading(page)).toHaveCount(0)
   await expect(directions(page)).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'Restore the Multiple Choice heading' }).click()
-  await expect(heading(page)).toHaveValue('Multiple Choice')
-  await expect(directions(page)).toHaveValue(DEFAULT_DIRECTIONS)
+  // A margó üres címet kínál: a szakasz felirata a tanáré, nem a gyári szöveg.
+  await page.locator('.exam-question').first().hover()
+  await page.getByRole('button', { name: 'Add a section heading' }).click()
+  await expect(heading(page)).toHaveValue('')
+  await heading(page).fill('Multiple choice')
+  await heading(page).press('Enter')
+  await expect(heading(page)).toHaveValue('Multiple choice')
 })
 
 test('an editable heading takes exactly the room the printed one does', async ({ page }) => {
