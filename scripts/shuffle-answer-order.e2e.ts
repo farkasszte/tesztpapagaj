@@ -54,12 +54,13 @@ test('keyboard Shuffle answer order varies selected Multiple Choice questions an
   const beforeSecond = await answerContent(1)
   await page.getByRole('button', { name: 'Actions for question 1' }).focus()
   await page.keyboard.press('Enter')
-  await page.getByRole('menuitem', { name: 'Vary answers' }).press('ArrowRight')
-  await page.getByRole('menuitem', { name: 'Shuffle answers' }).press('Enter')
+  // A két keverés ma egymás mellett, egy „Vary" fejléc alatt: nincs almenü.
+  await page.getByRole('menuitem', { name: 'Shuffle answer order' }).click()
 
   expect(await answerContent(0)).not.toEqual(beforeFirst)
   expect(await answerContent(1)).not.toEqual(beforeSecond)
-  await expect(page.getByRole('status')).toHaveText('Shuffled answer order.')
+  // Több `status` van a lapon (a munkapéldány állapota is az): a sajátunkra szűkítünk.
+  await expect(page.getByRole('status').filter({ hasText: 'Shuffled answer order.' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Undo' }).click()
   await expect.poll(() => answerContent(0)).toEqual(beforeFirst)

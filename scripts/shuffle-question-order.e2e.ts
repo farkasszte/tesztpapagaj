@@ -98,7 +98,8 @@ test("keyboard Shuffle question order varies only the selected questions in each
   const shuffled = await questionIds(page);
   expect(shuffled.slice(0, 3)).toEqual(["m3", "m2", "m1"]);
   expect(shuffled.slice(3)).toEqual(["o3", "o2", "o1"]);
-  await expect(page.getByRole("status")).toHaveText("Shuffled question order.");
+  // Több `status` van a lapon (a munkapéldány állapota is az): a sajátunkra szűkítünk.
+  await expect(page.getByRole("status").filter({ hasText: "Shuffled question order." })).toBeVisible();
 
   await page.getByRole("button", { name: "Undo" }).click();
   await expect

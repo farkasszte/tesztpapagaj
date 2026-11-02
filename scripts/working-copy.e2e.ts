@@ -47,9 +47,8 @@ test('Save As moves a changed Working Copy into a named independent Exam', async
   await expect(name).toHaveValue('Original exam Copy')
 
   await page.getByRole('button', { name: 'Tesztpapagáj home' }).click()
-  await expect(page.getByRole('button', { name: 'Changed exam Copy' })).toBeVisible()
-  await page.locator('.exam-card').filter({
-    has: page.getByRole('heading', { name: 'Original exam', exact: true }),
-  }).click()
+  await expect(page.getByRole('button', { name: /^Open Changed exam Copy\./ })).toBeVisible()
+  // A kártya címe a szemnek szól (aria-hidden): szövegre szűrünk, nem szerepre.
+  await page.locator('.exam-card').filter({ hasText: 'Original exam' }).click()
   await expect(name).toHaveValue('Original exam')
 })

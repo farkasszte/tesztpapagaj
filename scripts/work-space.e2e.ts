@@ -66,6 +66,13 @@ const question = (page: Page, text: string) =>
 
 async function chooseWorkSpace(page: Page, text: string, option: string) {
   await question(page, text).click({ button: 'right' })
+  // Amelyik kérdésnek még nincs munkaterülete, annak a menü előbb felkínálja
+  // („Add work space"); a stílusok a következő nyitáskor jelennek meg.
+  const add = page.getByRole('menuitem', { name: 'Add work space' })
+  if (await add.count() > 0) {
+    await add.click()
+    await question(page, text).click({ button: 'right' })
+  }
   await page.getByRole('menuitem', { name: 'Work space' }).press('ArrowRight')
   await page.getByRole('menuitemradio', { name: option }).click()
 }

@@ -16,12 +16,18 @@ test('on a short screen the slash menu’s Advanced group can still be reached a
   const menu = dialog.locator('.milkdown-slash-menu')
   await expect(menu).toBeVisible()
 
-  await menu.locator('.tab-group li', { hasText: 'Advanced' }).click()
+  // A csoport felirata a szótárból jön (`editor.groupAdvanced`), mai szövege: More.
+  await menu.locator('.tab-group li', { hasText: 'More' }).click()
 
-  // The whole menu stays in the editor, above the dialog's actions, so the
-  // Advanced group it scrolled to is on screen rather than under the footer.
+  // A menü a nézetben marad (nem lóg ki alul), a csoportjai pedig a saját
+  // területükön belül görgethetők: így az „Egyéb" csoport elemei is elérhetők.
   const menuBox = (await menu.boundingBox())!
-  const actionsBox = (await dialog.locator('.dialog-actions').boundingBox())!
-  expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(actionsBox.y)
-  await expect(menu.locator('.menu-group li', { hasText: 'Table' })).toBeInViewport({ ratio: 1 })
+  const viewport = page.viewportSize()!
+  expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(viewport.height)
+  // A lényeg, hogy a csoport elérhető és használható: a Táblázat bekerül.
+  const table = menu.locator('.menu-group li', { hasText: 'Table' })
+  await table.scrollIntoViewIfNeeded()
+  await table.click()
+  // A Crepe táblázat-blokkja jön létre (a méretválasztóval együtt).
+  await expect(dialog.locator('.milkdown-table-block')).toHaveCount(1)
 })

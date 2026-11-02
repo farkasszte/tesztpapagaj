@@ -77,12 +77,12 @@ test("full Question editor discloses impact, cancels safely, and permanently del
   await expect(confirmation).toContainText("Unsaved biology final");
   await expect(confirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(confirmation.getByRole("button", { name: "Delete and remove from 1 Exam" })).toBeFocused();
+  await expect(confirmation.getByRole("button", { name: "Delete, and remove it from 1 exam" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(editor).toBeVisible();
   await editor.getByRole("button", { name: "Delete Question" }).click();
   await confirmation
-    .getByRole("button", { name: "Delete and remove from 1 Exam" })
+    .getByRole("button", { name: "Delete, and remove it from 1 exam" })
     .click();
   await expect(editor).toBeHidden();
   await expect(page.locator(".exam-question")).toHaveCount(0);
@@ -135,13 +135,17 @@ test("failed deletion leaves canonical and visible state unchanged", async ({ pa
       return original.call(this, key);
     };
   });
-  await page.getByRole("button", { name: "Delete and remove from 1 Exam" }).click();
-  await expect(page.getByRole("alert")).toContainText("Injected transaction abort");
+  await page.getByRole("button", { name: "Delete, and remove it from 1 exam" }).click();
+  // Két riasztás van a lapon: a tárhely-figyelmeztetés (sr-only) és a
+  // párbeszéd saját hibája — az utóbbit mérjük.
+  await expect(page.getByRole("alert").filter({ hasText: "Injected transaction abort" })).toBeVisible();
   await expect(editor).toBeVisible();
   await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
   await page.reload();
   await expect(page.getByRole("region", { name: "Question Bank" }).getByText("Shared cell question")).toBeVisible();
-  await page.getByRole("button", { name: "Tesztpapagáj home" }).click();
+  // A bank oldala a ház saját burkolatát viseli: a kezdőlap itt hivatkozás,
+  // nem a szerkesztő fejlécének gombja.
+  await page.getByRole("link", { name: "Home", exact: true }).first().click();
   await page.getByRole("button", { name: /^Open Biology final/ }).click();
   await expect(page.locator(".exam-question")).toContainText("Shared cell question");
 });
@@ -235,10 +239,10 @@ test("Home deletes a populated bank after disclosing per-Exam losses and Export 
   const confirmation = page.getByRole("dialog", {
     name: "Permanently delete “Biology”?",
   });
-  await expect(confirmation).toContainText("2 Questions");
-  await expect(confirmation).toContainText("1 affected Exam");
+  await expect(confirmation).toContainText("2 questions");
+  await expect(confirmation).toContainText("1 exam is affected");
   await expect(confirmation).toContainText(
-    "Biology final — 1 Question removed",
+    "Biology final — 1 question removed",
   );
   await expect(confirmation).toContainText("Export History remains unchanged");
   await confirmation
