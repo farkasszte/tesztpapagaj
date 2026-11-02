@@ -96,6 +96,27 @@ test('a cleared part prints nothing, and the margin offers the heading again', a
   await expect(heading(page)).toHaveValue('Multiple choice')
 })
 
+test('a cleared directions part comes back from the margin', async ({ page }) => {
+  await openExam(page)
+
+  await directions(page).fill('')
+  await directions(page).press('Enter')
+  await expect(directions(page)).toHaveCount(0)
+  await expect(heading(page)).toHaveValue('Multiple choice')
+
+  // A szakasz fölé állva a margó felkínálja az alapértelmezett szöveget: a
+  // tanár egy kattintással visszakapja, amit akaratlanul törölt.
+  await page.locator('.exam-question').first().hover()
+  await page.getByRole('button', { name: 'Restore the default heading' }).click()
+  await expect(directions(page)).toHaveValue(
+    'Identify the choice that best completes the statement or answers the question.',
+  )
+
+  // A visszaállítás után nincs mit visszaállítani, a gomb eltűnik.
+  await page.locator('.exam-question').first().hover()
+  await expect(page.getByRole('button', { name: 'Restore the default heading' })).toHaveCount(0)
+})
+
 test('a heading cleared of both prints nothing and can still be brought back', async ({ page }) => {
   await openExam(page)
 

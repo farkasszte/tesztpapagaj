@@ -75,6 +75,8 @@ import {
   type Arrangement,
   type WorkSpace,
 } from './exam'
+import { SECTION_INSTRUCTIONS, SECTION_TITLE } from './section-headings'
+import type { QuestionType } from './exam'
 import type { Selection } from './use-selection'
 import { selectAllPaneProps, useSelectAll } from './use-select-all'
 import { distinctIds } from './select-all'
@@ -115,6 +117,7 @@ import {
   Pencil,
   PencilLine,
   Heading,
+  RotateCcw,
   Rows2,
   Shuffle,
   SquareDashed,
@@ -1357,6 +1360,8 @@ function SectionRail({
   style,
   menuOpen,
   onRevealTitle,
+  restore,
+  onRestore,
   onHover,
   onOpenMenu,
 }: {
@@ -1368,6 +1373,10 @@ function SectionRail({
   /** Whether this Section's more menu is open. */
   menuOpen: boolean
   onRevealTitle: () => void
+  /** Whether this Section's wording departs from the default, which offers it
+   *  back: a heading cleared or reworded by mistake is one press away. */
+  restore: boolean
+  onRestore: () => void
   onHover: (on: boolean) => void
   /** Opens the Section's more menu, hanging from `point`. */
   onOpenMenu: (point: MenuPoint) => void
@@ -1393,6 +1402,18 @@ function SectionRail({
           onClick={onRevealTitle}
         >
           <Heading aria-hidden="true" />
+        </button>
+      )}
+      {!hidden && restore && (
+        <button
+          type="button"
+          className="question-handle"
+          aria-label={t('page.restoreHeading')}
+          title={t('page.restoreHeading')}
+          disabled={disabled}
+          onClick={onRestore}
+        >
+          <RotateCcw aria-hidden="true" />
         </button>
       )}
       <button
@@ -2466,6 +2487,26 @@ export function ExamPage({
           style={{ top: pointedBand.top + SECTION_RULE_OFFSET, left: pointedBand.pageLeft }}
           menuOpen={sectionMenu?.sectionId === pointedBand.sectionId}
           onRevealTitle={() => setRevealTitleOf(pointedBand.sectionId)}
+          restore={(() => {
+            const section = sections.find(({ id }) => id === pointedBand.sectionId)
+            if (!section) return false
+            const defaultTitle = SECTION_TITLE[section.id as QuestionType]
+            const defaultInstructions = SECTION_INSTRUCTIONS[section.id as QuestionType]
+            if (defaultTitle === undefined) return false
+            return section.title !== defaultTitle || section.instructions !== defaultInstructions
+          })()}
+          // A gyári szöveget írjuk vissza: a store a defaultot azonos értékként
+          // ismeri fel, és kulcs nélkül tárolja — így ez valódi visszaállítás.
+          onRestore={() => {
+            const type = pointedBand.sectionId as QuestionType
+            const defaultTitle = SECTION_TITLE[type]
+            const defaultInstructions = SECTION_INSTRUCTIONS[type]
+            if (defaultTitle === undefined) return
+            onSectionHeadingChange?.(pointedBand.sectionId, {
+              title: defaultTitle,
+              instructions: defaultInstructions,
+            })
+          }}
           onHover={(on) => setHoveredSectionId(on ? pointedBand.sectionId : null)}
           onOpenMenu={(point) => setSectionMenu({ sectionId: pointedBand.sectionId, point })}
         />
