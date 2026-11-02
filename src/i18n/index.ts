@@ -97,6 +97,7 @@ const en = {
 
   // --- indításkori hibák
   'errors.backupRestore': 'The backup could not be restored, so nothing in this browser was changed.',
+  'errors.backupRestoreIncomplete': 'The backup could not be restored completely: the browser kept the “{name}” database open. Close the app’s other tabs and try again.',
   'errors.bankUnavailable': 'That Question Bank is unavailable on this device.',
   'errors.examUnavailable': 'That Exam is unavailable on this device.',
   'editor.empty': 'Empty',
@@ -1415,6 +1416,8 @@ const hu: Record<TextKey, string> = {
 
   'errors.backupRestore':
     'A biztonsági mentést nem sikerült visszaállítani, ezért ebben a böngészőben semmi nem változott.',
+  'errors.backupRestoreIncomplete':
+    'A biztonsági mentést nem sikerült teljesen visszaállítani: a böngésző nyitva tartotta a(z) „{name}” adatbázist. Zárd be az alkalmazás többi lapját, és próbáld újra.',
   'errors.bankUnavailable': 'Ez a kérdésbank nem érhető el ezen az eszközön.',
   'errors.examUnavailable': 'Ez a dolgozat nem érhető el ezen az eszközön.',
   'editor.empty': 'Üres',

@@ -26,7 +26,11 @@ async function start() {
   }
   // A restore replaces the account before anything below opens it.
   const restored = await applyStagedRestore()
-  const restoreError = restored && !restored.applied ? t('errors.backupRestore') : ''
+    const restoreError = restored && !restored.applied
+    ? (restored.error instanceof Error && restored.error.message
+      ? restored.error.message
+      : t('errors.backupRestore'))
+    : ''
   // A Source Document left waiting for more than seven days is deleted.
   void expireWaitingImports().catch(() => undefined)
   const workspaces = createExamWorkspaceService()

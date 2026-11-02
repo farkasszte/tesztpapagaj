@@ -451,6 +451,30 @@ async function clearStaged(): Promise<void> {
   }
 }
 
+/** Reads the restored databases back against the manifest. A database that is
+ *  missing, at the wrong version, or short of a store means the browser
+ *  refused part of the replacement — a connection still open in another tab —
+ *  and the teacher has to hear about it rather than find the work gone. */
+async function verifyRestored(snapshot: AccountSnapshot): Promise<void> {
+  const listed = typeof indexedDB.databases === 'function'
+    ? new Map((await indexedDB.databases()).map((database) => [database.name, database.version ?? 0]))
+    : null
+  for (const expected of snapshot.manifest.databases) {
+    if (listed && listed.get(expected.name) !== expected.version) {
+      throw new Error(t('errors.backupRestoreIncomplete', { name: expected.name }))
+    }
+    const database = await openExisting(expected.name)
+    try {
+      const stores = [...database.objectStoreNames]
+      if (expected.stores.some((store) => !stores.includes(store.name))) {
+        throw new Error(t('errors.backupRestoreIncomplete', { name: expected.name }))
+      }
+    } finally {
+      database.close()
+    }
+  }
+}
+
 /** Call first thing at startup, before anything opens a database. */
 export async function applyStagedRestore(): Promise<StagedRestoreOutcome | null> {
   let staged: StagedRestore | null
@@ -461,7 +485,9 @@ export async function applyStagedRestore(): Promise<StagedRestoreOutcome | null>
   }
   if (!staged) return null
   try {
-    await replaceAccount(await readAccountBackup(new Blob([staged.bytes])))
+    const snapshot = await readAccountBackup(new Blob([staged.bytes]))
+    await replaceAccount(snapshot)
+    await verifyRestored(snapshot)
     return { applied: true, staged }
   } catch (error) {
     return { applied: false, staged, error }
