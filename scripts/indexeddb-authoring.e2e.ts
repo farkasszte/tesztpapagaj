@@ -160,10 +160,14 @@ test('Question Metadata and bank-only content survive a user-visible reload', as
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
+  // A dolgozat mellé előbb bank kell: a kérdés abban születik, nem a lapon.
+  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
   await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
   await dialog.waitFor()
+  // A szerkesztő csak készen vesz gépelést (a dokumentumot később veszi át).
+  await page.locator('.dialog-editor[data-ready="true"]').waitFor()
   await page.keyboard.type('Which gas do plants take in?')
   await dialog.getByRole('button', { name: 'Difficulty', exact: true }).click()
   await page.getByRole('button', { name: 'Hard', exact: true }).click()
@@ -171,8 +175,16 @@ test('Question Metadata and bank-only content survive a user-visible reload', as
   const topic = dialog.getByRole('textbox', { name: 'Filter Topics' })
   await topic.fill('Photosynthesis')
   await topic.press('Enter')
-  await page.getByRole('button', { name: 'Save question' }).click()
+  // A címke-menü a lábléc fölé nyílik, ezért a mentés gombjára kattintás
+  // a menübe eshet: a párbeszéd gyorsítótárával mentünk, ami a fókusztól
+  // függetlenül a párbeszédé.
+  await expect(dialog.getByText('Photosynthesis', { exact: true }).first()).toBeVisible()
+  await page.keyboard.press('Control+Enter')
   await expect(page.locator('.exam-question')).toHaveCount(0)
+  // A bank írása a párbeszéd bezárása után teljesedik be: előbb a sor
+  // megjelenését várjuk, csak utána töltünk újra — különben a lapváltás
+  // elviheti a még futó írást.
+  await expect(page.getByRole('region', { name: 'Question Bank' }).getByRole('listitem')).toHaveCount(1)
 
   await page.reload()
 

@@ -52,7 +52,8 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
       workingCopy: { ...savedOnlyState.workingCopy, title: 'Saved only', questionIds: [] },
       dirty: true,
     })
-    await bankService.openTab({ mode: 'exam', resourceId: clean.id }, otherBank.id)
+    // A fülek kulcsa a dolgozat azonosítója (`BankWorkspaceContext`).
+    await bankService.openTab({ examId: clean.id }, otherBank.id)
     return { bankId: bank.id, bankUpdatedAt: (await bankService.read(bank.id))!.lastUpdatedAt, cleanId: clean.id, dirtyId: dirty.id }
   }, question)
 
