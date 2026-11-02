@@ -5,6 +5,10 @@ import { expect, test, type Page } from '@playwright/test'
 async function seedAccount(page: Page, bankName: string) {
   await page.goto('/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
+  // Az első látogatás regisztrálja a képkezelő service workert, és amíg át nem
+  // veszi az irányítást, a lap egyszer újratöltődik: a vetés előtt ezt kivárjuk,
+  // különben a későbbi lapváltások egy félkész oldalon történnek.
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker?.controller), undefined, { timeout: 15000 })
   await page.evaluate(async (name) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
@@ -112,7 +116,13 @@ test('a downloaded account backup restores every Question Bank and image', async
   })
   const confirm = page.getByRole('dialog', { name: 'Restore this backup?' })
   await expect(confirm).toContainText('replaces every Exam, Question Bank')
-  await confirm.getByRole('button', { name: 'Replace and reload' }).click()
+  // A visszaállítás a következő betöltés elején fut le, tehát a gombnyomás
+  // után meg kell várni az újratöltést: enélkül a következő lapváltás a régi
+  // dokumentumon indul, és a visszaállítás előtti állapotot látni.
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    confirm.getByRole('button', { name: 'Replace and reload' }).click(),
+  ])
 
   await expect(backupCard(page)).toBeVisible()
   await page.goto('/question-banks')

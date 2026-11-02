@@ -339,7 +339,7 @@ function deleteDatabase(name: string): Promise<void> {
   })
 }
 
-function createDatabase(snapshot: DatabaseSnapshot): Promise<IDBDatabase> {
+function openSnapshotDatabase(snapshot: DatabaseSnapshot): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(snapshot.name, snapshot.version)
     request.onupgradeneeded = () => {
@@ -357,6 +357,31 @@ function createDatabase(snapshot: DatabaseSnapshot): Promise<IDBDatabase> {
     request.onerror = () => reject(request.error)
     request.onblocked = () => reject(new Error(t('errors.storageBusy', { name: snapshot.name })))
   })
+}
+
+/** A database left over at the snapshot's own version is opened without an
+ *  upgrade, so its stores would never be created. That is the shape a failed
+ *  restore leaves behind, and it is indistinguishable from success unless it
+ *  is checked: the store names have to be there after the open. */
+function missingStores(database: IDBDatabase, snapshot: DatabaseSnapshot): string[] {
+  const stores = [...database.objectStoreNames]
+  return snapshot.stores.map((store) => store.name).filter((name) => !stores.includes(name))
+}
+
+/** Opens the snapshot's database with its stores, whatever state the slot was
+ *  in: a leftover database at that version is removed and opened again. */
+async function createDatabase(snapshot: DatabaseSnapshot): Promise<IDBDatabase> {
+  let database = await openSnapshotDatabase(snapshot)
+  if (missingStores(database, snapshot).length === 0) return database
+  database.close()
+  await deleteDatabase(snapshot.name)
+  database = await openSnapshotDatabase(snapshot)
+  const missing = missingStores(database, snapshot)
+  if (missing.length > 0) {
+    database.close()
+    throw new Error(t('errors.backupRestoreIncomplete', { name: snapshot.name }))
+  }
+  return database
 }
 
 export async function replaceAccount(snapshot: AccountSnapshot): Promise<void> {
@@ -484,12 +509,16 @@ export async function applyStagedRestore(): Promise<StagedRestoreOutcome | null>
     return null
   }
   if (!staged) return null
+  // What is here now, so a replacement that cannot be finished can be undone:
+  // a restore either brings the backup in whole or leaves the work as it was.
+  const previous = await captureAccount().catch(() => null)
   try {
     const snapshot = await readAccountBackup(new Blob([staged.bytes]))
     await replaceAccount(snapshot)
     await verifyRestored(snapshot)
     return { applied: true, staged }
   } catch (error) {
+    if (previous) await replaceAccount(previous).catch(() => undefined)
     return { applied: false, staged, error }
   } finally {
     // A restore that fails is not retried on every load; the file it came
