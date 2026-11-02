@@ -80,12 +80,17 @@ export function Ring({
           transform="rotate(-90 50 50)"
         />
       </svg>
-      <span className="gq-timer-number">{Math.ceil(remaining / 1000)}</span>
-      {unit ? (
-        <span className="gq-timer-unit" aria-hidden="true">
-          {unit}
-        </span>
-      ) : null}
+      {/* A szám és a mértékegység egy oszlopban áll: egymáshoz képest
+          rögzített a rend, tehát a korong méretétől függetlenül nem csúsznak
+          egymásra. */}
+      <span className="gq-timer-stack">
+        <span className="gq-timer-number">{Math.ceil(remaining / 1000)}</span>
+        {unit ? (
+          <span className="gq-timer-unit" aria-hidden="true">
+            {unit}
+          </span>
+        ) : null}
+      </span>
     </div>
   )
 }

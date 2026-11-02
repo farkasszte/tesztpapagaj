@@ -138,11 +138,18 @@ test('pane width is restorable workspace state, not authoring data', async ({ pa
   const undo = page.getByRole('button', { name: 'Undo' })
   await expect(undo).toBeDisabled()
 
-  await divider(page).focus()
-  const initial = await divider(page).getAttribute('aria-valuenow')
-  await page.keyboard.press('ArrowLeft')
-  const resized = String(Number(initial) + 4)
-  await expect(divider(page)).toHaveAttribute('aria-valuenow', resized)
+  // Koppintás + fókusz: a `focus()` önmagában néha nem viszi át a fókuszt
+  // (a lap épp újrarajzol), és akkor a nyíl a semmibe megy — a mért szélesség
+  // pedig a korábbi futásból megmaradt érték, tehát a teszt hamisan bukik.
+  await divider(page).click()
+  await expect(divider(page)).toBeFocused()
+  const initial = Number(await divider(page).getAttribute('aria-valuenow'))
+  // A választó 20 és 80% között áll, a lépés 4: a határon a másik irányba
+  // lépünk, hogy a mozdulat garantált legyen.
+  await page.keyboard.press(initial >= 78 ? 'ArrowRight' : 'ArrowLeft')
+  await expect.poll(async () => Number(await divider(page).getAttribute('aria-valuenow')))
+    .not.toBe(initial)
+  const resized = await divider(page).getAttribute('aria-valuenow')
 
   // Moving the divider is not a change to the exam, so it is not undoable and
   // it dirties nothing.

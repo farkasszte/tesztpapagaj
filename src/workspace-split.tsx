@@ -86,7 +86,11 @@ export function WorkspaceSplit({
         aria-valuemax={MAX_BANK_PERCENT}
         onPointerDown={(event: ReactPointerEvent<HTMLDivElement>) => {
           if (event.button !== 0) return
+          // A `preventDefault` a szövegkijelölést hivatott megakadályozni, de a
+          // kattintás fókuszát is elvenné: fókusz nélkül a nyilak nem állítják
+          // a választót, a tanár pedig hiába koppint rá.
           event.preventDefault()
+          event.currentTarget.focus()
           dragging.current = event.pointerId
           event.currentTarget.setPointerCapture(event.pointerId)
         }}

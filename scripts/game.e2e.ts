@@ -76,6 +76,12 @@ test('a klasszikus színpad végigjátszható: kérdés, felfedés, jelentés', 
   await expect(stage.getByText('Which gas do plants take in?')).toBeVisible()
   // A három válasz mind kint van, betűvel a színpadon — a sorrend kevert.
   await expect(stage.locator('.gq-answer')).toHaveCount(3)
+
+  // A visszaszámláló száma és mértékegysége külön sorban áll, nem csúszik
+  // egymásra: a korong közepén egy oszlopban ülnek, köztük valódi rés van.
+  const numberBox = (await stage.locator('.gq-timer-number').boundingBox())!
+  const unitBox = (await stage.locator('.gq-timer-unit').boundingBox())!
+  expect(unitBox.y).toBeGreaterThanOrEqual(numberBox.y + numberBox.height)
   // Válasz előtt semmi nem árulja el a helyes választ.
   await expect(stage.locator('.gq-answer[data-state="correct"]')).toHaveCount(0)
 
