@@ -267,7 +267,7 @@ test('a question of a type the Exam has no Section for starts one from the targe
   // Near the foot of the Multiple Choice Section, the target slides open…
   const foot = (await rendered(page, 'mc2').boundingBox())!
   await page.mouse.move(foot.x + foot.width / 2, foot.y + foot.height + 2, { steps: 8 })
-  await expect(newSectionTarget(page)).toContainText('Drop here to create a new section with this')
+  await expect(newSectionTarget(page)).toContainText('Drop here to create a new section')
   // …and makes a Section only when the release is over it.
   const target = (await newSectionTarget(page).boundingBox())!
   await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 6 })
@@ -276,7 +276,9 @@ test('a question of a type the Exam has no Section for starts one from the targe
 
   await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
   await expect(newSectionTarget(page)).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Short Answer')
+  // Az új szekció fejléce a szerkesztőben: a szekció saját címe, ahogy a
+  // típusából született.
+  await expect(page.getByRole('textbox', { name: 'Section heading' }).last()).toHaveValue('Short answer')
 })
 
 test('an empty Working Copy offers its placeholder as the first-question drop target', async ({ page }) => {
@@ -326,8 +328,10 @@ test('dragging inside the Working Copy reorders and never Replaces', async ({ pa
   const box = (await rendered(page, 'mc1').boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
-  const centre = await zonePoint(target, 'centre')
-  await page.mouse.move(centre.x, centre.y, { steps: 10 })
+  // A közép alatt engedjük el: a pontos középen a két él egyforma távol van,
+  // és a szabály ilyenkor a felső élhez dönt.
+  const near = await zonePoint(target, 'below')
+  await page.mouse.move(near.x, near.y, { steps: 10 })
 
   // The source pane is what gives the gesture its meaning: from within the Exam
   // Draft the centre of a question is a placement like any other, so there is
