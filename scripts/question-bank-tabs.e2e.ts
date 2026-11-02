@@ -87,8 +87,8 @@ test('an Exam with no bank tabs offers opening or creating a Question Bank', asy
   await newExam(page)
 
   await expect(page.getByRole('button', { name: 'Open Question Bank' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Create new Question Bank' })).toBeVisible()
-  await page.getByRole('button', { name: 'Create new Question Bank' }).click()
+  await expect(page.getByRole('button', { name: 'New Question Bank' })).toBeVisible()
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
 
   await expect(page.getByRole('tab', { name: 'Untitled Question Bank' })).toHaveAttribute('aria-selected', 'true')
   await expect(bank(page)).toContainText('No questions yet')
@@ -181,7 +181,7 @@ test('opening and closing bank tabs does not touch the Exam', async ({ page }) =
   await page.getByRole('button', { name: 'Close Biology' }).click()
   await expect(page.getByRole('tab')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Open Question Bank' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Create new Question Bank' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'New Question Bank' })).toBeVisible()
   await expect(page.getByText('Drag or add a Question from an open Question Bank')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
@@ -253,7 +253,7 @@ test('an Exam can browse bank tabs without changing its saved state or Undo', as
   await newExam(page)
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Export' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Export', exact: true })).toBeEnabled()
   await page.getByRole('button', { name: 'Export', exact: true }).click()
   const previewBefore = await page.getByLabel('Export Preview').innerText()
   await expect(page.getByLabel('Export Preview')).not.toContainText('Describe mitosis.')
@@ -269,7 +269,7 @@ test('an Exam can browse bank tabs without changing its saved state or Undo', as
   await search(page).fill('mitosis')
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Export' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Export', exact: true })).toBeEnabled()
   await page.getByRole('button', { name: 'Export', exact: true }).click()
   await expect(page.getByLabel('Export Preview')).toHaveText(previewBefore)
   await expect(page.getByLabel('Export Preview')).not.toContainText('Describe mitosis.')
@@ -293,7 +293,9 @@ test('a missing bank address reports the problem and returns to the collection',
   await seedBanks(page)
   await page.goto('/question-bank?id=missing-bank')
   await expect(page).toHaveURL(/\/question-banks$/)
-  await expect(page.getByRole('alert')).toHaveText('That Question Bank is unavailable on this device.')
+  // Két riasztás van a lapon: a tárhely-figyelmeztetés (sr-only) és a sajátunk.
+  await expect(page.getByRole('alert').filter({ hasText: 'unavailable on this device' }))
+    .toHaveText('That Question Bank is unavailable on this device.')
 })
 
 test('a bank that disappears is dropped from an Exam workspace on restore', async ({ page }) => {

@@ -13,14 +13,17 @@ import { t } from './i18n'
 
 export type FilterOption<T extends string> = { value: T; label: string }
 
-// The fixed Question Sections, in the order the exam prints them.
+// The fixed Question Sections, in the order the exam prints them. The labels
+// are getters: the options are built once, when this module loads, and the
+// language may still be resolved after that — a label read at import time
+// would freeze whatever language happened to be set first.
 export const TYPE_OPTIONS: FilterOption<QuestionType>[] = SECTION_ORDER.map((type) => ({
   value: type,
-  label: SECTION_LABELS[type],
+  get label() { return SECTION_LABELS[type] },
 }))
 
 export const DIFFICULTY_OPTIONS: FilterOption<DifficultyFilter>[] = [
-  ...DIFFICULTIES.map((value) => ({ value, label: DIFFICULTY_LABELS[value] })),
+  ...DIFFICULTIES.map((value) => ({ value, get label() { return DIFFICULTY_LABELS[value] } })),
   // Optional classification must never put a question out of reach.
   { value: 'unspecified', get label() { return t('ui.unspecified') } },
 ]

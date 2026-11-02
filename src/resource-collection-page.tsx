@@ -23,6 +23,7 @@ export function ResourceCollectionPage({
   onDeleteBank,
   onDeleteExam,
   onImportBank,
+  error,
 }: {
   kind: 'exams' | 'question-banks'
   exams: readonly RecentExam[]
@@ -36,6 +37,9 @@ export function ResourceCollectionPage({
   onDeleteBank?: (bank: QuestionBankCollectionItem) => void
   onDeleteExam?: (exam: RecentExam) => void
   onImportBank?: () => void
+  /** Why the page was entered — a resource that is no longer on this device is
+   *  the one reason a teacher lands here without having asked for it. */
+  error?: string | null
 }) {
   const [query, setQuery] = useState('')
   const shownExams = useMemo(
@@ -59,6 +63,7 @@ export function ResourceCollectionPage({
       {/* The bar above is navigation. Acting on this collection happens on the
           collection, and the page already says which one it is — so the buttons
           are just Import and New. */}
+      {error && <p className="home-error" role="alert">{error}</p>}
       <header className="collection-heading">
         <h1>{resourceName}</h1>
         <div className="collection-actions">

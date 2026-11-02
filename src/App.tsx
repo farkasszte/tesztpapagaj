@@ -2878,7 +2878,12 @@ function ExamEditor({
             name: candidate.title,
             questionCount: candidate.questionCount,
           }))}
-        onChoose={onOpenExam}
+        onChoose={(id) => {
+          // A választás maga zárja be a választót: a dolgozat megnyílik alatta,
+          // és a nyitva maradt párbeszéd a hátterével együtt elzárná a szerkesztőt.
+          setChoosingExam(false)
+          onOpenExam(id)
+        }}
         onClose={() => setChoosingExam(false)}
       />}
 
@@ -3534,6 +3539,7 @@ export default function App({
     onOpenBank={openBank}
     onNewExam={newExam}
     onDeleteExam={(exam) => requestExamDeletion(exam.id)}
+    error={homeError}
   />{bankDeletionConfirmation}{examDeletionConfirmation}</>
   if (route === '/question-banks') return <>{globalChrome}<ResourceCollectionPage
     kind="question-banks"
@@ -3546,6 +3552,7 @@ export default function App({
     onExportBank={requestBankExport}
     onDeleteBank={requestBankDeletion}
     onImportBank={() => openImport()}
+    error={homeError}
   />{bankExportDialog}{bankDeletionConfirmation}</>
   // A device that has never been here gets the front door instead of empty
   // shelves; the same page stays reachable at /welcome afterwards.
