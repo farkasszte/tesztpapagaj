@@ -1,4 +1,5 @@
 import type { Ctx } from '@milkdown/kit/ctx'
+import { t } from './i18n'
 import { imageBlockSchema } from '@milkdown/kit/component/image-block'
 import type { Node as ProseMirrorNode } from '@milkdown/kit/prose/model'
 import { NodeSelection, Plugin } from '@milkdown/kit/prose/state'
@@ -170,8 +171,8 @@ export function pictureView(initial: ProseMirrorNode, view: EditorView, getPos: 
   const image = element('img', 'picture-image', window_)
   image.draggable = false
   const caption = element('input', 'picture-caption', dom)
-  caption.placeholder = 'Write a caption'
-  caption.setAttribute('aria-label', 'Caption')
+  caption.placeholder = t('picture.caption')
+  caption.setAttribute('aria-label', t('picture.captionLabel'))
   const empty = element('div', 'picture-empty', dom)
 
   const positionOf = () => getPos()
@@ -421,7 +422,7 @@ export function pictureView(initial: ProseMirrorNode, view: EditorView, getPos: 
   })
 
   const upload = element('label', 'secondary-button picture-upload', empty)
-  upload.textContent = 'Upload picture'
+  upload.textContent = t('picture.upload')
   const file = element('input', 'picture-upload-input', upload)
   file.type = 'file'
   file.accept = 'image/*'
@@ -431,8 +432,8 @@ export function pictureView(initial: ProseMirrorNode, view: EditorView, getPos: 
     if (chosen) void saveImage(chosen).then((src) => setAttrs({ src }), () => undefined)
   })
   const link = element('input', 'picture-link', empty)
-  link.placeholder = 'or paste a link and press Enter'
-  link.setAttribute('aria-label', 'Picture link')
+  link.placeholder = t('picture.link')
+  link.setAttribute('aria-label', t('picture.linkLabel'))
   link.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter') return
     event.preventDefault()

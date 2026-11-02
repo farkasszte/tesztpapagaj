@@ -1,14 +1,13 @@
 import { expect, test, type Locator } from '@playwright/test'
 
 async function activeExamDatabaseName(page: import('@playwright/test').Page) {
+  // A médiatár a közös böngésző-adatbázisban él (`storage-schema.ts`), nem
+  // Examonkénti névben — a régi `…-exam-<id>` név üres adatbázist nyitott.
   return page.evaluate(async () => {
-    const { createExamWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    ) as typeof import('../src/exam-workspaces')
-    const workspaces = createExamWorkspaceService()
-    const examId = await workspaces.activeId()
-    if (!examId) throw new Error('No active Exam workspace')
-    return `test-parrot-exams-v1-exam-${examId}`
+    const { STORAGE_NAME } = await import(
+      /* @vite-ignore */ '/src/storage-schema.ts'
+    ) as typeof import('../src/storage-schema')
+    return STORAGE_NAME
   })
 }
 
@@ -70,7 +69,10 @@ test('pasted image files render and persist with a question', async ({
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -88,6 +90,9 @@ test('pasted image files render and persist with a question', async ({
     .toBeGreaterThan(0)
 
   await page.getByRole('button', { name: 'Save question' }).click()
+  // A panelben született kérdés még nincs a dolgozaton: a sor „Add … to the
+  // exam" gombja teszi fel, ahogy a tanár is tenné.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
 
@@ -113,7 +118,10 @@ test('pasted image files render and persist with a question', async ({
 test('images paste through the native browser clipboard', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -130,7 +138,10 @@ test('copied web images are captured and persist with a question', async ({
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -141,8 +152,8 @@ test('copied web images are captured and persist with a question', async ({
   // #26: a pasted web image is copied into the application-owned Media Store at
   // ingestion and rendered through a stable internal reference, never left
   // pointing at its original mutable URL.
-  const imageBlock = editor.locator('.milkdown-image-block')
-  await expect(imageBlock.locator('.image-resize-handle')).toHaveCount(1)
+  const imageBlock = editor.locator('.picture-block')
+  await expect(imageBlock.locator('.picture-frame')).toHaveCount(1)
   const capturedImage = imageBlock.locator('img[src^="/local-images/"]')
   await expect(capturedImage).toHaveCount(1)
   await expect(imageBlock.locator('img[src="/logo.png"]')).toHaveCount(0)
@@ -185,6 +196,9 @@ test('copied web images are captured and persist with a question', async ({
   expect(media?.height).toBeGreaterThan(0)
 
   await page.getByRole('button', { name: 'Save question' }).click()
+  // A panelben született kérdés még nincs a dolgozaton: a sor „Add … to the
+  // exam" gombja teszi fel, ahogy a tanár is tenné.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
   await expect(question.locator('img[src="/logo.png"]')).toHaveCount(0)
@@ -211,7 +225,10 @@ test('copied web images are captured and persist with a question', async ({
 test('identical image bytes share one Media Asset', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
@@ -243,7 +260,10 @@ test('identical image bytes share one Media Asset', async ({ page }) => {
 test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
@@ -256,7 +276,10 @@ test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
 test('a nonexistent internal media reference is visibly unresolved', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
@@ -273,7 +296,10 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -281,6 +307,9 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
   await editor.locator('> p').first().click()
   await pasteHtmlImage(editor, '<img src="/slow-logo.png">')
   await page.getByRole('button', { name: 'Save question' }).click()
+  // A panelben született kérdés még nincs a dolgozaton: a sor „Add … to the
+  // exam" gombja teszi fel, ahogy a tanár is tenné.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('img[src^="/local-images/"]')).toHaveCount(1)
   await expect(question).not.toContainText('[Image could not be captured.]')
@@ -289,7 +318,10 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
 test('mixed HTML keeps every image and surrounding text', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const editor = page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror')
@@ -301,12 +333,15 @@ test('mixed HTML keeps every image and surrounding text', async ({ page }) => {
   await expect(editor.locator('img[src^="/local-images/"]')).toHaveCount(2)
 })
 
-test('copied web images with a clipboard file use a resizable block', async ({
+test('copied web images with a clipboard file become a picture block', async ({
   page,
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -314,15 +349,20 @@ test('copied web images with a clipboard file use a resizable block', async ({
   await editor.locator('> p').first().click()
   await pasteHtmlImageWithFile(editor, '<img src="/logo.png" alt="Crepe">')
 
-  const imageBlock = editor.locator('.milkdown-image-block')
+  const imageBlock = editor.locator('.picture-block')
   await expect(imageBlock.locator('img')).toHaveCount(1)
-  await expect(imageBlock.locator('.image-resize-handle')).toHaveCount(1)
+  // A szerkesztő maga nem méretezi a képet (ADR-0050): a méret a lapon állítódik,
+  // ezért itt a blokk és a kép megléte a bizonyíték, nem egy fogantyú.
+  await expect(imageBlock.locator('.picture-frame')).toHaveCount(1)
 })
 
 test('image files paste into answer choices', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
-  await page.getByRole('button', { name: 'Insert your first question' }).click()
+  // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
+  // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
+  await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
@@ -332,6 +372,9 @@ test('image files paste into answer choices', async ({ page }) => {
 
   await expect(firstChoice.locator('img[src^="/local-images/"]')).toHaveCount(1)
   await page.getByRole('button', { name: 'Save question' }).click()
+  // A panelben született kérdés még nincs a dolgozaton: a sor „Add … to the
+  // exam" gombja teszi fel, ahogy a tanár is tenné.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   const question = page.locator('.exam-question').first()
   await expect(
     question.locator('.choice-body img[src^="/local-images/"]'),

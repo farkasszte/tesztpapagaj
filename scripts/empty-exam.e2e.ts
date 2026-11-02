@@ -9,6 +9,6 @@ test('Home creates a blank Exam that composes only from an open Question Bank', 
 
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue('Untitled Exam')
   await expect(page.getByRole('main')).toContainText('Drag or add a Question from an open Question Bank')
-  await expect(page.getByRole('button', { name: 'Insert your first question' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Add question' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Open Question Bank' })).toBeVisible()
 })
