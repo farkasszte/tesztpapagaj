@@ -21,18 +21,26 @@ test('Ctrl/Cmd+Enter saves the question dialog', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
 
+  // Új dolgozatban még nincs nyitott kérdésbank: azt előbb létre kell hozni.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
   await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeVisible()
   await page.keyboard.press('Control+Enter')
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
+  // A bank-panelben született kérdés még nincs a dolgozaton: fel kell tenni.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   await expect(page.locator('.exam-question')).toHaveCount(1)
 
-  // The sheet's own way to write another one, now that there is a question to
-  // add it below.
-  await page.getByRole('button', { name: 'Actions for question 1' }).click()
-  await page.getByRole('menuitem', { name: 'Add question below' }).click()
+  // A második kérdés is a bank paneljében születik (a kérdés menüje már nem
+  // kínál „Add question below"-t), és onnan kerül a lapra.
+  await page.getByRole('button', { name: 'Add question' }).click()
+  await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  // A gyorsítótár a párbeszéd fogási fázisában figyel: előbb a szerkesztőbe kell
+  // kattintani, különben a billentyű a menü után nem oda érkezik.
+  await page.getByRole('dialog', { name: 'Question editor' }).locator('.ProseMirror').first().click()
   await page.keyboard.press('Meta+Enter')
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   await expect(page.locator('.exam-question')).toHaveCount(2)
 })

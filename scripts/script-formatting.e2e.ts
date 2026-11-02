@@ -62,11 +62,13 @@ async function pasteContent(
 test('authors can apply and persist semantic script formatting', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
+  // Új dolgozatban még nincs nyitott kérdésbank: azt előbb létre kell hozni.
+  await page.getByRole('button', { name: 'New Question Bank' }).click()
   await page.getByRole('button', { name: 'Add question' }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Question editor' })
-  const editor = dialog.locator('.ProseMirror')
+  const editor = dialog.locator('.ProseMirror').first()
   await editor.locator('> p').first().fill('H2O and cm2')
 
   await selectText(editor, '2')
@@ -74,11 +76,13 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   await expect(editor.locator('sub')).toHaveText('2')
 
   await page.getByRole('button', { name: 'Save question' }).click()
+  // A bank-panelben született kérdés még nincs a dolgozaton: fel kell tenni.
+  await page.getByRole('button', { name: /^Add .+ to the exam$/ }).first().click()
   const question = page.locator('.exam-question').first()
   await expect(question.locator('.question-stem sub')).toHaveText('2')
 
   await question.dblclick()
-  await expect(dialog.locator('.ProseMirror sub')).toHaveText('2')
+  await expect(dialog.locator('.ProseMirror').first().locator('sub')).toHaveText('2')
 
   await selectText(editor, '2')
   await page.getByRole('button', { name: 'Superscript' }).click()
@@ -135,7 +139,8 @@ test('authors can apply and persist semantic script formatting', async ({ page }
   const secondChoice = editor.locator('.mc-choice-body').nth(1)
   await secondChoice.locator('p').fill('code plus x')
   await selectText(secondChoice, 'code')
-  await page.getByRole('button', { name: 'Inline code' }).click()
+  // A szerkeszto eszkoztaran a gomb felirata „Code” (a szotar `editor.code`).
+  await page.getByRole('button', { name: 'Code', exact: true }).click()
   await selectText(secondChoice, 'code plus x')
   await subscript.click()
   await expect(secondChoice.locator('code')).toHaveText('code')
@@ -175,7 +180,7 @@ test('authors can apply and persist semantic script formatting', async ({ page }
 
   await fourthChoice.locator('p').fill('Plain H2O left m right')
   await selectText(fourthChoice, 'm')
-  await page.getByRole('button', { name: 'Inline math' }).click()
+  await page.getByRole('button', { name: 'Formula' }).click()
   const inlineMath = fourthChoice.locator('[data-type="math_inline"]')
   await expect(inlineMath).toHaveCount(1)
   await fourthChoice.locator('p').click()
