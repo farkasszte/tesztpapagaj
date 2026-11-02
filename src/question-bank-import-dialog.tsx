@@ -916,6 +916,26 @@ export function QuestionBankImportDialog({
   }
   // The pictures are filled in as soon as the file is shown — unless it seems
   // to come from another test, when the teacher asks for them.
+  // A beolvasás után a tanár dolga a bank nevének eldöntése: a fókusz oda
+  // kerül, hogy billentyűzettel is egyenesen tovább lehessen lépni. Egyszer,
+  // a review első felbukkanásakor — később a tanáré a fókusz.
+  const nameInputs = useRef(new Map<string, HTMLInputElement | null>())
+  const focusedReview = useRef(false)
+  useEffect(() => {
+    if (phase !== 'choose') {
+      focusedReview.current = false
+      return
+    }
+    if (focusedReview.current) return
+    focusedReview.current = true
+    const frame = requestAnimationFrame(() => {
+      const first = [...nameInputs.current.values()].find((node): node is HTMLInputElement => node !== null)
+      first?.focus()
+      first?.select()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [phase])
+
   const filledFor = useRef<unknown>(null)
   useEffect(() => {
     if (!proposal || !resolvingSource || mismatch || filledFor.current === proposal) return
@@ -1338,6 +1358,10 @@ export function QuestionBankImportDialog({
                     <span>{t('import.createNewBank')}</span>
                   </label>
                   {chosen.target.kind === 'new' && <input
+                    ref={(node) => {
+                      if (node) nameInputs.current.set(bank.id, node)
+                      else nameInputs.current.delete(bank.id)
+                    }}
                     className="bank-import-target-name"
                     aria-label={t('ui.newBankNameFor', { name })}
                     value={targetName}

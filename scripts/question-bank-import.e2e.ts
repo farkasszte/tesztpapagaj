@@ -79,9 +79,9 @@ test('cancellation and invalid files preserve resources and restore useful focus
   await trigger.click()
   let dialog = page.getByRole('dialog', { name: 'Import' })
   await dialog.getByLabel('Your test, a question file, or a Test Parrot file').setInputFiles({ name: 'chemistry.pdf', mimeType: 'application/pdf', buffer: await questionBankPdf() })
-  // A beolvasás után a név mezője megjelenik (a fókusz nem ugrik rá magától:
-  // a tanár a fájlt választotta, a vágólap/URL mezők élén).
-  await expect(dialog.getByLabel(/^New Question Bank name for /)).toBeVisible()
+  // A beolvasás után a fókusz a név mezőre kerül: billentyűzettel egyenesen
+  // tovább lehet lépni a bank nevének eldöntésére.
+  await expect(dialog.getByLabel(/^New Question Bank name for /)).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(trigger).toBeFocused()
