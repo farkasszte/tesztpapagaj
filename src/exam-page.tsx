@@ -263,6 +263,10 @@ function workSpaceMenu(
   workSpace: WorkSpace,
   ids: readonly string[],
   onSetWorkSpace: SetWorkSpace,
+  // Mivel hívja a menü a „nincs még munkaterület" műveletet: a kérdésnél maga a
+  // felirat, a részeknél külön kulcs (a címkét vagdaló regex a magyar szövegre
+  // nem illeszkedett, és a tanár „Munkaterület"-et látott egy hozzáadó műveleten).
+  addLabel: string = t('format.addWorkSpace'),
 ): MenuItem[] {
   const present = hasWorkSpace(workSpace)
   // Picking a style for a question with no room gives it some, so the
@@ -277,7 +281,7 @@ function workSpaceMenu(
   if (!present) {
     return [{
       kind: 'action',
-      label: label.replace(/Work space$/, t('format.addWorkSpace')),
+      label: addLabel,
       icon: <PencilLine />,
       onSelect: () => withStyle(workSpace.style),
     }]
@@ -478,7 +482,7 @@ function questionMenuItems({
     if (part.type !== 'multiple-choice') continue
     answerFormat.push(
       columnsMenu(
-        `Part ${name} · Answer columns`,
+        t('format.partAnswerColumns', { part: name }),
         part.grid?.columns ?? DEFAULT_COLUMNS,
         (next) => onSetColumns([part.id], next),
       ),
@@ -494,11 +498,12 @@ function questionMenuItems({
     items.push(
       { kind: 'separator' },
       ...workSpaceMenu(
-        `Part ${name} · Work space`,
-        `Part ${name} · Fill rest of page`,
+        t('format.partWorkSpace', { part: name }),
+        t('format.partFillRest', { part: name }),
         workSpaceOfPart(part.id),
         [part.id],
         onSetWorkSpace,
+        t('format.partAddWorkSpace', { part: name }),
       ),
     )
   }

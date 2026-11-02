@@ -100,7 +100,9 @@ test('the editor nests the Parts under the Multipart question, each tagged with 
 async function newMultipart(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
-  await page.getByRole('button', { name: 'New question' }).click()
+  // A bank oldalának saját gombja (`bank.newQuestion`) — a „New question" felirat
+  // részleges találatként a „New Question Bank" gombra is illeszkedett.
+  await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('menuitem', { name: 'Multipart' }).click()
   await expect(editor(page)).toBeVisible()
 }
@@ -163,13 +165,21 @@ test('a Part is added, moved and deleted, and saving keeps exactly that', async 
 
 test('each Part of a Multipart question gets the sheet controls a question of its kind has', async ({ page }) => {
   await openExam(page)
-  await page.locator('.exam-question').click({ button: 'right' })
+  const partB = page.locator('.multipart-part-print').nth(1)
+  // A jobb klikk a mutatott részre szűkíti a menüt, tehát a b részt kell
+  // megcélozni. Annak még nincs munkaterülete, ezért előbb felkínálja.
+  await partB.click({ button: 'right' })
+  await page.getByRole('menuitem', { name: 'Part b · Add work space' }).click()
+  // A munkaterület előbb üres terület (ADR-0050), nem előre megrajzolt sorok.
+  await expect(partB.locator('.part-work-space')).toHaveCount(1)
+
+  // Utána már a stílus a választás: a soros munkaterület ugyanilyen magas marad.
+  await partB.click({ button: 'right' })
   await page.getByRole('menuitem', { name: 'Part b · Work space' }).press('ArrowRight')
   await page.getByRole('menuitemradio', { name: 'Lined space' }).click()
-  const partB = page.locator('.multipart-part-print').nth(1)
   await expect(partB.locator('.work-space-line')).toHaveCount(4)
 
-  await page.locator('.exam-question').click({ button: 'right' })
+  await page.locator('.multipart-part-print').nth(0).click({ button: 'right' })
   await page.getByRole('menuitem', { name: 'Part a · Answer columns' }).press('ArrowRight')
   await page.getByRole('menuitemradio', { name: '1 column' }).click()
   await expect(page.locator('.multipart-part-print').nth(0).locator('.choice-grid')).toHaveAttribute('data-columns', '1')
