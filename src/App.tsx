@@ -604,7 +604,10 @@ function CrepeQuestion({
                   const groups = elements.floating.querySelector<HTMLElement>('.menu-groups')
                   if (!groups) return
                   const room = availableHeight - (tabs?.offsetHeight ?? 0)
-                  groups.style.maxHeight = `${Math.max(120, Math.min(420, room))}px`
+                  // Nincs alsó padló: ha a kurzor alatt kevés a hely, a lista
+                  // kevesebbet mutat és görget — a menü viszont nem lóg a
+                  // párbeszéd lábléce alá, ahol a gombokat eltakarná.
+                  groups.style.maxHeight = `${Math.max(0, Math.min(420, room))}px`
                 },
               }),
             ],

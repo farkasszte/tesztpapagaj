@@ -19,11 +19,12 @@ test('on a short screen the slash menu’s Advanced group can still be reached a
   // A csoport felirata a szótárból jön (`editor.groupAdvanced`), mai szövege: More.
   await menu.locator('.tab-group li', { hasText: 'More' }).click()
 
-  // A menü a nézetben marad (nem lóg ki alul), a csoportjai pedig a saját
-  // területükön belül görgethetők: így az „Egyéb" csoport elemei is elérhetők.
+  // A menü a párbeszéd lábléce fölé simul (nem takarja el a gombokat), a
+  // csoportjai pedig a saját területükön belül görgethetők: így az „Egyéb"
+  // csoport elemei is elérhetők.
   const menuBox = (await menu.boundingBox())!
-  const viewport = page.viewportSize()!
-  expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(viewport.height)
+  const actionsBox = (await dialog.locator('.dialog-actions').boundingBox())!
+  expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(actionsBox.y)
   // A lényeg, hogy a csoport elérhető és használható: a Táblázat bekerül.
   const table = menu.locator('.menu-group li', { hasText: 'Table' })
   await table.scrollIntoViewIfNeeded()
