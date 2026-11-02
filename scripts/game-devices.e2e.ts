@@ -165,7 +165,11 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
 
   const choices = student.locator('.gq-stu-choice')
   await expect(choices).toHaveCount(3)
-  await choices.nth(1).click()
+  // A telefon ugyanazt a (kevert) sorrendet látja, mint a tanár színpada: a
+  // helyes választ a szövegénél fogva kell megnyomni, nem a helyénél.
+  const onPhone = await choices.evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
+  expect(onPhone).not.toEqual(['Oxygen', 'Carbon dioxide', 'Helium'])
+  await choices.filter({ hasText: 'Carbon dioxide' }).click()
 
   // Mindenki válaszolt, ezért a motor magától felfedi — a tanárnak már csak
   // továbblépnie kell. A diák a saját telefonján látja az eredményt.

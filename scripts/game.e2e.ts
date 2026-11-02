@@ -74,14 +74,15 @@ test('a klasszikus színpad végigjátszható: kérdés, felfedés, jelentés', 
   await expect(stage).toBeVisible()
   await expect(stage.getByText('Question 1 of 2')).toBeVisible()
   await expect(stage.getByText('Which gas do plants take in?')).toBeVisible()
-  await expect(stage.getByRole('group', { name: 'A: Oxygen' })).toBeVisible()
+  // A három válasz mind kint van, betűvel a színpadon — a sorrend kevert.
+  await expect(stage.locator('.gq-answer')).toHaveCount(3)
   // Válasz előtt semmi nem árulja el a helyes választ.
   await expect(stage.locator('.gq-answer[data-state="correct"]')).toHaveCount(0)
 
   await stage.getByRole('button', { name: 'Show the answer' }).click()
   const right = stage.locator('.gq-answer[data-state="correct"]')
   await expect(right).toHaveCount(1)
-  await expect(right).toHaveAttribute('aria-label', 'B: Carbon dioxide')
+  await expect(right).toHaveAttribute('aria-label', /^[A-D]: Carbon dioxide$/)
   await expect(stage.locator('.gq-answer[data-state="faded"]')).toHaveCount(2)
 
   await stage.getByRole('button', { name: 'Next question' }).click()
@@ -116,13 +117,13 @@ test('a bajnok színpad végigviszi a menetet: osztály tippje, bajnok válasza,
   // Az osztály tippje: a tanár a többség válaszát koppintja.
   await expect(stage.getByText('Which answer did most of the class give?')).toBeVisible()
   // Eszköz nélkül a tanár koppintása maga a többség: nincs külön zárás.
-  await stage.getByRole('button', { name: 'B: Carbon dioxide' }).click()
+  await stage.getByRole('button', { name: /^[A-D]: Carbon dioxide$/ }).click()
   await expect(stage.getByText('The class has answered')).toBeVisible()
   await stage.getByRole('button', { name: 'The Champion answers' }).click()
 
   // A bajnok válasza és a felfedés.
   await expect(stage.getByText('Which answer did the Champion give?')).toBeVisible()
-  await stage.getByRole('button', { name: 'B: Carbon dioxide' }).click()
+  await stage.getByRole('button', { name: /^[A-D]: Carbon dioxide$/ }).click()
   await stage.getByRole('button', { name: 'Show the answer' }).click()
   await expect(stage.getByText('Bence got it right!')).toBeVisible()
   await expect(stage.getByText(/to the pot/)).toBeVisible()
@@ -166,10 +167,50 @@ test('a veszély! táblája mezőt nyit, és a kör végigvihető', async ({ pag
   await expect(stage.getByText('Which team buzzed first?')).toBeVisible()
 
   await stage.getByRole('button', { name: 'Rókák' }).click()
-  await expect(stage.getByRole('button', { name: 'B: Carbon dioxide' })).toBeVisible()
-  await stage.getByRole('button', { name: 'B: Carbon dioxide' }).click()
+  await expect(stage.getByRole('button', { name: /^[A-D]: Carbon dioxide$/ })).toBeVisible()
+  await stage.getByRole('button', { name: /^[A-D]: Carbon dioxide$/ }).click()
   await expect(stage.getByText(/Rókák: \d+/)).toBeVisible()
   await stage.getByRole('button', { name: 'Next question' }).click()
   await expect(stage.getByText('Board 1')).toBeVisible()
   await expect(stage.locator('.gq-tile[data-played="true"]')).toHaveCount(1)
+})
+
+test('a válaszok sorrendje kevert, és a tanár visszaadhatja a bank sorrendjét', async ({ page }) => {
+  await seedBank(page, {
+    name: 'Answer order bank',
+    questions: [THREE('k1', 'Which gas do plants take in?')],
+  })
+  await page.goto('/jatek')
+  await expect(page.getByText('1 of 1 questions can be played.')).toBeVisible()
+
+  /** A színpadon álló válaszok szövege, a betűjel nélkül. */
+  const answers = (stage: ReturnType<Page['getByRole']>) =>
+    stage.locator('.gq-answer').evaluateAll((nodes) =>
+      nodes.map((node) => (node.getAttribute('aria-label') ?? '').replace(/^[A-D]: /, '')),
+    )
+
+  // Alapból kevert: a kártyák sorrendje nem a banké.
+  await expect(page.getByLabel('Shuffle the answers')).toBeChecked()
+  await openGame(page, 'Classic')
+  const stage = page.getByRole('dialog', { name: 'Quiz game' })
+  const shuffled = await answers(stage)
+  expect([...shuffled].sort()).toEqual(['Carbon dioxide', 'Helium', 'Oxygen'])
+  expect(shuffled).not.toEqual(['Oxygen', 'Carbon dioxide', 'Helium'])
+  // A felfedés a helyes választ a kevert helyén jelöli.
+  await stage.getByRole('button', { name: 'Show the answer' }).click()
+  await expect(stage.locator('.gq-answer[data-state="correct"]')).toHaveText(/Carbon dioxide/)
+  await stage.getByRole('button', { name: 'Finish' }).click()
+  await stage.getByRole('button', { name: 'Back to the quiz game' }).click()
+  await expect(page.getByRole('heading', { name: 'Quiz game' })).toBeVisible()
+
+  // Kikapcsolva a bank saját sorrendje áll a színpadon.
+  await page.getByLabel('Shuffle the answers').uncheck()
+  await expect(page.getByLabel('Shuffle the answers')).not.toBeChecked()
+  // Ugyanezen a lapon indul a második játék: egy újratöltés visszaállítaná a
+  // jelölőt az alapértelmezettre, és nem azt mérnénk, amit kértünk.
+  await page.getByRole('button', { name: /^Classic/ }).click()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+  const kept = page.getByRole('dialog', { name: 'Quiz game' })
+  expect(await answers(kept)).toEqual(['Oxygen', 'Carbon dioxide', 'Helium'])
+  await expect(kept.locator('.gq-answer').first()).toHaveAttribute('aria-label', 'A: Oxygen')
 })

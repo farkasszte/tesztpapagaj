@@ -331,9 +331,13 @@ function problemOf(question: BankQuestion, classic: boolean): string | null {
  */
 export function playableQuestions(
   questions: readonly BankQuestion[],
-  options: { classic?: boolean } = {},
+  options: { classic?: boolean; shuffleAnswers?: boolean } = {},
 ): PlayableQuestions {
   const classic = options.classic ?? false
+  // A kártyás kérdés válaszai felkeverve állnak, hogy a szerzői sorrend ne
+  // árulja el a megoldást. A keverés a kérdés azonosítójából jön, tehát a
+  // tanár színpada és minden diák eszköze ugyanazt a sorrendet látja.
+  const shuffleAnswers = options.shuffleAnswers ?? false
   const playable: Question[] = []
   const skipped: SkippedQuestion[] = []
   const words = new Map<string, PlayableWords>()
@@ -444,9 +448,15 @@ export function playableQuestions(
         : authored
     // A sorrendezés elemei felkeverve állnak (a szerzői sorrend a megoldás); a
     // keverés a kérdés azonosítójából jön, tehát minden eszközön ugyanaz.
+    // A sorrendezés elemei mindig keverve állnak (a szerzői sorrend a
+    // megoldás); az Igaz/Hamis pár sorrendje viszont szemantikus, azt nem
+    // bolygatjuk. A kártyás kérdéseket a beállítás keveri.
+    const cardShuffled =
+      shuffleAnswers && (question.type === 'multiple-choice' || question.type === 'multiple-answer')
     const choiceNodes =
-      question.type === 'ordering'
-        ? scrambledIndices(labelled.length, question.id).map((index) => labelled[index]!)
+      question.type === 'ordering' || cardShuffled
+        ? scrambledIndices(labelled.length, question.type === 'ordering' ? question.id : `${question.id}:answers`)
+          .map((index) => labelled[index]!)
         : labelled
     const choices = choiceNodes.map((node) => gameNodes(childrenOf(node)))
     // A helyes sorrend a felkínált elemek indexeivel: az első szerzői elem

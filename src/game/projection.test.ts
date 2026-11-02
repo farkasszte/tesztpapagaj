@@ -346,4 +346,62 @@ describe('what the projector plays', () => {
     expect(result.skipped[0].number).toBe(2)
     expect(result.questions[0].topics).toEqual(['földrajz'])
   })
+
+describe('shuffling the answers a game shows', () => {
+  const four = () => question([
+    choice('Egy'),
+    choice('Kettő'),
+    choice('Három', true),
+    choice('Négy'),
+  ])
+
+  test('the card question is shown in another order, and the right answer moves with it', () => {
+    const authored = playableQuestions([four()]).questions[0]!
+    expect(authored.choices).toEqual(['Egy', 'Kettő', 'Három', 'Négy'])
+    expect(authored.correct).toBe(2)
+
+    const shuffled = playableQuestions([four()], { shuffleAnswers: true }).questions[0]!
+    // A készlet ugyanaz, a sorrend nem a szerzői, és a helyes válasz arra a
+    // kártyára mutat, amelyen a szövege áll.
+    expect([...shuffled.choices].sort()).toEqual(['Egy', 'Három', 'Kettő', 'Négy'].sort())
+    expect(shuffled.choices).not.toEqual(authored.choices)
+    expect(shuffled.choices[shuffled.correct]).toBe('Három')
+  })
+
+  test('every device computes the same order, so a room never disagrees', () => {
+    const once = playableQuestions([four()], { shuffleAnswers: true }).questions[0]!
+    const twice = playableQuestions([four()], { shuffleAnswers: true }).questions[0]!
+    expect(twice.choices).toEqual(once.choices)
+    expect(twice.correct).toBe(once.correct)
+  })
+
+  test('a question with several right answers keeps all of them, at their new places', () => {
+    const several = () => question(
+      [choice('A', true), choice('B'), choice('C', true), choice('D')],
+      { type: 'multiple-answer' },
+    )
+    const shuffled = playableQuestions([several()], { shuffleAnswers: true, classic: true }).questions[0]!
+    const right = shuffled.correctChoices!.map((index) => shuffled.choices[index])
+    expect(right.sort()).toEqual(['A', 'C'])
+  })
+
+  test('a True/False pair keeps its order: the two answers are not interchangeable', () => {
+    const pair = () => question([choice('True', true), choice('False')], { type: 'true-false' })
+    const shuffled = playableQuestions([pair()], { shuffleAnswers: true }).questions[0]!
+    expect(shuffled.choices).toHaveLength(2)
+    expect(shuffled.correct).toBe(0)
+  })
+
+  test('turned off, the bank’s own order is what the stage shows', () => {
+    const kept = playableQuestions([four()], { shuffleAnswers: false }).questions[0]!
+    expect(kept.choices).toEqual(['Egy', 'Kettő', 'Három', 'Négy'])
+    expect(kept.correct).toBe(2)
+  })
+
+  test('two answers are shuffled too', () => {
+    const pair = () => question([choice('Első', true), choice('Második')])
+    const shuffled = playableQuestions([pair()], { shuffleAnswers: true }).questions[0]!
+    expect(shuffled.choices[shuffled.correct]).toBe('Első')
+  })
+})
 })

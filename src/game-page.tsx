@@ -62,6 +62,9 @@ export function GamePage({
   const [loading, setLoading] = useState(false)
   const [timerSeconds, setTimerSeconds] = useState(20)
   const [shuffle, setShuffle] = useState(false)
+  // A kvízjáték válaszsorrendje alapból kevert: a kártyák sorrendje ne árulja
+  // el a megoldást. A tanár kikapcsolhatja, ha a bank sorrendje számít.
+  const [shuffleAnswers, setShuffleAnswers] = useState(true)
   /** Diákok a saját telefonjukon (egyelőre a Klasszikus módban). */
   const [devices, setDevices] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -115,8 +118,10 @@ export function GamePage({
   // A több helyes válasz csak a Klasszikus módban játszható, ezért a mód is
   // beleszámít abba, mi játszható.
   const playable = useMemo(
-    () => (bank ? playableQuestions(bank.questions, { classic: mode === 'classic' }) : null),
-    [bank, mode],
+    () => (bank
+      ? playableQuestions(bank.questions, { classic: mode === 'classic', shuffleAnswers })
+      : null),
+    [bank, mode, shuffleAnswers],
   )
   const canStart = !!playable && playable.questions.length > 0
 
@@ -313,6 +318,14 @@ export function GamePage({
             <label>
               <input type="checkbox" checked={shuffle} onChange={(event) => setShuffle(event.target.checked)} />
               {t('game.shuffle')}
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={shuffleAnswers}
+                onChange={(event) => setShuffleAnswers(event.target.checked)}
+              />
+              {t('game.shuffleAnswers')}
             </label>
             <label>
               <input
