@@ -39,6 +39,9 @@ async function newBankQuestion(page: Page, type = 'Multiple choice') {
 async function writeQuestion(page: Page, stem: string) {
   const editor = page.getByRole('dialog', { name: 'Question editor' })
   await expect(editor).toBeVisible()
+  // A szerkesztő üresen rajzolódik ki, és a kérdés szövegét egy pillanattal
+  // később veszi át: addig a gépelés elveszne. A `data-ready` ezt jelzi.
+  await expect(editor.locator('.dialog-editor[data-ready="true"]')).toBeVisible()
   // A második kérdésnél a fókusz a bank során maradhat: a szerkesztőbe kell
   // kattintani, majd a dokumentum elejére állni — a kattintás a válaszlistára
   // is eshet, a kérdésszöveg pedig a dokumentum eleje.

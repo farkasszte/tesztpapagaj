@@ -205,14 +205,14 @@ test('Add all composes only the filtered questions as one action', async ({ page
   await filterBy(page, 'Topic', 'Biology')
   await expect(rows(page)).toHaveCount(2)
 
-  await bank(page).getByRole('button', { name: 'Add all', exact: true }).click()
+  await bank(page).getByRole('button', { name: 'Add all questions to the exam' }).click()
 
   const examQuestions = page.locator('.exam-question[data-question-id]')
   await expect(examQuestions).toHaveCount(2)
   await expect(examQuestions).toContainText(['Photosynthesis at night', 'Photosynthesis in leaves'])
   await expect(page.locator('.exam-question[data-question-id="q2"]')).toHaveCount(0)
   await expect(page.locator('.exam-question[data-question-id="q4"]')).toHaveCount(0)
-  await expect(bank(page).getByRole('button', { name: 'Add all', exact: true })).toBeDisabled()
+  await expect(bank(page).getByRole('button', { name: 'Add all questions to the exam' })).toBeDisabled()
 
   // One bulk command, one undo step.
   await page.keyboard.press('Control+z')
@@ -231,15 +231,19 @@ test('browsing the Question Bank is not an authoring action', async ({ page }) =
   // Nothing to undo: search, filters and row selection are transient UI state.
   await expect(undo).toBeDisabled()
 
-  // And they are not remembered, because they were never authoring data.
+  // A keresés és a szűrő megmarad: a bank saját olvasási állapota ez, nem a
+  // dolgozat szerkesztése — a dolgozat és a visszavonás ezért érintetlen.
   await page.reload()
-  await expect(rows(page)).toHaveCount(QUESTIONS.length)
-  await expect(search(page)).toHaveValue('')
+  await expect(search(page)).toHaveValue('photosynthesis')
+  await expect(rows(page)).toHaveCount(2)
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 })
 
 test('an empty Question Bank reads differently from one nothing matches', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
+  // Üres dolgozat mellé előbb bank nyílik: az üresség a bankról szól, nem a lapról.
+  await page.getByRole('button', { name: 'New Question Bank' }).first().click()
   await expect(bank(page)).toContainText('No questions yet')
 
   await openBank(page)

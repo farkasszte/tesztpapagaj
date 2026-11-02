@@ -8,9 +8,15 @@ async function newExam(page: import('@playwright/test').Page) {
 test('Home opens independently persisted recent Exams and restores the active Exam', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('region', { name: 'Pick up where you left off' })).toContainText('Create your first Exam')
+  // A kérdés a dolgozat mellől születik: előbb a dolgozat, aztán a bank, mert
+  // a kezdőlap bankja a saját oldalára visz, ahol nincs mihez hozzáadni.
+  await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
-  await page.getByRole('button', { name: 'Add Question' }).click()
+  await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('menuitem', { name: 'Multiple choice' }).click()
+  // A szerkesztő a kérdés szövegét egy pillanattal később veszi át: addig a
+  // gépelés elveszne, ezért megvárjuk, míg késznek jelenti magát.
+  await page.locator('.dialog-editor[data-ready="true"]').waitFor()
   await page.keyboard.type('First question preview')
   await page.keyboard.press('Control+Enter')
   await page.getByRole('button', { name: /^Add First question preview to the exam$/ }).click()

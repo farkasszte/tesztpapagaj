@@ -796,7 +796,6 @@ function CrepeQuestion({
     crepe.on((listener) => {
       listener.mounted((ctx) => {
         const view = ctx.get(editorViewCtx)
-        onReady(() => cleanDocument(view.state.doc.toJSON() as ProseMirrorJSON))
         const loadedDocument = ProseNode.fromJSON(view.state.schema, safeValue)
         const tr = view.state.tr.replaceWith(
           0,
@@ -808,6 +807,10 @@ function CrepeQuestion({
         tr.setSelection(TextSelection.atStart(tr.doc))
         view.dispatch(tr)
         view.focus()
+        // Csak a dokumentum átvétele **és** a fókusz után jelezzük, hogy kész:
+        // az `onReady` a szerkesztő szövegét adja, a jelzés pedig azt, hogy a
+        // kurzor már benne van — addig a gépelés elveszne.
+        onReady(() => cleanDocument(view.state.doc.toJSON() as ProseMirrorJSON))
       })
       listener.updated((_ctx, doc) =>
         onChange(cleanDocument(doc.toJSON() as ProseMirrorJSON)),
@@ -863,6 +866,11 @@ function QuestionDialog({
   const [partsPoints, setPartsPoints] = useState(() => pointsOfQuestion(question))
   const latestDoc = useRef(doc)
   const readEditorDocument = useRef<(() => ProseMirrorJSON) | null>(null)
+  /** The editor paints empty and takes its document a moment later: until
+   *  then anything typed into it is replaced by the load, so the surface says
+   *  when it is ready — the tests wait for it, and no caret can land in a
+   *  document that is about to be overwritten. */
+  const [editorReady, setEditorReady] = useState(false)
   const dialog = useRef<HTMLElement>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -1108,7 +1116,7 @@ function QuestionDialog({
             )}
           </div>
         </div>
-        <div className="dialog-editor">
+        <div className="dialog-editor" data-ready={editorReady ? 'true' : undefined}>
           <CrepeQuestion
             value={doc}
             suggestedAnswer={type === 'open'}
@@ -1120,6 +1128,7 @@ function QuestionDialog({
             blanks={type === 'fill-in-the-blank'}
             onReady={(readDocument) => {
               readEditorDocument.current = readDocument
+              setEditorReady(true)
             }}
             onChange={(next) => {
               latestDoc.current = next
