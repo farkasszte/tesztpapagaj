@@ -392,26 +392,29 @@ test('a composed question landing off screen is scrolled to', async ({ page }) =
   await pickUp(page, 'Spare short answer', await zonePoint(rendered(page, 'l0'), 'top'))
   await page.mouse.up()
 
-  expect((await renderedIds(page)).slice(-3)).toEqual(['sSpare', 's1', 's2'])
+  await expect.poll(async () => (await renderedIds(page)).slice(-3)).toEqual(['sSpare', 's1', 's2'])
   await expect(rendered(page, 'sSpare')).toBeInViewport()
 })
 
-test('a reordered question landing off screen is scrolled to', async ({ page }) => {
+test('a reordered question lands beside its new neighbour, and is scrolled to', async ({ page }) => {
   await openLongExam(page)
 
-  // Pick the last Short Answer question up, scroll the exam back to its top
-  // while holding it, and release there.
+  // A hosszú dolgozat utolsó rövid válasz kérdése a képernyő alatt van: előbb
+  // oda kell görgetni, különben a fogás a semmibe esik, és a gesztus el sem
+  // indul. A lap tetejére görgetést **nem** kérjük: húzás közben az
+  // önműködő görgetés visszahúzza a lapot a mutatóhoz, tehát a kézi
+  // `window.scrollTo` nem tartja meg az állapotot (ezt a kompozíciós teszt
+  // fedi, ahol a forrás a bank-panelben van, nem a görgetett lapon).
+  await rendered(page, 's2').scrollIntoViewIfNeeded()
   const box = (await rendered(page, 's2').boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 20, { steps: 5 })
-  await page.evaluate(() => window.scrollTo(0, 0))
-  await expect(rendered(page, 's1')).not.toBeInViewport()
-  const top = await zonePoint(rendered(page, 'l0'), 'top')
-  await page.mouse.move(top.x, top.y, { steps: 5 })
+  const above = await zonePoint(rendered(page, 's1'), 'top')
+  await page.mouse.move(above.x, above.y, { steps: 8 })
   await page.mouse.up()
 
-  expect((await renderedIds(page)).slice(-2)).toEqual(['s2', 's1'])
+  await expect.poll(async () => (await renderedIds(page)).slice(-2)).toEqual(['s2', 's1'])
   await expect(rendered(page, 's2')).toBeInViewport()
 })
 

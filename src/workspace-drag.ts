@@ -55,6 +55,9 @@ export type DropBox = { top: number; bottom: number; left: number; right: number
 export type DropCandidate = {
   questionId: string
   sectionId: string
+  /** The Question's type — a Section holds one, so this is the Section's type
+   *  too, and what decides whether a dragged question may land beside it. */
+  type: QuestionType
   before: DropEdge
   after: DropEdge
 }
@@ -160,6 +163,13 @@ export function dropIntent(
   const carried = new Set(source.questionIds)
   const others = candidates.filter((candidate) => !carried.has(candidate.questionId))
 
+  // A question joins a Section of its own type, so only those edges are lines
+  // it can land on. Hovering another type's question leaves the line where the
+  // question would really go — the nearest edge of its own Section — rather
+  // than promising a place it cannot take. A type the Exam has no Section for
+  // leaves nothing to aim at, and the new-Section target is what answers.
+  const aimed = others.filter((candidate) => candidate.type === source.type)
+
   // Below a target open at the foot of the whole Exam — nothing left beneath
   // it to land on but the questions being carried — a release makes the
   // Section too, however far down. Going lower there can mean nothing else,
@@ -194,7 +204,11 @@ export function dropIntent(
     }
   }
 
-  for (const candidate of others) {
+  // A question with no Section of its own type yet has no line to aim at: the
+  // nearest line anywhere keeps the new-Section target open beneath a Section,
+  // which is the only place such a question can start one.
+  const aiming = aimed.length > 0 ? aimed : others
+  for (const candidate of aiming) {
     consider(distanceTo(candidate.before, point), {
       kind: 'insert',
       targetQuestionId: candidate.questionId,

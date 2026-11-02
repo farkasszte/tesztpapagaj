@@ -37,10 +37,12 @@ function rendered(
   sectionId: string,
   top: number,
   bottom: number,
+  type: QuestionType = 'multiple-choice',
 ): DropCandidate {
   return {
     questionId,
     sectionId,
+    type,
     before: { y: top, left: 100, right: 700 },
     after: { y: bottom, left: 100, right: 700 },
   }
@@ -58,8 +60,8 @@ function field(
 const page = field([
   rendered('q1', 'mc', 100, 300),
   rendered('q2', 'mc', 326, 526),
-  rendered('s1', 'sa', 600, 700),
-  rendered('s2', 'sa', 726, 826),
+  rendered('s1', 'sa', 600, 700, 'open'),
+  rendered('s2', 'sa', 726, 826, 'open'),
   rendered('q3', 'mc-2', 900, 1000),
 ])
 
@@ -91,18 +93,19 @@ describe('a Question Bank question released over the Working Copy', () => {
     })
   })
 
-  test('lands inside a Section of Short Answer questions, at the nearest line', () => {
-    // Between s1 and s2: a Multiple Choice question goes there like any other.
+  test('never lands in another type’s Section: the line goes to the nearest Multiple Choice edge', () => {
+    // Over the Short Answer questions a Multiple Choice question has no place
+    // among them, so the line stays at the foot of its own Section.
     expect(dropIntent(fromQuestionBank, page, { x: 400, y: 710 })).toEqual({
       kind: 'insert',
-      targetQuestionId: 's1',
+      targetQuestionId: 'q2',
       placement: 'after',
-      opensBelow: null,
+      opensBelow: 'mc',
     })
     expect(dropIntent(fromQuestionBank, page, { x: 400, y: 590 })).toMatchObject({
       kind: 'insert',
-      targetQuestionId: 's1',
-      placement: 'before',
+      targetQuestionId: 'q2',
+      placement: 'after',
     })
   })
 
@@ -115,13 +118,15 @@ describe('a Question Bank question released over the Working Copy', () => {
     })
   })
 
-  test('at the foot of a Section of another type, inserts after its last question and opens a new-Section target', () => {
+  test('at the foot of another type’s Section, the line still belongs to the question’s own type', () => {
+    // Below the Short Answer questions the nearest Multiple Choice line is the
+    // top of the next Section — not the foot of one the question cannot join.
     const intent = dropIntent(fromQuestionBank, page, { x: 400, y: 830 })
     expect(intent).toEqual({
       kind: 'insert',
-      targetQuestionId: 's2',
-      placement: 'after',
-      opensBelow: 'sa',
+      targetQuestionId: 'q3',
+      placement: 'before',
+      opensBelow: null,
     })
     expect(landsOnRelease(intent)).toBe(true)
   })
@@ -215,10 +220,12 @@ describe('a Question Bank question released over the Working Copy', () => {
     }
   })
 
-  test('a Short Answer question reaches every line, beside a question of any type', () => {
+  test('a Short Answer question reaches every line of its own Section, and no other', () => {
+    // Far above the Short Answer questions the nearest line of its own Section
+    // is still theirs: the top of the first one.
     expect(dropIntent(shortAnswerFromQuestionBank, page, { x: 400, y: 150 })).toEqual({
       kind: 'insert',
-      targetQuestionId: 'q1',
+      targetQuestionId: 's1',
       placement: 'before',
       opensBelow: null,
     })
@@ -227,11 +234,12 @@ describe('a Question Bank question released over the Working Copy', () => {
       targetQuestionId: 's1',
       placement: 'before',
     })
+    // Even below the next Section the line stays at the foot of its own.
     expect(dropIntent(shortAnswerFromQuestionBank, page, { x: 400, y: 990 })).toEqual({
       kind: 'insert',
-      targetQuestionId: 'q3',
+      targetQuestionId: 's2',
       placement: 'after',
-      opensBelow: 'mc-2',
+      opensBelow: 'sa',
     })
   })
 

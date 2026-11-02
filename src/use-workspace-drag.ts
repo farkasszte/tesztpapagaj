@@ -107,6 +107,7 @@ function fieldAt(point: { x: number; y: number }): DropField | null {
         ? [{
             questionId,
             sectionId,
+            type,
             before: { y: first.top, left: first.left, right: first.right },
             after: { y: last.bottom, left: last.left, right: last.right },
           }]
