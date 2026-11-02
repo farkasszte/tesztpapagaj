@@ -665,9 +665,8 @@ function withQuestionsAdded(
       kind: 'section-end',
       sectionId: sectionsOf(exam).at(-1)!.id,
     }
-    const layout =
-      placeQuestions(exam, arrangement, added.map(({ id }) => id), to)
-      ?? sectionLayoutOf(exam, arrangement)
+    const placed = placeQuestions(exam, arrangement, added.map(({ id }) => id), to)
+    const layout = placed ?? sectionLayoutOf(exam, arrangement)
     workingCopy = withSectionLayout(workingCopy, layout)
   }
   return {

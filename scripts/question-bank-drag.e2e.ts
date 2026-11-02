@@ -71,7 +71,7 @@ async function openWorkspace(
   await expect(examQuestions(page)).toHaveCount(questionIds.length)
 }
 
-type Zone = 'top' | 'centre' | 'bottom'
+type Zone = 'top' | 'centre' | 'below' | 'bottom'
 
 /** A point inside a rendered question: near its top, near its bottom, or at
  *  its centre. */
@@ -84,7 +84,12 @@ async function zonePoint(target: Locator, zone: Zone) {
         ? box.y + 4
         : zone === 'bottom'
           ? box.y + box.height - 4
-          : box.y + box.height / 2,
+          : zone === 'below'
+            // Egy kérdés pontos közepén a két él egyforma távol van, és a
+            // szabály ilyenkor a felső élhez (beszúrás elé) dönt. Ahol a
+            // szándék „utána", ott egy hajszállal lejjebb engedjük el.
+            ? box.y + box.height / 2 + 6
+            : box.y + box.height / 2,
   }
 }
 
@@ -112,7 +117,7 @@ test('the bottom edge of a rendered question Inserts after it', async ({ page })
   await dragBankRowOnto(page, 'Spare choice question', rendered(page, 'mc1'), 'bottom')
 
   await expect(examQuestions(page)).toHaveCount(4)
-  expect(await renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
   // Referenced, not copied: still five bank records, and the incoming one is
   // marked as being on the exam.
   await expect(bank(page).getByRole('listitem')).toHaveCount(QUESTIONS.length)
@@ -139,13 +144,13 @@ test('Shift-selected bank rows drag into the Working Copy together', async ({ pa
   await expect(bankRow(page, 'Second selected question')).toHaveAttribute('aria-current', 'true')
 
   const target = rendered(page, 'target')
-  await pickUp(page, 'Second selected question', await zonePoint(target, 'centre'))
+  await pickUp(page, 'Second selected question', await zonePoint(target, 'below'))
   await expect(page.locator('.question-drag-preview')).toHaveAttribute('data-count', '2')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['target', 'second', 'first'])
+  await expect.poll(() => renderedIds(page)).toEqual(['target', 'second', 'first'])
   await page.keyboard.press('Control+z')
-  expect(await renderedIds(page)).toEqual(['target'])
+  await expect.poll(() => renderedIds(page)).toEqual(['target'])
 })
 
 test('the top edge of a rendered question Inserts before it', async ({ page }) => {
@@ -154,7 +159,7 @@ test('the top edge of a rendered question Inserts before it', async ({ page }) =
   await dragBankRowOnto(page, 'Spare choice question', rendered(page, 'mc1'), 'top')
 
   // The first position in a Question Section: the one no "after" can name.
-  expect(await renderedIds(page)).toEqual(['mcSpare', 'mc1', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mcSpare', 'mc1', 'mc2', 'sa1'])
 })
 
 test('the centre of a rendered question Inserts at its nearer edge, never Replaces', async ({ page }) => {
@@ -163,9 +168,9 @@ test('the centre of a rendered question Inserts at its nearer edge, never Replac
   await dragBankRowOnto(page, 'Spare choice question', rendered(page, 'mc2'), 'centre')
 
   // One more question, and the one under the pointer is still on the exam.
-  expect(await renderedIds(page)).toHaveLength(4)
-  expect(await renderedIds(page)).toContain('mc2')
-  expect(await renderedIds(page)).toContain('mcSpare')
+  await expect.poll(() => renderedIds(page)).toHaveLength(4)
+  await expect.poll(() => renderedIds(page)).toContain('mc2')
+  await expect.poll(() => renderedIds(page)).toContain('mcSpare')
 })
 
 test('a question released in another Question Section lands at the nearest edge of its own', async ({ page }) => {
@@ -178,7 +183,7 @@ test('a question released in another Question Section lands at the nearest edge 
   await expect(page.locator(`${EXAM_QUESTION}[data-drop]`)).toHaveCount(1)
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare', 'sa1'])
 })
 
 test('a question released in the margin beside the sheet still lands', async ({ page }) => {
@@ -190,7 +195,7 @@ test('a question released in the margin beside the sheet still lands', async ({ 
   await expect(rendered(page, 'mc1')).toHaveAttribute('data-drop', 'before')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mcSpare', 'mc1', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mcSpare', 'mc1', 'mc2', 'sa1'])
 })
 
 test('feedback shows the landing line while dragging, and a release outside the Working Copy abandons', async ({ page }) => {
@@ -227,7 +232,7 @@ test('feedback shows the landing line while dragging, and a release outside the 
 
   // Releasing there changes nothing at all — not the exam, and not the history.
   await page.mouse.up()
-  expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
   await expect(preview).toHaveCount(0)
 })
@@ -244,7 +249,7 @@ test('a Question Bank question already on the exam offers no gesture', async ({ 
   await expect(page.locator('.question-drag-preview')).toHaveCount(0)
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 })
 
@@ -269,7 +274,7 @@ test('a question of a type the Exam has no Section for starts one from the targe
   await expect(newSectionTarget(page)).toHaveAttribute('data-active', 'true')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
   await expect(newSectionTarget(page)).toHaveCount(0)
   await expect(page.getByRole('textbox', { name: 'Short Answer heading' })).toHaveValue('Short Answer')
 })
@@ -292,7 +297,7 @@ test('an empty Working Copy offers its placeholder as the first-question drop ta
   await expect(placeholder).toHaveAttribute('data-active', 'true')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mcSpare'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mcSpare'])
   // Its job done, the placeholder is gone.
   await expect(placeholder).toHaveCount(0)
 })
@@ -303,15 +308,15 @@ test('a bank-to-draft drop is exactly one undoable action, and redoes', async ({
   await expect(undo).toBeDisabled()
 
   await dragBankRowOnto(page, 'Spare choice question', rendered(page, 'mc1'), 'bottom')
-  expect(await renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
 
   await page.keyboard.press('Control+z')
-  expect(await renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'sa1'])
   // One gesture, one step: a second undo has nothing of this drop left to take.
   await expect(undo).toBeDisabled()
 
   await page.keyboard.press('Control+Shift+z')
-  expect(await renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mcSpare', 'mc2', 'sa1'])
 })
 
 test('dragging inside the Working Copy reorders and never Replaces', async ({ page }) => {
@@ -330,7 +335,7 @@ test('dragging inside the Working Copy reorders and never Replaces', async ({ pa
   await expect(target).toHaveAttribute('data-drop', 'after')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mc2', 'mc1', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc2', 'mc1', 'sa1'])
   // A reorder, not a composition: the same three questions on the exam.
   await expect(bank(page).getByText('In exam')).toHaveCount(3)
 })
@@ -348,7 +353,7 @@ test('a reordering drag stays inside its own Question Section', async ({ page })
   await expect(rendered(page, 'mc2')).toHaveAttribute('data-drop', 'after')
   await page.mouse.up()
 
-  expect(await renderedIds(page)).toEqual(['mc2', 'mc1', 'sa1'])
+  await expect.poll(() => renderedIds(page)).toEqual(['mc2', 'mc1', 'sa1'])
 })
 
 /** An exam long enough to run past one screen: fourteen Multiple Choice

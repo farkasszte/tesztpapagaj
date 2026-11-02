@@ -47,4 +47,14 @@ export async function seedAuthoringState(
   // The bare editor route deliberately restores the registry's active Exam.
   await page.goto('/editor')
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
+  // A bank panelje és a store betöltése aszinkron: ha a vetés után azonnal
+  // húzunk, a készülő szerkesztő későbbi betöltése felülírhatja a dobást, és
+  // a kérdés csendben eltűnik. Megvárjuk, hogy a bank sorai megjelenjenek.
+  if (state.questionBank.questions.length > 0) {
+    await page
+      .getByRole('region', { name: 'Question Bank' })
+      .getByRole('listitem')
+      .first()
+      .waitFor()
+  }
 }
