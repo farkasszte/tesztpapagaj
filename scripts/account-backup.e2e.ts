@@ -116,8 +116,12 @@ test('a downloaded account backup restores every Question Bank and image', async
 
   await expect(backupCard(page)).toBeVisible()
   await page.goto('/question-banks')
-  await expect(page.getByRole('button', { name: `Open Biology Bank. 1` })).toBeVisible()
-  await expect(page.getByRole('button', { name: `Open Made after backup. 1` })).toHaveCount(0)
+  // A kártya neve a „Open {név}." kezdet után a bank nevét és a kérdésszámot is
+  // hordozza, ezért a névre illesztünk, a számot pedig a kártyán mérjük.
+  const biology = page.getByRole('button', { name: /^Open Biology Bank\./ })
+  await expect(biology).toBeVisible()
+  await expect(biology).toContainText('1 Question')
+  await expect(page.getByRole('button', { name: /^Open Made after backup\./ })).toHaveCount(0)
   expect(await bankNames(page)).toEqual(['Biology Bank'])
   expect(await mediaCount(page)).toBe(1)
 })

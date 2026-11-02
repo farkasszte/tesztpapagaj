@@ -96,6 +96,12 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     buffer: await wordSourceDocument(),
   })
+  // A Word-ot a program ma maga is beolvassa, ezért a párbeszéd előbb a saját
+  // olvasatát kínálja; a képes kör az AI-úton megy tovább, a párbeszéd saját
+  // gombjával.
+  const nativeRead = page.getByRole('dialog', { name: 'Import' })
+  await expect(nativeRead).toContainText('3 Questions found')
+  await nativeRead.getByRole('button', { name: 'Convert it with your AI instead' }).click()
   await expect(page.getByLabel('About this import')).toContainText('Pictures detected2')
   await expect(steps).toContainText('Attach both downloads and send.')
 
@@ -103,7 +109,7 @@ test('a Word document goes to the AI as a labeled copy, and its pictures come fr
   await steps.getByRole('button', { name: 'Download the labeled document' }).click()
   expect((await download).suggestedFilename()).toBe('unit-test (labeled).docx')
   const instructions = await downloadedInstructions(page, steps)
-  expect(instructions).toContain('This is a labeled Word document. Test Parrot put 2 tags in it, each just before its picture:\n\n- IMG 1, IMG 2')
+  expect(instructions).toContain('This is a labeled Word document. Tesztpapagáj put 2 tags in it, each just before its picture:\n\n- IMG 1, IMG 2')
 
   await steps.getByLabel('File from your AI').setInputFiles({ name: 'unit-test.parrot.json', mimeType: 'application/json', buffer: assistantPackage() })
   const dialog = page.getByRole('dialog', { name: 'Import' })

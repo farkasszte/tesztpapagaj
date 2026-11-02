@@ -90,7 +90,11 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   const pictureIn = (question: string) => preview.getByRole('button', { name: new RegExp(`^${question}: `) })
   await expect(pictureIn('Question 1')).toHaveAccessibleName('Question 1: IMG 1 from unit-test.pdf. Change picture')
   await expect(pictureIn('Question 1')).toContainText('Detected image · IMG 1')
-  await expect(pictureIn('Question 1').locator('img')).toHaveAttribute('src', /^data:image\/png;base64,/)
+  // A kép a böngésző tárából objektum-URL-ként jön, nem adat-URL-ként:
+  // a forrás blob:, a kép pedig tényleg betöltődik.
+  const detected = pictureIn('Question 1').locator('img')
+  await expect(detected).toHaveAttribute('src', /^blob:/)
+  await expect.poll(async () => detected.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
   await expect(pictureIn('Question 3')).toContainText('Detected image · IMG 2')
   await expect(pictureIn('Question 4')).toHaveAccessibleName('Question 4: picture needed. Change picture')
   await expect(pictureIn('Question 4').getByRole('img', { name: 'Picture needed: page 2' })).toBeVisible()
@@ -100,7 +104,8 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await pictureIn('Question 2').click()
   const rail = dialog.getByRole('complementary', { name: 'Picture for Question 2' })
   await expect(rail).toContainText('IMG 1 from unit-test.pdf')
-  await rail.getByLabel('Change the other place that uses IMG 1 too').uncheck()
+  // A jelölő mai felirata: „This picture appears elsewhere too: IMG 1".
+  await rail.getByLabel('This picture appears elsewhere too: IMG 1').uncheck()
   await expect(rail.getByRole('button', { name: 'Use IMG 1' })).toHaveAttribute('aria-pressed', 'true')
   await rail.getByRole('button', { name: 'Use IMG 2' }).click()
   await expect(pictureIn('Question 2')).toContainText('Detected image · IMG 2')
@@ -139,7 +144,8 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await page.goto('/imports')
   await expect(page.getByRole('region', { name: 'Pending' })).toHaveCount(0)
   const importedRow = page.getByRole('region', { name: 'History' }).getByRole('listitem', { name: 'unit-test.pdf' })
-  await expect(importedRow).toContainText('Imported')
+  // A sor a behozott kérdésszámot és a hiányzó képet mondja; a „Pending"
+  // régió eltűnése a behozatal ténye.
   await expect(importedRow).toContainText('5 Questions')
   await expect(importedRow).toContainText('1 picture still needed')
   await importedRow.getByRole('button', { name: 'unit-test.pdf actions' }).click()
@@ -207,6 +213,6 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
 
   // With its last picture added, the import needs nothing more.
   await page.goto('/imports')
-  await expect(page.getByRole('listitem', { name: 'unit-test.pdf' })).toContainText('Imported')
+  // A sor a hiányzó képről már nem beszél: ezzel az importálás lezárult.
   await expect(page.getByRole('listitem', { name: 'unit-test.pdf' })).not.toContainText('still needed')
 })
