@@ -191,13 +191,14 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   const choices = student.locator('.gq-stu-choice')
   await expect(choices).toHaveCount(3)
   // A diák kártyái ugyanazt a négy színt viselik, mint a tanár színpadán:
-  // vörös, kék, arany — a szöveg és a betű mindegyiken krémes.
+  // vörös, kék, arany — a szöveg és a betű mindegyiken fehér (a krémes a mély
+  // arany kártyán 4,35:1 lenne, a fehér 4,55:1: a WCAG AA fölött).
   const tints = await choices.evaluateAll((nodes) =>
     nodes.map((node) => getComputedStyle(node).backgroundColor),
   )
   expect(tints).toEqual(['rgb(196, 64, 47)', 'rgb(47, 92, 140)', 'rgb(154, 110, 13)'])
   const cardInk = await choices.first().evaluate((node) => getComputedStyle(node).color)
-  expect(cardInk).toBe('rgb(245, 236, 220)')
+  expect(cardInk).toBe('rgb(255, 255, 255)')
   // A telefon ugyanazt a (kevert) sorrendet látja, mint a tanár színpada: a
   // helyes választ a szövegénél fogva kell megnyomni, nem a helyénél.
   const onPhone = await choices.evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))

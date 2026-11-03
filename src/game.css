@@ -199,10 +199,13 @@
   position: relative; display: flex; align-items: center; justify-content: space-between;
   gap: 16px; min-height: 40px; font-family: var(--sans);
 }
-/* A menet-kártya a valódi középre kerül, nem a maradék hely közepére. */
+/* A menet-kártya a valódi középre kerül, nem a maradék hely közepére.
+   A szélessége korlátos: a bal oldali állapot-jelző és a jobb oldali gomb
+   sávja nem csúszhat a kártya alá, hosszú bajnoknév mellett sem. */
 .gq-where {
   position: absolute; inset-inline-start: 50%; inset-block-start: 50%;
   transform: translate(-50%, -50%);
+  max-width: calc(100% - 340px);
 }
 @media (max-width: 1279px) {
   .gq-where { position: static; transform: none; margin-inline: auto; }
@@ -229,7 +232,13 @@
   background: linear-gradient(180deg, rgb(20 17 14 / 0.7), rgb(12 10 8 / 0.8));
   box-shadow: 0 2px 0 rgb(0 0 0 / 0.35);
 }
-.gq-one-name { font-weight: 700; color: var(--paper); }
+/* A név a rugalmas tag: ez rövidül, nem a díjalap vagy az életjelzők. */
+.gq-one-name {
+  font-weight: 700; color: var(--paper);
+  min-width: 0; max-width: 26ch;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gq-where > .gq-stat, .gq-where > .gq-hearts { flex: 0 0 auto; }
 .gq-stat {
   display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px; border-radius: 3px;
   font-style: normal; font-family: var(--display); font-size: 16px; font-weight: 500;
@@ -851,8 +860,12 @@ select.gq-input-small { text-align: center; }
   font-size: 14px;
 }
 
+/* A diák fejlécsora: hosszú név vagy besorolás mellett sem takarhatja
+   egymást a név, a pirula és a pontszám — a sor inkább tör. */
 .gq-stu-bar {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 6px;
   align-items: baseline;
   gap: 10px;
   font-size: 14px;
@@ -862,6 +875,11 @@ select.gq-input-small { text-align: center; }
 .gq-stu-name {
   font-weight: 700;
   color: #241c17;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .gq-stu-points {
@@ -918,7 +936,10 @@ select.gq-input-small { text-align: center; }
   border-radius: 14px;
   border: 1px solid rgb(255 250 243 / 0.18);
   background: var(--c);
-  color: var(--paper);
+  /* A kártya szövege tiszta fehér, akárcsak a színpad betűjelei: a mély arany
+     kártyán a krémes (`--paper`, #f5ecdc) csak 4,35:1, a fehér 4,55:1 — ez a
+     WCAG AA 4,5-e fölött van, kis méretnél is. */
+  color: #fff;
   font: inherit;
   text-align: start;
   transition: transform 90ms ease, box-shadow 120ms ease, opacity 120ms ease;

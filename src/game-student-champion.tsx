@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { View } from './game/views'
 import type { Help } from './game/types'
+import { TINCTURES } from './game-parts'
 import { StudentBlocks } from './game-student-blocks'
 import { choiceTone } from './game-student-tone'
 import { useT, type TextKey } from './i18n'
@@ -122,7 +123,7 @@ export function ChampionStudentGame({
           <h1 className="gq-stu-title">{t('game.champStudent.rescueTitle')}</h1>
           <p className="gq-hint">{t('game.champStudent.rescueHint')}</p>
           <div className="gq-stu-choices">
-            {view.rescue.candidates.map((candidate) => {
+            {view.rescue.candidates.map((candidate, index) => {
               const mine = self?.rescueVote === candidate.id
               return (
                 <button
@@ -130,6 +131,7 @@ export function ChampionStudentGame({
                   type="button"
                   className="gq-stu-choice"
                   data-tone={mine ? 'picked' : 'idle'}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                   disabled={!!self?.rescueVote || view.rescue?.settled}
                   onClick={() => onVote(candidate.id)}
                 >
@@ -172,6 +174,7 @@ export function ChampionStudentGame({
                   type="button"
                   className="gq-stu-choice"
                   data-tone={tone}
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                   disabled={!canClassAnswer && !canOneAnswer && !polling}
                   onClick={() => choose(index)}
                 >
