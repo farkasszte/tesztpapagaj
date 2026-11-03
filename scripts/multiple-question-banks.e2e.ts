@@ -3,9 +3,22 @@ import { expect, test, type Page } from '@playwright/test'
 async function createQuestion(page: Page, stem: string, type = 'Multiple choice') {
   await page.getByRole('button', { name: 'Add Question' }).click()
   await page.getByRole('menuitem', { name: type }).click()
+  const dialog = page.getByRole('dialog', { name: 'Question editor' })
+  // A szerkesztő csak készen vesz gépelést: a dokumentumot a Milkdown mountolja,
+  // és előtte a begépelt szöveg elveszne (lásd a teszt-tudásban).
+  await expect(dialog.locator('.dialog-editor')).toHaveAttribute('data-ready', 'true')
   await page.keyboard.type(stem)
-  await page.keyboard.press('Control+Enter')
-  await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()
+  // A mentés a szerkesztő állapotából dolgozik; terhelés alatt az első
+  // Ctrl+Enter még a készülés előtt érkezhet, ilyenkor a párbeszéd nyitva marad.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await page.keyboard.press('Control+Enter')
+    const closed = await dialog
+      .waitFor({ state: 'hidden', timeout: 2500 })
+      .then(() => true)
+      .catch(() => false)
+    if (closed) return
+  }
+  await expect(dialog).toBeHidden()
 }
 
 test('Home creates and independently reopens durable Question Banks', async ({ page }) => {

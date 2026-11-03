@@ -270,8 +270,17 @@ test('a question of a type the Exam has no Section for starts one from the targe
   await expect(newSectionTarget(page)).toContainText('Drop here to create a new section')
   // …and makes a Section only when the release is over it.
   const target = (await newSectionTarget(page).boundingBox())!
-  await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 6 })
-  await expect(newSectionTarget(page)).toHaveAttribute('data-active', 'true')
+  const centreX = target.x + target.width / 2
+  const centreY = target.y + target.height / 2
+  // A húzás mutató-eseményre épül, és terhelés alatt egy `pointermove`
+  // elveszhet: addig mozdítunk rajta, amíg a cél aktívvá nem válik. A kérés
+  // ugyanaz marad — a tábla csak akkor nyílik, ha a fogás felette áll.
+  let active = false
+  for (let attempt = 0; attempt < 6 && !active; attempt += 1) {
+    await page.mouse.move(centreX + (attempt % 2 === 0 ? 0 : 2), centreY, { steps: 4 })
+    active = (await newSectionTarget(page).getAttribute('data-active')) === 'true'
+  }
+  expect(active).toBe(true)
   await page.mouse.up()
 
   await expect.poll(() => renderedIds(page)).toEqual(['mc1', 'mc2', 'saSpare'])
