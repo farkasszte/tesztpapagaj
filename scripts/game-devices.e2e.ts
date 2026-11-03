@@ -137,6 +137,9 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
 
   await page.goto('/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  // A körönkénti eredmény a diák-eszközös módhoz tartozik: a jelölő ekkor
+  // jelenik meg, és a felfedés után az első ötöt írja ki.
+  await page.getByRole('checkbox', { name: 'Show the results after each question' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
   // A tanár szobát nyit: a kóddal lehet bejönni.
@@ -176,6 +179,13 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(stage.locator('.gq-answer[data-state="correct"]')).toHaveCount(1)
   await expect(student.getByText('Right!')).toBeVisible()
   await expect(student.getByText(/\d+ points/)).toBeVisible()
+
+  // A tanár színpadán a kör eredménye: az első öt, pontszámmal, mozdulatlanul.
+  const round = stage.locator('.gq-round')
+  await expect(round).toBeVisible()
+  await expect(round).toContainText('Round results')
+  await expect(round.locator('.gq-round-name')).toHaveText(['Panni'])
+  await expect(round.locator('.gq-round-points')).toHaveText([/^\d+$/])
 
   await stage.getByRole('button', { name: 'Finish' }).click()
   await expect(stage.getByText('That is every question!')).toBeVisible()

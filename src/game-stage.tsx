@@ -219,6 +219,23 @@ export function ClassicStage({
           </div>
           )}
 
+          {/* A kör eredménye: a felfedés után az első öt, pontszámmal. Nem
+              mozog és nem animált — a tanár egy pillantással látja, ki hol áll. */}
+          {view.phase === 'REVEAL' && view.roundTop && view.roundTop.length > 0 ? (
+            <div className="gq-round">
+              <span className="gq-round-title">{t('game.roundResults.title')}</span>
+              <ol className="gq-round-list">
+                {view.roundTop.map((player, index) => (
+                  <li key={player.nickname}>
+                    <span className="gq-round-rank">{index + 1}.</span>
+                    <span className="gq-round-name">{player.nickname}</span>
+                    <span className="gq-round-points">{player.points}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
+
           <div className="gq-foot">
             <p className="gq-status">
               {view.phase === 'QUESTION'

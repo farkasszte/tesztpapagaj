@@ -65,6 +65,10 @@ export function GamePage({
   // A kvízjáték válaszsorrendje alapból kevert: a kártyák sorrendje ne árulja
   // el a megoldást. A tanár kikapcsolhatja, ha a bank sorrendje számít.
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
+  /** A felfedés után a tanár színpadán az első öt pontszámmal. Csak akkor van
+   *  értelme, ha a diákok a saját eszközükön játszanak: kivetítésnél nincs
+   *  kit rangsorolni. */
+  const [roundResults, setRoundResults] = useState(false)
   /** Diákok a saját telefonjukon (egyelőre a Klasszikus módban). */
   const [devices, setDevices] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -143,7 +147,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
           onExit={exit}
         />
       ) : devices && mode === 'champion' ? (
@@ -183,7 +187,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
           onExit={exit}
           restored={restored ?? undefined}
         />
@@ -336,6 +340,17 @@ export function GamePage({
               />
               {t('game.devices.switch')}
             </label>
+            {/* Csak a diák-eszközös Klasszikus módban van kit rangsorolni. */}
+            {devices && mode === 'classic' ? (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={roundResults}
+                  onChange={(event) => setRoundResults(event.target.checked)}
+                />
+                {t('game.roundResults')}
+              </label>
+            ) : null}
           </div>
           {devices ? <p className="gq-hint">{t('game.devices.switchHint')}</p> : null}
         </div>

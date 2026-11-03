@@ -12,9 +12,16 @@ export type ClassicSettings = {
   /** Off: right or wrong only. On: points for right answers, more for quick ones. */
   scoring: boolean;
   shuffleQuestions: boolean;
+  /** A felfedés után a tanár színpadán az első öt áll a pontszámaival. */
+  roundResults?: boolean;
 };
 
-export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = { timerSeconds: 20, scoring: false, shuffleQuestions: false };
+export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = {
+  timerSeconds: 20,
+  scoring: false,
+  shuffleQuestions: false,
+  roundResults: false,
+};
 
 export type ClassicPlayer = {
   id: string;

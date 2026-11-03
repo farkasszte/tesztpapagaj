@@ -94,3 +94,58 @@ test('sorrendnél és párosításnál nincs „egy helyes válasz": nincs betű
     expect(question.correctOrder ?? question.matchAnswers).not.toBeNull();
   }
 });
+
+function gameWith(settings: { roundResults?: boolean }, nicknames: string[]) {
+  let seed = 7;
+  const clock = { now: () => 0, random: () => ((seed = (seed * 16807) % 2147483647) / 2147483647) };
+  const session = createClassicSession({ code: '123456', title: 'Facts', questions, settings, clock });
+  const engine = new ClassicEngine(session, clock);
+  const ids = nicknames.map((nickname) => {
+    const joined = engine.join({ nickname });
+    if (!joined.ok) throw new Error(joined.message);
+    return joined.player.id;
+  });
+  return { engine, ids, view: (viewerId?: string) => buildClassicView(engine.session, { now: 0, viewerId }) };
+}
+
+test('a beállítással a felfedés az első ötöt mutatja a tanár színpadán, pont szerint', () => {
+  const { engine, ids, view } = gameWith({ roundResults: true, scoring: true }, ['Ana', 'Ben', 'Cili', 'Dani', 'Emil', 'Feri']);
+  engine.start();
+  // Ketten jól válaszolnak, a többi rosszul: a sorrend a pontoké.
+  engine.answer(ids[1], 1);
+  engine.answer(ids[3], 1);
+  for (const id of [ids[0], ids[2], ids[4], ids[5]]) engine.answer(id, 0);
+  engine.lock();
+  const top = view().roundTop!
+  expect(top).toHaveLength(5)
+  // Az élen a helyes válaszolók állnak, pontszámmal; a hatodik már nem fér rá.
+  expect(top.map((player) => player.nickname)).toEqual(['Ben', 'Dani', 'Ana', 'Cili', 'Emil'])
+  expect(top[0].points).toBeGreaterThan(0)
+  expect(top.every((player) => typeof player.points === 'number')).toBe(true)
+  expect(top.map((player) => player.nickname)).not.toContain('Feri')
+});
+
+test('a diák telefonja sose kapja meg az osztály rangsorát', () => {
+  const { engine, ids, view } = gameWith({ roundResults: true, scoring: true }, ['Ana', 'Ben']);
+  engine.start();
+  engine.answer(ids[0], 1);
+  engine.answer(ids[1], 0);
+  engine.lock();
+  expect(view().roundTop).toHaveLength(2)
+  // A diák nézete csak a saját eredményét hordozza: rangsor nincs benne.
+  expect(view(ids[0]).roundTop).toBeNull()
+  expect(view(ids[0]).me).toMatchObject({ nickname: 'Ana', right: true })
+});
+
+test('kikapcsolva nincs köristrip, és a felfedés előtt sem', () => {
+  const off = gameWith({}, ['Ana', 'Ben']);
+  off.engine.start();
+  off.engine.answer(off.ids[0], 1);
+  off.engine.answer(off.ids[1], 0);
+  off.engine.lock();
+  expect(off.view().roundTop).toBeNull();
+
+  const on = gameWith({ roundResults: true }, ['Ana', 'Ben']);
+  on.engine.start();
+  expect(on.view().roundTop).toBeNull();
+});

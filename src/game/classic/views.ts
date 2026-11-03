@@ -58,6 +58,9 @@ export type ClassicView = {
     explanation: string | null;
   };
   report: ClassicReport | null;
+  /** A kör eredménye a felfedés után: az első öt pontszerző, pont szerint.
+   *  Csak a tanár nézetében van, és csak ha a beállítás kéri. */
+  roundTop: { nickname: string; points: number }[] | null;
   /** Only in a student's view. */
   me?: {
     id: string;
@@ -132,8 +135,17 @@ export function buildClassicView(session: ClassicSession, options: { now: number
           }
         : null,
     report: null,
+    roundTop: null,
   };
   const viewer = options.viewerId ? s.players.find((p) => p.id === options.viewerId) : undefined;
+  // A kör eredménye a tanár színpadára megy, a diák a sajátját látja: a telefon
+  // nem kaphat listát az egész osztály pontjairól.
+  if (!viewer && revealed && s.settings.roundResults && s.players.length > 0) {
+    view.roundTop = [...s.players]
+      .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+      .slice(0, 5)
+      .map((player) => ({ nickname: player.nickname, points: player.points }));
+  }
   if (!viewer) {
     view.report = s.phase === 'REPORT' || s.phase === 'ENDED' ? reportOf(s) : null;
     return view;
