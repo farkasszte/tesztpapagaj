@@ -47,6 +47,10 @@ async function writeQuestion(page: Page, stem: string) {
   // is eshet, a kérdésszöveg pedig a dokumentum eleje.
   await editor.locator('.ProseMirror').first().click()
   await page.keyboard.press('Control+Home')
+  // A gépelés csak fókuszban lévő szerkesztőbe jut el: ha a kattintás egy
+  // újrarajzolás közben érkezett, a fókusz a lapon marad, és a szöveg elveszne
+  // (a mentés pedig a régit írná vissza). Ezt itt mérjük.
+  await expect(editor.locator('.ProseMirror').first()).toBeFocused()
   await page.keyboard.type(stem)
   await page.keyboard.press('Control+Enter')
   await expect(page.getByRole('dialog', { name: 'Question editor' })).toBeHidden()

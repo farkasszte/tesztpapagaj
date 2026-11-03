@@ -4,7 +4,7 @@ import type { View } from './game/views'
 import type { PerilView } from './game/peril/views'
 import type { Help } from './game/types'
 import { cleanRoomCode, isRoomCode, type RoomCode } from './game/room-protocol'
-import { connectRoom, type RoomConnection } from './game/room-client'
+import { connectRoom, relayHealthUrl, type RoomConnection } from './game/room-client'
 import { ClassicStudentGame } from './game-student-classic'
 import { ChampionStudentGame } from './game-student-champion'
 import { PerilStudentGame } from './game-peril-student'
@@ -57,6 +57,8 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   /** A relay nem válaszolt: a hálózat blokkolhatja. A „Kapcsolódás…" magában
    *  nem mondja meg, hogy itt nem lesz kapcsolat — ezt ki kell mondani. */
   const [unreachable, setUnreachable] = useState(false)
+  /** Miért nem megy: nincs hálózat, vagy a WebSocketet blokkolja a hálózat. */
+  const [why, setWhy] = useState<'offline' | 'blocked' | null>(null)
   const [problem, setProblem] = useState<string | null>(null)
   /** Amit már elküldtem: egy válasz, vagy több egy több helyes válaszos kérdésnél. */
   const [sent, setSent] = useState<number[] | null>(null)
@@ -155,6 +157,20 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code])
 
+  // Ha a socket nem nyílik ki, megkérdezzük a relay sima HTTPS-végpontját: ha
+  // az elérhető, akkor nem a hálózat halt meg, hanem a WebSocket-frissítést
+  // dobja el egy szűrő — ezt a tanárnak meg kell tudnia mondani.
+  useEffect(() => {
+    if (!unreachable || status === 'open') return
+    let live = true
+    fetch(relayHealthUrl(), { mode: 'no-cors', cache: 'no-store' })
+      .then(() => live && setWhy('blocked'))
+      .catch(() => live && setWhy('offline'))
+    return () => {
+      live = false
+    }
+  }, [unreachable, status])
+
   // ── Belépő képernyők ────────────────────────────────────────────────────
   if (!isRoomCode(code)) {
     return (
@@ -223,7 +239,9 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           {problem ? <p className="gq-stu-problem">{problem}</p> : null}
           {status === 'connecting' ? <p className="gq-hint">{t('game.student.connecting')}</p> : null}
           {unreachable && status !== 'open' ? (
-            <p className="gq-stu-problem">{t('game.student.unreachable')}</p>
+            <p className="gq-stu-problem">
+              {t(why === 'blocked' ? 'game.student.blocked' : 'game.student.unreachable')}
+            </p>
           ) : null}
         </form>
       </div>

@@ -33,6 +33,18 @@ export function roomUrl(): string {
   throw new Error('A VITE_ROOM_URL nincs beállítva: enélkül nincs hova csatlakozni.')
 }
 
+/**
+ * A relay ugyanazon a hoszton elérhető egészség-végpontja, sima HTTPS-en.
+ *
+ * Arra kell, hogy meg tudjuk különböztetni a kétféle hibát: nincs hálózat,
+ * vagy a hálózat a WebSocket-frissítést dobja el (iskolai szűrő). A kérés
+ * `no-cors`, tehát nem kell CORS-fejléc a workerhez — csak az számít, hogy a
+ * kérés egyáltalán elindul-e.
+ */
+export function relayHealthUrl(): string {
+  return `${roomUrl().replace(/^ws/, 'http')}/health`
+}
+
 export type RoomHandlers = {
   /** Belépés sikerült (újra belépés után is). */
   welcome?: (info: { id: PeerId; role: RoomRole; players: number }) => void

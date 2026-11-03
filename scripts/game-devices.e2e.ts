@@ -197,8 +197,12 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
 
 test('ha a relay nem érhető el, a tanár és a diák is megkapja az okot', async ({ page }) => {
   await seedBank(page, 'Unreachable bank', [THREE('u1', 'Which gas do plants take in?')])
-  // A hálózat blokkolja a szobát: a WebSocket azonnal lezárul.
+  // A hálózat blokkolja a szobát: a WebSocket azonnal lezárul, a sima HTTPS
+  // viszont átmegy (a szűrők tipikusan így viselkednek).
   await page.context().routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => socket.close())
+  await page.context().route('**/health', (route) =>
+    route.fulfill({ status: 200, body: '{"ok":true}', contentType: 'application/json' }),
+  )
 
   await page.goto('/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
@@ -215,7 +219,18 @@ test('ha a relay nem érhető el, a tanár és a diák is megkapja az okot', asy
   await student.goto(new URL('/jatek?kod=123456', page.url()).toString())
   await student.getByPlaceholder('For example: Panni').fill('Panni')
   await student.getByRole('button', { name: 'Join the game' }).click()
-  await expect(student.getByText(/The room is not reachable; trying again/)).toBeVisible({
-    timeout: 15000,
-  })
+  // A websocket nem nyílik, de a szerver sima HTTPS-en elérhető: a felület
+  // megmondja, hogy a hálózat az élő kapcsolatot blokkolja (iskolai szűrő).
+  await expect(student.getByText(/blocks the live connection/)).toBeVisible({ timeout: 15000 })
+})
+
+test('ha a szerver egyáltalán nem érhető el, azt mondja, hogy nincs kapcsolat', async ({ page }) => {
+  await seedBank(page, 'Offline bank', [THREE('o1', 'Which gas do plants take in?')])
+  await page.context().routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => socket.close())
+  await page.context().route('**/health', (route) => route.abort())
+
+  await page.goto('/jatek?kod=123456')
+  await page.getByPlaceholder('For example: Panni').fill('Panni')
+  await page.getByRole('button', { name: 'Join the game' }).click()
+  await expect(page.getByText(/No connection to the game server/)).toBeVisible({ timeout: 15000 })
 })
