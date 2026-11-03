@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ClassicView } from './game/classic/views'
 import { StudentBlocks } from './game-student-blocks'
 import { TINCTURES } from './game-parts'
-import { choiceTone } from './game-student-tone'
+import { choiceTone, rightLetters } from './game-student-tone'
 import { acceptedAnswersOf, textIsRight } from './game/text-match'
 import { useT } from './i18n'
 
@@ -329,7 +329,10 @@ export function ClassicStudentGame({
             <p className="gq-stu-verdict" data-right={mine?.right ? 'yes' : 'no'}>
               {mine?.right
                 ? t('game.student.right')
-                : t('game.student.wrong', { letter: 'ABCD'[question.correct] ?? '' })}
+                : t('game.student.wrong', {
+                    // Több helyes válasznál mindegyik betű: „C, D".
+                    letter: rightLetters(question.correctChoices ?? [question.correct]),
+                  })}
             </p>
           ) : null}
           {revealed && question.rich?.explanation ? (

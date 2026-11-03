@@ -4,6 +4,17 @@
  * Külön fájlban, mert a `game-student-blocks.tsx` komponenst exportál — a Fast
  * Refresh csak komponenseket fogad el egy fájlban.
  */
+/** A helyes válaszok betűi, ahogy a diáknak kiírjuk: több helyes válasznál
+ *  mindegyik („C, D"), nem csak az első — különben a téves válasz indoklása
+ *  félrevezet. */
+export function rightLetters(indexes: readonly number[]): string {
+  return indexes
+    .filter((index) => index >= 0 && index < 4)
+    .sort((a, b) => a - b)
+    .map((index) => 'ABCD'[index])
+    .join(', ');
+}
+
 export function choiceTone({
   index,
   correctIndexes,

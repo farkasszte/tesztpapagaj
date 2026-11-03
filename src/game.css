@@ -922,6 +922,14 @@ select.gq-input-small { text-align: center; }
   box-shadow: 0 0 0 2px var(--paper);
 }
 
+/* A kijelölt válasz betűje kitöltött karika: a tanár és a diák is egy
+   pillantással látja, mit jelölt be (több helyes válasznál több kártyán). */
+.gq-stu-choice[data-tone='picked'] .gq-stu-letter {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: #241c17;
+}
+
 .gq-stu-choice[data-tone='correct'] {
   border-color: var(--paper);
   box-shadow: 0 0 0 2px var(--paper), 0 8px 22px rgb(0 0 0 / 0.28);

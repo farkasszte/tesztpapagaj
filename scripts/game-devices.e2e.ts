@@ -110,6 +110,12 @@ const multiChoice = (id: string, stem: string, choices: Choice[]) => ({
   },
 })
 
+/** Több helyes válasz: a diáknak egynél többet kell megjelölnie. */
+const multiAnswer = (id: string, stem: string, choices: Choice[]) => ({
+  ...multiChoice(id, stem, choices),
+  type: 'multiple-answer' as const,
+})
+
 const THREE = (id: string, stem: string) =>
   multiChoice(id, stem, [
     { text: 'Oxygen', correct: false },
@@ -229,6 +235,64 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(student.getByText('The game is over')).toBeVisible()
 
   await student.close()
+})
+
+test('több helyes válasznál a jelölés látszik, és a téves indoklás minden betűt mond', async ({
+  page,
+}) => {
+  await seedBank(page, 'Multi bank', [
+    multiAnswer('m1', 'Which gases are noble?', [
+      { text: 'Helium', correct: true },
+      { text: 'Oxygen', correct: false },
+      { text: 'Neon', correct: true },
+      { text: 'Nitrogen', correct: false },
+    ]),
+  ])
+  await connectRelay(page.context())
+
+  await page.goto('/jatek')
+  await expect(page.getByText('1 of 1 questions can be played.')).toBeVisible()
+  await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+  const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
+
+  const student = await page.context().newPage()
+  await student.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
+  await student.getByPlaceholder('For example: Panni').fill('Panni')
+  await student.getByRole('button', { name: 'Join the game' }).click()
+  await expect(student.getByText('You are in.')).toBeVisible()
+  await lobby.getByRole('button', { name: 'Start the game' }).click()
+
+  const choices = student.locator('.gq-stu-choice')
+  await expect(choices).toHaveCount(4)
+  // Két válasz megjelölése: mindkettő láthatóan kijelölt (a kártya krémes
+  // gyűrűt és kitöltött betűt kap), nem csak a „Válaszaim elküldése" gomb vár.
+  await choices.filter({ hasText: 'Oxygen' }).click()
+  await choices.filter({ hasText: 'Neon' }).click()
+  await expect(choices.filter({ hasText: 'Oxygen' })).toHaveAttribute('data-tone', 'picked')
+  await expect(choices.filter({ hasText: 'Neon' })).toHaveAttribute('data-tone', 'picked')
+
+  // A betűk a színpadon kevert sorrendből jönnek: a helyes betűket a
+  // megjelenített sorrendből olvassuk ki.
+  const shown = await choices.evaluateAll((nodes) =>
+    nodes.map((node) => ({
+      letter: (node.querySelector('.gq-stu-letter')?.textContent ?? '').trim(),
+      text: (node.querySelector('.gq-stu-choice-words')?.textContent ?? '').trim(),
+    })),
+  )
+  const right = shown
+    .filter((one) => one.text === 'Helium' || one.text === 'Neon')
+    .map((one) => one.letter)
+    .sort()
+
+  await student.getByRole('button', { name: 'Send my answers' }).click()
+  // Téves a válasz (Oxygen rossz), ezért az indoklás **mindkét** helyes betűt
+  // mondja, nem csak az elsőt.
+  await expect(
+    student.getByText(new RegExp(`the answer was ${right.join(', ')}`)),
+  ).toBeVisible()
 })
 
 test('ha a relay nem érhető el, a tanár és a diák is megkapja az okot', async ({ page }) => {
