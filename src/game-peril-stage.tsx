@@ -3,7 +3,9 @@ import { DocView } from './doc-view'
 import { PerilEngine, createPerilSession } from './game/peril/engine'
 import { buildPerilView } from './game/peril/views'
 import type { Column, PerilSession } from './game/peril/types'
-import { perilBoard } from './game/peril-board'
+import { autoDraft, boardFromDraft } from './game/peril-board'
+import type { BoardDraft } from './game/peril/draft'
+import { PerilBoardBuilder } from './game-peril-builder'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
@@ -58,6 +60,8 @@ export function PerilStage({
         : null,
   )
   const [wagerText, setWagerText] = useState('')
+  /** A tanár kézzel beosztott táblája; üresen az automatikus tábla játszik. */
+  const [draft, setDraft] = useState<BoardDraft | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [, bump] = useReducer((count: number) => count + 1, 0)
   const now = useNow()
@@ -69,11 +73,15 @@ export function PerilStage({
     bump()
   }
 
+  const columnLabel = (index: number) => t('game.peril.column', { n: index + 1 })
+
   const startBoard = (session: PerilEngine) => {
-    const board: Column[] = perilBoard(questions, {
-      untitled: (index) => t('game.peril.column', { n: index + 1 }),
-      treasureTrove: true,
-    })
+    const board: Column[] = draft
+      ? boardFromDraft(draft, questions, { untitled: columnLabel, treasureTrove: true })
+      : boardFromDraft(autoDraft(questions, { untitled: columnLabel }), questions, {
+          untitled: columnLabel,
+          treasureTrove: true,
+        })
     const result = session.startBoard(board)
     setNotice(result.ok ? null : gameMessage(result.message) || null)
     bump()
@@ -160,6 +168,11 @@ export function PerilStage({
               />
             ))}
           </div>
+          <PerilBoardBuilder
+            draft={draft ?? autoDraft(questions, { untitled: columnLabel })}
+            questions={questions}
+            onChange={setDraft}
+          />
           <button type="button" className="gq-go" onClick={start}>
             {t('game.peril.startBoard')}
           </button>

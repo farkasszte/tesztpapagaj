@@ -1308,6 +1308,33 @@ const en = {
   'game.peril.teamName': 'Team {n}',
   'game.peril.startBoard': 'Open the board',
   'game.peril.needTeams': 'Give at least two teams a name.',
+  'game.peril.builder':
+    'Board by hand',
+  'game.peril.toLobby': 'On to the room',
+  'game.peril.builderHint':
+    'Tap a tile, then a question: it goes there. Tap a filled tile to pick it up, then another tile to swap them.',
+  'game.peril.builderCount':
+    '{placed} of {total} questions on the board',
+  'game.peril.autoFill':
+    'Fill automatically',
+  'game.peril.columnTitle':
+    'Column title {n}',
+  'game.peril.addColumn':
+    'Add a column',
+  'game.peril.removeColumn':
+    'Remove column {n}',
+  'game.peril.emptyTile':
+    'Empty',
+  'game.peril.takeOff':
+    'Take it off',
+  'game.peril.freeQuestions':
+    'Questions off the board',
+  'game.peril.allPlaced':
+    'Every question is on the board.',
+  'game.peril.tileLabel':
+    '{value} for {title}',
+  'game.peril.pickedTile':
+    'In hand: {value} — {title}',
   'game.peril.boardNo': 'Board {n}',
   'game.peril.control': '{name} picks',
   'game.peril.controlHint': 'Tap the tile {name} picks.',
@@ -2638,6 +2665,33 @@ const hu: Record<TextKey, string> = {
   'game.peril.teamName': '{n}. csapat',
   'game.peril.startBoard': 'Tábla indítása',
   'game.peril.needTeams': 'Adj nevet legalább két csapatnak.',
+  'game.peril.builder':
+    'Tábla kézzel',
+  'game.peril.toLobby': 'Tovább a lobbihoz',
+  'game.peril.builderHint':
+    'Koppints egy mezőre, majd egy kérdésre: a kérdés oda kerül. Kész mezőre koppintva kézbe veszed, a következő mezőre koppintva pedig helyet cserélnek.',
+  'game.peril.builderCount':
+    '{placed} / {total} kérdés a táblán',
+  'game.peril.autoFill':
+    'Automatikus feltöltés',
+  'game.peril.columnTitle':
+    '{n}. oszlop címe',
+  'game.peril.addColumn':
+    'Oszlop hozzáadása',
+  'game.peril.removeColumn':
+    '{n}. oszlop törlése',
+  'game.peril.emptyTile':
+    'Üres',
+  'game.peril.takeOff':
+    'Levesz',
+  'game.peril.freeQuestions':
+    'Kérdések a táblán kívül',
+  'game.peril.allPlaced':
+    'Minden kérdés a táblán van.',
+  'game.peril.tileLabel':
+    '{value} — {title}',
+  'game.peril.pickedTile':
+    'Kézben: {value} — {title}',
   'game.peril.boardNo': '{n}. tábla',
   'game.peril.control': '{name} választ',
   'game.peril.controlHint': 'Koppints arra a mezőre, amelyiket {name} választ.',

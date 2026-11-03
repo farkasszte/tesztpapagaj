@@ -2,7 +2,9 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PerilEngine, createPerilSession } from './game/peril/engine'
 import { buildPerilView } from './game/peril/views'
-import { perilBoard } from './game/peril-board'
+import { autoDraft, boardFromDraft } from './game/peril-board'
+import type { BoardDraft } from './game/peril/draft'
+import { PerilBoardBuilder } from './game-peril-builder'
 import type { PlayableWords } from './game/projection'
 import { newRoomCode, spacedRoomCode } from './game/room-protocol'
 import { connectRoom, type RoomConnection } from './game/room-client'
@@ -54,6 +56,10 @@ export function PerilDevices({
   const [status, setStatus] = useState<'connecting' | 'open' | 'closed' | 'denied'>('connecting')
   const [problem, setProblem] = useState<string | null>(null)
   const [started, setStarted] = useState(false)
+  /** A tanár által beosztott tábla; üresen az automatikus játszik. */
+  const [draft, setDraft] = useState<BoardDraft | null>(null)
+  /** A tábla elkészült-e: innentől nyílik a szoba. */
+  const [ready, setReady] = useState(false)
 
   const connection = useRef<RoomConnection | null>(null)
   const seats = useRef(new Map<string, string>())
@@ -160,6 +166,42 @@ export function PerilDevices({
     return () => clearInterval(timer)
   }, [broadcast, engine])
 
+  const columnLabel = (index: number) => t('game.peril.column', { n: index + 1 })
+  const board = draft
+    ? boardFromDraft(draft, questions, { untitled: columnLabel, treasureTrove: true })
+    : boardFromDraft(autoDraft(questions, { untitled: columnLabel }), questions, {
+        untitled: columnLabel,
+        treasureTrove: true,
+      })
+
+  // A tábla kézi beosztása a lobbi ELŐTT: a tanár a kód megnyitása előtt
+  // rendezheti el a kérdéseket, és utána már csak a diákok lépnek be.
+  if (!ready) {
+    return createPortal(
+      <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
+        <div className="gq-stage-bar">
+          <span className="gq-pin">{t('game.stage.noDevices')}</span>
+          <span className="gq-where">{title}</span>
+          <button type="button" className="gq-quiet" onClick={onExit}>
+            {t('game.stage.endGame')}
+          </button>
+        </div>
+        <section className="gq-done">
+          <h1 className="gq-big">{t('game.mode.peril.name')}</h1>
+          <PerilBoardBuilder
+            draft={draft ?? autoDraft(questions, { untitled: columnLabel })}
+            questions={questions}
+            onChange={setDraft}
+          />
+          <button type="button" className="gq-go" onClick={() => setReady(true)}>
+            {t('game.peril.toLobby')}
+          </button>
+        </section>
+      </div>,
+      document.body,
+    )
+  }
+
   if (started) {
     return createPortal(
       <PerilStage
@@ -201,10 +243,6 @@ export function PerilDevices({
         bump()
       }}
       onStart={() => {
-        const board = perilBoard(questions, {
-          untitled: (index) => t('game.peril.column', { n: index + 1 }),
-          treasureTrove: true,
-        })
         if (!engine.startBoard(board).ok) return
         setStarted(true)
         broadcast()
