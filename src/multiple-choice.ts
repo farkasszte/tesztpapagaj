@@ -548,10 +548,14 @@ export const multipleChoiceChoiceView = $view(
       dom.className = fixed ? 'mc-choice mc-choice--fixed' : 'mc-choice'
       dom.dataset.type = 'multiple-choice-choice'
       // An Ordering question holds items, not answers: its empty row says so,
-      // in the language the teacher reads.
+      // in the language the teacher reads. Minden más kérdés válasz-sora
+      // ugyanígy a szótárból kapja a mintaszöveget — a CSS angol tartaléka
+      // („Answer") csak végső esetre marad.
       if (ordering) {
         dom.dataset.ordering = 'true'
         dom.style.setProperty('--mc-placeholder', `"${t('editor.orderingItem')}"`)
+      } else {
+        dom.style.setProperty('--mc-placeholder', `"${t('editor.answerPlaceholder')}"`)
       }
 
       const control = document.createElement('label')

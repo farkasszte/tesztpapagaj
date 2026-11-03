@@ -200,10 +200,10 @@ test('az Importok oldal Kahoot linket is kínál, magyar hibával', async ({ pag
   await page.goto('/imports')
   const card = page.locator('.kahoot-link')
   await expect(card).toBeVisible()
-  await expect(card).toContainText('Kahoot behozása linkről')
+  await expect(card).toContainText('Kahoot importálása linkről')
 
   await card.locator('input').fill('https://example.com/nem-kahoot')
-  await card.getByRole('button', { name: 'Kahoot behozása', exact: true }).click()
+  await card.getByRole('button', { name: 'Kahoot importálása', exact: true }).click()
   await expect(card.getByRole('alert')).toContainText('Ez nem Kahoot link')
 })
 
@@ -216,5 +216,5 @@ test('a Kahoot mező az import párbeszédben is ott van', async ({ page }) => {
   // Ugyanaz a mező, a párbeszéd üres állapotában.
   await expect(dialog.locator('.kahoot-link')).toBeVisible()
   await expect(dialog.locator('.kahoot-link input')).toBeVisible()
-  await expect(dialog.getByRole('button', { name: 'Kahoot behozása', exact: true })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Kahoot importálása', exact: true })).toBeVisible()
 })
