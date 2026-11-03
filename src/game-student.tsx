@@ -54,6 +54,9 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [seat, setSeat] = useState<Seat | null>(null)
   const [view, setView] = useState<StudentView | null>(null)
   const [status, setStatus] = useState<'idle' | 'connecting' | 'open' | 'denied'>('idle')
+  /** A relay nem válaszolt: a hálózat blokkolhatja. A „Kapcsolódás…" magában
+   *  nem mondja meg, hogy itt nem lesz kapcsolat — ezt ki kell mondani. */
+  const [unreachable, setUnreachable] = useState(false)
   const [problem, setProblem] = useState<string | null>(null)
   /** Amit már elküldtem: egy válasz, vagy több egy több helyes válaszos kérdésnél. */
   const [sent, setSent] = useState<number[] | null>(null)
@@ -76,8 +79,12 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
       role: 'player',
       handlers: {
         status: (next) => {
-          if (next === 'open') setStatus('open')
+          if (next === 'open') {
+            setStatus('open')
+            setUnreachable(false)
+          }
           if (next === 'connecting') setStatus((current) => (current === 'open' ? current : 'connecting'))
+          if (next === 'closed') setUnreachable(true)
         },
         denied: (reason) => {
           setStatus('denied')
@@ -215,6 +222,9 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           </button>
           {problem ? <p className="gq-stu-problem">{problem}</p> : null}
           {status === 'connecting' ? <p className="gq-hint">{t('game.student.connecting')}</p> : null}
+          {unreachable && status !== 'open' ? (
+            <p className="gq-stu-problem">{t('game.student.unreachable')}</p>
+          ) : null}
         </form>
       </div>
     )

@@ -194,3 +194,28 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
 
   await student.close()
 })
+
+test('ha a relay nem érhető el, a tanár és a diák is megkapja az okot', async ({ page }) => {
+  await seedBank(page, 'Unreachable bank', [THREE('u1', 'Which gas do plants take in?')])
+  // A hálózat blokkolja a szobát: a WebSocket azonnal lezárul.
+  await page.context().routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => socket.close())
+
+  await page.goto('/jatek')
+  await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+
+  // A lobbi nem a végtelenségig „Kapcsolódás…": kimondja, hogy nem érhető el.
+  await expect(page.locator('.gq-lobby')).toContainText('The room is not reachable', {
+    timeout: 15000,
+  })
+
+  // A diák oldalán ugyanez: a belépés előtt megkapja az okot, nem csak a pörgő
+  // „Connecting…" szöveget.
+  const student = await page.context().newPage()
+  await student.goto(new URL('/jatek?kod=123456', page.url()).toString())
+  await student.getByPlaceholder('For example: Panni').fill('Panni')
+  await student.getByRole('button', { name: 'Join the game' }).click()
+  await expect(student.getByText(/The room is not reachable; trying again/)).toBeVisible({
+    timeout: 15000,
+  })
+})
