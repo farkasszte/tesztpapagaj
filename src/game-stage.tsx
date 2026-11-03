@@ -63,6 +63,10 @@ export function ClassicStage({
     return created
   })
   const [, bump] = useReducer((count: number) => count + 1, 0)
+  /** Amelyik kérdés eredménytáblája épp a képernyőn van. A kör eredménye külön
+   *  lépés: a tanár a felfedés után előbb megnézi a kört, és csak utána lép
+   *  tovább a következő kérdésre. */
+  const [boardOf, setBoardOf] = useState<number | null>(null)
   const now = useNow()
   useExitOnEscape(onExit)
 
@@ -74,6 +78,7 @@ export function ClassicStage({
   const total = session.settings.timerSeconds * 1000
   const remaining = session.deadline === null ? 0 : Math.max(0, session.deadline - now)
   const timeUp = view.phase === 'QUESTION' && session.deadline !== null && now >= session.deadline
+  const board = boardOf === session.index ? view.roundTop : null
   const act = (run: () => unknown) => {
     run()
     bump()
@@ -127,9 +132,26 @@ export function ClassicStage({
             ) : null}
           </div>
 
+          {/* A kör eredménye külön lépés: ilyenkor a kérdés teste (válaszok,
+              fogalmak, beírt válasz) helyett az első öt áll a képernyőn. */}
+          {board ? (
+            <section className="gq-board">
+              <p className="gq-board-kicker">{t('game.roundResults.title')}</p>
+              <ol className="gq-board-list">
+                {board.map((player, index) => (
+                  <li key={player.nickname}>
+                    <span className="gq-board-rank">{index + 1}</span>
+                    <span className="gq-board-name">{player.nickname}</span>
+                    <span className="gq-board-points">{player.points}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
+
           {/* Párosításnál a fogalmak a válaszkártyák fölött állnak, a felfedés
               után a hozzájuk tartozó válasz betűjével. */}
-          {question.matching && question.prompts ? (
+          {!board && question.matching && question.prompts ? (
             <ol className="gq-match">
               {question.prompts.map((prompt, index) => {
                 const answer = question.matchAnswers?.[index] ?? null
@@ -147,7 +169,7 @@ export function ClassicStage({
 
           {/* Beírt válasz: a táblán a kérdés áll, a felfedésnél a helyes
               válaszok; a válaszok a kártyák helyén, sorszámozva. */}
-          {question.textEntry ? (
+          {board ? null : question.textEntry ? (
             <div className="gq-written">
               {view.phase === 'QUESTION' ? (
                 <p className="gq-written-hint">
@@ -222,23 +244,6 @@ export function ClassicStage({
           </div>
           )}
 
-          {/* A kör eredménye: a felfedés után az első öt, pontszámmal. Nem
-              mozog és nem animált — a tanár egy pillantással látja, ki hol áll. */}
-          {view.phase === 'REVEAL' && view.roundTop && view.roundTop.length > 0 ? (
-            <div className="gq-round">
-              <span className="gq-round-title">{t('game.roundResults.title')}</span>
-              <ol className="gq-round-list">
-                {view.roundTop.map((player, index) => (
-                  <li key={player.nickname}>
-                    <span className="gq-round-rank">{index + 1}.</span>
-                    <span className="gq-round-name">{player.nickname}</span>
-                    <span className="gq-round-points">{player.points}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ) : null}
-
           <div className="gq-foot">
             <p className="gq-status">
               {view.phase === 'QUESTION'
@@ -253,8 +258,20 @@ export function ClassicStage({
               <button type="button" className="gq-go" onClick={() => act(() => engine.lock())}>
                 {t('game.stage.showAnswer')}
               </button>
+            ) : board === null && view.roundTop && view.roundTop.length > 0 ? (
+              // A kör eredménye külön lépés: előbb a kör, aztán a következő kérdés.
+              <button type="button" className="gq-go" onClick={() => act(() => setBoardOf(session.index))}>
+                {t('game.roundResults.open')}
+              </button>
             ) : (
-              <button type="button" className="gq-go" onClick={() => act(() => engine.next())}>
+              <button
+                type="button"
+                className="gq-go"
+                onClick={() => {
+                  setBoardOf(null)
+                  act(() => engine.next())
+                }}
+              >
                 {question.number < question.total ? t('game.stage.next') : t('game.stage.finish')}
               </button>
             )}

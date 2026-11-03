@@ -330,23 +330,66 @@
 }
 .gq-timeup { margin: 0; font-family: var(--sans); font-size: 16px; font-weight: 700; color: var(--amber-strong); }
 
-/* A kör eredménye a felfedés után: az első öt pontszámmal, egyetlen sorban,
-   hogy a kérdés és a válaszkártyák a helyükön maradjanak. Nincs animáció. */
-.gq-round {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px 22px;
-  padding: 13px 20px; border-radius: 12px;
-  border: 1px solid rgb(245 236 220 / 0.18);
-  background: rgb(6 5 4 / 0.5);
+/* A kör eredménye külön lépés: az első öt, pontszámmal. Nem mozog és nem
+   animált — a tanár egy pillantással látja, ki hol áll, aztán tovább lép. */
+.gq-board {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+  padding: 8px 0;
 }
-.gq-round-title {
-  font-family: var(--sans); font-size: 15px; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase; color: rgb(245 236 220 / 0.85);
+.gq-board-kicker {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(245 236 220 / 0.8);
 }
-.gq-round-list { display: flex; flex-wrap: wrap; gap: 10px 30px; margin: 0; padding: 0; list-style: none; }
-.gq-round-list li { display: flex; align-items: baseline; gap: 9px; }
-.gq-round-rank { font-family: var(--display); font-size: 15px; color: rgb(245 236 220 / 0.62); }
-.gq-round-name { font-family: var(--serif); font-size: 22px; color: var(--paper); }
-.gq-round-points { font-family: var(--display); font-size: 25px; font-weight: 700; color: #f4cd63; }
+.gq-board-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Keskeny sáv: a név és a pont ne kerüljön a képernyő két végére. */
+  width: min(820px, 100%);
+}
+.gq-board-list li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 20px;
+  padding: 14px 4px;
+  border-bottom: 1px solid rgb(245 236 220 / 0.12);
+}
+.gq-board-list li:first-child .gq-board-rank,
+.gq-board-list li:first-child .gq-board-points { color: #f4cd63; }
+.gq-board-rank {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  color: rgb(245 236 220 / 0.5);
+  font-variant-numeric: tabular-nums;
+}
+.gq-board-name {
+  font-family: var(--serif);
+  font-size: 34px;
+  color: var(--paper);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gq-board-points {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  color: #f4cd63;
+  font-variant-numeric: tabular-nums;
+}
 
 .gq-choices { display: grid; grid-template-columns: 1fr; gap: 14px; grid-auto-rows: 1fr; flex: 1; min-height: 0; }
 /* Két válasz két oszlop, három válasz három, négy válasz 2×2: egy sorban

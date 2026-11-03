@@ -204,16 +204,23 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(student.getByText('Right!')).toBeVisible()
   await expect(student.getByText(/\d+ points/)).toBeVisible()
 
-  // A tanár színpadán a kör eredménye: az első öt, pontszámmal, mozdulatlanul.
-  const round = stage.locator('.gq-round')
-  await expect(round).toBeVisible()
-  await expect(round).toContainText('Round results')
-  await expect(round.locator('.gq-round-name')).toHaveText(['Panni'])
-  await expect(round.locator('.gq-round-points')).toHaveText([/^\d+$/])
-  // A tanár laptopján (1366×768) is látszania kell: nem csúszhat ki a színpad
-  // alján, a válaszkártyák és a lábléc közé szorítva.
+  // A felfedés után a tanár **előbb a kört** nézi meg: a gomb ide visz, nem a
+  // következő kérdésre. A válaszok ilyenkor még a táblán állnak.
+  const toBoard = stage.getByRole('button', { name: 'Show the round results' })
+  await expect(toBoard).toBeVisible()
+  await expect(stage.locator('.gq-answer')).toHaveCount(3)
+  await toBoard.click()
+
+  const board = stage.locator('.gq-board')
+  await expect(board).toBeVisible()
+  await expect(board).toContainText('Round results')
+  await expect(board.locator('.gq-board-name')).toHaveText(['Panni'])
+  await expect(board.locator('.gq-board-points')).toHaveText([/^\d+$/])
+  // A táblán a kérdés kártyái már nem állnak: ez a kör képernyője.
+  await expect(stage.locator('.gq-answer')).toHaveCount(0)
+  // A tanár laptopján (1366×768) is látszania kell.
   await page.setViewportSize({ width: 1366, height: 768 })
-  await expect(round).toBeInViewport()
+  await expect(board).toBeInViewport()
   await page.setViewportSize({ width: 1600, height: 1024 })
 
   await stage.getByRole('button', { name: 'Finish' }).click()

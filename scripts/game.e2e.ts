@@ -90,8 +90,10 @@ test('a klasszikus színpad végigjátszható: kérdés, felfedés, jelentés', 
   await expect(right).toHaveCount(1)
   await expect(right).toHaveAttribute('aria-label', /^[A-D]: Carbon dioxide$/)
   await expect(stage.locator('.gq-answer[data-state="faded"]')).toHaveCount(2)
-  // Kivetítésnél nincs kit rangsorolni: a kör eredménye nem jelenik meg.
-  await expect(stage.locator('.gq-round')).toHaveCount(0)
+  // Kivetítésnél nincs kit rangsorolni: nincs köreredmény-lépés, a gomb a
+  // következő kérdésre visz.
+  await expect(stage.getByRole('button', { name: 'Show the round results' })).toHaveCount(0)
+  await expect(stage.getByRole('button', { name: 'Next question' })).toBeVisible()
 
   await stage.getByRole('button', { name: 'Next question' }).click()
   await expect(stage.getByText('Question 2 of 2')).toBeVisible()
