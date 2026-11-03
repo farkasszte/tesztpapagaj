@@ -18,9 +18,18 @@ export function Letter({ letter }: { letter?: string }) {
   )
 }
 
-/** Egy hibalehetőség: teli kör, ha megvan, üres, ha elfogyott. */
-export function Pip({ used }: { used?: boolean }) {
-  return <span className="gq-pip" data-used={used ? 'yes' : 'no'} aria-hidden="true" />
+/** Egy hibalehetőség: **szív**. Teli piros, ami megvan; üres kontúr, ami él. */
+export function Heart({ used }: { used?: boolean }) {
+  return (
+    <svg
+      className="gq-pip"
+      data-used={used ? 'yes' : 'no'}
+      viewBox="0 0 24 22"
+      aria-hidden="true"
+    >
+      <path d="M12 20.6 3.7 12.5C.9 9.7 1.2 5.1 4.4 3.1a6.1 6.1 0 0 1 7.6 1.2 6.1 6.1 0 0 1 7.6-1.2c3.2 2 3.5 6.6.7 9.4L12 20.6Z" />
+    </svg>
+  )
 }
 
 /** A gong: a helyes válasz jelvénye. */
@@ -33,13 +42,16 @@ export function Bell() {
   )
 }
 
-/** A díjalap: bajnoki öv, az arany középlappal. */
-export function Belt() {
+/** A díjalap: **aranytallér** — peremes érme, domború csillaggal. */
+export function Coin() {
   return (
-    <svg className="gq-belt" viewBox="0 0 40 24" aria-hidden="true">
-      <path d="M2 6.5h9.5v11H2a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Zm36 0H28.5v11H38a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Z" />
-      <path d="M11.5 4h17v16h-17a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" className="gq-belt-plate" />
-      <circle cx="20" cy="12" r="4.6" className="gq-belt-gem" />
+    <svg className="gq-coin" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" className="gq-coin-rim" />
+      <circle cx="12" cy="12" r="8.4" className="gq-coin-face" />
+      <path
+        d="M12 6.6l1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4L6.9 10.2l3.4-.5L12 6.6Z"
+        className="gq-coin-star"
+      />
     </svg>
   )
 }

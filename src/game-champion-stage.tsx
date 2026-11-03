@@ -6,7 +6,7 @@ import { Engine, createSession } from './game/engine'
 import type { EndReason, Help, Settings } from './game/types'
 import type { Session } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
-import { Belt, Letter, Pip, Ring } from './game-shapes'
+import { Coin, Heart, Letter, Ring } from './game-shapes'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import type { SavedGame } from './game-store'
@@ -170,7 +170,7 @@ export function ChampionStage({
               <span>{t('game.champion.round', { round: game.ordinal })}</span>
               {one ? <span className="gq-one-name">{one.nickname}</span> : null}
               <span className="gq-stat">
-                <Belt />
+                <Coin />
                 {t('game.champion.pot')} <strong>{game.bank}</strong>
               </span>
               <span
@@ -179,14 +179,14 @@ export function ChampionStage({
               >
                 <span className="gq-heart">
                   {Array.from({ length: Math.max(0, game.strikes) }, (_, index) => (
-                    <Pip key={index} used />
+                    <Heart key={index} used />
                   ))}
                 </span>
                 <span className="gq-heart-empty">
                   {Array.from(
                     { length: Math.max(0, game.baseStrikes - game.strikes) },
                     (_, index) => (
-                      <Pip key={index} />
+                      <Heart key={index} />
                     ),
                   )}
                 </span>

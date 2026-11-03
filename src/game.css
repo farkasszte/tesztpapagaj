@@ -244,21 +244,31 @@
 .gq-hearts { gap: 5px; letter-spacing: 0; }
 .gq-heart, .gq-heart-empty { display: inline-flex; gap: 5px; }
 /* Hibalehetőség: teli kör, ami megvan; karika, ami elfogyott. */
+/* Életjelző: szív. Ami megvan, teli piros; ami még él, vékony kontúr. */
 .gq-pip {
-  display: block; width: 11px; height: 11px; border-radius: 999px;
-  background: var(--gules);
-  box-shadow: 0 0 0 1px rgb(196 64 47 / 0.45);
+  display: block; width: 13px; height: 12px;
 }
-.gq-pip[data-used='no'] {
-  background: transparent; box-shadow: none;
+.gq-pip path {
+  fill: var(--gules);
+  stroke: rgb(196 64 47 / 0.5);
+  stroke-width: 0.8;
+}
+.gq-pip[data-used='no'] path {
+  fill: transparent;
+  stroke: rgb(245 236 220 / 0.5);
+  stroke-width: 1.2;
   border: 2px solid rgb(245 236 220 / 0.32);
 }
 
 /* A díjalap: bajnoki öv a felirat mellett. */
-.gq-belt { width: 34px; height: 21px; display: block; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.4)); }
-.gq-belt path:first-of-type { fill: #6f4a24; }
-.gq-belt .gq-belt-plate { fill: #f0c04a; }
-.gq-belt .gq-belt-gem { fill: #f6e3ad; }
+/* A díjalap jelképe: aranytallér. */
+.gq-coin {
+  width: 20px; height: 20px; display: block;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45));
+}
+.gq-coin-rim { fill: #8a6415; }
+.gq-coin-face { fill: #f0c04a; }
+.gq-coin-star { fill: #fdf1c9; }
 
 .gq-quiet, .gq-go {
   font-family: var(--sans); font-size: 16px; font-weight: 800; cursor: pointer;
@@ -464,7 +474,9 @@
 
 .gq-done { display: grid; place-items: center; gap: 18px; flex: 1; text-align: center; }
 .gq-big {
-  margin: 0; font-family: var(--display); font-weight: 700; line-height: 1.05;
+  /* Az Oswald ékezetei (Ő, Ű, Á) túlnyúlnak a betűtörzsön: 1,05-tel a felső
+     sorba lógnak. 1,22 ad nekik levegőt, és a két sor sem esik szét. */
+  margin: 0; font-family: var(--display); font-weight: 700; line-height: 1.22;
   font-size: clamp(54px, 7.2vw, 96px); letter-spacing: 0.02em; text-transform: uppercase;
   text-wrap: balance; color: var(--paper);
   text-shadow: 0 0 34px rgb(255 226 168 / 0.22);
