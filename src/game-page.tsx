@@ -336,7 +336,12 @@ export function GamePage({
                 type="checkbox"
                 checked={devices}
                 disabled={false}
-                onChange={(event) => setDevices(event.target.checked)}
+                onChange={(event) => {
+                  setDevices(event.target.checked)
+                  // Diák-eszköz nélkül nincs kit rangsorolni: a jelölő ne
+                  // maradjon bekapcsolva egy olyan beállításon, ami nem hat.
+                  if (!event.target.checked) setRoundResults(false)
+                }}
               />
               {t('game.devices.switch')}
             </label>

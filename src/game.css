@@ -850,6 +850,9 @@ select.gq-input-small { text-align: center; }
   gap: 10px;
 }
 
+/* A diák kártyája ugyanazt a színt viseli, mint a tanár színpadán (vörös,
+   kék, arany, szilva): a telefonon is felismerhető, melyik válasz melyik.
+   A betű és a szöveg mind a négyen fehér — a színt a kártya hordozza. */
 .gq-stu-choice {
   display: flex;
   gap: 12px;
@@ -857,9 +860,9 @@ select.gq-input-small { text-align: center; }
   padding: 14px;
   min-height: 62px;
   border-radius: 14px;
-  border: 1px solid rgb(36 28 23 / 0.16);
-  background: #fff;
-  color: inherit;
+  border: 1px solid rgb(255 250 243 / 0.18);
+  background: var(--c);
+  color: var(--paper);
   font: inherit;
   text-align: start;
   transition: transform 90ms ease, box-shadow 120ms ease, opacity 120ms ease;
@@ -869,46 +872,46 @@ select.gq-input-small { text-align: center; }
   transform: scale(0.985);
 }
 
+/* A kiválasztást krémes gyűrű jelöli: a színes kártyán ez látszik, a sötét
+   vagy vörös keret nem. A helyes válasz ugyanezt a krémes keretet kapja. */
 .gq-stu-choice[data-tone='picked'] {
-  border-color: #b38418;
-  box-shadow: 0 0 0 2px rgb(179 132 24 / 0.25);
+  border-color: var(--paper);
+  box-shadow: 0 0 0 2px var(--paper);
 }
 
 .gq-stu-choice[data-tone='correct'] {
-  border-color: #3c7150;
-  background: rgb(60 113 80 / 0.1);
-  box-shadow: 0 0 0 2px rgb(60 113 80 / 0.28);
+  border-color: var(--paper);
+  box-shadow: 0 0 0 2px var(--paper), 0 8px 22px rgb(0 0 0 / 0.28);
 }
 
+/* A rossz válasz nem kap más színt (a kártya már színes): halványul. */
 .gq-stu-choice[data-tone='wrong'] {
-  border-color: #b23f2c;
-  background: rgb(178 63 44 / 0.1);
+  opacity: 0.62;
 }
 
 .gq-stu-choice[data-tone='faded'] {
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
+/* A jelölő betű ugyanaz, mint a színpadon: karikás fehér betű. */
 .gq-stu-letter {
   flex: 0 0 34px;
   display: grid;
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: rgb(36 28 23 / 0.08);
+  border-radius: 999px;
+  border: 1.5px solid rgb(255 250 243 / 0.75);
   font-weight: 700;
   font-size: 15px;
+  color: var(--paper);
 }
 
+/* A felfedésnél a helyes válasz betűje krémes karikát kap, sötét betűvel. */
 .gq-stu-choice[data-tone='correct'] .gq-stu-letter {
-  background: #3c7150;
-  color: #fffaf3;
-}
-
-.gq-stu-choice[data-tone='wrong'] .gq-stu-letter {
-  background: #b23f2c;
-  color: #fffaf3;
+  background: var(--paper);
+  border-color: var(--paper);
+  color: #241c17;
 }
 
 .gq-stu-choice-words {

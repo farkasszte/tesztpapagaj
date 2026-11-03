@@ -184,6 +184,14 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
 
   const choices = student.locator('.gq-stu-choice')
   await expect(choices).toHaveCount(3)
+  // A diák kártyái ugyanazt a négy színt viselik, mint a tanár színpadán:
+  // vörös, kék, arany — a szöveg és a betű mindegyiken krémes.
+  const tints = await choices.evaluateAll((nodes) =>
+    nodes.map((node) => getComputedStyle(node).backgroundColor),
+  )
+  expect(tints).toEqual(['rgb(196, 64, 47)', 'rgb(47, 92, 140)', 'rgb(154, 110, 13)'])
+  const cardInk = await choices.first().evaluate((node) => getComputedStyle(node).color)
+  expect(cardInk).toBe('rgb(245, 236, 220)')
   // A telefon ugyanazt a (kevert) sorrendet látja, mint a tanár színpada: a
   // helyes választ a szövegénél fogva kell megnyomni, nem a helyénél.
   const onPhone = await choices.evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
@@ -202,6 +210,11 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(round).toContainText('Round results')
   await expect(round.locator('.gq-round-name')).toHaveText(['Panni'])
   await expect(round.locator('.gq-round-points')).toHaveText([/^\d+$/])
+  // A tanár laptopján (1366×768) is látszania kell: nem csúszhat ki a színpad
+  // alján, a válaszkártyák és a lábléc közé szorítva.
+  await page.setViewportSize({ width: 1366, height: 768 })
+  await expect(round).toBeInViewport()
+  await page.setViewportSize({ width: 1600, height: 1024 })
 
   await stage.getByRole('button', { name: 'Finish' }).click()
   await expect(stage.getByText('That is every question!')).toBeVisible()

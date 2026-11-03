@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ClassicView } from './game/classic/views'
 import { StudentBlocks } from './game-student-blocks'
+import { TINCTURES } from './game-parts'
 import { choiceTone } from './game-student-tone'
 import { acceptedAnswersOf, textIsRight } from './game/text-match'
 import { useT } from './i18n'
@@ -204,6 +205,9 @@ export function ClassicStudentGame({
                   type="button"
                   className="gq-stu-choice"
                   data-tone={tone}
+                  // Ugyanaz a négy szín, mint a tanár színpadán: a diák a
+                  // telefonján is ugyanazt a kártyát látja, csak kisebben.
+                  style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                   disabled={disabled}
                   onClick={() => {
                     // Párosítás: a válasz a kiválasztott fogalomhoz kötődik.

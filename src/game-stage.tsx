@@ -1,10 +1,11 @@
 import { useReducer, useState, type ReactNode } from 'react'
 import { DocView } from './doc-view'
-import type { ClassicSession, ClassicSettings } from './game/classic/types'
+import type { ClassicSettings } from './game/classic/types'
 import { ClassicEngine, createClassicSession } from './game/classic/engine'
 import { buildClassicView } from './game/classic/views'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
+import { resumedClassicSession } from './game/resume'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
 import { Bell, Letter, Ring } from './game-shapes'
 import type { SavedGame } from './game-store'
@@ -53,7 +54,9 @@ export function ClassicStage({
   const t = useT()
   const [engine] = useState(() => {
     if (given) return given
-    if (restored) return new ClassicEngine(restored.session as ClassicSession)
+    // A mentés régi: a megjelenítési beállítást a mostani felületről vesszük,
+    // különben a bejelölt körönkénti eredmény a folytatott játékban nem látszana.
+    if (restored) return new ClassicEngine(resumedClassicSession(restored, { roundResults: settings.roundResults }))
     const session = createClassicSession({ code: '', title, questions, settings, noDevices: true })
     const created = new ClassicEngine(session)
     created.start()
