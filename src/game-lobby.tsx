@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { joinUrl, spacedRoomCode, type RoomCode } from './game/room-protocol'
 import { QrCode } from './game-qr'
 import { useT } from './i18n'
@@ -34,7 +34,19 @@ export function GameLobby({
 }) {
   const t = useT()
   const [copied, setCopied] = useState(false)
+  /** A QR teljes képernyőn: a hátsó sorból is beolvasható legyen. */
+  const [fullQr, setFullQr] = useState(false)
   const url = joinUrl(window.location.origin, code)
+
+  // A nagyított QR-t Esc-pel (és koppintással) be lehet zárni.
+  useEffect(() => {
+    if (!fullQr) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setFullQr(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [fullQr])
   const connected = players.filter((player) => player.connected).length
 
   return (
@@ -45,7 +57,17 @@ export function GameLobby({
         <p className="gq-lobby-hint">{t('game.devices.hint')}</p>
         <div className="gq-lobby-join">
           {status === 'open' ? (
-            <QrCode text={url} size={196} />
+            <>
+              <button
+                type="button"
+                className="gq-qr-button"
+                aria-label={t('game.devices.qrFull')}
+                onClick={() => setFullQr(true)}
+              >
+                <QrCode text={url} size={320} />
+              </button>
+              <p className="gq-hint">{t('game.devices.qrFullHint')}</p>
+            </>
           ) : (
             <p className="gq-lobby-status">{t(`game.devices.status.${status}` as never)}</p>
           )}
@@ -107,6 +129,20 @@ export function GameLobby({
         </div>
         <p className="gq-hint">{t('game.devices.startHint')}</p>
       </div>
+
+      {fullQr ? (
+        <div
+          className="gq-qr-full"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('game.devices.qrFull')}
+          onClick={() => setFullQr(false)}
+        >
+          <QrCode text={url} size={720} />
+          <p className="gq-qr-full-code">{spacedRoomCode(code)}</p>
+          <p className="gq-qr-full-hint">{t('game.devices.qrFullClose')}</p>
+        </div>
+      ) : null}
     </div>
   )
 }

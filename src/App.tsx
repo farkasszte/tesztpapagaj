@@ -527,6 +527,11 @@ function CrepeQuestion({
    *  make Blanks (see `blank-editor.ts`). */
   blanks?: boolean
 }) {
+  /** A `mounted` hívásainak sorszáma: a Milkdown StrictMode alatt (és újramountkor)
+   *  kétszer is felépül, és csak az **utolsó** példány marad élő. Ha az első is
+   *  készen jelentené magát, a tanár egy hamarosan eldobott szerkesztőbe gépelne,
+   *  és a szöveg elveszne. */
+  const readyToken = useRef(0)
   useEditor((root) => {
     const safeValue = cleanDocument(value)
     const crepe = new Crepe({
@@ -813,7 +818,11 @@ function CrepeQuestion({
         // Csak a dokumentum átvétele **és** a fókusz után jelezzük, hogy kész:
         // az `onReady` a szerkesztő szövegét adja, a jelzés pedig azt, hogy a
         // kurzor már benne van — addig a gépelés elveszne.
-        onReady(() => cleanDocument(view.state.doc.toJSON() as ProseMirrorJSON))
+        const token = (readyToken.current += 1)
+        requestAnimationFrame(() => {
+          if (readyToken.current !== token) return
+          onReady(() => cleanDocument(view.state.doc.toJSON() as ProseMirrorJSON))
+        })
       })
       listener.updated((_ctx, doc) =>
         onChange(cleanDocument(doc.toJSON() as ProseMirrorJSON)),

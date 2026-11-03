@@ -543,11 +543,25 @@ select.gq-input-small { text-align: center; }
   height: 34px; padding: 0 14px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--paper-outline); background: transparent; color: var(--paper-ink-soft); font: inherit;
 }
-.gq-later:hover { border-color: var(--paper-accent); color: #332a24; }
+.gq-later:hover {
+  border-color: var(--paper-accent);
+  background: rgb(255 250 243 / 0.1);
+  color: var(--paper-ink);
+}
 
 /* ── Lobbi: a szoba kódja és a QR a kivetítőn ─────────────────────────────── */
 
 .gq-lobby {
+  /* A lobbi a saját sötét vásznán áll, a felület papír-tokenjei viszont
+     sötétbarna tintát jelentenek (világos papírra). Itt világosra váltjuk
+     őket, különben a „Vissza" gomb és a súgók barna betűje a barna háttéren
+     olvashatatlan. */
+  --paper-ink: #fffaf3;
+  --paper-ink-soft: rgb(255 250 243 / 0.8);
+  --paper-outline: rgb(255 250 243 / 0.3);
+  --paper-accent: #f0d27c;
+  --paper-surface: rgb(255 250 243 / 0.08);
+  --paper-surface-low: rgb(255 250 243 / 0.06);
   position: fixed;
   inset: 0;
   display: grid;
@@ -608,8 +622,32 @@ select.gq-input-small { text-align: center; }
 .gq-lobby-join {
   display: grid;
   place-items: center;
-  min-height: 196px;
+  gap: 8px;
 }
+
+/* A QR a kivetítőn olvasható méretű, de alacsony képernyőn sem lóg ki. */
+.gq-lobby-join .gq-qr { width: min(320px, 40vh); height: auto; }
+/* A lobbi szövegei kivetítőre készülnek: a súgó nem 12 px-es apróbetű. */
+.gq-lobby .gq-hint { font-size: 15px; line-height: 1.45; color: rgb(255 250 243 / 0.85); }
+.gq-qr-button {
+  padding: 0; border: 0; background: none; cursor: pointer; border-radius: 12px;
+  display: grid; place-items: center;
+}
+.gq-qr-button:focus-visible { outline: 2px solid var(--paper-accent); outline-offset: 6px; }
+
+/* Teljes képernyős QR: a hátsó sorból is beolvasható legyen. */
+.gq-qr-full {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 20px; cursor: pointer;
+  background: radial-gradient(70% 60% at 50% 40%, #2a201a, #140f0c 78%);
+}
+.gq-qr-full .gq-qr { width: min(76vh, 74vw); height: auto; }
+.gq-qr-full-code {
+  margin: 0; font-family: var(--serif); font-variant-numeric: tabular-nums;
+  font-size: clamp(26px, 3.4vw, 52px); letter-spacing: 0.08em; color: #fffaf3;
+}
+.gq-qr-full-hint { margin: 0; font-size: 17px; color: rgb(255 250 243 / 0.78); }
 
 .gq-qr {
   border-radius: 10px;
@@ -627,9 +665,9 @@ select.gq-input-small { text-align: center; }
 
 .gq-lobby-url {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.02em;
-  color: rgb(255 250 243 / 0.55);
+  color: rgb(255 250 243 / 0.85);
 }
 
 .gq-lobby-problem {
@@ -685,7 +723,7 @@ select.gq-input-small { text-align: center; }
   inset-block-end: 18px;
   inset-inline-start: 22px;
   font-size: 13px;
-  color: rgb(255 250 243 / 0.3);
+  color: rgb(255 250 243 / 0.55);
   font-variant-numeric: tabular-nums;
 }
 
@@ -952,14 +990,14 @@ select.gq-input-small { text-align: center; }
 .gq-roster-kick {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border-radius: 999px;
-  border: 1px solid rgb(255 250 243 / 0.22);
+  border: 1px solid rgb(255 250 243 / 0.35);
   background: transparent;
-  color: rgb(255 250 243 / 0.6);
-  font-size: 13px;
+  color: rgb(255 250 243 / 0.85);
+  font-size: 15px;
   line-height: 1;
   cursor: pointer;
 }

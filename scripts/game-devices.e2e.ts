@@ -158,6 +158,22 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(student.getByText('You are in.')).toBeVisible()
 
   await expect(lobby.getByText('1 joined')).toBeVisible()
+
+  // A lobbi szövegei a sötét vásznon világosak: a „Vissza" gomb és a súgók
+  // nem barna tintát kapnak (az a világos papírra való).
+  const back = lobby.getByRole('button', { name: 'Back', exact: true })
+  const ink = await back.evaluate((node) => getComputedStyle(node).color)
+  const channels = ink.match(/\d+/g)!.slice(0, 3).map(Number)
+  expect(Math.min(...channels)).toBeGreaterThan(150)
+
+  // A QR koppintásra teljes képernyőre vált, és Esc-pel visszatér.
+  await lobby.getByRole('button', { name: 'Full-screen QR' }).click()
+  const full = page.getByRole('dialog', { name: 'Full-screen QR' })
+  await expect(full).toBeVisible()
+  await expect(full.locator('svg.gq-qr')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(full).toBeHidden()
+
   await lobby.getByRole('button', { name: 'Start the game' }).click()
 
   // A tanár színpadán a kérdés, a diák telefonján a válaszok.
