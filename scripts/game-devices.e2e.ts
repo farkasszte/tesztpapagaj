@@ -252,6 +252,8 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
 
   await page.goto('/jatek')
   await expect(page.getByText('1 of 1 questions can be played.')).toBeVisible()
+  // Rövid idő: a kérdés lejárta előtt a jelölések maguktól elmennek.
+  await page.getByLabel('Time per question (seconds)').fill('5')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
   const lobby = page.locator('.gq-lobby')
@@ -259,6 +261,8 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
   const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
 
   const student = await page.context().newPage()
+  // Telefon-méret: a küldés gombnak négy válasz mellett is a nézetben kell lennie.
+  await student.setViewportSize({ width: 390, height: 844 })
   await student.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
   await student.getByPlaceholder('For example: Panni').fill('Panni')
   await student.getByRole('button', { name: 'Join the game' }).click()
@@ -273,6 +277,10 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
   await choices.filter({ hasText: 'Neon' }).click()
   await expect(choices.filter({ hasText: 'Oxygen' })).toHaveAttribute('data-tone', 'picked')
   await expect(choices.filter({ hasText: 'Neon' })).toHaveAttribute('data-tone', 'picked')
+  // A jelölés a kártya végén is látszik (a diák ujja a közepe fölött van).
+  await expect(choices.filter({ hasText: 'Oxygen' }).locator('.gq-stu-tick')).toBeVisible()
+  // A küldés gomb négy válasz mellett is a képernyőn van.
+  await expect(student.getByRole('button', { name: 'Send my answers' })).toBeInViewport()
 
   // A betűk a színpadon kevert sorrendből jönnek: a helyes betűket a
   // megjelenített sorrendből olvassuk ki.
@@ -287,11 +295,10 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
     .map((one) => one.letter)
     .sort()
 
-  await student.getByRole('button', { name: 'Send my answers' }).click()
-  // Téves a válasz (Oxygen rossz), ezért az indoklás **mindkét** helyes betűt
-  // mondja, nem csak az elsőt.
+  // A küldést **nem** nyomja meg senki: a lejárat előtt a jelölések maguktól
+  // elmennek, a válasz nem vész el.
   await expect(
-    student.getByText(new RegExp(`the answer was ${right.join(', ')}`)),
+    student.getByText(new RegExp(`the answer was ${right.join(', ')}`), { timeout: 15000 }),
   ).toBeVisible()
 })
 

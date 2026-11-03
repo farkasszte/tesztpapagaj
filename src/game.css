@@ -900,8 +900,9 @@ select.gq-input-small { text-align: center; }
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 14px;
-  min-height: 62px;
+  padding: 12px;
+  /* Alacsonyabb kártya: négy válasz és a küldés gomb is kiférjen egy telefonra. */
+  min-height: 54px;
   border-radius: 14px;
   border: 1px solid rgb(255 250 243 / 0.18);
   background: var(--c);
@@ -917,9 +918,19 @@ select.gq-input-small { text-align: center; }
 
 /* A kiválasztást krémes gyűrű jelöli: a színes kártyán ez látszik, a sötét
    vagy vörös keret nem. A helyes válasz ugyanezt a krémes keretet kapja. */
+/* A megjelölt kártya **egész** kerete krémes, és a végén pipa áll — a diák
+   ujja a kártya közepén van, a betűjel a keze alatt maradna. */
 .gq-stu-choice[data-tone='picked'] {
   border-color: var(--paper);
-  box-shadow: 0 0 0 2px var(--paper);
+  border-width: 2px;
+  padding: 11px;
+  box-shadow: 0 0 0 2px rgb(36 28 23 / 0.18);
+}
+
+/* Ha már van jelölés, a nem jelöltek halványulnak: a kiválasztás nem csak a
+   pipáról és a keretről olvasható le. */
+.gq-stu-choices[data-marked='true'] .gq-stu-choice[data-tone='idle'] {
+  opacity: 0.66;
 }
 
 /* A kijelölt válasz betűje kitöltött karika: a tanár és a diák is egy
@@ -969,6 +980,16 @@ select.gq-input-small { text-align: center; }
   min-width: 0;
   font-size: 17px;
   line-height: 1.35;
+}
+
+.gq-stu-tick {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  padding-inline-start: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--paper);
 }
 
 .gq-stu-verdict {
@@ -1239,12 +1260,19 @@ select.gq-input-small { text-align: center; }
   color: #fffaf3;
 }
 
+/* A küldés sávja a képernyő alján marad: négy válasznál is elérhető, nem
+   kell görgetni érte. */
 .gq-stu-confirm {
+  position: sticky;
+  inset-block-end: 0;
   display: grid;
   gap: 8px;
-  justify-items: start;
-  padding-top: 4px;
+  justify-items: stretch;
+  margin-inline: -4px;
+  padding: 10px 4px calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--paper, #fbf7f0) 72%, rgb(251 247 240 / 0));
 }
+.gq-stu-confirm .primary-button { width: 100%; min-height: 46px; }
 
 .gq-order {
   position: absolute;

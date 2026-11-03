@@ -58,6 +58,17 @@ export function ClassicStudentGame({
     return () => clearInterval(timer)
   }, [remaining])
 
+  // Ha lejár az idő, a megjelölt válaszok maguktól mennek el: a diák ne
+  // veszítse el a válaszát azért, mert a beküldés gomb a képernyő alján van.
+  // A motor a határidő előtt még elfogadja, ezért egy másodperccel korábban
+  // indulunk.
+  useEffect(() => {
+    if (!question || view?.phase !== 'QUESTION' || sent !== null) return
+    if (!question.multi && !question.ordered) return
+    if (marked.length === 0 || left > 1) return
+    onAnswer(marked)
+  }, [left, marked, question, sent, view?.phase, onAnswer])
+
   return (
     <div className="gq-stu">
       <header className="gq-stu-bar">
@@ -103,7 +114,7 @@ export function ClassicStudentGame({
           </div>
           {view?.phase === 'QUESTION' && question.remainingMs !== null ? (
             <p className="gq-stu-clock" aria-live="off">
-              {left} s
+              {left} {t('game.stage.seconds')}
             </p>
           ) : null}
 
@@ -190,7 +201,11 @@ export function ClassicStudentGame({
             </div>
           ) : null}
 
-          <div className="gq-stu-choices" hidden={question.textEntry}>
+          <div
+            className="gq-stu-choices"
+            hidden={question.textEntry}
+            data-marked={marked.length > 0 ? 'true' : 'false'}
+          >
             {question.choices.map((choice, index) => {
               const mine_ = mine?.answers ?? (mine ? [mine.answer ?? -1] : [])
               const picked = (sent ?? []).includes(index) || marked.includes(index) || mine_.includes(index)
@@ -243,6 +258,13 @@ export function ClassicStudentGame({
                   <span className="gq-stu-choice-words">
                     <StudentBlocks rich={question.rich?.choices?.[index]} plain={choice} />
                   </span>
+                  {/* A jelölés a kártya **végén** is látszik: a diák ujja a
+                      kártya közepén van, a betűt eltakarja. */}
+                  {tone === 'picked' || tone === 'correct' ? (
+                    <span className="gq-stu-tick" aria-hidden="true">
+                      ✓
+                    </span>
+                  ) : null}
                 </button>
               )
             })}
