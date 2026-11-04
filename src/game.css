@@ -1637,3 +1637,50 @@ select.gq-input-small { text-align: center; }
   outline-offset: 2px;
 }
 .gq-stage:focus-visible { outline-offset: -4px; }
+
+/* ── Tanulókártya ─────────────────────────────────────────────────────────
+   Nem verseny: a vászon sötét marad, de a kártya papír — a tanár és a diák is
+   elolvassa, nem versenyt néz. A kártya koppintásra fordul. */
+.gq-cards { align-items: stretch; }
+.gq-card-tools {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+/* A kártya az első fogható elem (oda áll a fókusz), ezért a kapcsolók alul vannak. */
+.gq-card-tools-bottom { margin: 16px 0 0; justify-content: center; }
+.gq-card-speed {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--display); font-size: 14px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: rgb(245 236 220 / 0.72);
+}
+.gq-card-speed select { text-transform: none; letter-spacing: 0; }
+.gq-card {
+  display: grid; align-content: start; gap: 18px; text-align: start; cursor: pointer;
+  width: 100%; max-width: 980px; min-height: 46vh; margin: 0 auto;
+  padding: 26px 30px 30px; border-radius: 10px;
+  border: 1px solid rgb(36 28 23 / 0.16);
+  background: var(--paper); color: #241c17;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.35);
+  font: inherit;
+}
+.gq-card[data-flipped='yes'] { background: linear-gradient(180deg, #fdf6ea, #f3e7d6); }
+.gq-card-side {
+  font-family: var(--display); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #8a6a4a;
+}
+.gq-card-body { display: grid; gap: 14px; align-content: start; }
+.gq-card-stem {
+  font-family: var(--serif); font-size: clamp(22px, 2.1vw, 34px); line-height: 1.45;
+}
+.gq-card-hint { color: #8a6a4a; font-size: 14px; }
+.gq-card-answer { display: grid; gap: 8px; }
+.gq-card-answer-line {
+  font-family: var(--serif); font-size: clamp(22px, 2vw, 32px); line-height: 1.4;
+  font-weight: 700; color: #1f4d2e;
+}
+.gq-card-why { font-size: 17px; line-height: 1.5; color: #4e3b2f; }
+.gq-card-nav {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-top: 18px;
+}
+.gq-card-nav .gq-quiet, .gq-card-nav .gq-go { min-width: 132px; }

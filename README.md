@@ -71,6 +71,13 @@ kérdéseket, helyet cserél, levesz, oszlopot nevez el, és a kész táblát
 `src/game/peril-plan.ts`). A beosztás a böngésző tárolójában marad, és a
 kincsesbarlang helye is beállítható.
 
+Negyedik, nem versenyző út a **Tanulókártya** (`src/game-flashcard.tsx`): a bank
+kérdéseiből pakli készül, elől a kérdés, hátul a helyes válasz és a magyarázat.
+Koppintásra (vagy szóközre) fordul, a nyilak lapoznak, a keverés és az automatikus
+fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A bank oldaláról
+„Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
+tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
+
 A színpad jelképei a sport-téma nyelvén szólnak: a bajnok életjelzője **piros
 szív**, a díjalapé **aranytallér**; a diák telefonja ugyanezt a négy
 arénaszínt viseli, mint a vetítés.

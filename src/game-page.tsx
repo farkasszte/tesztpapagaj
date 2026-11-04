@@ -8,6 +8,7 @@ import { ClassicStage } from './game-stage'
 import { ClassicDevices } from './game-devices'
 import { ChampionDevices } from './game-champion-devices'
 import { PerilDevices } from './game-peril-devices'
+import { FlashcardDeck } from './game-flashcard'
 import { playableQuestions } from './game/projection'
 import { clearSavedGame, readSavedGame, type GameMode, type SavedGame } from './game-store'
 import type { ClassicSession } from './game/classic/types'
@@ -26,7 +27,7 @@ import './game.css'
  * a lista megnevezi, nem csendben hagyja ki.
  */
 
-type Mode = GameMode
+type Mode = GameMode | 'flashcard'
 
 /**
  * A félbehagyott játék kérdései a mentett session-ből: a Klasszikus és a Bajnok
@@ -45,20 +46,26 @@ const MODES: { id: Mode; name: string; blurb: string; ready: boolean; tincture: 
   { id: 'classic', name: 'game.mode.classic.name', blurb: 'game.mode.classic.blurb', ready: true, tincture: '#2f5d8f' },
   { id: 'champion', name: 'game.mode.champion.name', blurb: 'game.mode.champion.blurb', ready: true, tincture: '#b23f2c' },
   { id: 'peril', name: 'game.mode.peril.name', blurb: 'game.mode.peril.blurb', ready: true, tincture: '#b38418' },
+  // A tanulókártya nem verseny: nincs pont, idő és szoba, ezért a beállításai
+  // is mások (lásd a lenti ágat).
+  { id: 'flashcard', name: 'game.mode.flashcard.name', blurb: 'game.mode.flashcard.blurb', ready: true, tincture: '#55607a' },
 ] as const
 
 export function GamePage({
   banks,
   persistentStorage,
   initialBankId = '',
+  initialMode = '',
 }: {
   banks: QuestionBankWorkspaceService
   persistentStorage: PersistentStorageStatus
   /** A bank oldaláról érkező kérés: ezzel a bankkal induljon a játék. */
   initialBankId?: string
+  /** A bank oldaláról jött mód (`flashcard`), ha nem a Klasszikus. */
+  initialMode?: string
 }) {
   const t = useT()
-  const [mode, setMode] = useState<Mode>('classic')
+  const [mode, setMode] = useState<Mode>(initialMode === 'flashcard' ? 'flashcard' : 'classic')
   const [summaries, setSummaries] = useState<readonly QuestionBankSummary[] | null>(null)
   const [bankId, setBankId] = useState('')
   const [bank, setBank] = useState<QuestionBankResource | null>(null)
@@ -151,7 +158,14 @@ export function GamePage({
       setRestored(null)
     }
     const stage =
-      devices && mode === 'classic' ? (
+      mode === 'flashcard' ? (
+        <FlashcardDeck
+          title={source.title}
+          questions={source.questions}
+          words={source.words}
+          onExit={exit}
+        />
+      ) : devices && mode === 'classic' ? (
         <ClassicDevices
           title={source.title}
           questions={source.questions}
@@ -319,7 +333,7 @@ export function GamePage({
           ) : null}
         </div>
 
-        <div>
+        <div hidden={mode === 'flashcard'}>
           <div className="gq-field">
             <label htmlFor="gq-timer">{t('game.timer')}</label>
             <input
