@@ -78,6 +78,13 @@ fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A ban
 „Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
 tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
 
+A játék után a diák a **hibalistáját** is megkapja: a Klasszikus eszközös módban a
+tanár gépe mindenkinek kiküldi a maga elrontott kérdéseit, a telefon pedig hét
+napra eltárolja (`src/game/review-deck.ts`), és a tanulókártya-nézővel átnézhető.
+A kihagyott (lejárt idő) kérdés nem hiba, azt a lista nem gyűjti. A diák oldala
+`/diak` — itt van a kódkérő és a megőrzött hibalisták, tehát a szoba bezárása után
+is visszatalál hozzá (`src/game-devices.tsx` küldi, `src/game-student.tsx` fogadja).
+
 A színpad jelképei a sport-téma nyelvén szólnak: a bajnok életjelzője **piros
 szív**, a díjalapé **aranytallér**; a diák telefonja ugyanezt a négy
 arénaszínt viseli, mint a vetítés.

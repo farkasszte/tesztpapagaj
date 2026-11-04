@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DocView } from './doc-view'
-import { deckOf, type Flashcard } from './game/flashcard'
+import type { Flashcard } from './game/flashcard'
 import type { PlayableWords } from './game/projection'
-import type { Question } from './game/types'
 import { useExitOnEscape, useStageFocusTrap } from './game-parts'
 import { useT } from './i18n'
 
@@ -21,20 +20,22 @@ const PLAY_STEPS = [0, 5, 10, 20] as const
 
 export function FlashcardDeck({
   title,
-  questions,
+  cards,
   words,
   onExit,
 }: {
   title: string
-  questions: readonly Question[]
-  words: Map<string, PlayableWords>
+  /** A pakli kártyái — a bank kérdéseiből vagy a diák hibalistájából. */
+  cards: readonly Flashcard[]
+  /** A szövegek Rich Textje, ha van (a játékból indítva); a hibalistánál nincs. */
+  words?: Map<string, PlayableWords>
   onExit: () => void
 }) {
   const t = useT()
   const trapRef = useStageFocusTrap<HTMLDivElement>()
   useExitOnEscape(onExit)
 
-  const deck = useMemo(() => deckOf(questions), [questions])
+  const deck = useMemo(() => [...cards], [cards])
   const [order, setOrder] = useState<Flashcard[]>(deck)
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -113,7 +114,7 @@ export function FlashcardDeck({
     return () => window.removeEventListener('keydown', onKey)
   })
 
-  const rich = card ? words.get(card.id) : undefined
+  const rich = card && words ? words.get(card.id) : undefined
 
   return (
     <div className="gq-stage gq-cards" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.mode.flashcard.name')}>

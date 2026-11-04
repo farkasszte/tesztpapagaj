@@ -96,7 +96,7 @@ export function newRoomCode(random: () => number = Math.random): RoomCode {
 /** A diák linkje, amit a QR-kód hordoz. */
 export function joinUrl(origin: string, code: RoomCode): string {
   const base = origin.replace(/\/+$/, '')
-  return `${base}/jatek?kod=${code}`
+  return `${base}/diak?kod=${code}`
 }
 
 // ---------------------------------------------------------------------------

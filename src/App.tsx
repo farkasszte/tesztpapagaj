@@ -3558,6 +3558,12 @@ export default function App({
       />
     </>
   }
+  if (route === '/diak') {
+    // A diák saját oldala: kóddal a belépő, kód nélkül a kódkérő — itt látszanak
+    // a telefonon megőrzött hibalisták is, miután a szoba már bezárt.
+    const studentCode = new URLSearchParams(search).get('kod') ?? ''
+    return <GameStudent initialCode={studentCode} />
+  }
   if (route === '/jatek') {
     // A diák linkje (`/jatek?kod=482913`) a telefonos belépő; kód nélkül a tanár oldala.
     const code = new URLSearchParams(search).get('kod') ?? ''

@@ -9,6 +9,7 @@ import { ClassicDevices } from './game-devices'
 import { ChampionDevices } from './game-champion-devices'
 import { PerilDevices } from './game-peril-devices'
 import { FlashcardDeck } from './game-flashcard'
+import { deckOf } from './game/flashcard'
 import { playableQuestions } from './game/projection'
 import { clearSavedGame, readSavedGame, type GameMode, type SavedGame } from './game-store'
 import type { ClassicSession } from './game/classic/types'
@@ -161,7 +162,7 @@ export function GamePage({
       mode === 'flashcard' ? (
         <FlashcardDeck
           title={source.title}
-          questions={source.questions}
+          cards={deckOf(source.questions)}
           words={source.words}
           onExit={exit}
         />

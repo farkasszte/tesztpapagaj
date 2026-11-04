@@ -18,6 +18,8 @@ export function ClassicStudentGame({
   sent,
   nickname,
   problem,
+  reviewCount = 0,
+  onOpenReview,
   onAnswer,
 }: {
   view: ClassicView | null
@@ -25,6 +27,9 @@ export function ClassicStudentGame({
   sent: number[] | null
   nickname: string
   problem: string | null
+  /** Hány kérdést rontott el: ennyi kártya vár a hibalistán (a játék végén). */
+  reviewCount?: number
+  onOpenReview?: () => void
   /** Egy válasz, vagy egy több helyes válaszos kérdésnél a megjelöltek. */
   onAnswer: (choices: number[], texts?: string[]) => void
 }) {
@@ -104,6 +109,14 @@ export function ClassicStudentGame({
               asked: mine?.asked ?? 0,
             })}
           </p>
+          {onOpenReview && reviewCount > 0 ? (
+            <>
+              <button type="button" className="gq-stu-review" onClick={onOpenReview}>
+                {t('game.review.open', { count: reviewCount })}
+              </button>
+              <p className="gq-hint">{t('game.review.kept')}</p>
+            </>
+          ) : null}
         </section>
       ) : null}
 

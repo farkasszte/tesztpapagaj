@@ -38,12 +38,14 @@ describe('szobakód', () => {
     expect(nines).not.toBe(zeros)
   })
 
-  test('a diák linkje a játék oldalra visz, a kóddal', () => {
+  test('a diák linkje a diák oldalra visz, a kóddal', () => {
+    // A diák oldalán van a kódkérő és a telefonon megőrzött hibalista is, tehát
+    // a szoba bezárása után is ez a link marad a diáknál.
     expect(joinUrl('https://tesztpapagaj.com/', '482913')).toBe(
-      'https://tesztpapagaj.com/jatek?kod=482913',
+      'https://tesztpapagaj.com/diak?kod=482913',
     )
     expect(joinUrl('https://tesztpapagaj.com', '482913')).toBe(
-      'https://tesztpapagaj.com/jatek?kod=482913',
+      'https://tesztpapagaj.com/diak?kod=482913',
     )
   })
 

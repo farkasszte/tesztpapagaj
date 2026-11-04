@@ -1684,3 +1684,32 @@ select.gq-input-small { text-align: center; }
   margin-top: 18px;
 }
 .gq-card-nav .gq-quiet, .gq-card-nav .gq-go { min-width: 132px; }
+
+/* ── Hibalista a diák telefonján ──────────────────────────────────────────
+   A pakli a telefon tárolójában él; a lista a kódkérő képernyőn és a játék
+   végén jelenik meg. A diák oldala **világos papír** (nem a sötét vászon),
+   ezért itt sötét tinta és papírszínű háttér kell — a vászon krémes szövege
+   itt olvashatatlan lenne. A kártyanézet maga közös a tanári Tanulókártyával. */
+.gq-decks { display: grid; gap: 10px; margin-top: 16px; }
+.gq-deck-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gq-deck-row { display: flex; align-items: stretch; gap: 8px; }
+.gq-deck-open {
+  flex: 1; display: grid; gap: 2px; min-height: 44px; padding: 10px 12px;
+  text-align: start; cursor: pointer; border-radius: 8px; font: inherit;
+  border: 1px solid #d8c8b8; background: #fffaf3; color: #241c17;
+}
+.gq-deck-open:hover { border-color: #9f5037; background: #f7eee3; }
+.gq-deck-open strong { font-size: 16px; line-height: 1.3; color: #241c17; }
+.gq-deck-open span { font-size: 13px; color: #6e5b4d; }
+.gq-deck-drop {
+  width: 44px; padding: 0; cursor: pointer; border-radius: 8px;
+  border: 1px solid #d8c8b8; background: #fffaf3;
+  color: #6e5b4d; font-size: 20px; line-height: 1;
+}
+.gq-deck-drop:hover { color: #87422e; border-color: #9f5037; background: #f7eee3; }
+.gq-stu-review {
+  margin-top: 14px; padding: 11px 16px; min-height: 44px; cursor: pointer;
+  border-radius: 8px; border: 1px solid #9f5037; background: #fffaf3; color: #87422e;
+  font-family: var(--display); font-size: 15px; letter-spacing: 0.04em;
+}
+.gq-stu-review:hover { background: #f7eee3; }

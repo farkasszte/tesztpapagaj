@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom'
 import { ClassicEngine, createClassicSession } from './game/classic/engine'
 import type { ClassicSettings } from './game/classic/types'
 import { buildClassicView } from './game/classic/views'
+import { missedBy } from './game/classic/misses'
+import { cardOf } from './game/flashcard'
+import type { ReviewView } from './game/review-deck'
 import type { PlayableWords } from './game/projection'
 import { newRoomCode, spacedRoomCode } from './game/room-protocol'
 import { connectRoom, type RoomConnection } from './game/room-client'
@@ -68,10 +71,27 @@ export function ClassicDevices({
   const broadcast = useCallback(() => {
     const live = connection.current
     if (!live?.open) return
+    // A játék végén a napló már tudja, ki mit rontott el: mindenki a saját
+    // hibalistáját kapja, hogy a telefonján hét napig átnézhesse.
+    const session = engine.session
+    const closing = session.phase === 'REPORT' || session.phase === 'ENDED'
+    const missed = closing ? missedBy(session) : null
     for (const [relayId, playerId] of seats.current) {
       // A tanár minden üzenete `kind`-del jelölt: a diák ebből tudja, hogy ez
       // játéknnézet és nem a helyét kiosztó válasz.
-      live.send({ kind: 'view', view: buildClassicView(engine.session, { now: Date.now(), viewerId: playerId }) }, relayId)
+      live.send({ kind: 'view', view: buildClassicView(session, { now: Date.now(), viewerId: playerId }) }, relayId)
+      const wrong = missed?.get(playerId)
+      if (!wrong?.length) continue
+      const cards = wrong.map(cardOf).filter((card) => card.answers.length > 0)
+      if (cards.length === 0) continue
+      const review: ReviewView = {
+        mode: 'review',
+        // Egy játék egy pakli: újrajátszásnál ugyanez az azonosító írja felül.
+        deckId: `${session.code}:${playerId}`,
+        title: session.title,
+        cards,
+      }
+      live.send({ kind: 'view', view: review }, relayId)
     }
   }, [engine])
 

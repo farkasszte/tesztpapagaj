@@ -8,6 +8,15 @@ import { connectRoom, relayHealthUrl, type RoomConnection } from './game/room-cl
 import { ClassicStudentGame } from './game-student-classic'
 import { ChampionStudentGame } from './game-student-champion'
 import { PerilStudentGame } from './game-peril-student'
+import { FlashcardDeck } from './game-flashcard'
+import type { Flashcard } from './game/flashcard'
+import {
+  loadReviewDecks,
+  removeReviewDeck,
+  saveReviewDeck,
+  type ReviewDeck,
+  type ReviewView,
+} from './game/review-deck'
 import { useT } from './i18n'
 
 /**
@@ -62,6 +71,10 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [problem, setProblem] = useState<string | null>(null)
   /** Amit már elküldtem: egy válasz, vagy több egy több helyes válaszos kérdésnél. */
   const [sent, setSent] = useState<number[] | null>(null)
+  /** A játék végén kapott hibalista, és a telefonon megőrzött paklik. */
+  const [review, setReview] = useState<{ title: string; cards: Flashcard[] } | null>(null)
+  const [decks, setDecks] = useState<ReviewDeck[]>(() => loadReviewDecks())
+  const [openDeck, setOpenDeck] = useState<{ title: string; cards: Flashcard[] } | null>(null)
   const connection = useRef<RoomConnection | null>(null)
 
   // Belépés: a kód ismeretében csatlakozunk, és vagy a régi helyünkre
@@ -108,7 +121,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             | { kind: 'seat'; playerId: string; secret: string; nickname: string }
             | { kind: 'refused'; message: string }
             | { kind: 'note'; message: string }
-            | { kind: 'view'; view: ClassicView | View | PerilView }
+            | { kind: 'view'; view: ClassicView | View | PerilView | ReviewView }
           if (message?.kind === 'seat') {
             const next: Seat = {
               playerId: message.playerId,
@@ -133,6 +146,15 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             return
           }
           if (message?.kind === 'view' && message.view) {
+            // A hibalista nem játéknnézet: nem írja felül az eredményt, hanem
+            // eltárolódik a telefonon, és az eredményképernyőről nyitható meg.
+            if (message.view.mode === 'review') {
+              const deck = message.view
+              saveReviewDeck({ id: deck.deckId, title: deck.title, cards: deck.cards })
+              setReview({ title: deck.title, cards: deck.cards })
+              setDecks(loadReviewDecks())
+              return
+            }
             setView(message.view)
             setSent(null)
           }
@@ -202,6 +224,45 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           </button>
           {problem ? <p className="gq-stu-problem">{problem}</p> : null}
         </form>
+        {decks.length > 0 ? (
+          <section className="gq-stu-card gq-decks">
+            <h2>{t('game.review.saved')}</h2>
+            <p className="gq-hint">{t('game.review.savedHint')}</p>
+            <ul className="gq-deck-list">
+              {decks.map((deck) => (
+                <li key={deck.id} className="gq-deck-row">
+                  <button
+                    type="button"
+                    className="gq-deck-open"
+                    onClick={() => setOpenDeck({ title: deck.title, cards: deck.cards })}
+                  >
+                    <strong>{deck.title}</strong>
+                    <span>
+                      {t(deck.cards.length === 1 ? 'game.review.cardsOne' : 'game.review.cards', {
+                        count: deck.cards.length,
+                      })}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="gq-deck-drop"
+                    aria-label={t('game.review.forget')}
+                    onClick={() => setDecks(removeReviewDeck(deck.id))}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+        {openDeck ? (
+          <FlashcardDeck
+            title={openDeck.title}
+            cards={openDeck.cards}
+            onExit={() => setOpenDeck(null)}
+          />
+        ) : null}
       </div>
     )
   }
@@ -291,21 +352,32 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
       )
     }
     return (
-      <ClassicStudentGame
-        view={view}
-        sent={sent}
-        nickname={nickname}
-        problem={problem}
-        onAnswer={(choices, texts) => {
-          setSent(choices)
-          reply({
-            kind: 'answer',
-            choice: choices[0],
-            choices,
-            ...(texts ? { texts } : {}),
-          })
-        }}
-      />
+      <>
+        <ClassicStudentGame
+          view={view}
+          sent={sent}
+          nickname={nickname}
+          problem={problem}
+          reviewCount={review?.cards.length ?? 0}
+          onOpenReview={review ? () => setOpenDeck(review) : undefined}
+          onAnswer={(choices, texts) => {
+            setSent(choices)
+            reply({
+              kind: 'answer',
+              choice: choices[0],
+              choices,
+              ...(texts ? { texts } : {}),
+            })
+          }}
+        />
+        {openDeck ? (
+          <FlashcardDeck
+            title={openDeck.title}
+            cards={openDeck.cards}
+            onExit={() => setOpenDeck(null)}
+          />
+        ) : null}
+      </>
     )
   }
 
