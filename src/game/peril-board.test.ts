@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { autoDraft, BOARD_TILES, boardFromDraft, MIN_BOARD_QUESTIONS, perilBoard } from './peril-board'
+import { autoDraft, BOARD_TILES, boardFromDraft, difficultyDraft, hasDifficulty, MIN_BOARD_QUESTIONS, perilBoard } from './peril-board'
 import { emptyDraft, placeQuestion, renameColumn } from './peril/draft'
 import type { Question } from './types'
 
@@ -132,5 +132,48 @@ describe('a Veszély! táblája kézzel beosztva', () => {
     const troves = board.flatMap((column) => column.tiles).filter((tile) => tile.treasureTrove)
     expect(troves).toHaveLength(1)
     expect(troves[0].value).toBeGreaterThan(100)
+  })
+})
+
+describe('a Veszély! táblája nehézség szerint', () => {
+  const graded = (index: number, difficulty?: 'easy' | 'medium' | 'hard'): Question => ({
+    ...question(index),
+    ...(difficulty ? { difficulty } : {}),
+  })
+
+  test('a könnyű kérdések a 100-as, a nehezek az 500-as sorba kerülnek', () => {
+    const questions = [
+      graded(0, 'hard'),
+      graded(1, 'easy'),
+      graded(2, 'medium'),
+      graded(3, 'hard'),
+      graded(4, 'easy'),
+      graded(5, 'easy'),
+    ]
+    const draft = difficultyDraft(questions, { untitled })
+    const byId = new Map(questions.map((q) => [q.id, q]))
+    const board = boardFromDraft(draft, questions, { untitled, treasureTrove: false })
+    const rows = new Map<number, string[]>()
+    board.forEach((column) =>
+      column.tiles.forEach((tile) => {
+        const list = rows.get(tile.value) ?? []
+        list.push(byId.get(tile.question.id)?.difficulty ?? 'medium')
+        rows.set(tile.value, list)
+      }),
+    )
+    // A legalsó sor csak könnyű, a legfelső csak nehéz kérdést hoz.
+    expect(rows.get(100)).toEqual(['easy', 'easy'])
+    const top = rows.get(500) ?? []
+    expect(top.every((grade) => grade === 'hard')).toBe(true)
+  })
+
+  test('a nehézség nélküli kérdés a közepére kerül, és a jelző kimondja, hogy nincs adat', () => {
+    const mixed = [graded(0, 'easy'), graded(1), graded(2, 'hard'), graded(3)]
+    const draft = difficultyDraft(mixed, { untitled })
+    const flat = draft.columns.flatMap((column) => column.tiles).filter((id): id is string => !!id)
+    expect(flat[0]).toBe('q0')
+    expect(flat[flat.length - 1]).toBe('q2')
+    expect(hasDifficulty(mixed)).toBe(true)
+    expect(hasDifficulty([graded(0), graded(1)])).toBe(false)
   })
 })

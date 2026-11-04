@@ -11,7 +11,7 @@ import {
   type BoardDraft,
   type TileSpot,
 } from './game/peril/draft'
-import { autoDraft, placedQuestions } from './game/peril-board'
+import { autoDraft, difficultyDraft, hasDifficulty, placedQuestions } from './game/peril-board'
 import type { PerilPlan, PerilTemplate, TroveChoice } from './game/peril-plan'
 import type { Question } from './game/types'
 import { useT } from './i18n'
@@ -135,6 +135,18 @@ export function PerilBoardBuilder({
             }}
           >
             {t('game.peril.autoFill')}
+          </button>
+          <button
+            type="button"
+            className="gq-quiet"
+            disabled={!hasDifficulty(questions)}
+            title={hasDifficulty(questions) ? t('game.peril.byDifficultyHint') : t('game.peril.noDifficulty')}
+            onClick={() => {
+              setDraft(difficultyDraft(questions, { untitled: columnLabel }))
+              setSpot(null)
+            }}
+          >
+            {t('game.peril.byDifficulty')}
           </button>
         </div>
       </div>

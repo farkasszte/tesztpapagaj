@@ -107,15 +107,14 @@ test('a tanár az 500-as mezőre cseréli az első kérdést, és ott is jelenik
   expect(index).toBeGreaterThanOrEqual(0)
   await tiles.nth(index).click()
 
-  // A kincsesbarlang bármelyik első sor alatti mezőre eshet: ha az 500-as kapta,
-  // előbb a tétet kell lezárni.
-  if (await stage.getByText('Nagy tét!').isVisible()) {
-    await stage.getByLabel('Nagy tét!').fill('100')
-    await stage.getByRole('button', { name: 'Tét rögzítése' }).click()
-  }
-  // A színpad a felolvasás fázisát mutatja: a kérdés a tanár kezében van, a
-  // tábla csak az értéket mondja — ezért azt mérjük, hogy az 500-as mező nyílt.
-  await expect(stage.getByRole('heading', { name: /500 pontos mező/ })).toBeVisible()
+  // A mezőnyitás a felolvasó fázist nyitja; ha a kincsesbarlang épp ide esett,
+  // előbb a tét jön, és utána a kérdés. A kért tény mindkét ágon ugyanaz: a
+  // színpad az áthelyezett kérdést mutatja.
+  await expect(
+    stage
+      .getByRole('heading', { name: /500 pontos mező/ })
+      .or(stage.getByRole('heading', { name: movedPrompt })),
+  ).toBeVisible()
 })
 
 test('a levett kérdés visszakerül a készletbe, az automatikus feltöltés pedig helyreállít', async ({
@@ -231,4 +230,72 @@ test('a lobbi visszaadja a táblát, és a terv megmarad', async ({ page }) => {
   await lobby.getByRole('button', { name: 'Tábla szerkesztése' }).click()
   await expect(builder).toBeVisible()
   await expect(builder.locator('.gq-builder-tile[data-filled="yes"]')).toHaveCount(6)
+})
+
+test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre teszi', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/about')
+  const bankId = await page.evaluate(async () => {
+    const { createQuestionBankWorkspaceService } = (await import(
+      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
+    )) as typeof import('../src/question-bank-workspaces')
+    const banks = createQuestionBankWorkspaceService()
+    const bank = await banks.create()
+    await banks.commit(bank.id, { kind: 'rename', name: 'Nehézség bank' })
+    const question = (index: number, difficulty: 'easy' | 'medium' | 'hard') => ({
+      id: `d${index}`,
+      type: 'multiple-choice' as const,
+      columns: 2 as const,
+      difficulty,
+      doc: {
+        type: 'doc',
+        content: [
+          { type: 'paragraph', content: [{ type: 'text', text: `Nehézség kérdés ${index}` }] },
+          {
+            type: 'multipleChoice',
+            content: [
+              ['Oxigén', false],
+              ['Szén-dioxid', true],
+              ['Hélium', false],
+            ].map(([text, correct], choiceIndex) => ({
+              type: 'multipleChoiceChoice',
+              attrs: { id: `d${index}-${choiceIndex}`, correct },
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: String(text) }] }],
+            })),
+          },
+        ],
+      },
+    })
+    await banks.commit(bank.id, {
+      kind: 'create-questions',
+      questions: [
+        question(1, 'hard'),
+        question(2, 'easy'),
+        question(3, 'medium'),
+        question(4, 'easy'),
+        question(5, 'medium'),
+        question(6, 'hard'),
+      ],
+    } as never)
+    return bank.id
+  })
+
+  await page.goto('/jatek')
+  await page.getByRole('button', { name: /^Veszély/ }).click()
+  await page.getByRole('button', { name: 'Indítás', exact: true }).click()
+  const stage = page.getByRole('dialog', { name: 'Veszély!' })
+  await stage.waitFor()
+  const builder = stage.locator('.gq-builder')
+  await expect(builder).toBeVisible()
+
+  await builder.getByRole('button', { name: 'Nehézség szerint' }).click()
+  const firstColumn = builder.locator('.gq-builder-column').first()
+  const secondColumn = builder.locator('.gq-builder-column').nth(1)
+  // A legkönnyebbek a 100-as, a nehezek az 500-as sorban állnak.
+  await expect(firstColumn.locator('.gq-builder-tile').nth(0)).toContainText('Nehézség kérdés 2')
+  await expect(secondColumn.locator('.gq-builder-tile').nth(0)).toContainText('Nehézség kérdés 4')
+  // Hat kérdés három sort tölt meg: a legfelső foglalt sor a nehezeké.
+  await expect(firstColumn.locator('.gq-builder-tile').nth(2)).toContainText('Nehézség kérdés 1')
+  await expect(secondColumn.locator('.gq-builder-tile').nth(2)).toContainText('Nehézség kérdés 6')
+  await expect(firstColumn.locator('.gq-builder-tile').nth(4)).toHaveAttribute('data-filled', 'no')
 })

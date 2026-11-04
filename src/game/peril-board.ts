@@ -76,6 +76,44 @@ export function autoDraft(
   return draft
 }
 
+const DIFFICULTY_RANK: Record<string, number> = { easy: 0, medium: 1, hard: 2 }
+
+/** Van-e egyáltalán nehézség a készletben? Enélkül a rendezés nem mond semmit. */
+export function hasDifficulty(questions: readonly Question[]): boolean {
+  return questions.some((question) => question.difficulty)
+}
+
+/**
+ * A tábla **nehézség szerint**: a könnyű kérdések a 100-as sorba, a nehezek az
+ * 500-ba. A nehézség nélküli kérdés a közepére kerül, mert arról nem tudunk
+ * semmit; ha egyáltalán nincs nehézség, a szerkesztő ezt ki is mondja, és a
+ * gomb nem él.
+ */
+export function difficultyDraft(
+  questions: readonly Question[],
+  options: { untitled: (index: number) => string },
+): BoardDraft {
+  const playable = questions.slice(0, MAX_BOARD_COLUMNS * BOARD_TILES)
+  const columns = Math.max(
+    Math.min(2, playable.length),
+    Math.min(MAX_BOARD_COLUMNS, Math.ceil(playable.length / BOARD_TILES)),
+  )
+  const titles = titlesFor(playable, columns, options.untitled)
+  // Soronként osztunk: az első sor kapja a legkönnyebbeket, az utolsó a nehezeket.
+  const sorted = [...playable].sort(
+    (a, b) => (DIFFICULTY_RANK[a.difficulty ?? 'medium'] ?? 1) - (DIFFICULTY_RANK[b.difficulty ?? 'medium'] ?? 1),
+  )
+  const tiles: (string | null)[][] = Array.from({ length: columns }, () => Array<null>(BOARD_TILES).fill(null))
+  sorted.forEach((question, index) => {
+    const row = Math.floor(index / columns)
+    const column = index % columns
+    if (row < BOARD_TILES) tiles[column][row] = question.id
+  })
+  return {
+    columns: tiles.map((columnTiles, index) => ({ title: titles[index] ?? '', tiles: columnTiles })),
+  }
+}
+
 /**
  * A tábla a készletből: a kérdések oszlopokba rendezve, 100-tól 500-ig érő
  * mezőkkel, és egy kincsesbarlanggal az első sor alatt, ha van hova tenni.

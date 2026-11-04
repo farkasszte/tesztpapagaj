@@ -484,6 +484,7 @@ export function playableQuestions(
       ...(correctChoices ? { correctChoices } : {}),
       ...(correctOrder ? { correctOrder } : {}),
       ...(question.topics?.length ? { topics: [...question.topics] } : {}),
+      ...(question.difficulty ? { difficulty: question.difficulty } : {}),
       ...(explanationNodes.length ? { explanation: plain(explanationRich) } : {}),
       // The words with their formatting, maths and pictures, when they have any.
       ...(rich || explanationNodes.length

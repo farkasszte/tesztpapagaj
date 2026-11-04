@@ -45,6 +45,12 @@ export type Question = {
   /** Concepts the question covers; a Topic gathers questions across banks. */
   topics?: string[];
   /**
+   * A bank metaadataiból: könnyű, közepes vagy nehéz. A Veszély! tábláján ez
+   * rendezi a mezőket (könnyű a 100-as, nehéz az 500-as sorba), a játék
+   * szabályaira nincs hatással.
+   */
+  difficulty?: 'easy' | 'medium' | 'hard';
+  /**
    * The same words with formatting, math or pictures, when they have any
    * (see rich/text.ts). The plain fields above are then their plain text.
    */

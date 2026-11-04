@@ -1337,6 +1337,9 @@ const en = {
     '{placed} of {total} questions on the board',
   'game.peril.autoFill':
     'Fill automatically',
+  'game.peril.byDifficulty': 'By difficulty',
+  'game.peril.byDifficultyHint': 'Easy questions into the low tiles, hard ones into the high tiles.',
+  'game.peril.noDifficulty': 'These questions carry no difficulty yet.',
   'game.peril.columnTitle':
     'Column title {n}',
   'game.peril.addColumn':
@@ -2714,6 +2717,9 @@ const hu: Record<TextKey, string> = {
     '{placed} / {total} kérdés a táblán',
   'game.peril.autoFill':
     'Automatikus feltöltés',
+  'game.peril.byDifficulty': 'Nehézség szerint',
+  'game.peril.byDifficultyHint': 'A könnyű kérdések a kis értékű, a nehezek a nagy értékű mezőkbe kerülnek.',
+  'game.peril.noDifficulty': 'Ezeknél a kérdéseknél nincs megadva nehézség.',
   'game.peril.columnTitle':
     '{n}. oszlop címe',
   'game.peril.addColumn':
