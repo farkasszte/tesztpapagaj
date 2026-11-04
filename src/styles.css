@@ -2458,6 +2458,8 @@ body.margins-guides .exam-page::after {
 .bank-page-title:hover { border-color: #d8cbbb; }
 .bank-page-title:focus { border-color: var(--paper-accent); }
 .bank-save-status { color: #6e5b4d; font-size: 13px; }
+/* A bank fejlécében a játék a fő művelet, a mentés-állapot mellette ül. */
+.bank-page-actions { display: inline-flex; align-items: center; gap: 12px; }
 .bank-name-error { margin: 6px 0 0 7px; }
 .dialog-save-error { flex: 1; margin: 0; color: var(--paper-danger); font-size: 13px; }
 .danger-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 7px 12px; border: 1px solid var(--paper-danger); border-radius: 6px; color: #fff; background: var(--paper-danger); font: inherit; font-weight: 700; }

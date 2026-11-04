@@ -1908,6 +1908,7 @@ function QuestionBankPage({
   persistentStorage,
   launchError,
   onImportInto,
+  onPlay,
 }: {
   bank: QuestionBankResource
   bankWorkspaces: QuestionBankWorkspaceService
@@ -1917,6 +1918,8 @@ function QuestionBankPage({
   /** Opens the import dialog with every bank in the file defaulting to
    *  adding into this one. */
   onImportInto: (bankId: string) => void
+  /** Elindítja a kvízjátékot ezzel a bankkal. */
+  onPlay: () => void
 }) {
   const t = useT()
   const [bank, setBank] = useState(initialBank)
@@ -1973,7 +1976,14 @@ function QuestionBankPage({
       { label: bank.name },
     ]}
     persistentStorage={persistentStorage}
-    actions={<span className="bank-save-status">{t('bank.savesImmediately')}</span>}
+    actions={
+      <span className="bank-page-actions">
+        <button type="button" className="primary-button" onClick={onPlay}>
+          {t('bank.play')}
+        </button>
+        <span className="bank-save-status">{t('bank.savesImmediately')}</span>
+      </span>
+    }
   >
     {launchError && <p className="home-error" role="alert">{launchError}</p>}
     {importAnnouncement && <p className="sr-only" role="status" aria-live="polite">{importAnnouncement}</p>}
@@ -3546,7 +3556,10 @@ export default function App({
     // A diák linkje (`/jatek?kod=482913`) a telefonos belépő; kód nélkül a tanár oldala.
     const code = new URLSearchParams(search).get('kod') ?? ''
     if (code) return <GameStudent initialCode={code} />
-    return <GamePage banks={bankWorkspaces} persistentStorage={storageStatus} />
+    const wantedBank = new URLSearchParams(search).get('bank') ?? ''
+    return (
+      <GamePage banks={bankWorkspaces} persistentStorage={storageStatus} initialBankId={wantedBank} />
+    )
   }
   if (route === '/about') return <>{globalChrome}<AboutPage persistentStorage={storageStatus} /></>
   if (route === '/privacy') return <>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></>
@@ -3612,6 +3625,7 @@ export default function App({
     // What went wrong at start belongs to the bank the app started on.
     launchError={pageBank.bank === bank ? initialError : null}
     onImportInto={(bankId) => openImport(null, bankId)}
+    onPlay={() => navigate(`/jatek?bank=${pageBank.bank.id}`)}
   /></> : globalChrome
   return editorStore && editorId ? <>{globalChrome}<ExamEditor
     store={editorStore}

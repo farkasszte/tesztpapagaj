@@ -50,9 +50,12 @@ const MODES: { id: Mode; name: string; blurb: string; ready: boolean; tincture: 
 export function GamePage({
   banks,
   persistentStorage,
+  initialBankId = '',
 }: {
   banks: QuestionBankWorkspaceService
   persistentStorage: PersistentStorageStatus
+  /** A bank oldaláról érkező kérés: ezzel a bankkal induljon a játék. */
+  initialBankId?: string
 }) {
   const t = useT()
   const [mode, setMode] = useState<Mode>('classic')
@@ -74,6 +77,8 @@ export function GamePage({
   const [playing, setPlaying] = useState(false)
   /** A böngészőben talált félbehagyott játék, amíg a tanár nem dönt róla. */
   const [resume, setResume] = useState<SavedGame | null>(null)
+  /** A kért bank nem található: a tanár tudja, miért nem az jött be. */
+  const [missingBank, setMissingBank] = useState(false)
   /** Amelyiket éppen folytatjuk. */
   const [restored, setRestored] = useState<SavedGame | null>(null)
 
@@ -92,12 +97,16 @@ export function GamePage({
     void banks.recent().then((list) => {
       if (!live) return
       setSummaries(list)
-      setBankId((chosen) => chosen || list[0]?.id || '')
+      // A bank oldaláról jött kérés: ha a bank megvan, azzal indulunk; ha
+      // időközben törölték, kimondjuk és az első bankra esünk vissza.
+      const wanted = initialBankId ? list.find((summary) => summary.id === initialBankId) : undefined
+      if (initialBankId && !wanted) setMissingBank(true)
+      setBankId((chosen) => chosen || wanted?.id || list[0]?.id || '')
     })
     return () => {
       live = false
     }
-  }, [banks])
+  }, [banks, initialBankId])
 
   useEffect(() => {
     if (!bankId) {
@@ -286,6 +295,11 @@ export function GamePage({
           </div>
 
           {summaries && summaries.length === 0 ? <p className="gq-lead">{t('game.noBanks')}</p> : null}
+          {missingBank ? (
+            <p className="gq-tally gq-tally-empty" role="alert">
+              {t('game.bankMissing')}
+            </p>
+          ) : null}
 
           {playable ? (
             <p className={playable.questions.length === 0 ? 'gq-tally gq-tally-empty' : 'gq-tally'}>
