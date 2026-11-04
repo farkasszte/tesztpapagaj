@@ -1629,3 +1629,11 @@ select.gq-input-small { text-align: center; }
 .gq-builder-template > .gq-builder-question { flex: 1 1 auto; }
 .gq-builder-template > .gq-builder-x { flex: 0 0 auto; height: 30px; }
 .gq-builder-question[draggable='true'] { cursor: grab; }
+
+/* A színpadon a fókusz mindig látszik: vetítés közben a tanár csak ebből tudja,
+   hol jár a billentyűzettel. Az arany gyűrű a sötét vásznon is kirajzolódik. */
+.gq-stage :focus-visible {
+  outline: 2px solid var(--or);
+  outline-offset: 2px;
+}
+.gq-stage:focus-visible { outline-offset: -4px; }

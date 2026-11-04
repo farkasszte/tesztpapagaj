@@ -16,7 +16,7 @@ import {
 import { PerilBoardBuilder } from './game-peril-builder'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { Letter } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { gameMessage } from './game-messages'
@@ -56,6 +56,7 @@ export function PerilStage({
   status?: ReactNode
 }) {
   const t = useT()
+  const trapRef = useStageFocusTrap<HTMLDivElement>()
   const [names, setNames] = useState<string[]>(() => {
     const teams = (restored?.session as PerilSession | undefined)?.settings?.teams?.names
     return teams?.length ? teams : DEFAULT_TEAMS
@@ -139,7 +140,7 @@ export function PerilStage({
 
   if (!engine || !session || !view) {
     return (
-      <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
+      <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
         <div className="gq-stage-bar">
           {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
           <span className="gq-where">{title}</span>

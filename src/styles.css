@@ -724,6 +724,14 @@ button { cursor: pointer; }
   padding: 1px 7px; border-radius: 999px;
   color: #4e3b2f; background: #efe2d1; letter-spacing: 0; text-transform: none;
 }
+/* A játékban mért eltalálási arány: a sor mellett egy szám. 50% alatt meleg
+   borostyán, hogy a tanár a listán is lássa, mit kell újratanítani. */
+.question-bank-row-stat {
+  padding: 1px 7px; border-radius: 999px; letter-spacing: 0; text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: #3f5b34; background: #e2ecd8;
+}
+.question-bank-row-stat[data-weak='true'] { color: #7a3f16; background: #f6e0cd; }
 /* One line, always: the row is a projection of the stem, and a taller row would
    make the bank harder to scan rather than more informative. */
 .question-bank-row-stem { display: flex; align-items: center; gap: 6px; min-width: 0; }

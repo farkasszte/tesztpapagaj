@@ -235,7 +235,7 @@ test('a lobbi visszaadja a táblát, és a terv megmarad', async ({ page }) => {
 test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre teszi', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/about')
-  const bankId = await page.evaluate(async () => {
+  await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/question-bank-workspaces.ts'
     )) as typeof import('../src/question-bank-workspaces')
@@ -277,7 +277,6 @@ test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre tes
         question(6, 'hard'),
       ],
     } as never)
-    return bank.id
   })
 
   await page.goto('/jatek')

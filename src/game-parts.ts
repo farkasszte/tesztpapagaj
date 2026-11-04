@@ -25,6 +25,65 @@ export function useNow(active = true): number {
 }
 
 /** Escape: a tanár bármikor kiléphet a kivetítésből. */
+/**
+ * Fókuszcsapda a színpadhoz.
+ *
+ * A színpad `role="dialog" aria-modal="true"`, de a böngésző nem zárja be a
+ * fókuszt magától: Tab-bal a tanár kimehetne a háttérbe, és vetítés közben azt
+ * sem látná, hol áll. A horg a nyitáskor az első fogható elemre áll, majd a
+ * Tabot és a Shift+Tabot a színpadon belül forgatja.
+ *
+ * A láthatatlan vagy letiltott elemek kimaradnak, tehát a fókusz mindig olyan
+ * helyre lép, amit a tanár lát is.
+ */
+export function useStageFocusTrap<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null)
+  useEffect(() => {
+    const root = ref.current
+    if (!root) return
+    const focusable = () =>
+      [...root.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )].filter((node) => node.offsetParent !== null || node === document.activeElement)
+
+    // Nyitáskor a színpad első fogható eleme kapja a fókuszt; ha nincs ilyen,
+    // maga a színpad, hogy az Esc és a nyilak azonnal működjenek.
+    if (!root.contains(document.activeElement)) {
+      const first = focusable()[0] ?? root
+      if (first === root && !root.hasAttribute('tabindex')) root.setAttribute('tabindex', '-1')
+      first.focus({ preventScroll: true })
+    }
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+      const items = focusable()
+      if (items.length === 0) {
+        event.preventDefault()
+        return
+      }
+      const first = items[0]
+      const last = items[items.length - 1]
+      const active = document.activeElement as HTMLElement | null
+      if (!active || !root.contains(active)) {
+        event.preventDefault()
+        first.focus()
+        return
+      }
+      if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+      }
+    }
+
+    root.addEventListener('keydown', onKey)
+    return () => root.removeEventListener('keydown', onKey)
+  }, [])
+  return ref
+}
+
 export function useExitOnEscape(onExit: () => void) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

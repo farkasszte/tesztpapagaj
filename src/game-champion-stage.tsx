@@ -1,12 +1,13 @@
-import { useReducer, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { DocView } from './doc-view'
 import { buildView } from './game/views'
 import { Engine, createSession } from './game/engine'
 import type { EndReason, Help, Settings } from './game/types'
 import type { Session } from './game/types'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { Coin, Heart, Letter, Ring } from './game-shapes'
+import { recordRevealCounts } from './game/question-stats'
 import { buildCsv, csvFilename, downloadCsv } from './game/standings-csv'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
@@ -60,6 +61,7 @@ export function ChampionStage({
   status?: ReactNode
 }) {
   const t = useT()
+  const trapRef = useStageFocusTrap<HTMLDivElement>()
   const [engine] = useState(() =>
     given
       ? given
@@ -82,6 +84,24 @@ export function ChampionStage({
   const session = engine.session
   const view = buildView(session, { now, pauseReason: engine.pauseReason })
   const game = view.game
+
+  // A felfedés után a kérdés kimenetele helyben marad (mint a Klasszikusban):
+  // a bank listája ebből jelzi, melyik kérdés megy rosszul. Csak akkor, ha a
+  // csapat tényleg válaszolt — kivetítésnél nincs válasz, ott nem mérünk.
+  const reveal = view.phase === 'REVEAL' ? view.question?.reveal : null
+  const askIndex = view.question?.index ?? null
+  useEffect(() => {
+    if (!reveal || askIndex === null) return
+    // A pakli kérdés-indexeket hordoz: a session kérdései adják az azonosítót.
+    const deckIndex = session.game?.deck[askIndex]
+    if (deckIndex === undefined) return
+    const asked = session.questions[deckIndex]
+    if (!asked) return
+    recordRevealCounts(asked.id, reveal.counts, reveal.correct)
+    // A `reveal` objektum minden nézetben új: a kérdés számára és a felfedés
+    // tényére horgonyzunk, nem a referenciára.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.phase, askIndex, session.game])
   const question = view.question
   // A színpad a bank saját szavaival rajzol, ezért a nyitott kérdés id-je kell.
   const activeId = session.game?.active?.question.id
@@ -162,7 +182,7 @@ export function ChampionStage({
   )
 
   return (
-    <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
+    <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">
@@ -197,6 +217,17 @@ export function ChampionStage({
             view.setTitle
           )}
         </span>
+        {view.phase === 'PHASE_A' || view.phase === 'PHASE_B' ? (
+          session.paused ? (
+            <button type="button" className="gq-go" onClick={() => run(() => engine.resume())}>
+              {t('game.stage.resume')}
+            </button>
+          ) : (
+            <button type="button" className="gq-quiet" onClick={() => run(() => engine.pause())}>
+              {t('game.stage.pause')}
+            </button>
+          )
+        ) : null}
         <button type="button" className="gq-quiet" onClick={onExit}>
           {t('game.stage.endGame')}
         </button>

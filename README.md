@@ -36,6 +36,7 @@ bun run build    # típusellenőrzés + éles build a dist/-be
 bun test         # egységtesztek (~1700, 112 fájl)
 bun run test:e2e         # Playwright, a config szerint retry-jal
 bun run test:e2e:strict  # ugyanaz retry NÉLKÜL: ez mutatja meg a valódi bukásokat
+bun run test:e2e:fast    # csak a játék specjei (~45 mp), fejlesztés közben
 ```
 
 Windowson a `bun test` 73 PDF-tesztje elbukik, mert a Bun elrontja a

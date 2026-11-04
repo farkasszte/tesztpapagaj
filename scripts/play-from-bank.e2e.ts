@@ -72,3 +72,21 @@ test('a nem létező bankot a játék kimondja, és nem némán vált', async ({
   await page.goto('/jatek?bank=nincs-ilyen')
   await expect(page.getByRole('alert').filter({ hasText: 'Ez a bank már nincs meg' })).toBeVisible()
 })
+
+test('a bank sora megmutatja a játékban mért eltalálási arányt', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  const bankId = await seedBank(page)
+  // A játék mérése a böngésző tárolójában marad: 10 válaszból 6 helyes.
+  await page.evaluate(() => {
+    // A kulcs a kérdés azonosítója (a vetés `p1`/`p2` azonosítókkal dolgozik).
+    window.localStorage.setItem(
+      'tesztpapagaj:question-stats',
+      JSON.stringify({ p1: { asked: 10, right: 6, updatedAt: Date.now() } }),
+    )
+  })
+
+  await page.goto(`/question-bank?id=${bankId}`)
+  const badge = page.locator('.question-bank-row-stat').first()
+  await expect(badge).toHaveText('60%')
+  await expect(badge).toHaveAttribute('title', /60%-a találta el \(10 válaszból\)/)
+})

@@ -253,6 +253,31 @@ export class ClassicEngine {
     s.deadline = null;
   }
 
+  /**
+   * Szünet: az óra megáll, a kör nem megy tovább. Akkor van értelme, amikor a
+   * kérdés nyitva van és fut az időzítő (diák-eszközös mód); a válaszok a
+   * szünet alatt is beérkeznek, de a felfedés nem indul el.
+   */
+  pause(): Result {
+    const s = this.session;
+    if (s.phase !== 'QUESTION' || s.deadline === null) return no('You can pause while a question is open.');
+    s.pausedRemainingMs = Math.max(0, s.deadline - this.clock.now());
+    s.deadline = null;
+    s.paused = true;
+    return this.changed();
+  }
+
+  /** Folytatás: legalább pár másodpercet visszaad, hogy senki ne csússzon le. */
+  resume(): Result {
+    const s = this.session;
+    if (!s.paused) return no('The game isn’t paused.');
+    const remaining = Math.max(3000, s.pausedRemainingMs ?? 0);
+    s.deadline = s.phase === 'QUESTION' ? this.clock.now() + remaining : null;
+    s.pausedRemainingMs = null;
+    s.paused = false;
+    return this.changed();
+  }
+
   tick(): boolean {
     const s = this.session;
     if (s.noDevices || s.phase !== 'QUESTION' || s.deadline === null || this.clock.now() < s.deadline) return false;

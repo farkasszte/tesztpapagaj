@@ -74,6 +74,10 @@ export type ClassicSession = {
   /** When the open question was shown, and when its answers lock. */
   openedAt: number | null;
   deadline: number | null;
+  /** A tanár megállította a kört: az óra áll, a felfedés nem indul el. */
+  paused?: boolean;
+  /** Szünet előtt hátralévő idő: folytatáskor ebből indul újra az óra. */
+  pausedRemainingMs?: number | null;
   seq: number;
 };
 

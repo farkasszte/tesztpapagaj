@@ -235,6 +235,13 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(stage.getByText('1 of 1 right')).toBeVisible()
   await expect(student.getByText('The game is over')).toBeVisible()
 
+  // A felfedés után a kérdés kimenetele a tanár gépén marad: a bank listája
+  // ebből jelzi, melyik kérdés megy rosszul. Panni eltalálta, tehát 1/1.
+  const stats = await page.evaluate(() => window.localStorage.getItem('tesztpapagaj:question-stats'))
+  expect(stats).toBeTruthy()
+  const parsed = JSON.parse(stats ?? '{}') as Record<string, { asked: number; right: number }>
+  expect(Object.values(parsed)).toContainEqual(expect.objectContaining({ asked: 1, right: 1 }))
+
   // A záróképernyőről a ranglista CSV-ben elvihető.
   const downloadPromise = page.waitForEvent('download')
   await stage.getByRole('button', { name: 'Save the standings' }).click()

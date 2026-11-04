@@ -1,4 +1,4 @@
-import { useReducer, useState, type ReactNode } from 'react'
+import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
 import { DocView } from './doc-view'
 import type { ClassicSettings } from './game/classic/types'
 import { ClassicEngine, createClassicSession } from './game/classic/engine'
@@ -6,8 +6,9 @@ import { buildClassicView } from './game/classic/views'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { resumedClassicSession } from './game/resume'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { buildCsv, csvFilename, downloadCsv } from './game/standings-csv'
+import { recordRevealCounts } from './game/question-stats'
 import { Bell, Letter, Ring } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { useT } from './i18n'
@@ -53,6 +54,7 @@ export function ClassicStage({
   hint?: string
 }) {
   const t = useT()
+  const trapRef = useStageFocusTrap<HTMLDivElement>()
   const [engine] = useState(() => {
     if (given) return given
     // A mentés régi: a megjelenítési beállítást a mostani felületről vesszük,
@@ -68,16 +70,34 @@ export function ClassicStage({
    *  lépés: a tanár a felfedés után előbb megnézi a kört, és csak utána lép
    *  tovább a következő kérdésre. */
   const [boardOf, setBoardOf] = useState<number | null>(null)
+  /** Melyik kérdés kimenetelét írtuk már ki: a felfedés egyszer számít. */
+  const recorded = useRef<number | null>(null)
   const now = useNow()
   useExitOnEscape(onExit)
 
   const session = engine.session
   const view = buildClassicView(session, { now })
+
+  // A felfedés után a kérdés kimenetele a tanár gépén marad: a bank listája
+  // ebből mutatja, melyik kérdés megy rosszul. Kivetítésnél nincs rögzített
+  // válasz, tehát ott nem keletkezik adat.
+  useEffect(() => {
+    if (view.phase !== 'REVEAL') return
+    if (!view.question?.counts) return
+    if (recorded.current === session.index) return
+    recorded.current = session.index
+    const current = session.questions[session.index]
+    if (current) recordRevealCounts(current.id, view.question.counts, view.question.correct)
+  }, [view.phase, view.question?.counts, view.question?.correct, session.index, session.questions])
   const asked = session.questions[session.index]
   const shown = asked ? words.get(asked.id) : undefined
   const question = view.question
   const total = session.settings.timerSeconds * 1000
-  const remaining = session.deadline === null ? 0 : Math.max(0, session.deadline - now)
+  const remaining = session.paused
+    ? Math.max(0, session.pausedRemainingMs ?? 0)
+    : session.deadline === null
+      ? 0
+      : Math.max(0, session.deadline - now)
   const timeUp = view.phase === 'QUESTION' && session.deadline !== null && now >= session.deadline
   const board = boardOf === session.index ? view.roundTop : null
   const act = (run: () => unknown) => {
@@ -101,7 +121,7 @@ export function ClassicStage({
   })
 
   return (
-    <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.title')}>
+    <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.title')}>
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         {session.noDevices || !question ? null : (
@@ -117,6 +137,16 @@ export function ClassicStage({
             ? t('game.stage.questionOf', { number: question.number, total: question.total })
             : view.title}
         </span>
+        {view.phase === 'QUESTION' && session.deadline !== null ? (
+          <button type="button" className="gq-quiet" onClick={() => act(() => engine.pause())}>
+            {t('game.stage.pause')}
+          </button>
+        ) : null}
+        {session.paused ? (
+          <button type="button" className="gq-go" onClick={() => act(() => engine.resume())}>
+            {t('game.stage.resume')}
+          </button>
+        ) : null}
         <button type="button" className="gq-quiet" onClick={onExit}>
           {t('game.stage.endGame')}
         </button>

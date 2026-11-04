@@ -123,3 +123,44 @@ describe('Classic with no student devices', () => {
     expect(engine.session.phase).toBe('REPORT');
   });
 });
+
+describe('Szünet a kör közben', () => {
+  test('a szünet megállítja az órát, a folytatás ugyanannyit ad vissza', () => {
+    const { engine, ok, advance } = setup(['Ana', 'Ben'], { timerSeconds: 20 });
+    ok(engine.start());
+    const deadline = engine.session.deadline;
+    expect(deadline).not.toBeNull();
+
+    // Öt másodperc után szünet: az óra megáll, a hátralévő idő elmentődik.
+    advance(5_000);
+    ok(engine.pause());
+    expect(engine.session.paused).toBe(true);
+    expect(engine.session.deadline).toBeNull();
+    expect(engine.session.pausedRemainingMs).toBe(15_000);
+
+    // A szünet alatt a `tick()` nem fedi fel a választ.
+    advance(60_000);
+    expect(engine.tick()).toBe(false);
+    expect(engine.session.phase).toBe('QUESTION');
+
+    // A folytatás a hátralévő időt adja vissza: nem azonnal, hanem 15 mp múlva
+    // jár le az óra — a szünet hossza nem számít.
+    ok(engine.resume());
+    expect(engine.session.paused).toBe(false);
+    expect(engine.session.pausedRemainingMs).toBeNull();
+    expect(engine.tick()).toBe(false);
+    advance(14_000);
+    expect(engine.tick()).toBe(false);
+    advance(1_500);
+    expect(engine.tick()).toBe(true);
+    expect(engine.session.phase).toBe('REVEAL');
+  });
+
+  test('felfedés után nincs mit szüneteltetni', () => {
+    const { engine, ids, ok } = setup(['Ana'], { timerSeconds: 20 });
+    ok(engine.start());
+    ok(engine.answer(ids[0], 1));
+    expect(engine.session.phase).toBe('REVEAL');
+    expect(engine.pause().ok).toBe(false);
+  });
+});

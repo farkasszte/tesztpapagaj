@@ -57,6 +57,7 @@ import {
   type QuestionBankSort,
 } from './question-bank-view'
 import { t } from './i18n'
+import { rightPercent, useQuestionStats } from './game/question-stats'
 
 /** The width the filter list is laid out at, and the gap it keeps from the
  *  window edge. Both are also in the stylesheet; they are here because the
@@ -285,6 +286,10 @@ export function QuestionBankPane({
    *  a worse way to say so. */
   drag: WorkspaceDrag
 }) {
+  // A játékban mért kérdés-eredmények: a sor mellett egy kis jelzés mondja
+  // meg, melyik kérdés megy rosszul az osztálynál. Név nem kerül bele, és ha
+  // még nincs adat, a jelzés el sem jelenik.
+  const questionStats = useQuestionStats()
   const [scrolled, setScrolled] = useState(false)
   const copying = useQuestionCopy()
   const questions = browseQuestionBank(bank, filter)
@@ -555,6 +560,18 @@ export function QuestionBankPane({
                   <QuestionReading
                     content={readingOfQuestion(question)}
                     aside={<span className="question-bank-reading-actions">
+                      {rightPercent(questionStats[question.id]) !== null ? (
+                        <span
+                          className="question-bank-row-stat"
+                          data-weak={rightPercent(questionStats[question.id])! < 50 ? 'true' : undefined}
+                          title={t('bank.stat', {
+                            percent: rightPercent(questionStats[question.id])!,
+                            asked: questionStats[question.id].asked,
+                          })}
+                        >
+                          {rightPercent(questionStats[question.id])}%
+                        </span>
+                      ) : null}
                       <CopyQuestionButton
                         question={question}
                         name={name}
@@ -637,6 +654,18 @@ export function QuestionBankPane({
                     {question.difficulty && (
                       <DifficultyBadge difficulty={question.difficulty} />
                     )}
+                    {rightPercent(questionStats[question.id]) !== null ? (
+                      <span
+                        className="question-bank-row-stat"
+                        data-weak={rightPercent(questionStats[question.id])! < 50 ? 'true' : undefined}
+                        title={t('bank.stat', {
+                          percent: rightPercent(questionStats[question.id])!,
+                          asked: questionStats[question.id].asked,
+                        })}
+                      >
+                        {rightPercent(questionStats[question.id])}%
+                      </span>
+                    ) : null}
                     {inExamWorkingCopy && (
                       <span className="question-bank-row-badge">{t('ui.inExam')}</span>
                     )}

@@ -224,3 +224,24 @@ test('a válaszok sorrendje kevert, és a tanár visszaadhatja a bank sorrendjé
   expect(await answers(kept)).toEqual(['Oxygen', 'Carbon dioxide', 'Helium'])
   await expect(kept.locator('.gq-answer').first()).toHaveAttribute('aria-label', 'A: Oxygen')
 })
+
+test('a színpad fókuszcsapdája: a Tab nem visz ki a párbeszédből', async ({ page }) => {
+  await seedBank(page, {
+    name: 'Focus bank',
+    questions: [THREE('f1', 'Which gas do plants take in?'), THREE('f2', 'Which gas do plants give off?')],
+  })
+  await openGame(page, 'Classic')
+  const stage = page.getByRole('dialog', { name: 'Quiz game' })
+  await expect(stage).toBeVisible()
+  await expect
+    .poll(() => page.evaluate(() => Boolean(document.activeElement?.closest('.gq-stage'))))
+    .toBe(true)
+
+  // Negyven Tab: a fókusz végig a színpadon marad (a színpad kevesebb fogható
+  // elemet tartalmaz, tehát többször körbeér).
+  for (let step = 0; step < 40; step += 1) {
+    await page.keyboard.press('Tab')
+    const inside = await page.evaluate(() => Boolean(document.activeElement?.closest('.gq-stage')))
+    expect(inside).toBe(true)
+  }
+})
