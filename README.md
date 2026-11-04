@@ -33,7 +33,9 @@ egy helyen élnek: `src/i18n/index.ts`.
 bun install
 bun run dev      # fejlesztői szerver, http://localhost:8000
 bun run build    # típusellenőrzés + éles build a dist/-be
-bun test         # egységtesztek (~1550)
+bun test         # egységtesztek (~1700, 112 fájl)
+bun run test:e2e         # Playwright, a config szerint retry-jal
+bun run test:e2e:strict  # ugyanaz retry NÉLKÜL: ez mutatja meg a valódi bukásokat
 ```
 
 Windowson a `bun test` 73 PDF-tesztje elbukik, mert a Bun elrontja a
@@ -51,10 +53,32 @@ A feliratok a `src/i18n/index.ts`-ben vannak, nem a komponensekben. Az angol a
 forrás: a `TextKey` típus minden kulcsot számon kér, tehát hiányzó fordítás
 típushiba, nem üres gomb.
 
+### Kvízjáték
+
+A `/jatek` oldal három játékmódja (Klasszikus, Bajnok, Veszély!) a Class
+Gauntlet motorjának portja: a szabályok a `src/game/` alatt élnek, keretrendszer
+nélkül, a saját tesztjeikkel — a felület csak a nézeteket rajzolja. A játék a
+kérdésbank saját kérdéseiből dolgozik, és nem ír vissza a bankba.
+
+Két úton játszható: **kivetítéssel** (a tanár vezérli a színpadot, a napló nem
+rögzít választ) vagy **diák-eszközön** (szobakód és QR; a szabályok a tanár
+gépén futnak, a relay csak a nézeteket továbbítja).
+
+A Veszély! táblája kézzel is beosztható: a tanár a játék előtt mezőre teszi a
+kérdéseket, helyet cserél, levesz, oszlopot nevez el, és a kész táblát
+**sablonként** elmentheti a következő órára (`src/game-peril-builder.tsx`,
+`src/game/peril-plan.ts`). A beosztás a böngésző tárolójában marad, és a
+kincsesbarlang helye is beállítható.
+
+A színpad jelképei a sport-téma nyelvén szólnak: a bajnok életjelzője **piros
+szív**, a díjalapé **aranytallér**; a diák telefonja ugyanezt a négy
+arénaszínt viseli, mint a vetítés.
+
 ## Ami eltér az eredetitől
 
 A teljes lista a `NOTICE.md`-ben. Röviden: magyar nyelv (alapértelmezés), saját
-logó és ikon, magyar oldalcím. A program működése, a fájlformátumok és az
+logó és ikon, magyar oldalcím, valamint a kvízjáték (a Class Gauntlet Apache-2.0
+motorjának portja, saját felülettel). A program működése, a fájlformátumok és az
 exportok logikája változatlan.
 
 ## Köszönet

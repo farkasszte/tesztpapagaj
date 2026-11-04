@@ -7,6 +7,7 @@ import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import { resumedClassicSession } from './game/resume'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
+import { buildCsv, csvFilename, downloadCsv } from './game/standings-csv'
 import { Bell, Letter, Ring } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { useT } from './i18n'
@@ -301,6 +302,29 @@ export function ClassicStage({
                   ))}
               </ol>
               <p className="gq-hint">{t('game.devices.reportHint')}</p>
+              <button
+                type="button"
+                className="gq-quiet"
+                onClick={() =>
+                  downloadCsv(
+                    csvFilename(title),
+                    buildCsv(
+                      title,
+                      [t('game.csv.place'), t('game.csv.name'), t('game.csv.points'), t('game.csv.right')],
+                      [...view.report!.students]
+                        .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+                        .map((student, index) => [
+                          index + 1,
+                          student.nickname,
+                          student.points,
+                          `${student.correct} / ${student.answered}`,
+                        ]),
+                    ),
+                  )
+                }
+              >
+                {t('game.stage.saveStandings')}
+              </button>
             </div>
           ) : null}
           <button type="button" className="gq-go" onClick={onExit}>

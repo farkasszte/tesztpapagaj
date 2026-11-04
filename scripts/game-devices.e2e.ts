@@ -235,6 +235,16 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await expect(stage.getByText('1 of 1 right')).toBeVisible()
   await expect(student.getByText('The game is over')).toBeVisible()
 
+  // A záróképernyőről a ranglista CSV-ben elvihető.
+  const downloadPromise = page.waitForEvent('download')
+  await stage.getByRole('button', { name: 'Save the standings' }).click()
+  const download = await downloadPromise
+  expect(download.suggestedFilename()).toMatch(/^[a-z0-9-]+\.csv$/)
+  const saved = await download.path()
+  const text = saved ? await (await import('node:fs/promises')).readFile(saved, 'utf8') : ''
+  expect(text).toContain('Name;Points')
+  expect(text).toContain('Panni')
+
   await student.close()
 })
 

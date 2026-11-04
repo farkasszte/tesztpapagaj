@@ -91,6 +91,10 @@ test('a tanár az 500-as mezőre cseréli az első kérdést, és ott is jelenik
   await expect(fiveHundred).toContainText('500')
   await expect(first).toHaveAttribute('data-filled', 'no')
 
+  // A kincsesbarlang kikapcsolása: így a mezőnyitás a felolvasó fázisba visz.
+  await builder.getByRole('checkbox', { name: 'Kincsesbarlang' }).uncheck()
+  await expect(builder.getByText('Nincs kincsesbarlang')).toBeVisible()
+
   // A tábla elindul, és az 500-as mezőn ugyanaz a kérdés olvasható.
   await stage.getByLabel('1. csapat').fill('Rókák')
   await stage.getByLabel('2. csapat').fill('Baglyok')
@@ -142,4 +146,89 @@ test('a levett kérdés visszakerül a készletbe, az automatikus feltöltés pe
   await expect(fiveHundred).toHaveAttribute('data-filled', 'no')
   await expect(builder.locator('.gq-builder-tile[data-filled="yes"]')).toHaveCount(6)
   await expect(builder.getByText('Minden kérdés a táblán van.')).toBeVisible()
+})
+
+test('a tábla beosztása újratöltés után is megmarad, és sablonba menthető', async ({ page }) => {
+  const { builder } = await openSetup(page)
+
+  const firstColumn = builder.locator('.gq-builder-column').first()
+  const first = firstColumn.locator('.gq-builder-tile').nth(0)
+  const fiveHundred = firstColumn.locator('.gq-builder-tile').nth(4)
+  const moved = (await first.innerText()).replace(/\s+/g, ' ').trim()
+  const prompt = moved.replace(/^100\s*/, '')
+
+  // Áthelyezés az 500-as mezőre, majd sablonba mentés.
+  await first.click()
+  await fiveHundred.click()
+  await expect(fiveHundred).toContainText(prompt)
+
+  await builder.getByLabel('Sablon neve').fill('Földrajz — 6. osztály')
+  await builder.getByRole('button', { name: 'Mentés', exact: true }).click()
+  await expect(builder.locator('.gq-builder-template .gq-builder-question').first()).toHaveText('Földrajz — 6. osztály')
+
+  // Újratöltés: a terv a böngésző tárolójából visszajön.
+  await page.reload()
+  await page.getByRole('button', { name: /^Veszély/ }).click()
+  await page.getByRole('button', { name: 'Indítás', exact: true }).click()
+  const stage = page.getByRole('dialog', { name: 'Veszély!' })
+  await stage.waitFor()
+  const reopened = stage.locator('.gq-builder')
+  await expect(reopened.locator('.gq-builder-column').first().locator('.gq-builder-tile').nth(4)).toContainText(
+    prompt,
+  )
+  await expect(reopened.locator('.gq-builder-template .gq-builder-question').first()).toHaveText('Földrajz — 6. osztály')
+
+  // A sablon betöltése az automatikus táblát hozza vissza.
+  await reopened.getByRole('button', { name: 'Automatikus feltöltés' }).click()
+  await expect(
+    reopened.locator('.gq-builder-column').first().locator('.gq-builder-tile').nth(4),
+  ).toHaveAttribute('data-filled', 'no')
+  await reopened.locator('.gq-builder-template .gq-builder-question').first().click()
+  await expect(
+    reopened.locator('.gq-builder-column').first().locator('.gq-builder-tile').nth(4),
+  ).toContainText(prompt)
+})
+
+test('húzással is a helyére kerül a kérdés', async ({ page }) => {
+  const { builder } = await openSetup(page)
+
+  const firstColumn = builder.locator('.gq-builder-column').first()
+  const first = firstColumn.locator('.gq-builder-tile').nth(0)
+  const target = firstColumn.locator('.gq-builder-slot').nth(4)
+  const moved = (await first.innerText()).replace(/\s+/g, ' ').trim()
+  const prompt = moved.replace(/^100\s*/, '')
+
+  // A mezőt a célmezőre húzva helyet cserélnek (a fogás a mezőn indul).
+  await first.dragTo(target)
+  await expect(firstColumn.locator('.gq-builder-tile').nth(4)).toContainText(prompt)
+
+  // A készletből is húzható: előbb leveszünk egy kérdést, hogy legyen a poolban.
+  // A csere után az első mező üres, ezért egy foglaltat veszünk le.
+  await firstColumn.locator('.gq-builder-tile').nth(1).click()
+  await builder.getByRole('button', { name: 'Levesz' }).click()
+  const pool = builder.locator('.gq-builder-question').first()
+  const free = (await pool.innerText()).trim()
+  await pool.dragTo(firstColumn.locator('.gq-builder-slot').nth(0))
+  await expect(firstColumn.locator('.gq-builder-tile').nth(0)).toContainText(free)
+})
+
+test('a lobbi visszaadja a táblát, és a terv megmarad', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await seedBank(page)
+  await page.goto('/jatek')
+  await page.getByRole('button', { name: /^Veszély/ }).click()
+  await page.getByRole('checkbox', { name: 'Diákok a saját eszközükön' }).check()
+  await page.getByRole('button', { name: 'Indítás', exact: true }).click()
+
+  // Eszközös módban előbb a tábla jön, aztán a szoba.
+  const builder = page.locator('.gq-builder')
+  await expect(builder).toBeVisible()
+  await page.getByRole('button', { name: 'Tovább a lobbihoz' }).click()
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+
+  // A lobbiból vissza a táblához, és a beosztás ott van.
+  await lobby.getByRole('button', { name: 'Tábla szerkesztése' }).click()
+  await expect(builder).toBeVisible()
+  await expect(builder.locator('.gq-builder-tile[data-filled="yes"]')).toHaveCount(6)
 })

@@ -124,7 +124,16 @@ async function openChampionRoom(page: Page, room: Room, name: string) {
   await context.routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => room.handle(socket))
 
   await seedBank(page)
-  await page.goto('/jatek')
+  // A vetés importja után a Vite még újratölthet: az ERR_ABORTED nem hiba.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.goto('/jatek', { waitUntil: 'domcontentloaded' })
+      break
+    } catch (error) {
+      if (attempt === 2) throw error
+      await page.waitForTimeout(400)
+    }
+  }
   await page.getByRole('button', { name: /^Bajnok/ }).click()
   await page.getByRole('checkbox', { name: 'Diákok a saját eszközükön' }).check()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
@@ -216,6 +225,12 @@ test('a bajnok kliensének kártyái a négy aréna-színt viselik, olvasható s
     const dark = Math.min(luminance(card.color), luminance(card.background))
     expect((light + 0.05) / (dark + 0.05)).toBeGreaterThan(4.5)
   }
+
+  // A fejlécben ugyanaz az életjelző áll, mint a tanár színpadán: két élő szív.
+  const hearts = student.locator('.gq-stu-hearts .gq-pip')
+  await expect(hearts).toHaveCount(2)
+  const heartFill = await hearts.first().locator('path').evaluate((node) => getComputedStyle(node).fill)
+  expect(heartFill).toBe('rgb(196, 64, 47)')
 
   // A fejléc nem vágja le a nevet.
   const header = await student.locator('.gq-stu-name').evaluate((node) => ({

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { View } from './game/views'
 import type { Help } from './game/types'
 import { TINCTURES } from './game-parts'
+import { Heart } from './game-shapes'
 import { StudentBlocks } from './game-student-blocks'
 import { choiceTone } from './game-student-tone'
 import { useT, type TextKey } from './i18n'
@@ -106,6 +107,21 @@ export function ChampionStudentGame({
           {role}
         </span>
         {self ? <span className="gq-stu-points">{t('game.student.points', { points: self.points })}</span> : null}
+        {/* Ugyanaz az életjelző, mint a tanár színpadán: a diák a tenyerén is
+            látja, hány hibalehetősége van még. */}
+        {view?.game ? (
+          <span
+            className="gq-stu-hearts"
+            aria-label={t('game.champion.strikes') + ': ' + view.game.strikes}
+          >
+            {Array.from({ length: Math.max(0, view.game.strikes) }, (_, index) => (
+              <Heart key={`live-${index}`} used />
+            ))}
+            {Array.from({ length: Math.max(0, view.game.baseStrikes - view.game.strikes) }, (_, index) => (
+              <Heart key={`lost-${index}`} />
+            ))}
+          </span>
+        ) : null}
       </header>
 
       {view?.game ? (

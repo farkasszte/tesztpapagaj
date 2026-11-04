@@ -21,6 +21,7 @@ export function GameLobby({
   onStart,
   onExit,
   onKick,
+  onEditBoard,
 }: {
   code: RoomCode
   players: LobbyPlayer[]
@@ -31,6 +32,8 @@ export function GameLobby({
   onExit: () => void
   /** A tanár eltávolíthat valakit a szobából. */
   onKick?: (playerId: string) => void
+  /** Vissza a tábla beosztásához (a szoba közben nyitva marad). */
+  onEditBoard?: () => void
 }) {
   const t = useT()
   const [copied, setCopied] = useState(false)
@@ -123,6 +126,11 @@ export function GameLobby({
           >
             {t('game.devices.start')}
           </button>
+          {onEditBoard ? (
+            <button type="button" className="gq-later" onClick={onEditBoard}>
+              {t('game.peril.editBoard')}
+            </button>
+          ) : null}
           <button type="button" className="gq-later" onClick={onExit}>
             {t('game.devices.back')}
           </button>

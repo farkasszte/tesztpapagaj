@@ -2,8 +2,16 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PerilEngine, createPerilSession } from './game/peril/engine'
 import { buildPerilView } from './game/peril/views'
-import { autoDraft, boardFromDraft } from './game/peril-board'
-import type { BoardDraft } from './game/peril/draft'
+import { autoDraft, planBoard } from './game/peril-board'
+import {
+  listTemplates,
+  loadPlan,
+  removeTemplate,
+  savePlan,
+  saveTemplate,
+  type PerilPlan,
+  type PerilTemplate,
+} from './game/peril-plan'
 import { PerilBoardBuilder } from './game-peril-builder'
 import type { PlayableWords } from './game/projection'
 import { newRoomCode, spacedRoomCode } from './game/room-protocol'
@@ -56,8 +64,9 @@ export function PerilDevices({
   const [status, setStatus] = useState<'connecting' | 'open' | 'closed' | 'denied'>('connecting')
   const [problem, setProblem] = useState<string | null>(null)
   const [started, setStarted] = useState(false)
-  /** A tanár által beosztott tábla; üresen az automatikus játszik. */
-  const [draft, setDraft] = useState<BoardDraft | null>(null)
+  /** A tanár táblaterve; üresen az automatikus játszik. */
+  const [plan, setPlan] = useState<PerilPlan | null>(() => loadPlan())
+  const [templates, setTemplates] = useState<PerilTemplate[]>(() => listTemplates())
   /** A tábla elkészült-e: innentől nyílik a szoba. */
   const [ready, setReady] = useState(false)
 
@@ -167,12 +176,15 @@ export function PerilDevices({
   }, [broadcast, engine])
 
   const columnLabel = (index: number) => t('game.peril.column', { n: index + 1 })
-  const board = draft
-    ? boardFromDraft(draft, questions, { untitled: columnLabel, treasureTrove: true })
-    : boardFromDraft(autoDraft(questions, { untitled: columnLabel }), questions, {
-        untitled: columnLabel,
-        treasureTrove: true,
-      })
+  const activePlan: PerilPlan = plan ?? {
+    draft: autoDraft(questions, { untitled: columnLabel }),
+    trove: 'auto',
+  }
+  const changePlan = (next: PerilPlan) => {
+    setPlan(next)
+    savePlan(next)
+  }
+  const board = planBoard(activePlan, questions, { untitled: columnLabel })
 
   // A tábla kézi beosztása a lobbi ELŐTT: a tanár a kód megnyitása előtt
   // rendezheti el a kérdéseket, és utána már csak a diákok lépnek be.
@@ -189,9 +201,13 @@ export function PerilDevices({
         <section className="gq-done">
           <h1 className="gq-big">{t('game.mode.peril.name')}</h1>
           <PerilBoardBuilder
-            draft={draft ?? autoDraft(questions, { untitled: columnLabel })}
+            plan={activePlan}
             questions={questions}
-            onChange={setDraft}
+            onChange={changePlan}
+            templates={templates}
+            onSaveTemplate={(name) => setTemplates(saveTemplate(name, activePlan))}
+            onLoadTemplate={changePlan}
+            onRemoveTemplate={(id) => setTemplates(removeTemplate(id))}
           />
           <button type="button" className="gq-go" onClick={() => setReady(true)}>
             {t('game.peril.toLobby')}
@@ -242,6 +258,7 @@ export function PerilDevices({
         }
         bump()
       }}
+      onEditBoard={() => setReady(false)}
       onStart={() => {
         if (!engine.startBoard(board).ok) return
         setStarted(true)

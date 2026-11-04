@@ -3,8 +3,16 @@ import { DocView } from './doc-view'
 import { PerilEngine, createPerilSession } from './game/peril/engine'
 import { buildPerilView } from './game/peril/views'
 import type { Column, PerilSession } from './game/peril/types'
-import { autoDraft, boardFromDraft } from './game/peril-board'
-import type { BoardDraft } from './game/peril/draft'
+import { autoDraft, planBoard } from './game/peril-board'
+import {
+  listTemplates,
+  loadPlan,
+  removeTemplate,
+  savePlan,
+  saveTemplate,
+  type PerilPlan,
+  type PerilTemplate,
+} from './game/peril-plan'
 import { PerilBoardBuilder } from './game-peril-builder'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
@@ -60,8 +68,9 @@ export function PerilStage({
         : null,
   )
   const [wagerText, setWagerText] = useState('')
-  /** A tanár kézzel beosztott táblája; üresen az automatikus tábla játszik. */
-  const [draft, setDraft] = useState<BoardDraft | null>(null)
+  /** A tanár táblaterve; üresen az automatikus tábla játszik. */
+  const [plan, setPlan] = useState<PerilPlan | null>(() => loadPlan())
+  const [templates, setTemplates] = useState<PerilTemplate[]>(() => listTemplates())
   const [notice, setNotice] = useState<string | null>(null)
   const [, bump] = useReducer((count: number) => count + 1, 0)
   const now = useNow()
@@ -75,13 +84,19 @@ export function PerilStage({
 
   const columnLabel = (index: number) => t('game.peril.column', { n: index + 1 })
 
+  // Mentett terv híján az automatikus tábla a terv, hogy a szerkesztő mindig
+  // ugyanazt mutassa, amit a játék játszani fog.
+  const activePlan: PerilPlan = plan ?? {
+    draft: autoDraft(questions, { untitled: columnLabel }),
+    trove: 'auto',
+  }
+  const changePlan = (next: PerilPlan) => {
+    setPlan(next)
+    savePlan(next)
+  }
+
   const startBoard = (session: PerilEngine) => {
-    const board: Column[] = draft
-      ? boardFromDraft(draft, questions, { untitled: columnLabel, treasureTrove: true })
-      : boardFromDraft(autoDraft(questions, { untitled: columnLabel }), questions, {
-          untitled: columnLabel,
-          treasureTrove: true,
-        })
+    const board: Column[] = planBoard(activePlan, questions, { untitled: columnLabel })
     const result = session.startBoard(board)
     setNotice(result.ok ? null : gameMessage(result.message) || null)
     bump()
@@ -169,9 +184,13 @@ export function PerilStage({
             ))}
           </div>
           <PerilBoardBuilder
-            draft={draft ?? autoDraft(questions, { untitled: columnLabel })}
+            plan={activePlan}
             questions={questions}
-            onChange={setDraft}
+            onChange={changePlan}
+            templates={templates}
+            onSaveTemplate={(name) => setTemplates(saveTemplate(name, activePlan))}
+            onLoadTemplate={changePlan}
+            onRemoveTemplate={(id) => setTemplates(removeTemplate(id))}
           />
           <button type="button" className="gq-go" onClick={start}>
             {t('game.peril.startBoard')}

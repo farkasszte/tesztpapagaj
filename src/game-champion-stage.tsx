@@ -7,6 +7,7 @@ import type { EndReason, Help, Settings } from './game/types'
 import type { Session } from './game/types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageKeys } from './game-parts'
 import { Coin, Heart, Letter, Ring } from './game-shapes'
+import { buildCsv, csvFilename, downloadCsv } from './game/standings-csv'
 import type { PlayableWords } from './game/projection'
 import type { Question } from './game/types'
 import type { SavedGame } from './game-store'
@@ -209,6 +210,22 @@ export function ChampionStage({
             <>
               <h1 className="gq-big">{t('game.champion.gameOver')}</h1>
               <p>{t(END_KEYS[game.result.reason], { pot: game.result.bank })}</p>
+              <button
+                type="button"
+                className="gq-quiet"
+                onClick={() =>
+                  downloadCsv(
+                    csvFilename(title),
+                    buildCsv(
+                      title,
+                      [t('game.csv.place'), t('game.csv.name'), t('game.csv.points')],
+                      view.standings.map((row) => [row.rank, row.nickname, row.points]),
+                    ),
+                  )
+                }
+              >
+                {t('game.stage.saveStandings')}
+              </button>
             </>
           ) : (
             <h1 className="gq-big">{t('game.champion.title')}</h1>
