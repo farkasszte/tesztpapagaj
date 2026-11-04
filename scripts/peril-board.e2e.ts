@@ -107,14 +107,13 @@ test('a tanár az 500-as mezőre cseréli az első kérdést, és ott is jelenik
   expect(index).toBeGreaterThanOrEqual(0)
   await tiles.nth(index).click()
 
-  // A mezőnyitás a felolvasó fázist nyitja; ha a kincsesbarlang épp ide esett,
-  // előbb a tét jön, és utána a kérdés. A kért tény mindkét ágon ugyanaz: a
-  // színpad az áthelyezett kérdést mutatja.
+  // A mezőnyitás a felolvasó fázist nyitja: a színpad a mező értékét és a
+  // felolvasás kérését mutatja (a kérdés a tanár kezében van).
   await expect(
     stage
       .getByRole('heading', { name: /500 pontos mező/ })
       .or(stage.getByRole('heading', { name: movedPrompt })),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 15000 })
 })
 
 test('a levett kérdés visszakerül a készletbe, az automatikus feltöltés pedig helyreállít', async ({

@@ -145,7 +145,10 @@ export function boardFromDraft(
   },
 ): Column[] {
   const byId = new Map(questions.map((question) => [question.id, question] as const))
-  const wanted: TroveChoice = options.trove ?? (options.treasureTrove === false ? null : 'auto')
+  // A `null` itt szándékos érték ("nincs kincsesbarlang"), ezért nem a `??`
+  // dönt: csak a hiányzó (`undefined`) kap alapértelmezést.
+  const wanted: TroveChoice =
+    options.trove !== undefined ? options.trove : options.treasureTrove === false ? null : 'auto'
   const spotOf = (column: number, row: number) =>
     typeof wanted === 'object' && wanted !== null && wanted.column === column && wanted.row === row && row > 0
   let trovePlaced = false
