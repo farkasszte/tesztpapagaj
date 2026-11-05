@@ -78,7 +78,9 @@ export function ClassicStudentGame({
     <div className="gq-stu">
       <header className="gq-stu-bar">
         <span className="gq-stu-name">{nickname}</span>
-        {mine ? <span className="gq-stu-points">{t('game.student.points', { points: mine.points })}</span> : null}
+        {mine && !view?.theme ? (
+          <span className="gq-stu-points">{t('game.student.points', { points: mine.points })}</span>
+        ) : null}
         {question && !ended ? (
           <span className="gq-stu-count">
             {question.number}/{question.total}

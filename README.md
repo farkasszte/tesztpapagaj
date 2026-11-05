@@ -78,6 +78,13 @@ fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A ban
 „Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
 tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
 
+Két további mód ugyanezen a naplón fut, más jelentéssel: a **Grand Prix**
+(`src/game/race.ts`) a pont helyett megtett távot mér — a helyes válasz visz
+előre, a gyors nitrót ad, a rossz kipördülés; a **Szörnytámadás**
+(`src/game/boss.ts`) közös küldetés: a többség helyes válasza sebzi a szörnyet,
+a többség rossza az osztály pajzsát rágja. Mindkettő a diák-eszközös házon megy
+át (minden válasz kell hozzá), a színpad a `src/game-mode-stages.tsx`-ben van.
+
 A játék után a diák a **hibalistáját** is megkapja: a Klasszikus eszközös módban a
 tanár gépe mindenkinek kiküldi a maga elrontott kérdéseit, a telefon pedig hét
 napra eltárolja (`src/game/review-deck.ts`), és a tanulókártya-nézővel átnézhető.

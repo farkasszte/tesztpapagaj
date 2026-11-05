@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { ClassicEngine, createClassicSession } from './game/classic/engine'
 import type { ClassicSettings } from './game/classic/types'
 import { buildClassicView } from './game/classic/views'
+import { BossStage, RaceStage } from './game-mode-stages'
 import { missedBy } from './game/classic/misses'
 import { cardOf } from './game/flashcard'
 import type { ReviewView } from './game/review-deck'
@@ -36,12 +37,15 @@ export function ClassicDevices({
   words,
   settings,
   onExit,
+  stage = 'classic',
 }: {
   title: string
   questions: Question[]
   words: Map<string, PlayableWords>
   settings: Partial<ClassicSettings>
   onExit: () => void
+  /** Melyik színpadot rajzolja: a Klasszikusét, a futamét vagy a szörnyét. */
+  stage?: 'classic' | 'race' | 'boss'
 }) {
   const t = useT()
   const [code] = useState(() => newRoomCode())
@@ -79,7 +83,17 @@ export function ClassicDevices({
     for (const [relayId, playerId] of seats.current) {
       // A tanár minden üzenete `kind`-del jelölt: a diák ebből tudja, hogy ez
       // játéknnézet és nem a helyét kiosztó válasz.
-      live.send({ kind: 'view', view: buildClassicView(session, { now: Date.now(), viewerId: playerId }) }, relayId)
+      live.send(
+        {
+          kind: 'view',
+          view: buildClassicView(session, {
+            now: Date.now(),
+            viewerId: playerId,
+            ...(stage === 'classic' ? {} : { theme: stage }),
+          }),
+        },
+        relayId,
+      )
       const wrong = missed?.get(playerId)
       if (!wrong?.length) continue
       const cards = wrong.map(cardOf).filter((card) => card.answers.length > 0)
@@ -93,7 +107,7 @@ export function ClassicDevices({
       }
       live.send({ kind: 'view', view: review }, relayId)
     }
-  }, [engine])
+  }, [engine, stage])
 
   useEffect(() => {
     const live = connectRoom({
@@ -170,9 +184,11 @@ export function ClassicDevices({
     return () => clearInterval(timer)
   }, [broadcast, engine])
 
+  const Stage = stage === 'race' ? RaceStage : stage === 'boss' ? BossStage : ClassicStage
+
   if (started) {
     return createPortal(
-      <ClassicStage
+      <Stage
         title={title}
         questions={questions}
         words={words}

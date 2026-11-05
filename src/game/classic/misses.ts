@@ -1,5 +1,5 @@
 import { answerIsRight } from './engine'
-import type { ClassicSession } from './types'
+import type { ClassicAnswer, ClassicSession } from './types'
 import type { Question } from '../types'
 
 /**
@@ -14,11 +14,16 @@ export function missedQuestions(session: ClassicSession, playerId: string): Ques
   session.questions.forEach((question, index) => {
     const answer = (session.answers[index] ?? []).find((entry) => entry.playerId === playerId)
     if (!answer) return
-    const choices = answer.texts?.length ? [] : (answer.choices ?? [answer.choice])
-    if (answerIsRight(question, choices, answer.texts ?? [])) return
+    if (answerWasRight(question, answer)) return
     missed.push(question)
   })
   return missed
+}
+
+/** Egy rögzített válasz helyessége a naplóból (a pontozáséval azonos szabály). */
+export function answerWasRight(question: Question, answer: ClassicAnswer): boolean {
+  const choices = answer.texts?.length ? [] : (answer.choices ?? [answer.choice])
+  return answerIsRight(question, choices, answer.texts ?? [])
 }
 
 /** Minden diák hibás kérdései egyszerre — a tanár egy menetben küldi ki a paklikat. */

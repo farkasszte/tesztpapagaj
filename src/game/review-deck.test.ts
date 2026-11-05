@@ -42,7 +42,13 @@ class Memory implements Storage {
 const DAY = 24 * 60 * 60 * 1000
 
 beforeEach(() => {
-  ;(globalThis as { localStorage?: Storage }).localStorage = new Memory()
+  // A teljes futásban egy másik teszt getterrel tehette rá a tárolót: a
+  // `defineProperty` mindkét esetben felülírja, a sima értékadás nem.
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: new Memory(),
+    configurable: true,
+    writable: true,
+  })
 })
 
 describe('hibalista: tárolás', () => {

@@ -89,6 +89,10 @@
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-width: 320px; min-height: 100%; }
 button, input, select { font: inherit; }
+/* A legördülő lista a böngésző saját felülete: a `select` szövegszíne öröklődik
+   bele, a háttér viszont a rendszeré. A sötét vásznon a krémes felirat így
+   világos listán olvashatatlan lenne, ezért a lista mindig papír. */
+select option { color: #241c17; background: #fffaf3; }
 button { cursor: pointer; }
 
 /* The editor is an application frame rather than a long document: the bar and
@@ -4003,3 +4007,32 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
 }
 .kahoot-link-input:focus-visible { outline: 2px solid var(--accent, #ce2939); outline-offset: 1px; }
 .kahoot-link button { justify-self: start; }
+
+/* ── Mappák a gyűjtemény oldalon ───────────────────────────────────────────
+   A mappa nézet-rendezés, nem címke: a sáv a szűrő fölött áll, a kártya
+   menüjében rádiógombokkal lehet áthelyezni. A szöveg nem vált zöldre, az
+   aktív mappa csak keretet és enyhe árnyékot kap (a tervezési irányelvek
+   szerint). */
+.collection-folders {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px;
+}
+.folder-chip, .folder-add {
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px;
+  border: 1px solid #d8c8b8; border-radius: 6px; background: #fffdf8;
+  color: #332a24; font-size: 13px; cursor: pointer;
+}
+.folder-chip:hover, .folder-add:hover { border-color: #b99a78; }
+.folder-chip[data-on='yes'] {
+  border-color: #9f5037; box-shadow: 0 1px 2px rgb(51 42 36 / 0.12); background: #fdf6ee;
+}
+.folder-chip > span {
+  font-variant-numeric: tabular-nums; font-size: 12px; color: #6e5b4d;
+}
+.folder-new { display: inline-flex; align-items: center; gap: 6px; }
+.folder-new input, .folder-actions input {
+  height: 32px; padding: 0 10px; border: 1px solid #d8c8b8; border-radius: 6px;
+  background: #fffdf8; color: #332a24; font-size: 13px; min-width: 150px;
+}
+.folder-actions {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0 0;
+}

@@ -190,26 +190,53 @@ export function ExamCard({
   exam,
   onOpen,
   onDelete,
+  folders = [],
+  folderId = null,
+  onPlaceInFolder,
 }: {
   exam: RecentExam
   onOpen: (id: string) => void
   onDelete?: (exam: RecentExam) => void
+  folders?: readonly { id: string; name: string }[]
+  folderId?: string | null
+  onPlaceInFolder?: (id: string, folderId: string | null) => void
 }) {
   // Like a Question Bank card, acting on the Exam lives behind one mark, here
   // beside its caption: a button cannot nest inside the button that opens it.
   const [menu, setMenu] = useState<MenuPoint | null>(null)
   const card = <ExamCardButton exam={exam} onOpen={onOpen} />
-  if (!onDelete) return card
+  if (!onDelete && !onPlaceInFolder) return card
   const items: MenuItem[] = [
     { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(exam.id) },
-    { kind: 'separator' },
-    {
-      kind: 'action',
-      label: t('common.delete'),
-      icon: <Trash2 />,
-      destructive: true,
-      onSelect: () => onDelete(exam),
-    },
+    ...(onPlaceInFolder
+      ? [
+          { kind: 'separator' } as const,
+          {
+            kind: 'radio' as const,
+            label: t('folder.none'),
+            checked: folderId === null,
+            onSelect: () => onPlaceInFolder(exam.id, null),
+          },
+          ...folders.map((folder) => ({
+            kind: 'radio' as const,
+            label: folder.name,
+            checked: folderId === folder.id,
+            onSelect: () => onPlaceInFolder(exam.id, folder.id),
+          })),
+        ]
+      : []),
+    ...(onDelete
+      ? [
+          { kind: 'separator' } as const,
+          {
+            kind: 'action' as const,
+            label: t('common.delete'),
+            icon: <Trash2 />,
+            destructive: true,
+            onSelect: () => onDelete(exam),
+          },
+        ]
+      : []),
   ]
   return (
     <div className="exam-card-frame">
@@ -308,11 +335,18 @@ export function QuestionBankCard({
   onOpen,
   onExport,
   onDelete,
+  folders = [],
+  folderId = null,
+  onPlaceInFolder,
 }: {
   bank: QuestionBankCollectionItem
   onOpen: (id: string) => void
   onExport?: (bank: QuestionBankCollectionItem) => void
   onDelete?: (bank: QuestionBankCollectionItem) => void
+  /** A mappák, ahova tehető; üresen a menüben nincs mappa-szakasz. */
+  folders?: readonly { id: string; name: string }[]
+  folderId?: string | null
+  onPlaceInFolder?: (id: string, folderId: string | null) => void
 }) {
   // Acting on the bank lives behind one mark rather than being bolted to the
   // tile — the card's own job is to be the way in, and a full-width red bar on
@@ -334,6 +368,25 @@ export function QuestionBankCard({
           disabled: bank.questionCount === 0,
           onSelect: () => onExport(bank),
         }]
+      : []),
+    // A mappa nézet-rendezés: a menüben rádiógombok, hogy látszódjon, hova
+    // kerül a bank — és egy sor a „mappa nélkül” visszavételhez.
+    ...(onPlaceInFolder
+      ? [
+          { kind: 'separator' } as const,
+          {
+            kind: 'radio' as const,
+            label: t('folder.none'),
+            checked: folderId === null,
+            onSelect: () => onPlaceInFolder(bank.id, null),
+          },
+          ...folders.map((folder) => ({
+            kind: 'radio' as const,
+            label: folder.name,
+            checked: folderId === folder.id,
+            onSelect: () => onPlaceInFolder(bank.id, folder.id),
+          })),
+        ]
       : []),
     ...(onDelete
       ? [

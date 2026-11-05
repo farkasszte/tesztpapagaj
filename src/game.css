@@ -1654,6 +1654,12 @@ select.gq-input-small { text-align: center; }
   text-transform: uppercase; color: rgb(245 236 220 / 0.72);
 }
 .gq-card-speed select { text-transform: none; letter-spacing: 0; }
+/* A vásznon a zárt mező is papír: a krémes szöveg áttetsző alapon a nyitott
+   listában olvashatatlan volt (1,13:1) — zárva 13,5:1, nyitva is olvasható. */
+.gq-stage select.gq-input,
+.gq-stage .gq-card-speed select {
+  background: #fffaf3; color: #241c17; border-color: rgb(36 28 23 / 0.28);
+}
 .gq-card {
   display: grid; align-content: start; gap: 18px; text-align: start; cursor: pointer;
   width: 100%; max-width: 980px; min-height: 46vh; margin: 0 auto;
@@ -1713,3 +1719,79 @@ select.gq-input-small { text-align: center; }
   font-family: var(--display); font-size: 15px; letter-spacing: 0.04em;
 }
 .gq-stu-review:hover { background: #f7eee3; }
+
+/* ── Grand Prix és Szörnytámadás ──────────────────────────────────────────
+   Mindkettő a Klasszikus naplóját viszi (kérdés → válaszok → felfedés →
+   következő), csak a tábla más: itt a táv, ott a közös életerő. A vászon és a
+   betűk ugyanazok, hogy a három játék egy családnak látszódjon. */
+.gq-mode-stage { gap: 14px; }
+.gq-mode-left { display: inline-flex; align-items: center; gap: 12px; }
+.gq-mode-question { display: grid; gap: 12px; }
+.gq-mode-stem {
+  font-family: var(--serif); font-size: clamp(22px, 1.9vw, 32px); line-height: 1.35;
+}
+.gq-mode-clock {
+  margin-inline-start: 10px; font-family: var(--display); font-size: 18px;
+  font-variant-numeric: tabular-nums; color: var(--paper);
+}
+.gq-mode-outcome { display: grid; gap: 18px; justify-items: center; padding: 24px 0; }
+
+.gq-track { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.gq-lane {
+  display: grid; align-items: center; gap: 10px;
+  grid-template-columns: 34px minmax(120px, 200px) minmax(0, 1fr) 56px auto auto;
+  padding: 8px 12px; border-radius: 8px;
+  border: 1px solid rgb(245 236 220 / 0.16); background: rgb(245 236 220 / 0.05);
+  color: rgb(245 236 220 / 0.92);
+}
+.gq-lane[data-lead='yes'] {
+  border-color: rgb(240 192 74 / 0.8); background: rgb(240 192 74 / 0.12); color: var(--paper);
+}
+.gq-lane-place { font-family: var(--display); font-size: 15px; color: rgb(245 236 220 / 0.7); }
+.gq-lane-name { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gq-lane-road {
+  position: relative; height: 8px; border-radius: 999px;
+  background: rgb(245 236 220 / 0.14);
+}
+.gq-lane-runner {
+  position: absolute; top: 50%; width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 999px; transform: translateY(-50%);
+  background: var(--gules, #c4402f); box-shadow: 0 0 0 3px rgb(196 64 47 / 0.25);
+  transition: left 320ms ease;
+}
+.gq-lane[data-lead='yes'] .gq-lane-runner { background: #f0c04a; box-shadow: 0 0 0 3px rgb(240 192 74 / 0.3); }
+.gq-lane-meters { font-family: var(--display); font-size: 14px; font-variant-numeric: tabular-nums; text-align: end; }
+.gq-lane-nitro {
+  min-width: 26px; padding: 2px 6px; border-radius: 999px; text-align: center;
+  font-family: var(--display); font-size: 12px; font-weight: 700;
+  color: #241c17; background: #f0c04a;
+}
+.gq-lane-spin {
+  min-width: 22px; padding: 2px 6px; border-radius: 999px; text-align: center;
+  font-family: var(--display); font-size: 12px; font-weight: 700;
+  color: #fffaf3; background: rgb(196 64 47 / 0.85);
+}
+
+.gq-boss {
+  display: grid; gap: 8px; padding: 14px 16px; border-radius: 10px;
+  border: 1px solid rgb(245 236 220 / 0.18); background: rgb(245 236 220 / 0.05);
+}
+.gq-boss[data-enraged='yes'] { border-color: rgb(196 64 47 / 0.7); background: rgb(196 64 47 / 0.12); }
+.gq-boss-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.gq-boss-name {
+  font-family: var(--display); font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--paper);
+}
+.gq-boss-hp { font-family: var(--display); font-size: 16px; font-variant-numeric: tabular-nums; color: rgb(245 236 220 / 0.8); }
+.gq-boss-bar {
+  height: 16px; padding: 1px; border-radius: 999px; overflow: hidden;
+  border: 1px solid rgb(245 236 220 / 0.22); background: rgb(8 7 6 / 0.6);
+}
+.gq-boss-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #8f2f22, #c4402f); transition: width 420ms ease; }
+.gq-boss-shield { display: flex; align-items: center; gap: 6px; }
+.gq-boss-pip {
+  width: 14px; height: 16px; border-radius: 3px 3px 6px 6px;
+  border: 1px solid rgb(245 236 220 / 0.4);
+}
+.gq-boss-pip[data-on='yes'] { background: #2f5c8c; border-color: #6f9cc4; }
+.gq-boss-bites { margin-inline-start: 8px; font-size: 13px; color: rgb(245 236 220 / 0.72); }

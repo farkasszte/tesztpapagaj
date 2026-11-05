@@ -28,7 +28,7 @@ import './game.css'
  * a lista megnevezi, nem csendben hagyja ki.
  */
 
-type Mode = GameMode | 'flashcard'
+type Mode = GameMode | 'flashcard' | 'race' | 'boss'
 
 /**
  * A félbehagyott játék kérdései a mentett session-ből: a Klasszikus és a Bajnok
@@ -50,7 +50,14 @@ const MODES: { id: Mode; name: string; blurb: string; ready: boolean; tincture: 
   // A tanulókártya nem verseny: nincs pont, idő és szoba, ezért a beállításai
   // is mások (lásd a lenti ágat).
   { id: 'flashcard', name: 'game.mode.flashcard.name', blurb: 'game.mode.flashcard.blurb', ready: true, tincture: '#55607a' },
+  // A két „másik játék” a Klasszikus naplójára épül, de a számításhoz mindenki
+  // válasza kell, ezért diák-eszköz nélkül nem indul (a jelölő rejtve, a mód
+  // kiválasztása bekapcsolja).
+  { id: 'race', name: 'game.mode.race.name', blurb: 'game.mode.race.blurb', ready: true, tincture: '#2f6b4f' },
+  { id: 'boss', name: 'game.mode.boss.name', blurb: 'game.mode.boss.blurb', ready: true, tincture: '#7a2f4a' },
 ] as const
+/** A módok, amelyekhez diák-eszköz kell (a napló minden választ számol). */
+const DEVICE_MODES: readonly Mode[] = ['race', 'boss'] as const
 
 export function GamePage({
   banks,
@@ -66,7 +73,9 @@ export function GamePage({
   initialMode?: string
 }) {
   const t = useT()
-  const [mode, setMode] = useState<Mode>(initialMode === 'flashcard' ? 'flashcard' : 'classic')
+  const [mode, setMode] = useState<Mode>(
+    initialMode === 'flashcard' ? 'flashcard' : initialMode === 'race' || initialMode === 'boss' ? initialMode : 'classic',
+  )
   const [summaries, setSummaries] = useState<readonly QuestionBankSummary[] | null>(null)
   const [bankId, setBankId] = useState('')
   const [bank, setBank] = useState<QuestionBankResource | null>(null)
@@ -82,6 +91,8 @@ export function GamePage({
   const [roundResults, setRoundResults] = useState(false)
   /** Diákok a saját telefonjukon (egyelőre a Klasszikus módban). */
   const [devices, setDevices] = useState(false)
+  /** A futam és a szörny minden választ számol, tehát diák-eszköz nélkül nem megy. */
+  const needsDevices = DEVICE_MODES.includes(mode)
   const [playing, setPlaying] = useState(false)
   /** A böngészőben talált félbehagyott játék, amíg a tanár nem dönt róla. */
   const [resume, setResume] = useState<SavedGame | null>(null)
@@ -165,6 +176,17 @@ export function GamePage({
           cards={deckOf(source.questions)}
           words={source.words}
           onExit={exit}
+        />
+      ) : (mode === 'race' || mode === 'boss') ? (
+        // A futam és a szörny a Klasszikus naplóját viszi, de minden válasz
+        // kell hozzá: ezért mindig a diák-eszközös házon át indul.
+        <ClassicDevices
+          title={source.title}
+          questions={source.questions}
+          words={source.words}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults: false }}
+          onExit={exit}
+          stage={mode}
         />
       ) : devices && mode === 'classic' ? (
         <ClassicDevices
@@ -360,11 +382,11 @@ export function GamePage({
               />
               {t('game.shuffleAnswers')}
             </label>
-            <label>
+            <label hidden={needsDevices}>
               <input
                 type="checkbox"
-                checked={devices}
-                disabled={false}
+                checked={devices || needsDevices}
+                disabled={needsDevices}
                 onChange={(event) => {
                   setDevices(event.target.checked)
                   // Diák-eszköz nélkül nincs kit rangsorolni: a jelölő ne
@@ -386,7 +408,11 @@ export function GamePage({
               </label>
             ) : null}
           </div>
-          {devices ? <p className="gq-hint">{t('game.devices.switchHint')}</p> : null}
+          {needsDevices ? (
+            <p className="gq-hint">{t('game.mode.needsDevices')}</p>
+          ) : devices ? (
+            <p className="gq-hint">{t('game.devices.switchHint')}</p>
+          ) : null}
         </div>
       </div>
 

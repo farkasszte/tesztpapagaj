@@ -16,7 +16,9 @@ export type ClassicView = {
   title: string;
   phase: ClassicPhase;
   /** Played with no student devices, so there are no answers to count. */
-  noDevices: boolean;
+  noDevices: boolean
+  /** A futam és a szörny más játék: a telefonon nincs értelme pontot mutatni. */
+  theme?: 'race' | 'boss';
   scoring: boolean;
   roster: { id: string; nickname: string; connected: boolean }[];
   question: null | {
@@ -79,7 +81,10 @@ export type ClassicView = {
   };
 };
 
-export function buildClassicView(session: ClassicSession, options: { now: number; viewerId?: string }): ClassicView {
+export function buildClassicView(
+  session: ClassicSession,
+  options: { now: number; viewerId?: string; theme?: 'race' | 'boss' },
+): ClassicView {
   const s = session;
   const question = s.questions[s.index];
   const answers = s.answers[s.index] ?? [];
@@ -92,6 +97,7 @@ export function buildClassicView(session: ClassicSession, options: { now: number
     title: s.title,
     phase: s.phase,
     noDevices: !!s.noDevices,
+    ...(options.theme ? { theme: options.theme } : {}),
     scoring: s.settings.scoring,
     roster: s.players.map((p) => ({ id: p.id, nickname: p.nickname, connected: p.connected })),
     question:
