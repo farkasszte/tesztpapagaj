@@ -91,8 +91,9 @@ test('a downloaded account backup restores every Question Bank and image', async
   await seedAccount(page, 'Biology Bank')
   await page.goto('/question-banks')
   await openPanel(page)
-  await expect(panel(page)).toContainText('Your work is saved in your browser.')
-  await expect(panel(page)).toContainText('Go to Settings to export your data.')
+  // A jelző a helyi tárolást és a Drive-lehetőséget is kimondja.
+  await expect(panel(page)).toContainText('Your work lives in this browser')
+  await expect(panel(page)).toContainText('connect your Google Drive')
   await panel(page).getByRole('button', { name: 'Settings' }).click()
   await expect(page).toHaveURL(/\/settings$/)
 

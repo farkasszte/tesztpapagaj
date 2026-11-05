@@ -16,6 +16,16 @@ import {
  */
 
 export const DRIVE_STATE_KEY = 'tesztpapagaj:drive'
+/** A könyvelés változott: a fejléc jelzője ebből tudja, hogy újra kell olvasni. */
+export const DRIVE_CHANGED_EVENT = 'tesztpapagaj:drive-changed'
+
+function announce(): void {
+  try {
+    globalThis.dispatchEvent?.(new Event(DRIVE_CHANGED_EVENT))
+  } catch {
+    // Esemény nélkül is működik: a jelző a következő nyitáskor frissül.
+  }
+}
 
 export type DriveState = {
   /** A tanár egyszer már csatlakoztatta a Drive-ot. */
@@ -64,6 +74,7 @@ export function saveDriveState(next: Partial<DriveState>): DriveState {
   } catch {
     // Betelt tároló: a mentés ettől még megtörtént, csak nem emlékszünk rá.
   }
+  announce()
   return state
 }
 
@@ -140,4 +151,5 @@ export function forgetDrive(): void {
   } catch {
     // Nem baj: a következő betöltés üres állapotból indul.
   }
+  announce()
 }

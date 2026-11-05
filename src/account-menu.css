@@ -32,3 +32,10 @@
 .account-spin { animation: account-spin 1s linear infinite; }
 @keyframes account-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .account-spin { animation: none; } }
+
+/* A jelző a Drive-mentést is mutatja: csatlakoztatva teli pipás felhő, zöldes
+   tónussal — a meleg palettán ez a „rendben van" jelzés, nem a márka színe. */
+.storage-badge-button[data-drive='on'] { color: #35603f; }
+.storage-badge-button[data-drive='on'] svg { width: 19px; height: 19px; }
+.storage-badge-button[data-drive='on']:hover,
+.storage-badge-button[data-drive='on']:focus-visible { color: #2f5a37; background: #eaf1e6; }

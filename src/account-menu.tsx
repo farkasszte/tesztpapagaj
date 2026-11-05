@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { CloudOff, Download, RefreshCw, Settings, Upload, X } from 'lucide-react'
+import { CloudCheck, CloudOff, Download, RefreshCw, Settings, Upload, X } from 'lucide-react'
 import {
   accountBackupBlob,
   accountBackupFileName,
@@ -12,10 +12,11 @@ import {
   type AccountManifest,
 } from './account-backup'
 import type { PersistentStorageStatus } from './durable-storage'
+import { DRIVE_CHANGED_EVENT, loadDriveState } from './drive-backup'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { navigate } from './use-route'
 import './account-menu.css'
-import { t } from './i18n'
+import { getLanguage, t } from './i18n'
 
 /**
  * Where the work lives, and the way to keep it. An icon in the top bar says
@@ -41,6 +42,18 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const panelId = useId()
+  /** A Drive-mentés állapota: a jelző ezt is mutatja, nem csak a helyi tárolót. */
+  const [drive, setDrive] = useState(() => loadDriveState())
+  useEffect(() => {
+    // A panel nyitásakor frissül, és akkor is, amikor a beállításokban
+    // csatlakoztatják vagy leválasztják a Drive-ot (a könyvelés eseményt küld).
+    if (open) setDrive(loadDriveState())
+  }, [open])
+  useEffect(() => {
+    const sync = () => setDrive(loadDriveState())
+    window.addEventListener(DRIVE_CHANGED_EVENT, sync)
+    return () => window.removeEventListener(DRIVE_CHANGED_EVENT, sync)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -62,12 +75,13 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
         type="button"
         className="storage-badge-button"
         data-status={status}
+        data-drive={drive.enabled ? 'on' : 'off'}
         aria-label={t('account.storage')}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
       >
-        <CloudOff aria-hidden="true" />
+        {drive.enabled ? <CloudCheck aria-hidden="true" /> : <CloudOff aria-hidden="true" />}
       </button>
       {status === 'denied' && (
         <span className="sr-only" role="alert">
@@ -76,8 +90,26 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
       )}
       {open && (
         <div className="account-panel" id={panelId} role="region" aria-label={t('account.storage')}>
-          <strong>{t('account.savedInBrowser')}</strong>
-          <p>{t('account.goToSettings')}</p>
+          {drive.enabled ? (
+            <>
+              <strong>{t('account.storageTitleDrive')}</strong>
+              <p>
+                {drive.lastUploadAt
+                  ? t('account.storageDriveLine', {
+                      when: new Date(drive.lastUploadAt).toLocaleString(
+                        getLanguage() === 'hu' ? 'hu-HU' : 'en-GB',
+                        { dateStyle: 'medium', timeStyle: 'short' },
+                      ),
+                    })
+                  : t('account.storageDriveNever')}
+              </p>
+            </>
+          ) : (
+            <>
+              <strong>{t('account.storageTitle')}</strong>
+              <p>{t('account.storageLine')}</p>
+            </>
+          )}
           {status === 'denied' && (
             <p className="account-warning" role="status">
               {t('account.storageDenied')}

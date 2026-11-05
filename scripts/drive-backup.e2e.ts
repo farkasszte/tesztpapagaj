@@ -100,6 +100,8 @@ test('a Drive csatlakoztatása feltölti a csomagot, és megjegyzi a mappát', a
 
   // Csatlakozás: a hamis GIS tokent ad, a mentés azonnal lefut.
   await expect(card.getByRole('button', { name: 'Connect Google Drive' })).toBeVisible()
+  const badge = page.getByRole('button', { name: 'Where your work is stored' })
+  await expect(badge).toHaveAttribute('data-drive', 'off')
   await card.getByRole('button', { name: 'Connect Google Drive' }).click()
   await expect(card.getByText(/Last backup:/)).toBeVisible()
 
@@ -116,6 +118,14 @@ test('a Drive csatlakoztatása feltölti a csomagot, és megjegyzi a mappát', a
   expect(parsed.enabled).toBe(true)
   expect(parsed.folderId).toBe('folder-1')
   expect(parsed.lastUploadAt).toBeGreaterThan(0)
+
+  // A jobb felső sarok jelzője is átvált: pipás felhő, és a panel az utolsó mentést mondja.
+  await expect(badge).toHaveAttribute('data-drive', 'on')
+  await badge.click()
+  const panel = page.getByRole('region', { name: 'Where your work is stored' })
+  await expect(panel).toContainText('backed up to Google Drive')
+  await expect(panel).toContainText('Last backup:')
+  await badge.click()
 
   // Kézi mentés: újabb csomag, a mappa nem jön létre újra.
   await card.getByRole('button', { name: 'Back up now' }).click()

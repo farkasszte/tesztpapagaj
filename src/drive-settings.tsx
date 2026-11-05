@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { captureAccount, stageRestore } from './account-backup'
 import { backUpToDrive, driveBackups, forgetDrive, loadDriveState, saveDriveState, type DriveState } from './drive-backup'
 import { driveApi, requestDriveToken, revokeDriveToken, type DriveFile, type DriveToken } from './google-drive'
-import { useT } from './i18n'
+import { getLanguage, useT } from './i18n'
 
 /**
  * Beállítások → biztonsági másolat a Google Drive-ra.
@@ -16,8 +16,12 @@ function clientId(): string {
   return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 }
 
+function locale(): string {
+  return getLanguage() === 'hu' ? 'hu-HU' : 'en-GB'
+}
+
 function when(ms: number): string {
-  return new Date(ms).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+  return new Date(ms).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })
 }
 
 export function DriveSettings() {
