@@ -38,6 +38,28 @@ import { explanationMode, explanationSchema, explanationView, keepExplanation } 
 import { t, useT } from './i18n'
 import { QUESTION_TYPE_ICONS } from './question-type-icons'
 
+/**
+ * One line of a question's front matter: an icon and a label on the left, and
+ * what has been chosen on the right — or nothing at all, because Difficulty
+ * and Topics are both optional and a blank field is the normal state rather
+ * than an omission to be nagged about.
+ *
+ * Choosing opens a list under the field with a box to type in. Typing filters
+ * what is on offer and moves the highlight to the best match, so a Topic is
+ * reached by typing enough of it and pressing Enter. Filtering never rewrites a
+ * value: casing and spelling are the teacher's.
+ *
+ * A single-select field replaces what is there and closes, and choosing what is
+ * already chosen clears it — which is the whole of what a Clear button was for.
+ * A multi-select one toggles and stays open, because choosing several is one
+ * thought rather than several visits.
+ *
+ * `onCreate` is what makes the Topic field different from the Difficulty one:
+ * Difficulty is a closed set of three, while a Topic that does not exist yet
+ * is made by typing it. Writing one is the last row of the list rather than
+ * something Enter does behind the highlight's back, so typing "mol" and
+ * pressing Enter reaches the "Mole Ratio" that is already there.
+ */
 function FrontMatterSelect({
   icon,
   label,
