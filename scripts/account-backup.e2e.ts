@@ -146,3 +146,51 @@ test('a file that is not a backup is refused without changing anything', async (
   await expect(page.getByRole('dialog', { name: 'Restore this backup?' })).toHaveCount(0)
   expect(await bankNames(page)).toEqual(['Keep me'])
 })
+
+test('a mappába rendezés is átmegy a biztonsági másolatba', async ({ page }) => {
+  await seedAccount(page, 'Foldered Bank')
+  await page.goto('/question-banks')
+
+  // Mappa, és a bank bele: a hely a böngésző tárolójában van, tehát a mentésnek
+  // ezt is vinnie kell — különben a visszaállítás után a tanár rendezése elveszne.
+  await page.getByRole('button', { name: '+ New folder' }).click()
+  await page.getByLabel('Folder name').fill('Autumn')
+  await page.locator('.folder-new').getByRole('button', { name: 'Create' }).click()
+  await page.getByRole('button', { name: 'All' }).click()
+  await page.getByRole('button', { name: 'Foldered Bank actions' }).click()
+  await page.getByRole('menuitemradio', { name: 'Autumn' }).click()
+  await expect(page.getByRole('button', { name: /^Autumn/ })).toContainText('1')
+
+  await page.goto('/settings')
+  const downloading = page.waitForEvent('download')
+  await backupCard(page).getByRole('button', { name: 'Download backup' }).click()
+  const backup = await readFile((await (await downloading).path())!)
+
+  // A mappa törlése: a hely is elvész, tehát a visszaállításnak kell visszahoznia.
+  await page.goto('/question-banks')
+  await page.getByRole('button', { name: /^Autumn/ }).click()
+  await page.getByRole('button', { name: 'Delete folder' }).click()
+  await expect(page.getByRole('button', { name: /^Autumn/ })).toHaveCount(0)
+  expect(await page.evaluate(() => window.localStorage.getItem('tesztpapagaj:folders'))).not.toContain(
+    'Autumn',
+  )
+
+  await page.goto('/settings')
+  await page.getByLabel('Choose an account backup to restore').setInputFiles({
+    name: 'test-parrot-account.zip',
+    mimeType: 'application/zip',
+    buffer: backup,
+  })
+  const confirm = page.getByRole('dialog', { name: 'Restore this backup?' })
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'load' }),
+    confirm.getByRole('button', { name: 'Replace and reload' }).click(),
+  ])
+
+  await page.goto('/question-banks')
+  const folder = page.getByRole('button', { name: /^Autumn/ })
+  await expect(folder).toContainText('1')
+  await folder.click()
+  const card = page.getByRole('button', { name: /^Open Foldered Bank\./ })
+  await expect(card).toBeVisible()
+})

@@ -3,6 +3,7 @@ import {
   accountBackupBlob,
   decodeValue,
   encodeValue,
+  isAccountStoredKey,
   readAccountBackup,
   type AccountManifest,
   type AccountSnapshot,
@@ -81,6 +82,28 @@ function snapshot(records: { exam: object; image: Uint8Array; lastOpenedAt: stri
   }
   return { manifest, binaries }
 }
+
+describe('what the backup carries from browser storage', () => {
+  test('a saját névtér kulcsai is beletartoznak', () => {
+    // A mappák, a Veszély! táblaterve/sablonjai, a kérdés-statisztika, a
+    // hibalisták és a nyelv mind `tesztpapagaj:` előtagúak — ezek nélkül a
+    // visszaállítás után a tanár munkája hiányosan térne vissza.
+    const covered = [
+      'tesztpapagaj:folders',
+      'tesztpapagaj:peril-plan',
+      'tesztpapagaj:peril-templates',
+      'tesztpapagaj:question-stats',
+      'tesztpapagaj:review-decks',
+      'tesztpapagaj:language',
+      'test-parrot:welcomed',
+      'test-parrot-something',
+    ]
+    for (const key of covered) expect(isAccountStoredKey(key), key).toBe(true)
+    for (const key of ['other-app:state', 'theme', 'testparrot:folders']) {
+      expect(isAccountStoredKey(key), key).toBe(false)
+    }
+  })
+})
 
 describe('account backup file', () => {
   test('reads back what it wrote, binaries included', async () => {

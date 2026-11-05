@@ -78,6 +78,11 @@ fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A ban
 „Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
 tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
 
+A **kérdésbankok és a dolgozatok mappákba** rendezhetők (`src/folders.ts`): a mappa
+nézet-rendezés, a böngésző tárolójában él, és a **biztonsági másolat viszi** — a
+mentés a saját névterünk kulcsait is tartalmazza (`tesztpapagaj:*`: mappák, a
+Veszély! táblaterve és sablonjai, kérdés-statisztika, hibalisták, nyelv).
+
 Két további mód ugyanezen a naplón fut, más jelentéssel: a **Grand Prix**
 (`src/game/race.ts`) a pont helyett megtett távot mér — a helyes válasz visz
 előre, a gyors nitrót ad, a rossz kipördülés; a **Szörnytámadás**

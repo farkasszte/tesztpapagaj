@@ -15,7 +15,18 @@ export const ACCOUNT_BACKUP_FORMAT = 'test-parrot-account'
 export const ACCOUNT_BACKUP_VERSION = 1
 const MANIFEST_PATH = 'account.json'
 
-const LOCAL_STORAGE_KEYS = (key: string) => key.startsWith('test-parrot:') || key.startsWith('test-parrot-')
+// A mentés „mindent visz, ami ebben a böngészőben van”, a saját
+// névterünkkel együtt: a mappák, a Veszély! táblaterve és sablonjai, a
+// kérdés-statisztika, a diáktól kapott hibalisták és a felület nyelve is
+// ezekben a kulcsokban él. A régi (upstream) előtagú kulcsok maradnak.
+const LOCAL_STORAGE_PREFIXES = ['test-parrot:', 'test-parrot-', 'tesztpapagaj:'] as const
+
+/** Ebbe a fiókmentésbe tartozó böngésző-tároló kulcs-e. */
+export function isAccountStoredKey(key: string): boolean {
+  return LOCAL_STORAGE_PREFIXES.some((prefix) => key.startsWith(prefix))
+}
+
+const LOCAL_STORAGE_KEYS = isAccountStoredKey
 
 type Encoded =
   | null | boolean | number | string
@@ -407,9 +418,10 @@ export async function replaceAccount(snapshot: AccountSnapshot): Promise<void> {
       database.close()
     }
   }
-  for (const key of Object.keys({ ...localStorage })) {
-    if (LOCAL_STORAGE_KEYS(key)) localStorage.removeItem(key)
-  }
+  // A mentés a saját kulcsait **felülírja**, de nem töröl semmit, amiről nem tud:
+  // egy régi (a mappák előtti) mentés visszaállítása így nem viszi el a tanár
+  // rendezését vagy a táblasablonjait. A felülírás miatt a mentett állapot
+  // pontosan az lesz, ami a fájlban van.
   for (const [key, value] of Object.entries(snapshot.manifest.localStorage)) {
     if (LOCAL_STORAGE_KEYS(key)) localStorage.setItem(key, value)
   }
