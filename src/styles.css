@@ -4036,3 +4036,22 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
 .folder-actions {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0 0;
 }
+
+/* ── Drive-mentés a beállításokban ─────────────────────────────────────────
+   A kártya a meglévő `.site-card`-ot használja; itt csak a gombsor és a
+   visszaállítható csomagok listája kap helyet. */
+.settings-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 0; }
+.site-note { color: #6e5b4d; font-size: 14px; }
+/* Az állapot a kártya első dolga legyen: a címke erős, a dátum mellette. */
+.drive-state { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 0 0 6px; }
+.drive-state strong { font-size: 15px; color: #332a24; }
+.drive-state span { font-size: 14px; color: #4e3b2f; font-variant-numeric: tabular-nums; }
+.drive-list-title { margin: 14px 0 0; font-size: 14px; color: #4e3b2f; }
+.drive-files { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.drive-file {
+  display: grid; align-items: center; gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 8px 10px; border: 1px solid #e2d6c6; border-radius: 6px; background: #fffdf8;
+}
+.drive-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: #332a24; }
+.drive-file-when { font-size: 13px; color: #6e5b4d; font-variant-numeric: tabular-nums; }

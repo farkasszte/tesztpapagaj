@@ -205,6 +205,7 @@ import { AboutPage, PrivacyPage } from './site-pages'
 import { SettingsPage } from './settings-page'
 import { GamePage } from './game-page'
 import { GameStudent } from './game-student'
+import { useDriveAutoBackup } from './use-drive-autobackup'
 import { persistentStorageStatus, requestPersistentStorage, type PersistentStorageStatus } from './durable-storage'
 import { ResourceCollectionPage } from './resource-collection-page'
 import { BankFileDropTarget } from './bank-file-drop'
@@ -3252,6 +3253,9 @@ export default function App({
   initialEditorId: string | null
   initialError: string | null
 }) {
+  // A Drive-mentés a megnyitáskor: ha a tanár csatlakoztatta, és letelt a nap,
+  // magától felmegy a csomag (a Google-munkamenet él, ha lehet).
+  useDriveAutoBackup()
   const route = useRoute()
   const search = useLocationSearch()
   const [exams, setExams] = useState(initialExams)

@@ -78,6 +78,16 @@ fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A ban
 „Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
 tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
 
+A biztonsági másolat **a tanár saját Google Drive-jára** is felmehet
+(`src/google-drive.ts`, `src/drive-backup.ts`, `src/drive-settings.tsx`):
+hitelesítés szolgáltató nélkül, a Google Identity Services token modelljével
+(`drive.file` scope, a token csak memóriában él). Egyszer kell csatlakoztatni;
+onnantól naponta egyszer, a megnyitáskor magától ment, és bármikor kérhető egy
+mentés. A mappa a Drive-on `Tesztpapagáj biztonsági másolatok`, tíz csomag marad
+meg, a visszaállítás a meglévő restore-utat használja. A `VITE_GOOGLE_CLIENT_ID`
+környezeti változó kell hozzá (helyben `.env.local`, élesben a Vercel
+környezeti változói).
+
 A **kérdésbankok és a dolgozatok mappákba** rendezhetők (`src/folders.ts`): a mappa
 nézet-rendezés, a böngésző tárolójában él, és a **biztonsági másolat viszi** — a
 mentés a saját névterünk kulcsait is tartalmazza (`tesztpapagaj:*`: mappák, a
