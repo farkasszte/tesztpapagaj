@@ -107,6 +107,15 @@ A kihagyott (lejárt idő) kérdés nem hiba, azt a lista nem gyűjti. A diák o
 `/diak` — itt van a kódkérő és a megőrzött hibalisták, tehát a szoba bezárása után
 is visszatalál hozzá (`src/game-devices.tsx` küldi, `src/game-student.tsx` fogadja).
 
+A lejátszott játék **eredménye megmarad és böngészhető** (`/eredmenyek`): a
+jelentés megjelenésekor a színpad elmenti a kérdésenkénti mátrixot
+(`src/game/results.ts`) a játék saját adatbázisába (`src/game/results-store.ts`,
+`test-parrot-game-v1` → `results` tároló, az utolsó száz játék marad meg). Az
+oldal játékonként mutatja a csoportátlagot és a legjobb eredményt (holtversenynél
+mindenkit), alatta diák × kérdés mátrixban a ✓ / ✗ / – cellákat, a fejlécben a
+kérdésenkénti sikerességet. CSV-be vihető a naplóhoz, kinyomtatható, és
+törölhető. Csak becenév kerül bele — valódi név soha.
+
 A színpad jelképei a sport-téma nyelvén szólnak: a bajnok életjelzője **piros
 szív**, a díjalapé **aranytallér**; a diák telefonja ugyanezt a négy
 arénaszínt viseli, mint a vetítés.

@@ -29,17 +29,26 @@ export type SavedGame = {
 
 const DATABASE = 'test-parrot-game-v1'
 const STORE = 'game'
+/** A lejátszott játékok eredménye (lásd `game/results-store.ts`). */
+export const RESULT_STORE = 'results'
+/** 2: a `results` tároló megjelenése — a sémát itt kell létrehozni. */
+const VERSION = 2
 
-function openDatabase(): Promise<IDBDatabase> {
+/** A közös megnyitó: mindkét modul ezt használja, hogy a séma egy helyen legyen. */
+export function openGameDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE, 1)
+    const request = indexedDB.open(DATABASE, VERSION)
     request.onupgradeneeded = () => {
-      if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE)
+      const database = request.result
+      if (!database.objectStoreNames.contains(STORE)) database.createObjectStore(STORE)
+      if (!database.objectStoreNames.contains(RESULT_STORE)) database.createObjectStore(RESULT_STORE)
     }
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
   })
 }
+
+const openDatabase = openGameDatabase
 
 async function withStore<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
   const database = await openDatabase()

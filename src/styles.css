@@ -4116,3 +4116,93 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
 }
 .drive-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: #332a24; }
 .drive-file-when { font-size: 13px; color: #6e5b4d; font-variant-numeric: tabular-nums; }
+
+/* ── Játékeredmények ───────────────────────────────────────────────────────
+   A lejátszott vetítések utólag: balra a játékok, jobbra a mátrix. A mátrix
+   sok diáknál vízszintesen görgethető, a név-oszlop helyben marad — így a
+   kérdések sorszámai nem csúsznak el a nevektől. */
+.results-body {
+  display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 24px;
+  align-items: start; margin: 14px 0 0;
+}
+.results-sidebar {
+  display: flex; flex-direction: column; gap: 8px;
+  position: sticky; top: 16px;
+  padding-right: 16px; border-right: 1px solid #e5d9ca;
+}
+.results-list { display: flex; flex-direction: column; gap: 3px; }
+.result-chip {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px;
+  padding: 8px 10px; border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: #332a24; text-align: left; cursor: pointer;
+}
+.result-chip:hover { background: #f7efe4; }
+.result-chip[data-on='yes'] {
+  border-color: #9f5037; background: #fdf6ee; box-shadow: 0 1px 2px rgb(51 42 36 / 0.12);
+}
+.result-chip-title {
+  overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap;
+}
+.result-chip-meta { font-size: 11px; color: #6e5b4d; font-variant-numeric: tabular-nums; }
+.result-chip-average {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center;
+  font-size: 15px; font-weight: 700; color: #4e3b2f; font-variant-numeric: tabular-nums;
+}
+.results-main { min-width: 0; }
+.results-summary {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+  gap: 16px; padding: 0 0 10px; border-bottom: 1px solid #e5d9ca;
+}
+.results-summary h2 { margin: 0 0 4px; font-size: 20px; }
+.results-figures { display: flex; gap: 20px; }
+.results-figure { margin: 0; font-size: 12px; color: #6e5b4d; text-align: right; }
+.results-figure strong {
+  display: block; font-size: 17px; color: #332a24; font-variant-numeric: tabular-nums;
+}
+.results-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.results-table-wrap {
+  overflow: auto; max-height: 62vh;
+  border: 1px solid #e0d3c2; border-radius: 8px; background: #fffaf3;
+}
+.results-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.results-table th, .results-table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #efe3d3; }
+.results-table thead th { position: sticky; top: 0; z-index: 2; background: #fdf6ee; font-weight: 600; }
+.results-table thead th:first-child,
+.results-table tbody th {
+  position: sticky; left: 0; z-index: 1; min-width: 132px;
+  background: #fffaf3; text-align: left; font-weight: 600;
+}
+.results-table thead th:first-child { z-index: 3; }
+.results-question-number { display: block; font-variant-numeric: tabular-nums; }
+.results-question-rate { display: block; font-size: 11px; color: #5c4a3e; font-weight: 600; }
+.results-table td[data-cell='right'] { color: #3f6b46; font-weight: 700; }
+.results-table td[data-cell='wrong'] { color: #b0341f; font-weight: 700; }
+.results-table td[data-cell='skipped'] { color: #a89b8d; }
+.results-score { color: #4e3b2f; font-variant-numeric: tabular-nums; }
+.results-legend {
+  display: flex; gap: 16px; margin: 10px 0 0; padding: 0;
+  list-style: none; font-size: 12px; color: #6e5b4d;
+}
+.results-legend span[data-cell='right'] { color: #3f6b46; font-weight: 700; }
+.results-legend span[data-cell='wrong'] { color: #b0341f; font-weight: 700; }
+.results-legend span[data-cell='skipped'] { color: #a89b8d; }
+
+@media (max-width: 1024px) {
+  .results-body { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .results-sidebar {
+    position: static; padding: 0 0 12px; border-right: 0; border-bottom: 1px solid #e5d9ca;
+  }
+  .results-list { flex-direction: row; overflow-x: auto; }
+  .result-chip { min-width: 200px; }
+  .results-table-wrap { max-height: none; }
+}
+
+@media print {
+  .app-nav, .results-sidebar, .results-actions, .breadcrumbs, .app-footer { display: none !important; }
+  .results-body { display: block; }
+  .results-table-wrap { max-height: none; overflow: visible; border: 0; }
+  .results-table thead th, .results-table thead th:first-child, .results-table tbody th {
+    position: static; background: transparent;
+  }
+  .results-table th, .results-table td { border-bottom: 1px solid #ccc; }
+}

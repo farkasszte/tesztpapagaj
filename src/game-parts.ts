@@ -143,15 +143,31 @@ export function useGamePersistence(options: {
   finished: boolean
   /** Hamis, amíg nincs játék (például a csapatnevek beírásánál). */
   enabled?: boolean
+  /**
+   * A játék lezárásakor **egyszer** lefutó visszahívás: itt menti a színpad a
+   * játék eredményét. A mentés nem a szerkezet része — a Bajnoknak és a
+   * Veszély!-nek más a játékállapota —, ezért a színpad dönti el, mit ír ki.
+   */
+  onFinished?: () => void
 }) {
-  const { mode, title, session, words, finished, enabled = true } = options
+  const { mode, title, session, words, finished, enabled = true, onFinished } = options
   const sequence = session.seq
+  const closed = useRef(false)
+  // A visszahívás referenciában él: egy soron belül írt nyíl minden rajzoláskor
+  // új lenne, és a mentés a függőségek miatt újraindulna.
+  const finish = useRef(onFinished)
+  finish.current = onFinished
   useEffect(() => {
     if (!enabled) return
     if (finished) {
       void clearSavedGame()
+      if (!closed.current) {
+        closed.current = true
+        finish.current?.()
+      }
       return
     }
+    closed.current = false
     void saveGame({ mode, title, savedAt: Date.now(), session, words: [...words.entries()] })
   }, [mode, title, session, words, finished, enabled, sequence])
 }

@@ -21,6 +21,7 @@ import { persistentStorageStatus, type PersistentStorageStatus } from './durable
 import { ResourceCollectionPage } from './resource-collection-page'
 import { BankFileDropTarget } from './bank-file-drop'
 import { ImportsPage, WaitingImportPage } from './imports-page'
+import { ResultsPage } from './results-page'
 import { questionBankCollection, type QuestionBankCollectionItem } from './resource-collections'
 import { QuestionBankExportDialog } from './question-bank-export-dialog'
 import { QuestionBankImportDialog } from './question-bank-import-dialog'
@@ -384,6 +385,7 @@ export default function App({
   }
   if (route === '/about') return <>{globalChrome}<AboutPage persistentStorage={storageStatus} /></>
   if (route === '/privacy') return <>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></>
+  if (route === '/eredmenyek') return <>{globalChrome}<ResultsPage persistentStorage={storageStatus} /></>
   if (route === '/settings') return <>{globalChrome}<SettingsPage persistentStorage={storageStatus} /></>
   if (route === '/exams') return <>{globalChrome}<ResourceCollectionPage
     kind="exams"

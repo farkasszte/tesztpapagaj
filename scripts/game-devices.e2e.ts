@@ -242,6 +242,24 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   const parsed = JSON.parse(stats ?? '{}') as Record<string, { asked: number; right: number }>
   expect(Object.values(parsed)).toContainEqual(expect.objectContaining({ asked: 1, right: 1 }))
 
+  // A játék eredménye a tanár naplójába is bekerül: a színpad a jelentés
+  // megjelenésekor menti, és a diák válasza cellánként ott van.
+  const results = await page.evaluate(async () => {
+    const store = (await import(
+      /* @vite-ignore */ '/src/game/results-store.ts'
+    )) as typeof import('../src/game/results-store')
+    const all = await store.listResults()
+    return all.map((item) => ({
+      id: item.id,
+      title: item.title,
+      questions: item.questions.length,
+      players: item.players.map((player) => ({ nickname: player.nickname, cells: player.cells })),
+    }))
+  })
+  expect(results).toHaveLength(1)
+  expect(results[0]).toMatchObject({ title: 'Devices bank', questions: 1 })
+  expect(results[0]?.players).toEqual([{ nickname: 'Panni', cells: ['right'] }])
+
   // A záróképernyőről a ranglista CSV-ben elvihető.
   const downloadPromise = page.waitForEvent('download')
   await stage.getByRole('button', { name: 'Save the standings' }).click()

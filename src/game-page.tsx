@@ -186,6 +186,7 @@ export function GamePage({
           words={source.words}
           settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults: false }}
           onExit={exit}
+          bankId={bankId}
           stage={mode}
         />
       ) : devices && mode === 'classic' ? (
@@ -195,6 +196,7 @@ export function GamePage({
           words={source.words}
           settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
           onExit={exit}
+          bankId={bankId}
         />
       ) : devices && mode === 'champion' ? (
         <ChampionDevices
@@ -236,6 +238,7 @@ export function GamePage({
           settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
           onExit={exit}
           restored={restored ?? undefined}
+          bankId={bankId}
         />
       )
     return createPortal(stage, document.body)

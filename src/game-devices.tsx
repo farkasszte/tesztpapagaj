@@ -38,12 +38,15 @@ export function ClassicDevices({
   settings,
   onExit,
   stage = 'classic',
+  bankId,
 }: {
   title: string
   questions: Question[]
   words: Map<string, PlayableWords>
   settings: Partial<ClassicSettings>
   onExit: () => void
+  /** Melyik bankból indult a játék — az eredmény innen visszakereshető. */
+  bankId?: string
   /** Melyik színpadot rajzolja: a Klasszikusét, a futamét vagy a szörnyét. */
   stage?: 'classic' | 'race' | 'boss'
 }) {
@@ -194,6 +197,7 @@ export function ClassicDevices({
         words={words}
         settings={settings}
         onExit={onExit}
+        bankId={bankId}
         engine={engine}
         hint={t('game.devices.stageHint')}
         status={

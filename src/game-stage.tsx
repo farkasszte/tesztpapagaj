@@ -9,6 +9,8 @@ import { resumedClassicSession } from './game/resume'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { buildCsv, csvFilename, downloadCsv } from './game/standings-csv'
 import { recordRevealCounts } from './game/question-stats'
+import { buildGameResult } from './game/results'
+import { saveResult } from './game/results-store'
 import { Bell, Letter, Ring } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { useT } from './i18n'
@@ -38,6 +40,7 @@ export function ClassicStage({
   engine: given,
   status,
   hint,
+  bankId,
 }: {
   title: string
   questions: Question[]
@@ -52,6 +55,8 @@ export function ClassicStage({
   status?: ReactNode
   /** A lábléc súgója, ha nem a kézfeltartásos változat kell. */
   hint?: string
+  /** Melyik bankból indult a játék — az eredmény innen visszakereshető. */
+  bankId?: string
 }) {
   const t = useT()
   const trapRef = useStageFocusTrap<HTMLDivElement>()
@@ -112,6 +117,11 @@ export function ClassicStage({
     words,
     // A jelentés a játék természetes vége: onnan nincs mit folytatni.
     finished: view.phase === 'REPORT' || view.phase === 'ENDED',
+    // A játék végén az eredmény a tanár naplójába kerül (kérdésenkénti mátrix).
+    onFinished: () => {
+      const result = buildGameResult(session, { mode: 'classic', title, words, bankId })
+      if (result) void saveResult(result)
+    },
   })
   useStageKeys({
     next: () => {

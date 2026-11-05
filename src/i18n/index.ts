@@ -1479,6 +1479,28 @@ const en = {
   'game.perilStu.waitWager': 'Your teammate is setting the wager.',
   'game.perilStu.right': 'Right! {points} points.',
   'game.perilStu.wrong': 'Not this time — the answer was {letter}.',
+  // --- játékeredmények (a lejátszott vetítések utólag)
+  'shell.results': 'Results',
+  'results.title': 'Game results',
+  'results.empty': 'No games have been played yet.',
+  'results.emptyHint': 'Start a Classic game with student devices, and its result will appear here — who answered which question, and how the class did overall.',
+  'results.average': 'class average',
+  'results.best': 'best result',
+  'results.student': 'Student',
+  'results.question': 'Question',
+  'results.score': 'Score',
+  'results.right': 'correct',
+  'results.wrong': 'wrong',
+  'results.skipped': 'not answered',
+  'results.csv': 'Download CSV',
+  'results.print': 'Print',
+  'results.delete': 'Delete result',
+  'results.deleteAll': 'Delete all results',
+  'results.confirmOne': 'Delete this result?',
+  'results.confirmAll': 'Every saved result is deleted. This cannot be undone.',
+  'common.player': 'player',
+  'common.players': 'players',
+
 } as const
 
 export type TextKey = keyof typeof en
@@ -2943,6 +2965,28 @@ const hu: Record<TextKey, string> = {
   'game.perilStu.waitWager': 'A csapattársad állítja be a tétet.',
   'game.perilStu.right': 'Helyes! {points} pont.',
   'game.perilStu.wrong': 'Most nem — a helyes válasz {letter} volt.',
+  // --- játékeredmények (a lejátszott vetítések utólag)
+  'shell.results': 'Eredmények',
+  'results.title': 'Játékeredmények',
+  'results.empty': 'Még nem játszottál le játékot.',
+  'results.emptyHint': 'Indíts egy Klasszikus játékot diák-eszközökkel, és az eredménye itt jelenik meg: ki melyik kérdésre mit válaszolt, és hogyan teljesített az osztály.',
+  'results.average': 'csoportátlag',
+  'results.best': 'legjobb eredmény',
+  'results.student': 'Diák',
+  'results.question': 'Kérdés',
+  'results.score': 'Eredmény',
+  'results.right': 'helyes',
+  'results.wrong': 'hibás',
+  'results.skipped': 'nem válaszolt',
+  'results.csv': 'CSV letöltése',
+  'results.print': 'Nyomtatás',
+  'results.delete': 'Eredmény törlése',
+  'results.deleteAll': 'Minden eredmény törlése',
+  'results.confirmOne': 'Törlöd ezt az eredményt?',
+  'results.confirmAll': 'Minden mentett eredmény törlődik. Ez nem vonható vissza.',
+  'common.player': 'játékos',
+  'common.players': 'játékos',
+
 };
 
 const LANGUAGES = { en, hu } as const
@@ -3025,6 +3069,7 @@ const COUNTED = {
   picture: ['common.picture', 'common.pictures'],
   exam: ['common.examOne', 'common.exams'],
   bank: ['common.bankOne', 'common.banks'],
+  player: ['common.player', 'common.players'],
 } as const
 
 export function countOf(
