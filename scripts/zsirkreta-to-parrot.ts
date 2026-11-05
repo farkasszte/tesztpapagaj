@@ -121,20 +121,25 @@ export function mapQuestion(source: ZQuestion, index: number): Mapped {
     case 'multiple-error': {
       const options = choicesOf(source.data)
       if (options.length < 2) return { skip: 'nincs elég válaszlehetőség' }
-      const mapped: Question = {
-        ...mcQuestion(
-          id,
-          stem,
-          options.map((option, optionIndex) => choice(`${id}-${optionIndex + 1}`, option.correct, option.text)),
-          points,
-        ),
-        ...(isMultiple ? { type: 'multiple-answer' as const } : {}),
+      const correct = options.filter((option) => option.correct).length
+      if (correct === 0) {
+        // Véleménykérdés/szavazás: nincs helyes válasz, tehát nincs mit pontozni.
+        return { skip: 'szavazás vagy véleménykérdés — nincs helyes válasz' }
       }
-      // Több helyes válasznál legyen is mit megjelölni.
-      if (isMultiple && options.filter((option) => option.correct).length < 2) {
-        return { skip: 'a több helyes válaszhoz kevesebb mint két helyes válasz tartozik' }
+      // Ha csak egy helyes válasz van megjelölve, akkor ez a gyakorlatban egyszeres
+      // választás, és úgy is játsszák: nem kényszerítjük „több helyes válasz” módba.
+      const multipleAnswer = isMultiple && correct > 1
+      return {
+        question: {
+          ...mcQuestion(
+            id,
+            stem,
+            options.map((option, optionIndex) => choice(`${id}-${optionIndex + 1}`, option.correct, option.text)),
+            points,
+          ),
+          ...(multipleAnswer ? { type: 'multiple-answer' as const } : {}),
+        },
       }
-      return { question: mapped }
     }
 
     case 'true-false': {

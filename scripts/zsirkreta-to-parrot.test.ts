@@ -30,9 +30,15 @@ describe('Zsírkréta kérdés → Tesztpapagáj kérdés', () => {
     const node = (plain.question.doc.content as { type: string; content: { attrs: { correct: boolean } }[] }[])[1]
     expect(node.content.map((choice) => choice.attrs.correct)).toEqual([true, false, true])
 
-    const error = mapQuestion(z('multiple-error', { options: ['A', 'B', 'C'], correct: [1] }), 2)
-    // Egy helyes válasz mellett nincs értelme több helyes válasznak: kimarad.
-    expect('skip' in error).toBe(true)
+    // Egyetlen helyes válasz mellett ez a gyakorlatban egyszeres választás.
+    const one = mapQuestion(z('multiple-error', { options: ['A', 'B', 'C'], correct: [1] }), 2)
+    if (!('question' in one)) throw new Error('nem képezte le')
+    expect(one.question.type).toBe('multiple-choice')
+
+    // Helyes válasz nélkül viszont nincs mit pontozni (szavazás/vélemény).
+    const none = mapQuestion(z('multiple', { options: ['A', 'B'], correct: [] }), 3)
+    expect('skip' in none).toBe(true)
+    if ('skip' in none) expect(none.skip).toContain('szavazás')
   })
 
   test('igaz/hamis a régi `correct: 0|1` és az új `isTrue` alakból', () => {
