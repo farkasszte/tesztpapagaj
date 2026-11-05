@@ -7,6 +7,8 @@
  * dolgozatokat is. A törölt mappa tartalma nem vész el: „mappa nélkül” marad.
  */
 
+import { useSyncExternalStore } from 'react'
+
 export type FolderKind = 'exams' | 'question-banks'
 
 export type Folder = {
@@ -38,12 +40,11 @@ function storage(): Storage | null {
 
 const placeKey = (kind: FolderKind, id: string) => `${kind}:${id}`
 
-function read(): FolderState {
-  const store = storage()
-  if (!store) return { folders: [], places: {} }
+const empty = (): FolderState => ({ folders: [], places: {} })
+
+function parse(raw: string | null): FolderState {
+  if (!raw) return empty()
   try {
-    const raw = store.getItem(FOLDERS_KEY)
-    if (!raw) return { folders: [], places: {} }
     const parsed = JSON.parse(raw) as Partial<FolderState>
     const folders = Array.isArray(parsed.folders)
       ? parsed.folders.filter(
@@ -64,33 +65,112 @@ function read(): FolderState {
         : {}
     return { folders, places }
   } catch {
-    return { folders: [], places: {} }
+    return empty()
   }
 }
 
+/**
+ * A legutóbb kiolvasott állapot. A felület ezt a **referenciát** figyeli
+ * (`useSyncExternalStore`), ezért minden írás új objektumot ad — így a mappa
+ * áthelyezése, átnevezése és törlése magától újrarajzol, `setStamp` nélkül.
+ */
+let cached: FolderState | null = null
+/** A gyorsítótár alapja: ugyanarra a tárolt szövegre ugyanaz az objektum. */
+let cachedRaw: string | null = null
+const listeners = new Set<() => void>()
+
 function write(state: FolderState): void {
+  const serialized = JSON.stringify(state)
+  cached = state
   const store = storage()
-  if (!store) return
-  try {
-    store.setItem(FOLDERS_KEY, JSON.stringify(state))
-  } catch {
-    // Betelt tároló: a rendezés elmarad, a bankok érintetlenek.
+  if (store) {
+    try {
+      store.setItem(FOLDERS_KEY, serialized)
+      cachedRaw = serialized
+    } catch {
+      // Betelt tároló: a rendezés elmarad, a bankok érintetlenek.
+    }
   }
+  for (const listener of listeners) listener()
+}
+
+/**
+ * Az éppen érvényes állapot. A tárolt szöveget minden kéréskor összevetjük: ha
+ * nem változott, ugyanazt az objektumot adjuk vissza (ezt várja a
+ * `useSyncExternalStore`), ha viszont más fül vagy más kód írta át, újraolvassuk.
+ */
+export function folderState(): FolderState {
+  let raw: string | null = null
+  try {
+    raw = storage()?.getItem(FOLDERS_KEY) ?? null
+  } catch {
+    raw = null
+  }
+  if (cached && cachedRaw === raw) return cached
+  cachedRaw = raw
+  cached = parse(raw)
+  return cached
+}
+
+/** A tároló más fülben változott: a gyorsítótár elavult, újraolvassuk. */
+export function refreshFolderState(): void {
+  cached = null
+  folderState()
+  for (const listener of listeners) listener()
+}
+
+export function subscribeFolders(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+// Másik fül mappaváltása: a gyorsítótár nem érvényes többé.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === FOLDERS_KEY || event.key === null) refreshFolderState()
+  })
+}
+
+/** A mappák állapota a komponensekben: írás után magától újrarajzol. */
+export function useFolderState(): FolderState {
+  return useSyncExternalStore(subscribeFolders, folderState)
+}
+
+/** Egy gyűjtemény mappái egy adott állapotból (létrehozás szerint). */
+export function foldersIn(state: FolderState, kind: FolderKind): Folder[] {
+  return state.folders
+    .filter((folder) => folder.kind === kind)
+    .sort((left, right) => left.createdAt - right.createdAt)
+}
+
+/** Melyik mappában van az elem egy adott állapotban; `null`, ha sehol. */
+export function folderIn(state: FolderState, kind: FolderKind, resourceId: string): string | null {
+  return state.places[placeKey(kind, resourceId)] ?? null
+}
+
+/** Hány elem van a mappában egy adott állapotban. */
+export function countIn(state: FolderState, kind: FolderKind, folderId: string): number {
+  const prefix = `${kind}:`
+  return Object.entries(state.places).filter(
+    ([key, value]) => key.startsWith(prefix) && value === folderId,
+  ).length
 }
 
 /** Egy gyűjtemény mappái, létrehozás szerint. */
 export function foldersOf(kind: FolderKind): Folder[] {
-  return read().folders.filter((folder) => folder.kind === kind).sort((a, b) => a.createdAt - b.createdAt)
+  return foldersIn(folderState(), kind)
 }
 
 /** Melyik mappában van az elem; `null`, ha sehol. */
 export function folderOf(kind: FolderKind, resourceId: string): string | null {
-  return read().places[placeKey(kind, resourceId)] ?? null
+  return folderIn(folderState(), kind, resourceId)
 }
 
 /** Az adott mappában lévő elemek azonosítói. */
 export function itemsIn(kind: FolderKind, folderId: string): string[] {
-  const { places } = read()
+  const { places } = folderState()
   return Object.entries(places)
     .filter(([key, value]) => key.startsWith(`${kind}:`) && value === folderId)
     .map(([key]) => key.slice(kind.length + 1))
@@ -108,7 +188,7 @@ export function createFolder(
 ): Folder | null {
   const clean = name.trim().replace(/\s+/g, ' ').slice(0, MAX_FOLDER_NAME)
   if (clean.length === 0) return null
-  const state = read()
+  const state = folderState()
   const same = state.folders.filter((folder) => folder.kind === kind)
   if (same.length >= MAX_FOLDERS) return null
   if (same.some((folder) => folder.name.toLowerCase() === clean.toLowerCase())) return null
@@ -120,7 +200,7 @@ export function createFolder(
 /** Átnevezés; üres név nem írja felül a régit. */
 export function renameFolder(id: string, name: string): Folder | null {
   const clean = name.trim().replace(/\s+/g, ' ').slice(0, MAX_FOLDER_NAME)
-  const state = read()
+  const state = folderState()
   const folder = state.folders.find((entry) => entry.id === id)
   if (!folder || clean.length === 0) return null
   const renamed = { ...folder, name: clean }
@@ -130,7 +210,7 @@ export function renameFolder(id: string, name: string): Folder | null {
 
 /** Mappa törlése: a benne lévő elemek „mappa nélkül” maradnak, nem tűnnek el. */
 export function removeFolder(id: string): void {
-  const state = read()
+  const state = folderState()
   write({
     folders: state.folders.filter((folder) => folder.id !== id),
     places: Object.fromEntries(Object.entries(state.places).filter(([, folderId]) => folderId !== id)),
@@ -139,7 +219,7 @@ export function removeFolder(id: string): void {
 
 /** Elem áthelyezése; `null` = mappa nélkül. */
 export function placeInFolder(kind: FolderKind, resourceId: string, folderId: string | null): void {
-  const state = read()
+  const state = folderState()
   const places = { ...state.places }
   if (folderId === null || !state.folders.some((folder) => folder.id === folderId && folder.kind === kind)) {
     delete places[placeKey(kind, resourceId)]
