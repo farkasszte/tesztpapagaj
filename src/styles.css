@@ -2498,6 +2498,13 @@ body.margins-guides .exam-page::after {
 .collection-search input { width: min(320px, 42vw); padding: 9px 12px; border: 1px solid #cdb9a6; border-radius: 8px; background: #fffdf8; }
 .collection-count { margin: 0; color: #6e5b4d; font-size: 14px; }
 .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 16px; }
+/* Nagy képernyőn nem negyedik oszlop lesz, hanem szélesebb kártya: FHD-n a
+   gyűjtemény három oszlopa jobban olvasható, mint négy keskeny. A lap is
+   szélesebbre nyílik, hogy a kártya tényleg nagyobb legyen (1600 px a törés). */
+@media (min-width: 1600px) {
+  .app-main { max-width: 1440px; }
+  .collection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+}
 /* Exam cards are sheets at a fixed scale, so their column is that width. */
 .collection-grid--exams { grid-template-columns: repeat(auto-fill, var(--sheet-width)); gap: 20px 18px; }
 .resource-card { min-height: 190px; border: 1px solid #e0d3c2; border-radius: 9px; color: inherit; text-align: left; background: #fffaf3; overflow: hidden; }
@@ -4074,7 +4081,7 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
 }
 .collection-main { min-width: 0; }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
   .collection-body { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .collection-sidebar {
     position: static; padding: 0 0 12px; border-right: 0; border-bottom: 1px solid #e5d9ca;
