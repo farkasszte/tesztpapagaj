@@ -2507,7 +2507,9 @@ body.margins-guides .exam-page::after {
 }
 /* Exam cards are sheets at a fixed scale, so their column is that width. */
 .collection-grid--exams { grid-template-columns: repeat(auto-fill, var(--sheet-width)); gap: 20px 18px; }
-.resource-card { min-height: 190px; border: 1px solid #e0d3c2; border-radius: 9px; color: inherit; text-align: left; background: #fffaf3; overflow: hidden; }
+/* A kártya magassága a tartalmából jön: a rács egy sorának kártyái úgyis
+   egyformák, a fix 190 px viszont üres sávot hagyott a szöveg alatt. */
+.resource-card { border: 1px solid #e0d3c2; border-radius: 9px; color: inherit; text-align: left; background: #fffaf3; overflow: hidden; }
 .resource-card:hover, .resource-card:focus-within { border-color: #b65f43; box-shadow: 0 3px 12px rgb(91 68 47 / 12%); }
 /* An Exam looks like what it prints: its own first sheet, shrunk, captioned.
    Nothing frames it, so a shelf of Exams reads as a stack of paper rather than
@@ -2548,7 +2550,7 @@ body.margins-guides .exam-page::after {
 /* The mark is pinned to the corner, so the name stops short of it. */
 .question-bank-card h2 { padding-right: 26px; }
 .bank-card-count { margin: 0; color: #6e5b4d; font-size: 14px; }
-.bank-card-topics { display: flex; flex-wrap: wrap; gap: 5px; min-height: 24px; margin-top: 9px; }
+.bank-card-topics { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 .question-bank-card { position: relative; }
 /* Pinned to the card's corner rather than laid out in the head row: a button
    cannot nest inside the button that opens the bank. */

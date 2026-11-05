@@ -415,14 +415,18 @@ export function QuestionBankCard({
         </p>
         {/* Topics wear the same tints here as in the bank pane and the question
             dialog, so one Topic is one colour everywhere it is shown. */}
-        <div className="bank-card-topics">
-          {bank.topics.slice(0, SHOWN_TOPICS).map((topic) => (
-            <TopicBadge key={topic} topic={topic} />
-          ))}
-          {bank.topics.length > SHOWN_TOPICS && (
-            <span className="badge">+{bank.topics.length - SHOWN_TOPICS}</span>
-          )}
-        </div>
+        {/* Téma nélkül a sor nem is jelenik meg: üresen csak levegőt hagyott
+            a darabszám és a használat között. */}
+        {bank.topics.length > 0 && (
+          <div className="bank-card-topics">
+            {bank.topics.slice(0, SHOWN_TOPICS).map((topic) => (
+              <TopicBadge key={topic} topic={topic} />
+            ))}
+            {bank.topics.length > SHOWN_TOPICS && (
+              <span className="badge">+{bank.topics.length - SHOWN_TOPICS}</span>
+            )}
+          </div>
+        )}
         {/* How load-bearing this bank is, stated as the one fact worth having
             while scanning a grid. Which Exams they are is a question you ask
             while changing or deleting the bank, and it is answered there. */}
