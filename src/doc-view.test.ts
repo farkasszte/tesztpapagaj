@@ -75,3 +75,31 @@ describe('DocView pictures', () => {
     expect(markup).toContain('style="width:200%;height:200%;left:-100%;top:-50%"')
   })
 })
+
+describe('DocView math caching', () => {
+  test('renders math and caches rendered KaTeX output', () => {
+    const markup1 = renderToStaticMarkup(
+      createElement(DocView, {
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'math_inline', attrs: { value: 'x^2 + y^2 = z^2' } }],
+          },
+        ],
+      }),
+    )
+    expect(markup1).toContain('katex')
+
+    const markup2 = renderToStaticMarkup(
+      createElement(DocView, {
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'math_inline', attrs: { value: 'x^2 + y^2 = z^2' } }],
+          },
+        ],
+      }),
+    )
+    expect(markup2).toBe(markup1)
+  })
+})

@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
-import '@milkdown/crepe/theme/common/style.css'
-import '@milkdown/crepe/theme/frame.css'
+import { useCallback, useEffect, useState, lazy, Suspense } from 'react'
 import { createExamStore, loadExamStore, type ExamStore } from './exam-store'
 import { domMeasure } from './dom-measure'
 import { pendingImagesOfQuestions } from './pending-images'
@@ -12,23 +10,26 @@ import { hasBeenWelcomed } from './welcomed'
 import type { ExamWorkspaceService, QuestionDeletionImpact, RecentExam } from './exam-workspaces'
 import { type ExamDeletionSummary } from './exam-deletion'
 import { type QuestionBankResource, type QuestionBankWorkspaceService } from './question-bank-workspaces'
-import { AboutPage, PrivacyPage } from './site-pages'
-import { SettingsPage } from './settings-page'
-import { GamePage } from './game-page'
-import { GameStudent } from './game-student'
 import { useDriveAutoBackup } from './use-drive-autobackup'
 import { persistentStorageStatus, type PersistentStorageStatus } from './durable-storage'
-import { ResourceCollectionPage } from './resource-collection-page'
 import { BankFileDropTarget } from './bank-file-drop'
-import { ImportsPage, WaitingImportPage } from './imports-page'
-import { ResultsPage } from './results-page'
 import { questionBankCollection, type QuestionBankCollectionItem } from './resource-collections'
-import { QuestionBankExportDialog } from './question-bank-export-dialog'
-import { QuestionBankImportDialog } from './question-bank-import-dialog'
 import { countOf, t } from './i18n'
-import { ExamEditor } from './exam-editor'
-import { QuestionBankPage } from './question-bank-page'
 import { BankDeletionConfirmation, ExamDeletionConfirmation } from './confirmations'
+
+const AboutPage = lazy(() => import('./site-pages').then((m) => ({ default: m.AboutPage })))
+const PrivacyPage = lazy(() => import('./site-pages').then((m) => ({ default: m.PrivacyPage })))
+const SettingsPage = lazy(() => import('./settings-page').then((m) => ({ default: m.SettingsPage })))
+const GamePage = lazy(() => import('./game-page').then((m) => ({ default: m.GamePage })))
+const GameStudent = lazy(() => import('./game-student').then((m) => ({ default: m.GameStudent })))
+const ResourceCollectionPage = lazy(() => import('./resource-collection-page').then((m) => ({ default: m.ResourceCollectionPage })))
+const ImportsPage = lazy(() => import('./imports-page').then((m) => ({ default: m.ImportsPage })))
+const WaitingImportPage = lazy(() => import('./imports-page').then((m) => ({ default: m.WaitingImportPage })))
+const ResultsPage = lazy(() => import('./results-page').then((m) => ({ default: m.ResultsPage })))
+const QuestionBankExportDialog = lazy(() => import('./question-bank-export-dialog').then((m) => ({ default: m.QuestionBankExportDialog })))
+const QuestionBankImportDialog = lazy(() => import('./question-bank-import-dialog').then((m) => ({ default: m.QuestionBankImportDialog })))
+const ExamEditor = lazy(() => import('./exam-editor').then((m) => ({ default: m.ExamEditor })))
+const QuestionBankPage = lazy(() => import('./question-bank-page').then((m) => ({ default: m.QuestionBankPage })))
 
 /** The mark each Question Section goes by, so a type reads the same wherever
  *  it is named — the picker that chooses one, and the dialog that states it. */
@@ -191,10 +192,14 @@ export default function App({
       if (resource) setExportingBank(resource)
     })
   }, [bankWorkspaces])
-  const bankExportDialog = exportingBank && <QuestionBankExportDialog
-    bank={exportingBank}
-    onClose={() => setExportingBank(null)}
-  />
+  const bankExportDialog = exportingBank && (
+    <Suspense fallback={null}>
+      <QuestionBankExportDialog
+        bank={exportingBank}
+        onClose={() => setExportingBank(null)}
+      />
+    </Suspense>
+  )
   const bankDeletionConfirmation = deletingBank && <BankDeletionConfirmation
     bank={deletingBank.bank}
     impact={deletingBank.impact}
@@ -318,40 +323,44 @@ export default function App({
     })
     return () => { current = false }
   }, [bankWorkspaces, onBankPage, pageBankReady, search])
-  const importDialog = inspectingBankFile && <QuestionBankImportDialog
-    key={`${droppedBankFile ? `${droppedBankFile.name}:${droppedBankFile.lastModified}` : 'chosen'}:${importTargetBankId ?? ''}:${importWaitingId ?? ''}`}
-    initialFile={droppedBankFile ?? undefined}
-    initialProposal={importProposal ?? undefined}
-    targetBankId={importTargetBankId ?? undefined}
-    waitingImportId={importWaitingId ?? undefined}
-    dropped={dialogDrop ?? undefined}
-    loadBanks={loadImportBanks}
-    onClose={closeImport}
-    onImport={importBank}
-    onConverting={(waiting) => {
-      // A test to convert waits for its AI on its own page, which outlives
-      // the dialog: the teacher comes back to it with the file their AI made.
-      closeImport()
-      navigate(`/import?id=${encodeURIComponent(waiting.id)}`)
-    }}
-  />
+  const importDialog = inspectingBankFile && (
+    <Suspense fallback={null}>
+      <QuestionBankImportDialog
+        key={`${droppedBankFile ? `${droppedBankFile.name}:${droppedBankFile.lastModified}` : 'chosen'}:${importTargetBankId ?? ''}:${importWaitingId ?? ''}`}
+        initialFile={droppedBankFile ?? undefined}
+        initialProposal={importProposal ?? undefined}
+        targetBankId={importTargetBankId ?? undefined}
+        waitingImportId={importWaitingId ?? undefined}
+        dropped={dialogDrop ?? undefined}
+        loadBanks={loadImportBanks}
+        onClose={closeImport}
+        onImport={importBank}
+        onConverting={(waiting) => {
+          // A test to convert waits for its AI on its own page, which outlives
+          // the dialog: the teacher comes back to it with the file their AI made.
+          closeImport()
+          navigate(`/import?id=${encodeURIComponent(waiting.id)}`)
+        }}
+      />
+    </Suspense>
+  )
   // Importing by drop is offered on every page, the editor included, so the
   // overlay and the dialog live outside the route switch below.
   const globalChrome = <>
     <BankFileDropTarget onFile={dropping(openImport)} />
     {importDialog}
   </>
-  if (route === '/imports' || route === '/imports/new') return <>{globalChrome}<ImportsPage
+  if (route === '/imports' || route === '/imports/new') return <Suspense fallback={null}>{globalChrome}<ImportsPage
     onImport={() => openImport()}
     onProposal={openImportWithProposal}
     persistentStorage={storageStatus}
     revision={importRevision}
     picturesNeededIn={picturesNeededIn}
-  /></>
+  /></Suspense>
   if (route === '/import') {
     const waitingId = new URLSearchParams(window.location.search).get('id') ?? ''
     // A file dropped on a waiting import's page is the AI's answer to it.
-    return <>
+    return <Suspense fallback={null}>
       <BankFileDropTarget onFile={dropping((file) => setConvertDrop({ file, id: Date.now() }))} />
       {importDialog}
       <WaitingImportPage
@@ -361,33 +370,35 @@ export default function App({
         dropped={convertDrop}
         onReturnedFile={(file) => openImport(file, null, waitingId)}
       />
-    </>
+    </Suspense>
   }
   if (route === '/diak') {
     // A diák saját oldala: kóddal a belépő, kód nélkül a kódkérő — itt látszanak
     // a telefonon megőrzött hibalisták is, miután a szoba már bezárt.
     const studentCode = new URLSearchParams(search).get('kod') ?? ''
-    return <GameStudent initialCode={studentCode} />
+    return <Suspense fallback={null}><GameStudent initialCode={studentCode} /></Suspense>
   }
   if (route === '/jatek') {
     // A diák linkje (`/jatek?kod=482913`) a telefonos belépő; kód nélkül a tanár oldala.
     const code = new URLSearchParams(search).get('kod') ?? ''
-    if (code) return <GameStudent initialCode={code} />
+    if (code) return <Suspense fallback={null}><GameStudent initialCode={code} /></Suspense>
     const query = new URLSearchParams(search)
     return (
-      <GamePage
-        banks={bankWorkspaces}
-        persistentStorage={storageStatus}
-        initialBankId={query.get('bank') ?? ''}
-        initialMode={query.get('mod') === 'kartya' ? 'flashcard' : ''}
-      />
+      <Suspense fallback={null}>
+        <GamePage
+          banks={bankWorkspaces}
+          persistentStorage={storageStatus}
+          initialBankId={query.get('bank') ?? ''}
+          initialMode={query.get('mod') === 'kartya' ? 'flashcard' : ''}
+        />
+      </Suspense>
     )
   }
-  if (route === '/about') return <>{globalChrome}<AboutPage persistentStorage={storageStatus} /></>
-  if (route === '/privacy') return <>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></>
-  if (route === '/eredmenyek') return <>{globalChrome}<ResultsPage persistentStorage={storageStatus} /></>
-  if (route === '/settings') return <>{globalChrome}<SettingsPage persistentStorage={storageStatus} /></>
-  if (route === '/exams') return <>{globalChrome}<ResourceCollectionPage
+  if (route === '/about') return <Suspense fallback={null}>{globalChrome}<AboutPage persistentStorage={storageStatus} /></Suspense>
+  if (route === '/privacy') return <Suspense fallback={null}>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></Suspense>
+  if (route === '/eredmenyek') return <Suspense fallback={null}>{globalChrome}<ResultsPage persistentStorage={storageStatus} /></Suspense>
+  if (route === '/settings') return <Suspense fallback={null}>{globalChrome}<SettingsPage persistentStorage={storageStatus} /></Suspense>
+  if (route === '/exams') return <Suspense fallback={null}>{globalChrome}<ResourceCollectionPage
     kind="exams"
     exams={exams}
     banks={bankCollection}
@@ -397,8 +408,8 @@ export default function App({
     onNewExam={newExam}
     onDeleteExam={(exam) => requestExamDeletion(exam.id)}
     error={homeError}
-  />{bankDeletionConfirmation}{examDeletionConfirmation}</>
-  if (route === '/question-banks') return <>{globalChrome}<ResourceCollectionPage
+  />{bankDeletionConfirmation}{examDeletionConfirmation}</Suspense>
+  if (route === '/question-banks') return <Suspense fallback={null}>{globalChrome}<ResourceCollectionPage
     kind="question-banks"
     exams={exams}
     banks={bankCollection}
@@ -410,7 +421,7 @@ export default function App({
     onDeleteBank={requestBankDeletion}
     onImportBank={() => openImport()}
     error={homeError}
-  />{bankExportDialog}{bankDeletionConfirmation}</>
+  />{bankExportDialog}{bankDeletionConfirmation}</Suspense>
   // A device that has never been here gets the front door instead of empty
   // shelves; the same page stays reachable at /welcome afterwards.
   const firstVisit = exams.length === 0 && bankCollection.length === 0 && !hasBeenWelcomed()
@@ -439,7 +450,7 @@ export default function App({
     onDeleteExam={(exam) => requestExamDeletion(exam.id)}
     onImport={() => openImport()}
   />{bankExportDialog}{bankDeletionConfirmation}{examDeletionConfirmation}</>
-  if (route === '/question-bank') return pageBank && pageBankReady ? <>{globalChrome}<QuestionBankPage
+  if (route === '/question-bank') return pageBank && pageBankReady ? <Suspense fallback={globalChrome}>{globalChrome}<QuestionBankPage
     key={pageBank.bank.id}
     bank={pageBank.bank}
     bankWorkspaces={bankWorkspaces}
@@ -450,8 +461,8 @@ export default function App({
     onImportInto={(bankId) => openImport(null, bankId)}
     onPlay={() => navigate(`/jatek?bank=${pageBank.bank.id}`)}
     onFlashcards={() => navigate(`/jatek?bank=${pageBank.bank.id}&mod=kartya`)}
-  /></> : globalChrome
-  return editorStore && editorId ? <>{globalChrome}<ExamEditor
+  /></Suspense> : globalChrome
+  return editorStore && editorId ? <Suspense fallback={globalChrome}>{globalChrome}<ExamEditor
     store={editorStore}
     examId={editorId}
     bankWorkspaces={bankWorkspaces}
@@ -475,5 +486,5 @@ export default function App({
       if (id) await workspaces.removePristine(id)
       window.location.assign('/')
     })
-  }} />{examDeletionConfirmation}</> : globalChrome
+  }} />{examDeletionConfirmation}</Suspense> : globalChrome
 }

@@ -39,11 +39,13 @@ async function start() {
   // Home has no workspace to restore, so it also clears an active placeholder
   // that was abandoned by closing or leaving the editor. A bare editor reload
   // deliberately retains that active workspace long enough to restore it.
-  await workspaces.cleanupPristine({ includeActive: !startingOnEditor })
-  const startingOnBank = window.location.pathname === '/question-bank'
   // The bank page's own bank is the active one, so it must survive the sweep
   // that disposes abandoned Untitled placeholders.
-  await bankWorkspaces.cleanupPristine({ includeActive: !startingOnEditor && !startingOnBank })
+  const startingOnBank = window.location.pathname === '/question-bank'
+  await Promise.all([
+    workspaces.cleanupPristine({ includeActive: !startingOnEditor }),
+    bankWorkspaces.cleanupPristine({ includeActive: !startingOnEditor && !startingOnBank }),
+  ])
   const parameters = new URLSearchParams(window.location.search)
   let store = null
   let bank: QuestionBankResource | null = null

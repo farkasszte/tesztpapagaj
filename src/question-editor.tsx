@@ -1,4 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
+import '@milkdown/crepe/theme/common/style.css'
+import '@milkdown/crepe/theme/frame.css'
 import { Milkdown, useEditor } from '@milkdown/react'
 import { Crepe } from '@milkdown/crepe'
 import { size } from '@floating-ui/dom'

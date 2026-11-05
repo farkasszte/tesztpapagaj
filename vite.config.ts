@@ -34,6 +34,37 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   return {
     plugins: [react(), extractPage(), cloudflareAnalytics(env.VITE_CF_BEACON_TOKEN)],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('scheduler')) {
+                return 'vendor-react'
+              }
+              if (id.includes('@milkdown') || id.includes('prosemirror')) {
+                return 'vendor-editor'
+              }
+              if (id.includes('katex')) {
+                return 'vendor-katex'
+              }
+              if (id.includes('mathjax')) {
+                return 'vendor-mathjax'
+              }
+              if (id.includes('ajv')) {
+                return 'vendor-ajv'
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons'
+              }
+              if (id.includes('jszip')) {
+                return 'vendor-zip'
+              }
+            }
+          },
+        },
+      },
+    },
     server: {
       host: '0.0.0.0',
       port: 8000,

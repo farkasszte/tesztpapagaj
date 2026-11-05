@@ -36,12 +36,36 @@ function renderAll(node: ProseMirrorJSON): ReactNode[] {
 }
 
 // KaTeX renders to a string of its own markup; the expression itself comes from
-// the teacher's own document.
-function Tex({ value, display }: { value: string; display: boolean }) {
+// the teacher's own document. We cache rendered HTML by mode and expression so
+// re-renders, off-screen DOM measurement, and drag-and-drop pagination do not
+// re-parse and re-layout the same math repeatedly.
+const katexCache = new Map<string, string>()
+const MAX_KATEX_CACHE_ENTRIES = 2000
+
+function renderKatex(value: string, display: boolean): string {
+  const key = (display ? 'D:' : 'I:') + value
+  const cached = katexCache.get(key)
+  if (cached !== undefined) return cached
+
+  if (katexCache.size >= MAX_KATEX_CACHE_ENTRIES) {
+    const iterator = katexCache.keys()
+    for (let i = 0; i < 500; i++) {
+      const next = iterator.next()
+      if (next.done) break
+      katexCache.delete(next.value)
+    }
+  }
+
   const html = katex.renderToString(value, {
     throwOnError: false,
     displayMode: display,
   })
+  katexCache.set(key, html)
+  return html
+}
+
+function Tex({ value, display }: { value: string; display: boolean }) {
+  const html = renderKatex(value, display)
   return (
     <span
       className={display ? 'doc-math doc-math--block' : 'doc-math'}
