@@ -122,25 +122,34 @@ test('a Drive csatlakoztatása feltölti a csomagot, és megjegyzi a mappát', a
   // A jobb felső sarok jelzője is átvált: pipás felhő, és a panel az utolsó mentést mondja.
   await expect(badge).toHaveAttribute('data-drive', 'on')
   await badge.click()
-  const panel = page.getByRole('region', { name: 'Where your work is stored' })
-  await expect(panel).toContainText('backed up to Google Drive')
-  await expect(panel).toContainText('Last backup:')
+  const badgePanel = page.getByRole('region', { name: 'Where your work is stored' })
+  await expect(badgePanel).toContainText('backed up to Google Drive')
+  await expect(badgePanel).toContainText('Last backup:')
   await badge.click()
 
   // Kézi mentés: újabb csomag, a mappa nem jön létre újra.
   await card.getByRole('button', { name: 'Back up now' }).click()
   await expect.poll(() => drive.uploads.length).toBe(2)
 
+  // A fejléc paneljén is van mentés-gomb a csatlakoztatott fióknak.
+  await badge.click()
+  const panel = page.getByRole('region', { name: 'Where your work is stored' })
+  await expect(panel.getByRole('button', { name: 'Back up now' })).toBeVisible()
+  await panel.getByRole('button', { name: 'Back up now' }).click()
+  await expect(panel.getByText('Saved to Google Drive.')).toBeVisible()
+  await expect.poll(() => drive.uploads.length).toBe(3)
+  await badge.click()
+
   // A Drive-on lévő csomagok listája a kártyán.
   await card.getByRole('button', { name: 'Restore from Drive' }).click()
-  await expect(card.locator('.drive-file')).toHaveCount(2)
+  await expect(card.locator('.drive-file')).toHaveCount(3)
   await expect(card.locator('.drive-file-name').first()).toContainText('tesztpapagaj-biztonsagi-masolat')
 
   // Leválasztás: a könyvelés törlődik, a csomagok a Drive-on maradnak.
   await card.getByRole('button', { name: 'Disconnect' }).click()
   await expect(card.getByRole('button', { name: 'Connect Google Drive' })).toBeVisible()
   expect(await page.evaluate(() => window.localStorage.getItem('tesztpapagaj:drive'))).toBeNull()
-  expect(drive.files).toHaveLength(2)
+  expect(drive.files).toHaveLength(3)
 })
 
 test('ha a Google nem ad hozzáférést, a felület kimondja', async ({ page }) => {

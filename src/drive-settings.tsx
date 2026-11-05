@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { captureAccount, stageRestore } from './account-backup'
-import { backUpToDrive, driveBackups, forgetDrive, loadDriveState, saveDriveState, type DriveState } from './drive-backup'
+import { stageRestore } from './account-backup'
+import { driveBackups, forgetDrive, loadDriveState, saveDriveState, type DriveState } from './drive-backup'
+import { saveToDrive } from './drive-run'
 import { driveApi, requestDriveToken, revokeDriveToken, type DriveFile, type DriveToken } from './google-drive'
 import { getLanguage, useT } from './i18n'
 
@@ -45,19 +46,13 @@ export function DriveSettings() {
     setBusy('backup')
     setError('')
     try {
-      const current = await freshToken(true)
-      if (!current) {
-        setError(t('drive.noAccess'))
+      const outcome = await saveToDrive({ silent: true })
+      if (!outcome.ok) {
+        setError(t(outcome.reason === 'no-access' ? 'drive.noAccess' : 'drive.failed'))
         return
       }
-      const result = await backUpToDrive({
-        api: driveApi(current.accessToken),
-        snapshot: await captureAccount(),
-      })
-      setState(result.state)
+      setState(loadDriveState())
       setFiles(null)
-    } catch {
-      setError(t('drive.failed'))
     } finally {
       setBusy(null)
     }

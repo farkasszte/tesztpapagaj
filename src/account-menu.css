@@ -11,6 +11,8 @@
 .account-panel > strong { display: block; margin-bottom: 6px; }
 .account-panel p { margin: 0; color: #6e5b4d; }
 .account-panel .account-warning, .account-dialog .account-warning { margin-top: 8px; color: var(--paper-danger); font-weight: 600; }
+/* A sikeres mentés visszajelzése a panelen: zöld, de visszafogott. */
+.account-panel .account-saved { margin-top: 8px; color: #35603f; font-weight: 600; }
 
 .account-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .account-actions--end { justify-content: flex-end; }

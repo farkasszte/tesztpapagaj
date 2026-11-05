@@ -1,11 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { captureAccount } from './account-backup'
-import { backUpToDrive, backupDue, loadDriveState } from './drive-backup'
-import { driveApi, requestDriveToken } from './google-drive'
-
-function clientId(): string {
-  return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
-}
+import { backupDue, loadDriveState } from './drive-backup'
+import { driveClientId, saveToDrive } from './drive-run'
 
 /**
  * Csendes mentés a megnyitáskor: ha a tanár egyszer csatlakoztatta a Drive-ot és
@@ -17,17 +12,12 @@ export function useDriveAutoBackup(): void {
   useEffect(() => {
     if (started.current) return
     started.current = true
-    const id = clientId()
-    if (!id || !backupDue(loadDriveState())) return
+    if (!driveClientId() || !backupDue(loadDriveState())) return
     let live = true
     void (async () => {
-      try {
-        const current = await requestDriveToken(id, { silent: true })
-        if (!current || !live) return
-        await backUpToDrive({ api: driveApi(current.accessToken), snapshot: await captureAccount() })
-      } catch {
-        // Csendes: a következő megnyitáskor újra próbáljuk.
-      }
+      // Csendes: ha nincs munkamenet vagy hiba jön, a következő megnyitáskor újra próbáljuk.
+      const outcome = await saveToDrive({ silent: true })
+      if (!live || outcome.ok) return
     })()
     return () => {
       live = false

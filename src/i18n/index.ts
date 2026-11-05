@@ -701,6 +701,10 @@ const en = {
   'account.storageDriveLine':
     'Last backup: {when} — one a day by itself, and you can ask for one any time in Settings.',
   'account.storageDriveNever': 'Connected to Google Drive — no backup yet.',
+  'account.backupNow': 'Back up now',
+  'account.backupWorking': 'Backing up…',
+  'account.backupSaved': 'Saved to Google Drive.',
+  'account.backupFailedPanel': 'The backup did not go through. Check the Drive in Settings.',
   'account.storageDenied': 'Persistent storage was denied. Your browser may clear this local data when space is needed.',
   'account.restoreBody': '{file} was made {made}. Restoring replaces every Exam, Question Bank, Working Copy and Export History in this browser with the ones in the backup, then reloads the page.',
   'imports.expired': 'Not imported within seven days',
@@ -2161,6 +2165,10 @@ const hu: Record<TextKey, string> = {
   'account.storageDriveLine':
     'Utolsó mentés: {when} — naponta egyszer magától, és a beállításokban bármikor kérhetsz egyet.',
   'account.storageDriveNever': 'Csatlakoztatva a Google Drive-hoz — még nincs mentés.',
+  'account.backupNow': 'Mentés most',
+  'account.backupWorking': 'Mentés…',
+  'account.backupSaved': 'Elmentve a Google Drive-ra.',
+  'account.backupFailedPanel': 'A mentés nem ment át. Nézd meg a Drive-ot a beállításokban.',
   'account.storageDenied': 'A tartós tárhelyet a böngésző nem adta meg. Helyhiány esetén törölheti ezeket az adatokat.',
   'account.restoreBody': 'A(z) {file} készült: {made}. A visszaállítás ebben a böngészőben minden dolgozatot, kérdésbankot, munkapéldányt és exportelőzményt lecserél a biztonsági másolatban lévőkre, majd újratölti az oldalt.',
   'imports.expired': 'Hét napon belül nem importálódott',

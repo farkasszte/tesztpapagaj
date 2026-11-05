@@ -13,6 +13,7 @@ import {
 } from './account-backup'
 import type { PersistentStorageStatus } from './durable-storage'
 import { DRIVE_CHANGED_EVENT, loadDriveState } from './drive-backup'
+import { saveToDrive } from './drive-run'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { navigate } from './use-route'
 import './account-menu.css'
@@ -44,6 +45,18 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
   const panelId = useId()
   /** A Drive-mentés állapota: a jelző ezt is mutatja, nem csak a helyi tárolót. */
   const [drive, setDrive] = useState(() => loadDriveState())
+  /** A panel mentés-gombjának állapota: folyamatban / kész / hiba. */
+  const [saving, setSaving] = useState<'busy' | 'saved' | 'failed' | null>(null)
+  const save = async () => {
+    setSaving('busy')
+    const outcome = await saveToDrive({ silent: true })
+    if (outcome.ok) {
+      setSaving('saved')
+      setDrive(loadDriveState())
+    } else {
+      setSaving('failed')
+    }
+  }
   useEffect(() => {
     // A panel nyitásakor frissül, és akkor is, amikor a beállításokban
     // csatlakoztatják vagy leválasztják a Drive-ot (a könyvelés eseményt küld).
@@ -116,6 +129,16 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
             </p>
           )}
           <div className="account-actions">
+            {drive.enabled && (
+              <button
+                type="button"
+                className="secondary-button account-action"
+                disabled={saving !== null}
+                onClick={() => void save()}
+              >
+                {saving === 'busy' ? t('account.backupWorking') : t('account.backupNow')}
+              </button>
+            )}
             <button
               type="button"
               className="secondary-button account-action"
@@ -125,6 +148,16 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
               {t('ui.settingsMenu')}
             </button>
           </div>
+          {saving === 'saved' ? (
+            <p className="account-saved" role="status">
+              {t('account.backupSaved')}
+            </p>
+          ) : null}
+          {saving === 'failed' ? (
+            <p className="account-warning" role="status">
+              {t('account.backupFailedPanel')}
+            </p>
+          ) : null}
         </div>
       )}
     </div>
