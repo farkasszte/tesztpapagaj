@@ -112,7 +112,7 @@ describe('PDF Export Adapter', () => {
     const testPages = pages.slice(0, plans[0]!.pages.length).join(' ')
     const keyPages = pages.slice(plans[0]!.pages.length).join(' ')
     expect(testPages).not.toMatch(/\[\d+\]|Total/)
-    expect(keyPages).toContain('Total: 9 points')
+    expect(keyPages).toContain(t('export.keyTotalMany', { points: 9 }))
     for (const points of ['[1]', '[2]', '[3]']) expect(keyPages).toContain(points)
   })
 

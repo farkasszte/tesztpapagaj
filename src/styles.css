@@ -4206,3 +4206,25 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
   }
   .results-table th, .results-table td { border-bottom: 1px solid #ccc; }
 }
+
+/* ── Landing: ami most benne van ───────────────────────────────────────────
+   A lap régen a dolgozatkészítésről szólt; ma a játék, a tanulókártya, az
+   eredmények és a mentés is a termék része, ezért ezek egy sorban, kártyánként
+   egy mondattal szerepelnek. Ugyanaz a papír-kártya, mint a lépéseké. */
+.landing-features {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;
+  margin: 26px 0 0; padding: 0; list-style: none;
+}
+.landing-feature {
+  padding: 18px 18px 20px; border: 1px solid #e8dfd2; border-radius: 12px; background: #fffdf8;
+}
+.landing-feature svg { width: 22px; height: 22px; margin-bottom: 12px; color: var(--paper-accent); }
+.landing-feature h3 { margin: 0 0 6px; font-size: 15.5px; }
+.landing-feature p { margin: 0; color: #5f4d40; font-size: 14px; line-height: 1.5; }
+
+@media (max-width: 1279px) {
+  .landing-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 719px) {
+  .landing-features { grid-template-columns: minmax(0, 1fr); }
+}

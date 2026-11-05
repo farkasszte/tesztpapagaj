@@ -3,9 +3,14 @@ import type { CSSProperties, ReactNode } from 'react'
 import {
   ArrowRight,
   Camera,
+  ChartNoAxesColumn,
+  CloudCheck,
   FileText,
   FileType,
+  Folder,
+  Gamepad2,
   Image,
+  Layers,
   Library,
   MousePointer2,
   NotebookPen,
@@ -136,6 +141,22 @@ function HeroArt() {
   )
 }
 
+/**
+ * Ami a lapról hiányzott: a kérdésbank és a dolgozat mellé azóta felnőtt a
+ * játék öt módja, a tanulókártya, az eredmények, a mappák és a felhőmentés.
+ * Egy sorban, ikonnal és egy mondattal — a látogató azt lássa, mire jó most.
+ */
+const FEATURES = [
+  { titleKey: 'landing.featureBankTitle', textKey: 'landing.featureBankText', Icon: Library },
+  { titleKey: 'landing.featurePaperTitle', textKey: 'landing.featurePaperText', Icon: Printer },
+  { titleKey: 'landing.featureGameTitle', textKey: 'landing.featureGameText', Icon: Gamepad2 },
+  { titleKey: 'landing.featureCardsTitle', textKey: 'landing.featureCardsText', Icon: Layers },
+  { titleKey: 'landing.featureResultsTitle', textKey: 'landing.featureResultsText', Icon: ChartNoAxesColumn },
+  { titleKey: 'landing.featureImportTitle', textKey: 'landing.featureImportText', Icon: ScanLine },
+  { titleKey: 'landing.featureDriveTitle', textKey: 'landing.featureDriveText', Icon: CloudCheck },
+  { titleKey: 'landing.featureFolderTitle', textKey: 'landing.featureFolderText', Icon: Folder },
+] as const satisfies readonly { titleKey: TextKey; textKey: TextKey; Icon: typeof FileText }[]
+
 const STEPS = [
   {
     titleKey: 'landing.stepGatherTitle',
@@ -211,6 +232,19 @@ export function LandingPage({ returning }: {
               ))}
             </ol>
           </div>
+        </section>
+
+        <section className="landing-section" aria-labelledby="features-heading">
+          <h2 id="features-heading">{t('landing.featuresTitle')}</h2>
+          <ul className="landing-features">
+            {FEATURES.map(({ titleKey, textKey, Icon }) => (
+              <li key={titleKey} className="landing-feature">
+                <Icon aria-hidden="true" />
+                <h3>{t(titleKey)}</h3>
+                <p>{t(textKey)}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="landing-section" aria-labelledby="local-heading">

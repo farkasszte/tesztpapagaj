@@ -60,6 +60,7 @@ import { stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { blankAnswerBlocks } from './blank'
 import { withPictureSizes } from './picture-geometry'
 import { pointsOfQuestion, sumOfPoints } from './points'
+import { t } from './i18n'
 import { answerVisibilityOf, shownChoices, type AnswerVisibility } from './hidden-answers'
 import { headerLineOf, type ExamHeader, type HeaderLine } from './page-header'
 import { DEFAULT_MARGIN, marginPx, marginsOf, sameMargins, type MarginSide, type PageMargins } from './page-margins'
@@ -639,9 +640,10 @@ export function answerKeyPointsText(points: number): string {
   return `[${points}]`
 }
 
-/** The paper's total as the Answer Key prints it beside its heading. */
+/** The paper's total as the Answer Key prints it beside its heading. A felirat
+ *  a felület nyelvét követi: a kulcsot a tanár nyomtatja, nem angol vizsga. */
 export function answerKeyTotalText(points: number): string {
-  return `Total: ${points} ${points === 1 ? 'point' : 'points'}`
+  return t(points === 1 ? 'export.keyTotalOne' : 'export.keyTotalMany', { points })
 }
 
 // The paper's total, as a Paper Style that prints it there (ADR-0045) words

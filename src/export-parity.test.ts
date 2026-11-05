@@ -14,6 +14,7 @@ import JSZip from 'jszip'
 import { createExamDocx } from './docx-export'
 import type { MediaLoader } from './export-media'
 import { docxFingerprint } from './docx-fingerprint'
+import { t } from './i18n'
 import { FIXTURES, PIXEL_PNG, type Fixture } from './export-fixtures'
 import {
   compareFingerprints,
@@ -168,7 +169,7 @@ describe('the DOCX Export Adapter carries the planned document', () => {
       expect(test!.some((line) => /\[\d+\]|points?\b/.test(line))).toBe(false)
       // The key gives the paper's total, each line with Points its `[n]`, a
       // Matching set's once on its first Item, and an unpointed line none.
-      expect(key).toContain('heading:1 Válaszkulcs Total: 9 points')
+      expect(key).toContain(`heading:1 Válaszkulcs ${t('export.keyTotalMany', { points: 9 })}`)
       expect(key).toContain('para 1. «strong»A«/» [1] Könnyű Rivers')
       expect(key).toContain('para 2. «strong»H«/»')
       expect(key).toContain('para 3. «strong»A«/» [2]')

@@ -52,10 +52,27 @@ const en = {
   'landing.sourceScan': 'scanned quiz',
   'landing.sourceDocx': 'unit-3-test.docx',
   'landing.sourceImage': 'a diagram',
-  'landing.heroTitle': 'Turn anything into an exam.',
+  'landing.heroTitle': 'Your questions become a paper — and a game.',
   'landing.heroLede':
-    'PDFs, scans, screenshots, old Word documents, questions you type yourself — {app} gathers them into Question Banks and lays them out as a clean, printable exam.',
+    'PDFs, scans, photos, old Word documents, Kahoot links, questions you type yourself — {app} gathers them into Question Banks, lays them out as a clean, printable exam, and takes them into the room as a quiz game: every student answers on their own phone.',
   'landing.fineprint': 'Runs in your browser. Nothing to install, no account to make.',
+  'landing.featuresTitle': 'What is in it now',
+  'landing.featureBankTitle': 'Question Bank',
+  'landing.featureBankText': 'Topics, difficulty and points — organised into folders.',
+  'landing.featurePaperTitle': 'Exams and printing',
+  'landing.featurePaperText': 'Several versions, an answer key, PDF and Word export.',
+  'landing.featureGameTitle': 'Five game modes',
+  'landing.featureGameText': 'Classic, Champion, Peril, Grand Prix and Boss battle — on the projector or on student phones.',
+  'landing.featureCardsTitle': 'Flashcards and a miss list',
+  'landing.featureCardsText': 'Students can revise on their own phone; the questions they missed stay for a week.',
+  'landing.featureResultsTitle': 'Game results',
+  'landing.featureResultsText': 'Who answered what: a question-by-question grid, class average, CSV for the register.',
+  'landing.featureImportTitle': 'Bringing questions in',
+  'landing.featureImportText': 'PDF, DOCX, a photo or a Kahoot link — questions do not have to be typed by hand.',
+  'landing.featureDriveTitle': 'Google Drive backup',
+  'landing.featureDriveText': 'Once a day, to your own Drive, alongside the browser.',
+  'landing.featureFolderTitle': 'Folders',
+  'landing.featureFolderText': 'Banks and exams grouped as you think of them, with the search and filters remembered.',
   'landing.heroSheetTitle': 'Unit 3 Test',
   'landing.heroSheetMeta': 'Name ______  Date ____',
   'landing.stepGatherTitle': 'Gather your questions',
@@ -67,9 +84,9 @@ const en = {
   'landing.stepDragTitle': 'Drag them into an Exam',
   'landing.stepDragText':
     'Pull questions from any bank onto the page. Reorder them, shuffle the questions or the answers, and make a second version in a click.',
-  'landing.stepPrintTitle': 'Print it',
+  'landing.stepPrintTitle': 'Print it — or play it',
   'landing.stepPrintText':
-    'Send it to the printer, or download it as a PDF or a Word document. Every export is kept, so the version you handed out is always there.',
+    'Send it to the printer, or download it as a PDF or a Word document. Every export is kept, so the version you handed out is always there. Or start it as a quiz game and hand the phones out instead of the paper.',
   'landing.localTitle': 'We’re completely local.',
   'landing.localText':
     '{app} runs entirely in your browser. Your exams, Question Banks and images are saved on your own device and never uploaded anywhere — there is no account, no server, and nothing to sign up for.',
@@ -1501,6 +1518,10 @@ const en = {
   'common.player': 'player',
   'common.players': 'players',
 
+  // --- válaszkulcs: a dolgozat összpontszáma a nyomtatott kulcson
+  'export.keyTotalOne': 'Total: {points} point',
+  'export.keyTotalMany': 'Total: {points} points',
+
 } as const
 
 export type TextKey = keyof typeof en
@@ -1540,10 +1561,27 @@ const hu: Record<TextKey, string> = {
   'landing.sourceScan': 'beszkennelt röpdolgozat',
   'landing.sourceDocx': '3-temazaro.docx',
   'landing.sourceImage': 'egy ábra',
-  'landing.heroTitle': 'Alakíts bármit dolgozattá.',
+  'landing.heroTitle': 'A kérdéseidből dolgozat lesz — és játék.',
   'landing.heroLede':
-    'PDF-ek, beszkennelt lapok, képernyőképek, régi Word-dokumentumok, saját kérdések — a {app} kérdésbankokba gyűjti őket, és rendezett, nyomtatható dolgozattá állítja össze.',
+    'PDF-ek, beszkennelt lapok, fényképek, régi Word-dokumentumok, Kahoot-linkek, saját kérdések — a {app} kérdésbankokba gyűjti őket, rendezett, nyomtatható dolgozattá állítja össze, és kvízjátékként viszi ki a terembe: a diákok a saját telefonjukon válaszolnak.',
   'landing.fineprint': 'A böngésződben fut. Nem kell telepíteni, és fiók sem kell hozzá.',
+  'landing.featuresTitle': 'Ami most benne van',
+  'landing.featureBankTitle': 'Kérdésbank',
+  'landing.featureBankText': 'Témákkal, nehézséggel és pontokkal — mappákba rendezve.',
+  'landing.featurePaperTitle': 'Dolgozat és nyomtatás',
+  'landing.featurePaperText': 'Több változat, válaszkulcs, PDF- és Word-export.',
+  'landing.featureGameTitle': 'Öt játékmód',
+  'landing.featureGameText': 'Klasszikus, Bajnok, Veszély!, Grand Prix és Szörnytámadás — kivetítve vagy a diákok telefonján.',
+  'landing.featureCardsTitle': 'Tanulókártya és hibalista',
+  'landing.featureCardsText': 'A diák a saját telefonján ismételhet; az elrontott kérdések egy hétig megmaradnak.',
+  'landing.featureResultsTitle': 'Játékeredmények',
+  'landing.featureResultsText': 'Ki mit tudott: kérdésenkénti mátrix, csoportátlag, CSV a naplóhoz.',
+  'landing.featureImportTitle': 'Kérdések behozatala',
+  'landing.featureImportText': 'PDF, DOCX, fénykép vagy Kahoot-link — nem kell mindent kézzel begépelni.',
+  'landing.featureDriveTitle': 'Google Drive mentés',
+  'landing.featureDriveText': 'Naponta egyszer, a saját Drive-odra, a böngésző mellett.',
+  'landing.featureFolderTitle': 'Mappák',
+  'landing.featureFolderText': 'A bankok és dolgozatok úgy csoportosítva, ahogy gondolsz rájuk — a kereső és a szűrők megjegyzésével.',
   'landing.heroSheetTitle': '3. témazáró',
   'landing.heroSheetMeta': 'Név ______  Dátum ____',
   'landing.stepGatherTitle': 'Gyűjtsd össze a kérdéseket',
@@ -1555,9 +1593,9 @@ const hu: Record<TextKey, string> = {
   'landing.stepDragTitle': 'Húzd őket dolgozatba',
   'landing.stepDragText':
     'Húzz kérdéseket bármelyik bankból az oldalra. Rendezd át őket, keverd a kérdéseket vagy a válaszokat, és egy kattintással csinálj második változatot.',
-  'landing.stepPrintTitle': 'Nyomtasd ki',
+  'landing.stepPrintTitle': 'Nyomtasd ki — vagy játsszátok le',
   'landing.stepPrintText':
-    'Küldd nyomtatóra, vagy töltsd le PDF-ként vagy Word-dokumentumként. Minden export megmarad, így a kiosztott változat mindig kéznél van.',
+    'Küldd nyomtatóra, vagy töltsd le PDF-ként vagy Word-dokumentumként. Minden export megmarad, így a kiosztott változat mindig kéznél van. Vagy indítsd el kvízjátékként: a papír helyett a telefon kerül elő.',
   'landing.localTitle': 'Teljesen helyi.',
   'landing.localText':
     'A {app} teljes egészében a böngésződben fut. A dolgozataid, a kérdésbankjaid és a képek a saját eszközödön maradnak, és nem kerülnek fel sehová — nincs fiók, nincs szerver, nincs regisztráció.',
@@ -2986,6 +3024,10 @@ const hu: Record<TextKey, string> = {
   'results.confirmAll': 'Minden mentett eredmény törlődik. Ez nem vonható vissza.',
   'common.player': 'játékos',
   'common.players': 'játékos',
+
+  // --- válaszkulcs: a dolgozat összpontszáma a nyomtatott kulcson
+  'export.keyTotalOne': 'Összesen: {points} pont',
+  'export.keyTotalMany': 'Összesen: {points} pont',
 
 };
 
