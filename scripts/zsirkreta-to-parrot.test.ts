@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test'
-import { mapQuestion } from './zsirkreta-to-parrot'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { convert, mapQuestion } from './zsirkreta-to-parrot'
 
 /**
  * A Zsírkréta → Tesztpapagáj leképezés: a kérdéstípusok és a válaszok alakja.
@@ -97,5 +100,48 @@ describe('Zsírkréta kérdés → Tesztpapagáj kérdés', () => {
     expect('skip' in mapQuestion(z('match', { pairs: [] }), 0)).toBe(true)
     expect('skip' in mapQuestion(z('text', { acceptedAnswers: [] }), 0)).toBe(true)
     expect('skip' in mapQuestion(z('order', { items: [] }), 0)).toBe(true)
+  })
+})
+
+describe('vizsga → csomagok', () => {
+  test('a bankok 100-as bontásban, vizsgánként egy bankba kerülnek', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'zsirkreta-'))
+    try {
+      const exam = (title: string) => ({ id: title, title, question_ids: ['z1'] })
+      const source = {
+        questions: [z('single', { options: ['A', 'B'], correct: 0 })],
+        exams: [exam('Egy'), exam('Kettő'), exam('Három')],
+      }
+      const result = await convert(source, dir, { perPackage: 2 })
+      expect(result.total).toEqual({ exams: 3, kept: 3, skipped: 0 })
+      expect(result.packages.map((pack) => pack.banks)).toEqual([2, 1])
+      expect(result.packages.map((pack) => pack.questions)).toEqual([2, 1])
+
+      // A csomag valódi `.parrot.zip`, a bankok benne vannak a naplóban.
+      const zip = await readFile(result.packages[0].file)
+      expect(zip.length).toBeGreaterThan(200)
+      const summary = JSON.parse(await readFile(join(dir, 'osszefoglalo.json'), 'utf8').catch(() => 'null'))
+      expect(summary).toBeNull()
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  test('az azonos című vizsgák külön bank-azonosítót kapnak', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'zsirkreta-'))
+    try {
+      const source = {
+        questions: [z('single', { options: ['A', 'B'], correct: 0 })],
+        exams: [
+          { id: 'a', title: 'Ugyanaz', question_ids: ['z1'] },
+          { id: 'b', title: 'Ugyanaz', question_ids: ['z1'] },
+        ],
+      }
+      const result = await convert(source, dir)
+      expect(result.report.map((entry) => entry.exam)).toEqual(['Ugyanaz', 'Ugyanaz'])
+      expect(result.packages[0].banks).toBe(2)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })

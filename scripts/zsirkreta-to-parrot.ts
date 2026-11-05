@@ -19,7 +19,11 @@ import { basename, join } from 'node:path'
 import type { ProseMirrorJSON, Question } from '../src/exam'
 import { DEFAULT_COLUMNS } from '../src/exam'
 import { prepareQuestionBankExport } from '../src/question-bank-export'
-import { questionBankFilePackage } from '../src/question-bank-pdf'
+import {
+  PACKAGE_FORMAT,
+  PACKAGE_FORMAT_VERSION,
+  type TestParrotPackage,
+} from '../src/package-import'
 import { writePackageZip } from '../src/package-zip'
 
 /* ------------------------------------------------------------------------- */
@@ -216,10 +220,21 @@ export function mapQuestion(source: ZQuestion, index: number): Mapped {
 export type Converted = {
   exam: string
   bank: string
+  /** Melyik csomagba került (a fájl neve), vagy null, ha nincs mit beolvasni. */
   file: string | null
   kept: number
   skipped: { question: string; reason: string }[]
 }
+
+export type Conversion = {
+  report: Converted[]
+  /** A megírt csomagok: fájlnév → hány bank van benne. */
+  packages: { file: string; banks: number; questions: number }[]
+  total: { exams: number; kept: number; skipped: number }
+}
+
+/** Egy csomagban ennyi kérdésbank lehet (a behozatal felső korlátja 100). */
+export const BANKS_PER_PACKAGE = 100
 
 const slug = (value: string): string =>
   value
@@ -233,14 +248,18 @@ const slug = (value: string): string =>
 export async function convert(
   source: ZExport,
   output: string,
-  options: { now?: Date } = {},
-): Promise<Converted[]> {
+  options: { now?: Date; perPackage?: number } = {},
+): Promise<Conversion> {
   const now = options.now ?? new Date()
   const stamp = now.toISOString()
+  const perPackage = Math.max(1, Math.min(BANKS_PER_PACKAGE, options.perPackage ?? BANKS_PER_PACKAGE))
   const byId = new Map((source.questions ?? []).map((question) => [question.id, question]))
   const exams = source.exams ?? []
   await mkdir(output, { recursive: true })
+
   const report: Converted[] = []
+  const banks: { id: string; name: string; questions: Question[] }[] = []
+  const usedIds = new Set<string>()
 
   for (const exam of exams) {
     const ids = exam.questionIds ?? exam.question_ids ?? []
@@ -255,27 +274,63 @@ export async function convert(
       }
       kept.push(mapped.question)
     })
-
     const name = exam.title?.trim() || 'Névtelen vizsga'
-    const bank = {
-      id: `zsirkreta-${slug(name)}`,
-      name,
-      createdAt: stamp,
-      lastUpdatedAt: stamp,
-      ...(exam.description?.trim() ? { description: exam.description.trim() } : {}),
-      questions: kept,
-    }
-    const result: Converted = { exam: name, bank: name, file: null, kept: kept.length, skipped }
-    if (kept.length > 0) {
-      const prepared = await prepareQuestionBankExport(bank, async () => null)
-      const zip = await writePackageZip(JSON.stringify(questionBankFilePackage(prepared)), prepared.files)
-      const file = join(output, `zsirkreta-${slug(name)}.parrot.zip`)
-      await writeFile(file, zip)
-      result.file = file
-    }
-    report.push(result)
+    let id = `zsirkreta-${slug(name)}`
+    // Két azonos című vizsga ne kapjon azonos bank-azonosítót.
+    let suffix = 2
+    while (usedIds.has(id)) id = `zsirkreta-${slug(name)}-${suffix++}`
+    usedIds.add(id)
+    if (kept.length > 0) banks.push({ id, name, questions: kept })
+    report.push({ exam: name, bank: name, file: null, kept: kept.length, skipped })
   }
-  return report
+
+  const packages: Conversion['packages'] = []
+  for (let offset = 0; offset < banks.length; offset += perPackage) {
+    const slice = banks.slice(offset, offset + perPackage)
+    const prepared = []
+    const files = new Map<string, Uint8Array>()
+    for (const bank of slice) {
+      const ready = await prepareQuestionBankExport(
+        {
+          id: bank.id,
+          name: bank.name,
+          createdAt: stamp,
+          lastUpdatedAt: stamp,
+          questions: bank.questions,
+        },
+        async () => null,
+      )
+      prepared.push({ bank, ready })
+      for (const [path, bytes] of ready.files) files.set(path, bytes)
+    }
+    const pack: TestParrotPackage = {
+      format: PACKAGE_FORMAT,
+      formatVersion: PACKAGE_FORMAT_VERSION,
+      generator: { name: 'Zsírkréta-átalakító', version: '1.0.0' },
+      requiredFeatures: [],
+      questionBanks: prepared.map(({ bank, ready }) => ({ id: bank.id, record: ready.record })),
+      exams: [],
+    }
+    const zip = await writePackageZip(JSON.stringify(pack), files)
+    const index = packages.length + 1
+    const file = join(output, `zsirkreta-${index}-${slice.length}bank.parrot.zip`)
+    await writeFile(file, zip)
+    const questions = slice.reduce((sum, bank) => sum + bank.questions.length, 0)
+    packages.push({ file, banks: slice.length, questions })
+    for (const entry of report) {
+      if (slice.some((bank) => bank.name === entry.exam)) entry.file = file
+    }
+  }
+
+  return {
+    report,
+    packages,
+    total: {
+      exams: report.length,
+      kept: report.reduce((sum, entry) => sum + entry.kept, 0),
+      skipped: report.reduce((sum, entry) => sum + entry.skipped.length, 0),
+    },
+  }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -289,10 +344,15 @@ if (import.meta.main) {
     process.exit(1)
   }
   const raw = JSON.parse(await readFile(input, 'utf8')) as ZExport
-  const report = await convert(raw, output)
-  await writeFile(join(output, 'osszefoglalo.json'), JSON.stringify({ input: basename(input), report }, null, 2))
-  for (const entry of report) {
-    console.log(`${entry.exam}: ${entry.kept} kérdés${entry.file ? ` → ${basename(entry.file)}` : ' → nincs mit beolvasni'}`)
-    for (const skipped of entry.skipped) console.log(`   kihagyva: ${skipped.question} — ${skipped.reason}`)
+  const result = await convert(raw, output)
+  await writeFile(join(output, 'osszefoglalo.json'), JSON.stringify({ input: basename(input), ...result }, null, 2))
+  for (const pack of result.packages) {
+    console.log(`${basename(pack.file)}: ${pack.banks} bank, ${pack.questions} kérdés`)
+  }
+  console.log(
+    `Összesen: ${result.total.exams} vizsga, ${result.total.kept} kérdés átvéve, ${result.total.skipped} kihagyva.`,
+  )
+  for (const entry of result.report) {
+    for (const skipped of entry.skipped) console.log(`   ${entry.exam}: kihagyva — ${skipped.reason}`)
   }
 }
