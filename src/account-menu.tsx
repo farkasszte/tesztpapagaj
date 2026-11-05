@@ -60,7 +60,10 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
   useEffect(() => {
     // A panel nyitásakor frissül, és akkor is, amikor a beállításokban
     // csatlakoztatják vagy leválasztják a Drive-ot (a könyvelés eseményt küld).
-    if (open) setDrive(loadDriveState())
+    if (open) {
+      setDrive(loadDriveState())
+      setSaving(null)
+    }
   }, [open])
   useEffect(() => {
     const sync = () => setDrive(loadDriveState())
@@ -133,7 +136,7 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
               <button
                 type="button"
                 className="secondary-button account-action"
-                disabled={saving !== null}
+                disabled={saving === 'busy'}
                 onClick={() => void save()}
               >
                 {saving === 'busy' ? t('account.backupWorking') : t('account.backupNow')}
