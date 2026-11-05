@@ -301,6 +301,33 @@ export function createExamWorkspaceService(options: { now?: () => Date; createId
     async questionUsage(questionId: string): Promise<QuestionUsage[]> {
       return service.resourceUsage([questionId])
     },
+    /** kérdés → hol szerepel, egyetlen körben. A gyűjtemény minden bankhoz
+     * ezt kérdezi, és vizsgánként újraolvasni a teljes tárat négyzetes volt. */
+    async usageIndex(): Promise<Map<string, QuestionUsage[]>> {
+      const exams = await transact(EXAM_STORE, 'readonly', (transaction) =>
+        requestOf(transaction.objectStore(EXAM_STORE).getAll()) as Promise<ExamSummary[]>,
+      )
+      const index = new Map<string, QuestionUsage[]>()
+      const add = (questionIds: readonly string[], usage: QuestionUsage) => {
+        for (const id of new Set(questionIds)) {
+          const list = index.get(id)
+          if (list) list.push(usage)
+          else index.set(id, [usage])
+        }
+      }
+      for (const exam of exams) {
+        const backend = backendFor(exam.id)
+        const [working, saved] = await Promise.all([backend.read(), backend.readSaved()])
+        const usage = resourceUsageOf(exam, working, saved, new Set([
+          ...(working?.workingCopy.questionIds ?? []),
+          ...(saved?.workingCopy.questionIds ?? []),
+        ]))
+        if (!usage) continue
+        add(working?.workingCopy.questionIds ?? [], usage)
+        add(saved?.workingCopy.questionIds ?? [], usage)
+      }
+      return index
+    },
     async resourceUsage(questionIds: readonly string[]): Promise<QuestionUsage[]> {
       const impact = await service.deletionImpact(questionIds)
       return impact.map((item) => ({

@@ -3948,7 +3948,9 @@ button.pop-over-chip-option[aria-pressed='true'] svg { visibility: visible; }
 
 .milkdown .picture-caption {
   display: block; width: 100%; margin-top: 4px; padding: 2px 0; border: 0;
-  background: transparent; font: italic 13px/1.4 inherit; color: inherit; outline: none;
+  /* A `font` rövidítésben az `inherit` érvénytelen (a böngésző eldobta a
+     nyilatkozatot), ezért hosszú alakban: a család így öröklődik. */
+  background: transparent; font-style: italic; font-size: 13px; line-height: 1.4; color: inherit; outline: none;
 }
 .milkdown .picture-caption[hidden], .milkdown .picture-frame[hidden], .milkdown .picture-empty[hidden] { display: none; }
 .milkdown .picture-empty {

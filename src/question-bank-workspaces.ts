@@ -832,6 +832,24 @@ export function createQuestionBankWorkspaceService(
       if (requestDurability) void requestPersistentStorage()
       return updated
     },
+    /** Minden bank kérdés-azonosítói egyetlen olvasással — a gyűjtemény
+     * felépítéséhez, hogy ne kelljen bankonként újraolvasni a teljes táblát. */
+    async questionIds(): Promise<Map<string, string[]>> {
+      const database = await registry
+      const transaction = database.transaction(CANONICAL_QUESTION_STORE, 'readonly')
+      const [questions] = await Promise.all([
+        requestOf(transaction.objectStore(CANONICAL_QUESTION_STORE).getAll()) as Promise<StoredQuestion[]>,
+        completionOf(transaction),
+      ])
+      const byBank = new Map<string, string[]>()
+      for (const question of questions) {
+        if (!question.bankId) continue
+        const owned = byBank.get(question.bankId)
+        if (owned) owned.push(question.id)
+        else byBank.set(question.bankId, [question.id])
+      }
+      return byBank
+    },
     async recent(): Promise<QuestionBankSummary[]> {
       const database = await registry
       const transaction = database.transaction(
@@ -877,6 +895,10 @@ export function createQuestionBankWorkspaceService(
       const banks = await service.recent()
       await Promise.all(
         banks
+          // Egy bank csak akkor lehet eldobható, ha még nem nevezték el: a
+          // nevesített bankokhoz nem nyúlunk, és a teljes rekordjukat sem
+          // olvassuk ki (ez száznál több banknál másodperceket vitt el).
+          .filter((bank) => isUntitledQuestionBankName(bank.name))
           .filter((bank) => includeActive || bank.id !== active)
           .map((bank) => service.removePristine(bank.id)),
       )

@@ -46,7 +46,8 @@ export function DriveSettings() {
     setBusy('backup')
     setError('')
     try {
-      const outcome = await saveToDrive({ silent: true })
+      // Kattintásra indul, tehát kérhet engedélyt is (a csendes út nem tud).
+      const outcome = await saveToDrive({ silent: false })
       if (!outcome.ok) {
         setError(t(outcome.reason === 'no-access' ? 'drive.noAccess' : 'drive.failed'))
         return

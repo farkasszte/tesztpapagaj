@@ -49,7 +49,8 @@ export function AccountBadge({ status }: { status: PersistentStorageStatus }) {
   const [saving, setSaving] = useState<'busy' | 'saved' | 'failed' | null>(null)
   const save = async () => {
     setSaving('busy')
-    const outcome = await saveToDrive({ silent: true })
+    // Kattintásból indul: itt kérhető interaktív token, ha még nincs engedély.
+    const outcome = await saveToDrive({ silent: false })
     if (outcome.ok) {
       setSaving('saved')
       setDrive(loadDriveState())

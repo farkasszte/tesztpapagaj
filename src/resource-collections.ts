@@ -14,19 +14,42 @@ export type QuestionBankCollectionItem = QuestionBankSummary & {
   usage: QuestionUsage[]
 }
 
+/**
+ * A gyűjtemény sorai: minden bankhoz a kérdéseit használó vizsgák.
+ *
+ * Két körben dolgozik: a kérdés-azonosítókat és a használati térképet egyszer
+ * olvassa ki, majd bankonként csak összekapcsol. A bankonkénti teljes
+ * újraolvasás száz banknál másodperceket vitt el, ezért van a gyors út; a régi
+ * (egyenkénti) út csak akkor fut, ha a szolgáltatás nem tudja a kötegeltet.
+ */
 export async function questionBankCollection(
   banks: readonly QuestionBankSummary[],
   bankWorkspaces: QuestionBankWorkspaceService,
   workspaces: ExamWorkspaceService,
 ): Promise<QuestionBankCollectionItem[]> {
+  const idsByBank = typeof bankWorkspaces.questionIds === 'function'
+    ? await bankWorkspaces.questionIds()
+    : null
+  const usageIndex = typeof workspaces.usageIndex === 'function'
+    ? await workspaces.usageIndex()
+    : null
+
   return Promise.all(
-    banks.map(async (bank) => ({
-      ...bank,
-      usage: await workspaces.resourceUsage(
-        (await bankWorkspaces.read(bank.id))?.questions.map(({ id }) => id) ??
-          [],
-      ),
-    })),
+    banks.map(async (bank) => {
+      const questionIds = idsByBank
+        ? idsByBank.get(bank.id) ?? []
+        : (await bankWorkspaces.read(bank.id))?.questions.map(({ id }) => id) ?? []
+      if (!usageIndex) {
+        return { ...bank, usage: await workspaces.resourceUsage(questionIds) }
+      }
+      const seen = new Map<string, QuestionUsage>()
+      for (const id of questionIds) {
+        for (const usage of usageIndex.get(id) ?? []) {
+          if (!seen.has(usage.examId)) seen.set(usage.examId, usage)
+        }
+      }
+      return { ...bank, usage: [...seen.values()] }
+    }),
   )
 }
 

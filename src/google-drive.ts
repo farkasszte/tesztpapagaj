@@ -85,38 +85,83 @@ export function loadGoogleIdentity(): Promise<GisGlobal> {
  * Token kérése. `silent` esetén nincs felület: ha a Google-munkamenet nem él,
  * a hívás `null`-lal tér vissza, és a tanár a gombbal indíthatja.
  */
+/**
+ * Az éppen érvényes token, ha van. A token a memóriában marad, így egy órán
+ * belül a többi mentés nem kér újat — és nem nyit felugró ablakot.
+ */
+let cachedToken: DriveToken | null = null
+let pendingToken: Promise<DriveToken | null> | null = null
+
+export function cachedDriveToken(): DriveToken | null {
+  return cachedToken && cachedToken.expiresAt > Date.now() ? cachedToken : null
+}
+
+/** Kijelentkezéskor vagy hibás token után a tárolt token eldobása. */
+export function forgetDriveToken(): void {
+  cachedToken = null
+}
+
+/**
+ * Drive-token kérése.
+ *
+ * A böngésző csak **felhasználói kattintásból** enged felugró ablakot nyitni,
+ * ezért ami nem kattintásra indul (a megnyitáskori csendes mentés), az nem
+ * kérhet tokent: inkább `null`-lal tér vissza, és a mentés a következő
+ * alkalomra marad. Enélkül a Google blokkolja az ablakot („Opening multiple
+ * popups was blocked due to lack of user activation"), és a mentés némán elakad.
+ *
+ * A párhuzamos hívások egyetlen kérésbe folynak össze, hogy egyszerre soha ne
+ * nyíljon több ablak.
+ */
 export async function requestDriveToken(
   clientId: string,
   options: { silent?: boolean } = {},
 ): Promise<DriveToken | null> {
   if (!clientId) return null
-  const gis = await loadGoogleIdentity()
-  return new Promise<DriveToken | null>((resolve) => {
-    const client = gis.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: DRIVE_SCOPE,
-      callback: (response) => {
-        if (!response.access_token) {
-          resolve(null)
-          return
-        }
-        resolve({
-          accessToken: response.access_token,
-          expiresAt: Date.now() + Math.max(0, (response.expires_in ?? 3600) - 60) * 1000,
-        })
-      },
-      error_callback: () => resolve(null),
+  const live = cachedDriveToken()
+  if (live) return live
+  const activation = typeof navigator === 'undefined' ? undefined : navigator.userActivation
+  if (!activation?.isActive) return null
+  if (pendingToken) return pendingToken
+  pendingToken = (async () => {
+    const gis = await loadGoogleIdentity()
+    return new Promise<DriveToken | null>((resolve) => {
+      const client = gis.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: DRIVE_SCOPE,
+        callback: (response) => {
+          if (!response.access_token) {
+            resolve(null)
+            return
+          }
+          const token = {
+            accessToken: response.access_token,
+            expiresAt: Date.now() + Math.max(0, (response.expires_in ?? 3600) - 60) * 1000,
+          }
+          cachedToken = token
+          resolve(token)
+        },
+        error_callback: () => resolve(null),
+      })
+      try {
+        // Csendes kérés: csak a már megadott engedélyt használja, nem kérdez.
+        // Interaktív: ha kell, a Google megmutatja a hozzájáruló képernyőt.
+        client.requestAccessToken({ prompt: options.silent ? 'none' : '' })
+      } catch {
+        resolve(null)
+      }
     })
-    try {
-      client.requestAccessToken({ prompt: options.silent ? 'none' : 'consent' })
-    } catch {
-      resolve(null)
-    }
-  })
+  })()
+  try {
+    return await pendingToken
+  } finally {
+    pendingToken = null
+  }
 }
 
 /** A token visszaadása a Google-nak (kijelentkezés). */
 export async function revokeDriveToken(token: string): Promise<void> {
+  forgetDriveToken()
   const gis = await loadGoogleIdentity().catch(() => null)
   gis?.accounts.oauth2.revoke(token, () => undefined)
 }
