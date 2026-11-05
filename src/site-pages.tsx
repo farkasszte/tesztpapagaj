@@ -40,6 +40,12 @@ export function AboutPage({
         </section>
 
         <section className="site-card">
+          <h2>{t('site.about.driveTitle')}</h2>
+          <p>{t('site.about.driveBody')}</p>
+          <p>{t('site.about.driveBody2')}</p>
+        </section>
+
+        <section className="site-card">
           <h2>{t('site.about.sourceTitle')}</h2>
           <p>{t('site.about.sourceBody')}</p>
           <p>
@@ -86,6 +92,16 @@ export function PrivacyPage({
         <section className="site-card">
           <p>{t('site.privacy.body1')}</p>
           <p>{t('site.privacy.body2')}</p>
+        </section>
+
+        <section className="site-card">
+          <h2>{t('site.privacy.driveTitle')}</h2>
+          <p>{t('site.privacy.driveBody1')}</p>
+          <p>{t('site.privacy.driveBody2')}</p>
+          <p>{t('site.privacy.driveBody3')}</p>
+        </section>
+
+        <section className="site-card">
           <p>
             {t('site.privacy.contactLead')}{' '}
             <a

@@ -99,6 +99,10 @@ test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', as
   await page.goto('/about')
   await expect(page.getByRole('heading', { name: 'A projektről', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Forrás és licenc', exact: true })).toBeVisible()
+  // A Drive-mentés külön kártyát kap: a munka nem hagyja el a gépet, kivéve a
+  // tanár saját Drive-ját, és ezt a lapnak ki kell mondania.
+  await expect(page.getByRole('heading', { name: 'Google Drive mentés (nem kötelező)', exact: true })).toBeVisible()
+  await expect(page.getByText('a te Drive-odon van')).toBeVisible()
   await expect(page.getByText('Apache License 2.0')).toBeVisible()
   await expect(page.getByRole('link', { name: /farkas\.szte@gmail\.com/ }).first()).toHaveAttribute(
     'href',
@@ -108,6 +112,11 @@ test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', as
   await page.goto('/privacy')
   await expect(page.getByRole('heading', { name: 'Adatvédelem', exact: true })).toBeVisible()
   await expect(page.getByText('nem gyűjt személyes adatot')).toBeVisible()
+  // Az adatvédelmi lap kimondja, mi történik a Drive összekötésekor: közvetlen
+  // kapcsolat a Google-lal, csak a drive.file engedély, token a memóriában.
+  await expect(page.getByRole('heading', { name: 'Google Drive — ha te kötöd össze', exact: true })).toBeVisible()
+  await expect(page.getByText('drive.file')).toBeVisible()
+  await expect(page.getByText('a böngésző memóriájában él')).toBeVisible()
 })
 
 test('a kérdéspárbeszéd fejléce és a válaszgomb magyarul szól', async ({ page }) => {
