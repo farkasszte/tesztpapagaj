@@ -10,6 +10,10 @@ import { ChampionStudentGame } from './game-student-champion'
 import { PerilStudentGame } from './game-peril-student'
 import { FlashcardDeck } from './game-flashcard'
 import type { Flashcard } from './game/flashcard'
+// A diák lapja önálló útvonal (lustán töltött darab), ezért maga hozza a
+// színpad stíluslapját: enélkül a kártyák színtelenül, a színpad nyelvétől
+// idegenül jelennének meg.
+import './game.css'
 import {
   loadReviewDecks,
   removeReviewDeck,

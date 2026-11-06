@@ -74,6 +74,13 @@ export function ClassicDevices({
   const seats = useRef(new Map<string, string>())
   const lastSeq = useRef(-1)
 
+  /** Egy diák nézete: a körözés és az azonnali bemutatkozás is ezt használja. */
+  const viewOf = useCallback((playerId: string) => buildClassicView(engine.session, {
+    now: Date.now(),
+    viewerId: playerId,
+    ...(stage === 'classic' ? {} : { theme: stage }),
+  }), [engine, stage])
+
   /** Mindenkinek a saját nézete; a tanár színpada a sajátját maga rajzolja. */
   const broadcast = useCallback(() => {
     const live = connection.current
@@ -86,17 +93,7 @@ export function ClassicDevices({
     for (const [relayId, playerId] of seats.current) {
       // A tanár minden üzenete `kind`-del jelölt: a diák ebből tudja, hogy ez
       // játéknnézet és nem a helyét kiosztó válasz.
-      live.send(
-        {
-          kind: 'view',
-          view: buildClassicView(session, {
-            now: Date.now(),
-            viewerId: playerId,
-            ...(stage === 'classic' ? {} : { theme: stage }),
-          }),
-        },
-        relayId,
-      )
+      live.send({ kind: 'view', view: viewOf(playerId) }, relayId)
       const wrong = missed?.get(playerId)
       if (!wrong?.length) continue
       const cards = wrong.map(cardOf).filter((card) => card.answers.length > 0)
@@ -110,7 +107,38 @@ export function ClassicDevices({
       }
       live.send({ kind: 'view', view: review }, relayId)
     }
-  }, [engine, stage])
+  }, [engine, viewOf])
+
+  /**
+   * Összevont körözés.
+   *
+   * A relay-üzenet a Cloudflare ingyenes keretében **kérés**, és a tanár minden
+   * válasz után eddig mindenkinek külön nézetet küldött: húsz diák húsz
+   * válasza húsz teljes körözést jelentett, azaz diákonként négyzetes forgalmat.
+   * A válasz viszont a diáknál helyben is megjelenik, a többieknek pedig csak a
+   * felfedéskor kell új nézet — ezért a belépés és a válasz **legfeljebb 200
+   * ms-onként egyszer** köröz, a fázisváltás (nyitás, felfedés, továbblépés)
+   * viszont azonnal, mert ott mindenkinek látnia kell a váltást.
+   */
+  const pendingBroadcast = useRef(false)
+  const broadcastTimer = useRef<number | null>(null)
+  const broadcastSoon = useCallback(() => {
+    if (broadcastTimer.current !== null) {
+      pendingBroadcast.current = true
+      return
+    }
+    broadcast()
+    broadcastTimer.current = window.setTimeout(() => {
+      broadcastTimer.current = null
+      if (pendingBroadcast.current) {
+        pendingBroadcast.current = false
+        broadcastSoon()
+      }
+    }, 200)
+  }, [broadcast])
+  useEffect(() => () => {
+    if (broadcastTimer.current !== null) window.clearTimeout(broadcastTimer.current)
+  }, [])
 
   useEffect(() => {
     const live = connectRoom({
@@ -151,8 +179,11 @@ export function ClassicDevices({
               nickname: result.player.nickname,
             }
             live.send({ kind: 'seat', ...seat }, from)
+            // A belépő azonnal megkapja a saját nézetét (különben a kártyák egy
+            // pillanatra szürkén állnak), a többiek a 200 ms-os körözéskor.
+            live.send({ kind: 'view', view: viewOf(result.player.id) }, from)
             bump()
-            broadcast()
+            broadcastSoon()
             return
           }
           if (message?.kind === 'answer') {
@@ -162,15 +193,17 @@ export function ClassicDevices({
               ? engine.answerTexts(playerId, message.texts)
               : engine.answerMany(playerId, message.choices ?? [message.choice ?? -1])
             if (!result.ok) return
+            // A válasz nem köröz mindenkinek: a válaszoló a saját kártyáján
+            // már látja, a többiek a felfedéskor kapják meg a nézetet. Ez a
+            // válasz-utáni teljes körözést (diákszám négyzetesen) szünteti meg.
             bump()
-            broadcast()
           }
         },
       },
     })
     connection.current = live
     return () => live.leave()
-  }, [broadcast, code, engine, t])
+  }, [broadcastSoon, code, engine, t, viewOf])
 
   // A motor bármely lépése (új kérdés, zárás, válasz) köröz: a diákok friss
   // nézetet kapnak, a tanár színpada pedig újrarajzolódik. Az óra lejártát is
@@ -185,7 +218,7 @@ export function ClassicDevices({
       }
     }, 400)
     return () => clearInterval(timer)
-  }, [broadcast, engine])
+  }, [broadcast, engine, bump])
 
   const Stage = stage === 'race' ? RaceStage : stage === 'boss' ? BossStage : ClassicStage
 

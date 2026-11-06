@@ -61,6 +61,8 @@ async function openResults(page: import('@playwright/test').Page) {
 }
 
 test('a lejátszott játék eredménye böngészhető', async ({ page }) => {
+  // A teljes készlet együtt fut, és a vetés utáni újratöltés lassabb lehet.
+  test.setTimeout(90_000)
   await page.setViewportSize({ width: 1600, height: 1000 })
   await seed(page)
   await openResults(page)

@@ -77,13 +77,24 @@ test('a bank sora megmutatja a játékban mért eltalálási arányt', async ({ 
   await page.setViewportSize({ width: 1440, height: 1000 })
   const bankId = await seedBank(page)
   // A játék mérése a böngésző tárolójában marad: 10 válaszból 6 helyes.
-  await page.evaluate(() => {
-    // A kulcs a kérdés azonosítója (a vetés `p1`/`p2` azonosítókkal dolgozik).
-    window.localStorage.setItem(
-      'tesztpapagaj:question-stats',
-      JSON.stringify({ p1: { asked: 10, right: 6, updatedAt: Date.now() } }),
-    )
-  })
+  // A vetés utáni service worker-újratöltés elviheti a futtató környezetet,
+  // ezért a beírás újrapróbálkozik.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      await page.evaluate(() => {
+        // A kulcs a kérdés azonosítója (a vetés `p1`/`p2` azonosítókkal dolgozik).
+        window.localStorage.setItem(
+          'tesztpapagaj:question-stats',
+          JSON.stringify({ p1: { asked: 10, right: 6, updatedAt: Date.now() } }),
+        )
+      })
+      break
+    } catch (error) {
+      if (attempt === 3) throw error
+      await page.waitForTimeout(600)
+      await page.goto('/about')
+    }
+  }
 
   await page.goto(`/question-bank?id=${bankId}`)
   const badge = page.locator('.question-bank-row-stat').first()
