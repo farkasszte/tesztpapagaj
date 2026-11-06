@@ -6,7 +6,7 @@
 // rather than a retired shared-workspace database.
 
 import type { Page } from '@playwright/test'
-import type { AuthoringState } from '../src/exam-store'
+import type { AuthoringState } from '../src/exam/exam-store'
 
 /** Puts a snapshot in the active seeded Exam and opens that Exam's editor. */
 export async function seedAuthoringState(
@@ -17,8 +17,8 @@ export async function seedAuthoringState(
   await page.getByRole('heading', { name: 'Pick up where you left off', exact: true }).waitFor()
   await page.evaluate(async (snapshot: AuthoringState) => {
     const { createExamWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    ) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    ) as typeof import('../src/exam/exam-workspaces')
     const workspaces = createExamWorkspaceService()
     let examId = await workspaces.activeId()
     if (!examId || !await workspaces.exists(examId)) {
@@ -33,8 +33,8 @@ export async function seedAuthoringState(
     // gombok sincsenek a lapon.
     if (snapshot.questionBank.questions.length > 0) {
       const { createQuestionBankWorkspaceService } = await import(
-        /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-      ) as typeof import('../src/question-bank-workspaces')
+        /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+      ) as typeof import('../src/bank/question-bank-workspaces')
       const banks = createQuestionBankWorkspaceService()
       const bank = await banks.create()
       await banks.commit(bank.id, {

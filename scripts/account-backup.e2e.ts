@@ -11,11 +11,11 @@ async function seedAccount(page: Page, bankName: string) {
   await page.waitForFunction(() => Boolean(navigator.serviceWorker?.controller), undefined, { timeout: 15000 })
   await page.evaluate(async (name) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const { saveImage } = (await import(
-      /* @vite-ignore */ '/src/local-images.ts'
-    )) as typeof import('../src/local-images')
+      /* @vite-ignore */ '/src/editor/local-images.ts'
+    )) as typeof import('../src/editor/local-images')
     const canvas = new OffscreenCanvas(4, 3)
     const context = canvas.getContext('2d')!
     context.fillStyle = '#9f5037'
@@ -46,8 +46,8 @@ async function seedAccount(page: Page, bankName: string) {
 async function bankNames(page: Page) {
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     return (await createQuestionBankWorkspaceService().recent()).map((bank) => bank.name).sort()
   })
 }
@@ -66,8 +66,8 @@ async function mediaCount(page: Page) {
 async function renameOnlyBank(page: Page, name: string) {
   await page.evaluate(async (next) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const [bank] = await banks.recent()
     await banks.commit(bank!.id, { kind: 'rename', name: next })

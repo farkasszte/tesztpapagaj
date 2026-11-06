@@ -5,11 +5,11 @@ async function seedResources(page: Page, count = 8) {
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async (amount) => {
     const { createExamWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    )) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    )) as typeof import('../src/exam/exam-workspaces')
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const exams = createExamWorkspaceService()
     const banks = createQuestionBankWorkspaceService()
     const ids: { exams: string[]; banks: string[] } = { exams: [], banks: [] }
@@ -88,11 +88,11 @@ test('Home empty state explains local storage without creating resources', async
 
   const counts = await page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    )) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    )) as typeof import('../src/exam/exam-workspaces')
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     return [
       (await createExamWorkspaceService().recent()).length,
       (await createQuestionBankWorkspaceService().recent()).length,
@@ -183,11 +183,11 @@ test('meaningful Question Bank changes update recency while browsing, compositio
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    )) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    )) as typeof import('../src/exam/exam-workspaces')
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     let tick = 0
     const now = () => new Date(1_800_000_000_000 + tick++ * 1_000)
     const banks = createQuestionBankWorkspaceService({

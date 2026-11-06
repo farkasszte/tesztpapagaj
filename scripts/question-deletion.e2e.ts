@@ -5,11 +5,11 @@ async function seedDeletion(page: Page) {
   await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
   return page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
-      /* @vite-ignore */ "/src/exam-workspaces.ts"
-    )) as typeof import("../src/exam-workspaces");
+      /* @vite-ignore */ "/src/exam/exam-workspaces.ts"
+    )) as typeof import("../src/exam/exam-workspaces");
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ "/src/question-bank-workspaces.ts"
-    )) as typeof import("../src/question-bank-workspaces");
+      /* @vite-ignore */ "/src/bank/question-bank-workspaces.ts"
+    )) as typeof import("../src/bank/question-bank-workspaces");
     const banks = createQuestionBankWorkspaceService();
     const exams = createExamWorkspaceService();
     const bank = await banks.create();
@@ -172,7 +172,7 @@ test("deleting the final Question from a pristine bank falls back without creati
   await page.goto("/about");
   await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
   const activeId = await page.evaluate(async () => {
-    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ "/src/question-bank-workspaces.ts") as typeof import("../src/question-bank-workspaces");
+    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ "/src/bank/question-bank-workspaces.ts") as typeof import("../src/bank/question-bank-workspaces");
     const service = createQuestionBankWorkspaceService();
     const fallback = await service.create();
     await service.commit(fallback.id, { kind: "rename", name: "Fallback Bank" });
@@ -192,7 +192,7 @@ test("deleting the final Question from a pristine bank falls back without creati
   await expect(page).toHaveURL(/\/question-banks$/);
   await expect(page.getByRole("heading", { name: "Question Banks" })).toBeVisible();
   expect(await page.evaluate(async () => {
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ "/src/exam-workspaces.ts") as typeof import("../src/exam-workspaces");
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ "/src/exam/exam-workspaces.ts") as typeof import("../src/exam/exam-workspaces");
     return (await createExamWorkspaceService().recent()).length;
   })).toBe(0);
 });
@@ -204,8 +204,8 @@ test("empty named bank uses a lighter irreversible confirmation", async ({
   await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
   await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ "/src/question-bank-workspaces.ts"
-    )) as typeof import("../src/question-bank-workspaces");
+      /* @vite-ignore */ "/src/bank/question-bank-workspaces.ts"
+    )) as typeof import("../src/bank/question-bank-workspaces");
     const service = createQuestionBankWorkspaceService();
     const bank = await service.create();
     await service.commit(bank.id, { kind: "rename", name: "Empty Biology" });
@@ -257,8 +257,8 @@ test("Home deletes a populated bank after disclosing per-Exam losses and Export 
   expect(
     await page.evaluate(async (id) => {
       const { createQuestionBankWorkspaceService } = (await import(
-        /* @vite-ignore */ "/src/question-bank-workspaces.ts"
-      )) as typeof import("../src/question-bank-workspaces");
+        /* @vite-ignore */ "/src/bank/question-bank-workspaces.ts"
+      )) as typeof import("../src/bank/question-bank-workspaces");
       return createQuestionBankWorkspaceService().read(id);
     }, bankId),
   ).toBeNull();

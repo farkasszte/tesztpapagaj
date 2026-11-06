@@ -15,8 +15,8 @@ import { clearSavedGame, readSavedGame, type GameMode, type SavedGame } from './
 import type { ClassicSession } from './classic/types'
 import type { Session } from './types'
 import type { PerilSession } from './peril/types'
-import type { QuestionBankResource, QuestionBankSummary, QuestionBankWorkspaceService } from '../question-bank-workspaces'
-import { useT } from '../i18n'
+import type { QuestionBankResource, QuestionBankSummary, QuestionBankWorkspaceService } from '../bank/question-bank-workspaces'
+import { useT } from '../i18n/index'
 import '../game.css'
 
 /**

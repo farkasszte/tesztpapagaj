@@ -1,6 +1,6 @@
 import type { ClassicSession } from './classic/types'
 import { answerWasRight } from './classic/misses'
-import { plainTextOf } from '../question-doc'
+import { plainTextOf } from '../editor/question-doc'
 import type { PlayableWords } from './projection'
 
 /**

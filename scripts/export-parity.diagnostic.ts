@@ -31,26 +31,26 @@ import {
 } from './pdf-manifest'
 import { checkPrerequisites, environmentReport } from './export-environment'
 import { seedAuthoringState } from './seed-authoring'
-import { FIXTURES, PIXEL_PNG, type Fixture } from '../src/export-fixtures'
-import { imageSourcesOf } from '../src/export-media'
-import { orderedChoices, type Question } from '../src/exam'
-import type { ProseMirrorJSON } from '../src/question-doc'
-import { buildExportDocument, STUDENT_TEST } from '../src/export-plan'
+import { FIXTURES, PIXEL_PNG, type Fixture } from '../src/export/export-fixtures'
+import { imageSourcesOf } from '../src/export/export-media'
+import { orderedChoices, type Question } from '../src/exam/exam'
+import type { ProseMirrorJSON } from '../src/editor/question-doc'
+import { buildExportDocument, STUDENT_TEST } from '../src/export/export-plan'
 import {
   plansOf,
   prepareExport,
   arrangementRange,
   EMPTY_EXPORT_HISTORY,
   type ExportConfiguration,
-} from '../src/export-preparation'
+} from '../src/export/export-preparation'
 import {
   compareFingerprints,
   describeDifferences,
   exportDocumentFingerprint,
   layoutFingerprint,
-} from '../src/export-fingerprint'
-import { printDocumentFingerprint } from '../src/print-fingerprint'
-import { docxFingerprint } from '../src/docx-fingerprint'
+} from '../src/export/export-fingerprint'
+import { printDocumentFingerprint } from '../src/export/print-fingerprint'
+import { docxFingerprint } from '../src/export/docx-fingerprint'
 
 const ARTIFACTS = join(process.cwd(), 'export-artifacts')
 
@@ -398,7 +398,7 @@ async function seedImages(
       character.charCodeAt(0),
     )
     const file = new File([bytes], 'fixture.png', { type: 'image/png' })
-    const { saveImage } = await import('/src/local-images.ts')
+    const { saveImage } = await import('/src/editor/local-images.ts')
     return saveImage(file)
   }, Buffer.from(PIXEL_PNG.data).toString('base64'))
   const replace = (node: ProseMirrorJSON): ProseMirrorJSON => ({

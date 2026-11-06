@@ -5,8 +5,8 @@ async function seedBanks(page: Page) {
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    ) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    ) as typeof import('../src/bank/question-bank-workspaces')
     const ids = ['bank-biology', 'bank-chemistry', 'bank-physics']
     const service = createQuestionBankWorkspaceService({ createId: () => ids.shift()! })
     const biology = await service.create()
@@ -62,8 +62,8 @@ test('opening a Question Bank goes to its own page and creates no Exam', async (
 
   const exams = await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    ) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    ) as typeof import('../src/exam/exam-workspaces')
     return createExamWorkspaceService().recent()
   })
   expect(exams).toHaveLength(0)

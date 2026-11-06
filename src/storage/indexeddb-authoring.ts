@@ -5,14 +5,14 @@
 // transaction, so a reload sees either the previous authoring state or the
 // complete next one, never a bank and draft from different actions.
 
-import { readStoredLayoutPlan } from '../export-plan'
+import { readStoredLayoutPlan } from '../export/export-plan'
 import type {
   AuthoringState,
   DurableAuthoringBackend,
   SavedState,
-} from '../exam-store'
-import type { ExportHistory, ExportRecord } from '../export-preparation'
-import { t } from '../i18n'
+} from '../exam/exam-store'
+import type { ExportHistory, ExportRecord } from '../export/export-preparation'
+import { t } from '../i18n/index'
 import {
   EXAM_STORE,
   EXAM_WORKSPACE_STORE,

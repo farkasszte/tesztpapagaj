@@ -5,8 +5,8 @@
 // and Working Copy the same way a teacher does after startup and reload.
 
 import { expect, test } from '@playwright/test'
-import { createQuestion } from '../src/exam'
-import type { AuthoringState } from '../src/exam-store'
+import { createQuestion } from '../src/exam/exam'
+import type { AuthoringState } from '../src/exam/exam-store'
 
 const legacyAuthoringState = (): AuthoringState => {
   const question = createQuestion('multiple-choice')
@@ -209,21 +209,21 @@ test('publication aborts every store when a required Media Asset is absent', asy
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   const result = await page.evaluate(async () => {
     const authoringPath = '/src/storage/indexeddb-authoring.ts'
-    const preparationPath = '/src/export-preparation.ts'
-    const selectedPath = '/src/selected-exam.ts'
-    const planPath = '/src/export-plan.ts'
+    const preparationPath = '/src/export/export-preparation.ts'
+    const selectedPath = '/src/exam/selected-exam.ts'
+    const planPath = '/src/export/export-plan.ts'
     const { createIndexedDBAuthoringBackend } = (await import(
       /* @vite-ignore */ authoringPath
     )) as typeof import('../src/indexeddb-authoring')
     const { prepareExport, EMPTY_EXPORT_HISTORY } = (await import(
       /* @vite-ignore */ preparationPath
-    )) as typeof import('../src/export-preparation')
+    )) as typeof import('../src/export/export-preparation')
     const { selectedExam } = (await import(
       /* @vite-ignore */ selectedPath
-    )) as typeof import('../src/selected-exam')
+    )) as typeof import('../src/exam/selected-exam')
     const { unmeasured } = (await import(
       /* @vite-ignore */ planPath
-    )) as typeof import('../src/export-plan')
+    )) as typeof import('../src/export/export-plan')
 
     const question = {
       id: 'q1',

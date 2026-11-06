@@ -1,5 +1,5 @@
 import { useEffect, useReducer, type ReactNode } from 'react'
-import { DocView } from '../doc-view'
+import { DocView } from '../editor/doc-view'
 import type { ClassicEngine } from './classic/engine'
 import { buildClassicView, type ClassicView } from './classic/views'
 import type { PlayableWords } from './projection'
@@ -7,7 +7,7 @@ import { bossNameKey, bossOf } from './boss'
 import { raceOf } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { Letter } from './shapes'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.

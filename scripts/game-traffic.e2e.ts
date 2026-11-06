@@ -15,8 +15,8 @@ async function seed(page: Page, count: number) {
   await page.goto('/about')
   await page.evaluate(async (total) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()
     await banks.commit(bank.id, { kind: 'rename', name: 'Traffic bank' })

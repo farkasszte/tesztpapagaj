@@ -1,11 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { examDeletionMessage } from './exam-deletion'
-import type { ExamDeletionSummary } from './exam-deletion'
-import type { QuestionDeletionImpact, QuestionUsage } from './exam-workspaces'
-import type { QuestionBankCollectionItem } from './resource-collections'
-import { useT } from './i18n'
+import { examDeletionMessage } from './exam/exam-deletion'
+import type { ExamDeletionSummary } from './exam/exam-deletion'
+import type { QuestionDeletionImpact, QuestionUsage } from './exam/exam-workspaces'
+import type { QuestionBankCollectionItem } from './bank/resource-collections'
+import { useT } from './i18n/index'
 
 /**
  * A visszafordíthatatlan műveletek megerősítő ablakai.

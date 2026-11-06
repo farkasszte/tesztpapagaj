@@ -1,10 +1,10 @@
-import type { RecentExam } from './exam-workspaces'
+import type { RecentExam } from './exam/exam-workspaces'
 import type { PersistentStorageStatus } from './storage/durable-storage'
-import type { QuestionBankCollectionItem } from './resource-collections'
-import { homePreview } from './resource-collections'
-import { CreateFirstCard, ExamCard, NewResourceCard, QuestionBankCard, ResourceCarousel } from './resource-cards'
+import type { QuestionBankCollectionItem } from './bank/resource-collections'
+import { homePreview } from './bank/resource-collections'
+import { CreateFirstCard, ExamCard, NewResourceCard, QuestionBankCard, ResourceCarousel } from './bank/resource-cards'
 import { AppShell } from './app-shell'
-import { useT } from './i18n'
+import { useT } from './i18n/index'
 
 /**
  * Home is a resume surface and nothing else: a shelf of the Exams you were

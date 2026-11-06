@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import type { ExportHistory } from '../src/export-preparation'
+import type { ExportHistory } from '../src/export/export-preparation'
 import { seedAuthoringState } from './seed-authoring'
 
 const EXAM = {
@@ -53,7 +53,7 @@ async function openDialog(page: Page) {
 
 async function historyOf(page: Page): Promise<ExportHistory> {
   return page.evaluate(async () => {
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ '/src/exam-workspaces.ts') as typeof import('../src/exam-workspaces')
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ '/src/exam/exam-workspaces.ts') as typeof import('../src/exam/exam-workspaces')
     const workspaces = createExamWorkspaceService()
     const examId = await workspaces.activeId()
     if (!examId) throw new Error('No active Exam workspace')

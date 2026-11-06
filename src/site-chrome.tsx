@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react'
-import { useT } from './i18n'
+import { useT } from './i18n/index'
 import { navigate } from './use-route'
 
 /**

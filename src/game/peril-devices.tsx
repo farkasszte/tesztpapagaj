@@ -20,7 +20,7 @@ import type { Question } from './types'
 import { PerilStage } from './peril-stage'
 import { GameLobby } from './lobby'
 import { gameMessage } from './messages'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! diák-eszközökkel: a tanár füle a tábla, a diákok a telefonjukon.

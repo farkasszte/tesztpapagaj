@@ -14,7 +14,7 @@ import type { Question } from './types'
 import { GameLobby } from './lobby'
 import { gameMessage } from './messages'
 import { ClassicStage } from './stage'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Klasszikus mód diák-eszközökkel: a tanár füle a szoba, a diákok a telefonjukon.

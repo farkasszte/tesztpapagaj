@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { PerilView } from './peril/views'
 import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! diák-nézete: csapatválasztás, mezőválasztás, buzzer, tét, válasz.

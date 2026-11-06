@@ -1,5 +1,5 @@
 import { useReducer, useState, type ReactNode } from 'react'
-import { DocView } from '../doc-view'
+import { DocView } from '../editor/doc-view'
 import { PerilEngine, createPerilSession } from './peril/engine'
 import { buildPerilView } from './peril/views'
 import type { Column, PerilSession } from './peril/types'
@@ -20,7 +20,7 @@ import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useSta
 import { Letter } from './shapes'
 import type { SavedGame } from './store'
 import { gameMessage } from './messages'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! kivetítője, diákeszközök nélkül.

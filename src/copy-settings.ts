@@ -3,7 +3,7 @@
 // Pop-over and followed by every Copy.
 
 import { useSyncExternalStore } from 'react'
-import type { CopyMathMode } from './question-copy'
+import type { CopyMathMode } from './editor/question-copy'
 
 const KEY = 'test-parrot-copy-math'
 const listeners = new Set<() => void>()

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AppShell } from './app-shell'
 import type { PersistentStorageStatus } from './storage/durable-storage'
-import { countOf, t, useT } from './i18n'
+import { countOf, t, useT } from './i18n/index'
 import {
   averagePercentOf,
   studentPercentOf,

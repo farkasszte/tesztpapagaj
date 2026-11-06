@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type { Connect, Plugin } from 'vite'
 import { marked } from 'marked'
-import { fillImageTags } from './src/image-tag-list'
+import { fillImageTags } from './src/import/image-tag-list'
 
 /**
  * `/extract` is a plain HTML page, not a route of the app. Its readers are AI

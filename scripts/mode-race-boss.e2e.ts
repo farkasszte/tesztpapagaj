@@ -44,8 +44,8 @@ async function seedBank(page: Page) {
   await page.goto('/about')
   await page.evaluate(async (questions) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()
     await banks.commit(bank.id, { kind: 'rename', name: 'Mode bank' })

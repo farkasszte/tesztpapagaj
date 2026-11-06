@@ -2,19 +2,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MilkdownProvider } from '@milkdown/react'
 import App from './App'
-import { loadExamStore } from './exam-store'
-import { domMeasure } from './dom-measure'
-import { createExamWorkspaceService } from './exam-workspaces'
+import { loadExamStore } from './exam/exam-store'
+import { domMeasure } from './export/dom-measure'
+import { createExamWorkspaceService } from './exam/exam-workspaces'
 import {
   createQuestionBankWorkspaceService,
   type QuestionBankResource,
-} from './question-bank-workspaces'
+} from './bank/question-bank-workspaces'
 import { persistentStorageStatus } from './storage/durable-storage'
-import { questionBankCollection } from './resource-collections'
+import { questionBankCollection } from './bank/resource-collections'
 import { applyStagedRestore } from './storage/account-backup'
-import { initializeLanguage, t } from './i18n'
-import { expireWaitingImports } from './import-history'
-import { PopOverProvider } from './question-bank-pop-over'
+import { initializeLanguage, t } from './i18n/index'
+import { expireWaitingImports } from './import/import-history'
+import { PopOverProvider } from './bank/question-bank-pop-over'
 import './styles.css'
 
 async function start() {

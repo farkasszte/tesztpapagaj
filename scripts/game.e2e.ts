@@ -42,8 +42,8 @@ async function seedBank(
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (given) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()
     await banks.commit(bank.id, { kind: 'rename', name: given.name })

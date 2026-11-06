@@ -4,7 +4,7 @@ import { StudentBlocks } from './student-blocks'
 import { TINCTURES } from './parts'
 import { choiceTone, rightLetters } from './student-tone'
 import { acceptedAnswersOf, textIsRight } from './text-match'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Klasszikus mód diák-nézete: kérdés, válaszgombok, felfedés.

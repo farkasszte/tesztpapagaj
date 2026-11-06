@@ -7,15 +7,15 @@
 
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
-import { publicPath } from '../paths'
 import { beforeEach, expect, test } from 'bun:test'
-import { createExamDocx } from '../docx-export'
-import { createExamPdf, type PdfFontLoader } from '../pdf-export'
-import { FIXTURES } from '../export-fixtures'
-import { layoutFingerprint } from '../export-fingerprint'
-import { LEGACY_ANSWER_BLANK, planExport, questionIndentOf, type LayoutPlan } from '../export-plan'
+import { createExamDocx } from '../export/docx-export'
+import { createExamPdf, type PdfFontLoader } from '../export/pdf-export'
+import { FIXTURES } from '../export/export-fixtures'
+import { layoutFingerprint } from '../export/export-fingerprint'
+import { LEGACY_ANSWER_BLANK, planExport, questionIndentOf, type LayoutPlan } from '../export/export-plan'
 import { createIndexedDBAuthoringBackend } from './indexeddb-authoring'
-import type { ExportRecord } from '../export-preparation'
+import type { ExportRecord } from '../export/export-preparation'
+import { publicPath } from '../paths'
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory()

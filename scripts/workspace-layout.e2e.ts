@@ -8,8 +8,8 @@
 
 import { expect, test, type Page } from '@playwright/test'
 import { seedAuthoringState } from './seed-authoring'
-import { PAGE_WIDTH } from '../src/export-plan'
-import type { Question } from '../src/exam'
+import { PAGE_WIDTH } from '../src/export/export-plan'
+import type { Question } from '../src/exam/exam'
 
 const QUESTIONS: Question[] = [
   {

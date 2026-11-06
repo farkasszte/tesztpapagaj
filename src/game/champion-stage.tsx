@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { DocView } from '../doc-view'
+import { DocView } from '../editor/doc-view'
 import { buildView } from './views'
 import { Engine, createSession } from './engine'
 import type { EndReason, Help, Settings } from './types'
@@ -12,7 +12,7 @@ import { buildCsv, csvFilename, downloadCsv } from './standings-csv'
 import type { PlayableWords } from './projection'
 import type { Question } from './types'
 import type { SavedGame } from './store'
-import { useT, type TextKey } from '../i18n'
+import { useT, type TextKey } from '../i18n/index'
 
 /**
  * A Bajnok mód kivetítője, diákeszközök nélkül.

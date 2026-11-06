@@ -17,8 +17,8 @@ test('IndexedDB projection preserves stable arrangements and resets changed choi
   await page.goto('/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
-    const modulePath = '/src/exam-workspaces.ts'
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ modulePath) as typeof import('../src/exam-workspaces')
+    const modulePath = '/src/exam/exam-workspaces.ts'
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ modulePath) as typeof import('../src/exam/exam-workspaces')
     const ids = ['first', 'second']
     const service = createExamWorkspaceService({ createId: () => ids.shift()! })
     const first = await service.create(question)
@@ -60,10 +60,10 @@ test('a failed cross-resource save restores the canonical Question and every Exa
   await page.goto('/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
-    const bankPath = '/src/question-bank-workspaces.ts'
-    const examPath = '/src/exam-workspaces.ts'
-    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ bankPath) as typeof import('../src/question-bank-workspaces')
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examPath) as typeof import('../src/exam-workspaces')
+    const bankPath = '/src/bank/question-bank-workspaces.ts'
+    const examPath = '/src/exam/exam-workspaces.ts'
+    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ bankPath) as typeof import('../src/bank/question-bank-workspaces')
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examPath) as typeof import('../src/exam/exam-workspaces')
     const banks = createQuestionBankWorkspaceService({ createId: () => 'bank' })
     const bank = await banks.create()
     await banks.commit(bank.id, { kind: 'create-question', question })

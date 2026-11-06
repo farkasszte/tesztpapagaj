@@ -45,9 +45,24 @@ ugyanezek átmennek; a hiba nem a kódban van.
 
 ## Hogyan épül fel
 
-A forrás mappákra bomlik aszerint, hogy mi tartozik össze. Két nagy, önálló
-terület már külön mappában él:
+A forrás mappákra bomlik aszerint, hogy mi tartozik össze. A gyökérben a héj
+maradt (`App.tsx`, `main.tsx`, `app-shell.tsx`, a stíluslapok), a kezdőlap, a
+nyitóoldal és a jogi oldalak, valamint a `paths.ts`.
 
+- **`src/export/`** — ami a tanár kezébe kerül: a válaszkulcs és a
+  feladatlap felépítése (`export-plan.ts`), a PDF (`pdf-*.ts`), a Word
+  (`docx-*.ts`), a nyomtatási stílus (`paper-style.ts`), a vászon méretei
+  (`page-*.ts`), a tipográfia és a bélyegképek.
+- **`src/import/`** — a behozatal: a fájlok felismerése, a csomagok
+  (`package-*.ts`), a Moodle/Kahoot/D2L/Respondus-formátumok
+  (`question-formats/`), a választó és az előnézet.
+- **`src/bank/`** — a kérdésbank és a gyűjtemény: a bank szolgáltatása, a
+  szerkesztő panel, a kártyák, a mappák, a törlés.
+- **`src/exam/`** — a dolgozat: a modell és a törlése, a szerkesztő, a pontok,
+  a kanonikus kérdés vetítése.
+- **`src/editor/`** — a szerkesztő moduljai: a Milkdown-dokumentum és a
+  kérdéstípusok (`multiple-choice.ts`, `matching.ts`, `blank.ts`), a
+  dokumentum-nézetek, a képek, a húzás és a panelek.
 - **`src/game/`** — a játék: a keretrendszer-független motor (`classic/`,
   `peril/`, `race.ts`, `boss.ts`), a szoba protokollja, a színpad és a diák
   lapja (`devices.tsx`, `stage.tsx`, `student.tsx`), a tanulókártya és a
@@ -70,11 +85,9 @@ Két szabály tartja mozgathatóvá ezt a szerkezetet:
 - **A próbaanyagok a gyökér `fixtures/` mappájában élnek**, nem a kód mellett,
   ezért a formátumok mappái szabadon átrendezhetők.
 
-A többi fájl a `src/` gyökerében van, és a neve mondja meg, mihez tartozik:
-`export-*`/`pdf-*`/`docx-*` a kimenet, `question-bank-*` és `resource-*` a
-bankok és a gyűjtemény, `exam-*` a dolgozat, `import-*`/`package-*` a
-behozatal, `question-doc`/`matching`/`multiple-choice` és társaik a szerkesztő
-Milkdown-moduljai.
+Egy mappán belül a fájl neve a szerepét mondja meg, nem a mappát ismétli:
+`export/answer-key` helyett `export/plan.ts` — a mappa már megmondta, hová
+tartozik.
 
 Vite + React 19, kliensoldali SPA, szerver és fiók nélkül: a dolgozatok, a
 kérdésbankok és a képek az IndexedDB-ben maradnak a gépen. Az export DOCX-et

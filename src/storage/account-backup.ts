@@ -9,7 +9,7 @@
 // readable and images are not inflated by base64.
 
 import { STORAGE_NAME, STORAGE_VERSION, EXAM_STORE } from './storage-schema'
-import { t } from '../i18n'
+import { t } from '../i18n/index'
 
 export const ACCOUNT_BACKUP_FORMAT = 'test-parrot-account'
 export const ACCOUNT_BACKUP_VERSION = 1

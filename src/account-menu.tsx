@@ -17,7 +17,7 @@ import { saveToDrive } from './storage/drive-run'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { navigate } from './use-route'
 import './account-menu.css'
-import { getLanguage, t } from './i18n'
+import { getLanguage, t } from './i18n/index'
 
 /**
  * Where the work lives, and the way to keep it. An icon in the top bar says

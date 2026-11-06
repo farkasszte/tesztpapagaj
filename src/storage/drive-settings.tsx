@@ -3,7 +3,7 @@ import { stageRestore } from './account-backup'
 import { driveBackups, forgetDrive, loadDriveState, saveDriveState, type DriveState } from './drive-backup'
 import { saveToDrive } from './drive-run'
 import { driveApi, requestDriveToken, revokeDriveToken, type DriveFile, type DriveToken } from './google-drive'
-import { getLanguage, useT } from '../i18n'
+import { getLanguage, useT } from '../i18n/index'
 
 /**
  * Beállítások → biztonsági másolat a Google Drive-ra.

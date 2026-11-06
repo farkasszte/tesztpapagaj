@@ -5,7 +5,7 @@ import { TINCTURES } from './parts'
 import { Heart } from './shapes'
 import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
-import { useT, type TextKey } from '../i18n'
+import { useT, type TextKey } from '../i18n/index'
 
 /**
  * A Bajnok mód diák-nézete.

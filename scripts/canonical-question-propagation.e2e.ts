@@ -11,10 +11,10 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
   await page.goto('/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const setup = await page.evaluate(async (shared) => {
-    const banksModule = '/src/question-bank-workspaces.ts'
-    const examsModule = '/src/exam-workspaces.ts'
-    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ banksModule) as typeof import('../src/question-bank-workspaces')
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam-workspaces')
+    const banksModule = '/src/bank/question-bank-workspaces.ts'
+    const examsModule = '/src/exam/exam-workspaces.ts'
+    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ banksModule) as typeof import('../src/bank/question-bank-workspaces')
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam/exam-workspaces')
     let clock = 0
     const now = () => new Date(1_800_000_000_000 + clock++ * 1_000)
     const bankIds = ['owning-bank', 'other-bank']
@@ -60,8 +60,8 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
   await page.goto(`/editor?exam=${setup.cleanId}`)
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toBeVisible()
   const recentBefore = await page.evaluate(async () => {
-    const examsModule = '/src/exam-workspaces.ts'
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam-workspaces')
+    const examsModule = '/src/exam/exam-workspaces.ts'
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam/exam-workspaces')
     return createExamWorkspaceService().recent()
   })
   await page.locator('.exam-question').dblclick()
@@ -79,10 +79,10 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled()
 
   const result = await page.evaluate(async ({ cleanId, dirtyId, bankId }) => {
-    const examsModule = '/src/exam-workspaces.ts'
-    const banksModule = '/src/question-bank-workspaces.ts'
-    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam-workspaces')
-    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ banksModule) as typeof import('../src/question-bank-workspaces')
+    const examsModule = '/src/exam/exam-workspaces.ts'
+    const banksModule = '/src/bank/question-bank-workspaces.ts'
+    const { createExamWorkspaceService } = await import(/* @vite-ignore */ examsModule) as typeof import('../src/exam/exam-workspaces')
+    const { createQuestionBankWorkspaceService } = await import(/* @vite-ignore */ banksModule) as typeof import('../src/bank/question-bank-workspaces')
     const service = createExamWorkspaceService()
     const clean = await service.backendFor(cleanId).read()
     const dirty = await service.backendFor(dirtyId).read()

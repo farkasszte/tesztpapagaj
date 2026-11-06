@@ -9,8 +9,8 @@ async function seedBank(page: Page): Promise<string> {
   await page.goto('/about')
   const id = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()
     await banks.commit(bank.id, { kind: 'rename', name: 'Játszó bank' })

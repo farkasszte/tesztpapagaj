@@ -16,15 +16,15 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
-import type { ProseMirrorJSON, Question } from '../src/exam'
-import { DEFAULT_COLUMNS } from '../src/exam'
-import { prepareQuestionBankExport } from '../src/question-bank-export'
+import type { ProseMirrorJSON, Question } from '../src/exam/exam'
+import { DEFAULT_COLUMNS } from '../src/exam/exam'
+import { prepareQuestionBankExport } from '../src/export/question-bank-export'
 import {
   PACKAGE_FORMAT,
   PACKAGE_FORMAT_VERSION,
   type TestParrotPackage,
-} from '../src/package-import'
-import { writePackageZip } from '../src/package-zip'
+} from '../src/import/package-import'
+import { writePackageZip } from '../src/import/package-zip'
 
 /* ------------------------------------------------------------------------- */
 /* A Zsírkréta alakjai (a forrás `types.ts`-ből)                              */

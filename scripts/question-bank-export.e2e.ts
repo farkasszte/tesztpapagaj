@@ -5,8 +5,8 @@ async function seed(page: Page) {
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const service = createQuestionBankWorkspaceService({
       createId: () => 'bank-export',
     })
@@ -98,16 +98,16 @@ async function seed(page: Page) {
 async function counts(page: Page, bankId: string) {
   return page.evaluate(async (id) => {
     const { createExamWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    )) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    )) as typeof import('../src/exam/exam-workspaces')
     const service = createExamWorkspaceService()
     const exams = await service.recent()
     const histories = await Promise.all(
       exams.map((exam) => service.backendFor(exam.id).readExportHistory()),
     )
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     const bank = await createQuestionBankWorkspaceService().read(id)
     return {
       exams: exams.length,
@@ -190,8 +190,8 @@ test('empty bank explains why export is unavailable and an open edit must be res
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const emptyId = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    )) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    )) as typeof import('../src/bank/question-bank-workspaces')
     return (
       await createQuestionBankWorkspaceService({
         createId: () => 'empty-export',

@@ -1,4 +1,4 @@
-import { DocView } from '../doc-view'
+import { DocView } from '../editor/doc-view'
 import { toProse, type RichText } from './rich-text'
 
 /**

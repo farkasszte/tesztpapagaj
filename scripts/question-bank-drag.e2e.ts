@@ -10,7 +10,7 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { seedAuthoringState } from './seed-authoring'
-import type { Question, QuestionType } from '../src/exam'
+import type { Question, QuestionType } from '../src/exam/exam'
 
 const choice = (id: string, label: string) => ({
   type: 'multipleChoiceChoice',

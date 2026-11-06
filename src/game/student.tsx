@@ -21,7 +21,7 @@ import {
   type ReviewDeck,
   type ReviewView,
 } from './review-deck'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A diák telefonja: belépés a kóddal, majd a kérdés és a válasz.

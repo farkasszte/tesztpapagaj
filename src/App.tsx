@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState, lazy, Suspense } from 'react'
-import { createExamStore, loadExamStore, type ExamStore } from './exam-store'
-import { domMeasure } from './dom-measure'
-import { pendingImagesOfQuestions } from './pending-images'
+import { createExamStore, loadExamStore, type ExamStore } from './exam/exam-store'
+import { domMeasure } from './export/dom-measure'
+import { pendingImagesOfQuestions } from './editor/pending-images'
 import { navigate, replaceRoute, useLocationSearch, useRoute } from './use-route'
 import { HomePage } from './home-page'
 import { LandingPage, OnboardingPage } from './landing-page'
-import { ConvertPage } from './convert-page'
+import { ConvertPage } from './import/convert-page'
 import { hasBeenWelcomed } from './welcomed'
-import type { ExamWorkspaceService, QuestionDeletionImpact, RecentExam } from './exam-workspaces'
-import { type ExamDeletionSummary } from './exam-deletion'
-import { type QuestionBankResource, type QuestionBankWorkspaceService } from './question-bank-workspaces'
+import type { ExamWorkspaceService, QuestionDeletionImpact, RecentExam } from './exam/exam-workspaces'
+import { type ExamDeletionSummary } from './exam/exam-deletion'
+import { type QuestionBankResource, type QuestionBankWorkspaceService } from './bank/question-bank-workspaces'
 import { useDriveAutoBackup } from './use-drive-autobackup'
 import { persistentStorageStatus, type PersistentStorageStatus } from './storage/durable-storage'
-import { BankFileDropTarget } from './bank-file-drop'
-import { questionBankCollection, type QuestionBankCollectionItem } from './resource-collections'
-import { countOf, t } from './i18n'
+import { BankFileDropTarget } from './bank/bank-file-drop'
+import { questionBankCollection, type QuestionBankCollectionItem } from './bank/resource-collections'
+import { countOf, t } from './i18n/index'
 import { BankDeletionConfirmation, ExamDeletionConfirmation } from './confirmations'
 
 const AboutPage = lazy(() => import('./site-pages').then((m) => ({ default: m.AboutPage })))
@@ -22,14 +22,14 @@ const PrivacyPage = lazy(() => import('./site-pages').then((m) => ({ default: m.
 const SettingsPage = lazy(() => import('./settings-page').then((m) => ({ default: m.SettingsPage })))
 const GamePage = lazy(() => import('./game/page').then((m) => ({ default: m.GamePage })))
 const GameStudent = lazy(() => import('./game/student').then((m) => ({ default: m.GameStudent })))
-const ResourceCollectionPage = lazy(() => import('./resource-collection-page').then((m) => ({ default: m.ResourceCollectionPage })))
-const ImportsPage = lazy(() => import('./imports-page').then((m) => ({ default: m.ImportsPage })))
-const WaitingImportPage = lazy(() => import('./imports-page').then((m) => ({ default: m.WaitingImportPage })))
+const ResourceCollectionPage = lazy(() => import('./bank/resource-collection-page').then((m) => ({ default: m.ResourceCollectionPage })))
+const ImportsPage = lazy(() => import('./import/imports-page').then((m) => ({ default: m.ImportsPage })))
+const WaitingImportPage = lazy(() => import('./import/imports-page').then((m) => ({ default: m.WaitingImportPage })))
 const ResultsPage = lazy(() => import('./results-page').then((m) => ({ default: m.ResultsPage })))
-const QuestionBankExportDialog = lazy(() => import('./question-bank-export-dialog').then((m) => ({ default: m.QuestionBankExportDialog })))
-const QuestionBankImportDialog = lazy(() => import('./question-bank-import-dialog').then((m) => ({ default: m.QuestionBankImportDialog })))
-const ExamEditor = lazy(() => import('./exam-editor').then((m) => ({ default: m.ExamEditor })))
-const QuestionBankPage = lazy(() => import('./question-bank-page').then((m) => ({ default: m.QuestionBankPage })))
+const QuestionBankExportDialog = lazy(() => import('./export/question-bank-export-dialog').then((m) => ({ default: m.QuestionBankExportDialog })))
+const QuestionBankImportDialog = lazy(() => import('./import/question-bank-import-dialog').then((m) => ({ default: m.QuestionBankImportDialog })))
+const ExamEditor = lazy(() => import('./exam/exam-editor').then((m) => ({ default: m.ExamEditor })))
+const QuestionBankPage = lazy(() => import('./bank/question-bank-page').then((m) => ({ default: m.QuestionBankPage })))
 
 /** The mark each Question Section goes by, so a type reads the same wherever
  *  it is named — the picker that chooses one, and the dialog that states it. */
@@ -75,7 +75,7 @@ export default function App({
   const [inspectingBankFile, setInspectingBankFile] = useState(false)
   const [droppedBankFile, setDroppedBankFile] = useState<File | null>(null)
   /** A proposal handed to the dialog ready-made: a Kahoot link already read. */
-  const [importProposal, setImportProposal] = useState<import('./package-import').ImportProposal | null>(null)
+  const [importProposal, setImportProposal] = useState<import('./import/package-import').ImportProposal | null>(null)
   const [convertDrop, setConvertDrop] = useState<{ file: File; id: number } | null>(null)
   const [homeError, setHomeError] = useState(initialError)
   const [bankLibraryRevision, setBankLibraryRevision] = useState(0)
@@ -85,7 +85,7 @@ export default function App({
   /** Bumped whenever an import may have finished, for the Imports pages. */
   const [importRevision, setImportRevision] = useState(0)
   /** A Kahoot link read into questions: the dialog shows it as a file's reading. */
-  const openImportWithProposal = useCallback((proposal: import('./package-import').ImportProposal) => {
+  const openImportWithProposal = useCallback((proposal: import('./import/package-import').ImportProposal) => {
     setImportProposal(proposal)
     setDroppedBankFile(null)
     setImportTargetBankId(null)
@@ -124,11 +124,11 @@ export default function App({
     [bankWorkspaces],
   )
   const importBank = useCallback(async (
-    proposal: import('./package-import').ImportProposal,
-    selection: import('./import-selection').ImportSelection,
+    proposal: import('./import/package-import').ImportProposal,
+    selection: import('./import/import-selection').ImportSelection,
     options: {
-      resolution: import('./pending-images').PendingImageResolution
-      history: { fileName: string; kind: import('./import-history').ImportFileKind; waitingImportId?: string }
+      resolution: import('./editor/pending-images').PendingImageResolution
+      history: { fileName: string; kind: import('./import/import-history').ImportFileKind; waitingImportId?: string }
     },
   ) => {
     const result = await bankWorkspaces.commitImport(proposal, selection, {

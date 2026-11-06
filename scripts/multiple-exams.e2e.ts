@@ -45,8 +45,8 @@ test('Recent Exams are ordered by opening, not background authoring writes', asy
   await page.reload()
   const firstId = await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    ) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    ) as typeof import('../src/exam/exam-workspaces')
     return createExamWorkspaceService().activeId()
   })
   expect(firstId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
@@ -56,8 +56,8 @@ test('Recent Exams are ordered by opening, not background authoring writes', asy
   await page.reload()
   const secondId = await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/exam-workspaces.ts'
-    ) as typeof import('../src/exam-workspaces')
+      /* @vite-ignore */ '/src/exam/exam-workspaces.ts'
+    ) as typeof import('../src/exam/exam-workspaces')
     return createExamWorkspaceService().activeId()
   })
   expect(secondId).not.toBe(firstId)

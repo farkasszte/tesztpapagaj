@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
-import { DocView } from '../doc-view'
+import { DocView } from '../editor/doc-view'
 import type { ClassicSettings } from './classic/types'
 import { ClassicEngine, createClassicSession } from './classic/engine'
 import { buildClassicView } from './classic/views'
@@ -13,7 +13,7 @@ import { buildGameResult } from './results'
 import { saveResult } from './results-store'
 import { Bell, Letter, Ring } from './shapes'
 import type { SavedGame } from './store'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A kivetítés: a Klasszikus mód színpada diákeszközök nélkül.

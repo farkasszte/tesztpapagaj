@@ -29,10 +29,14 @@ describe('a projekt gyökere', () => {
 })
 
 describe('a forrás nem függ a saját helyétől', () => {
-  test('egyetlen fájl sem nyit meg útvonalat az `import.meta.url`-höz képest', () => {
+  test('egyetlen fájl sem nyit meg útvonalat a saját helyéhez képest', () => {
     const offenders = sourceFiles(SRC)
-      .filter((path) => !path.endsWith('paths.ts'))
-      .filter((path) => /new URL\(\s*['"`]\.\.?\//.test(readFileSync(path, 'utf8')))
+      .filter((path) => !path.endsWith('paths.ts') && !path.endsWith('paths.test.ts'))
+      .filter((path) => {
+        const text = readFileSync(path, 'utf8')
+        // `new URL('../…', import.meta.url)` és `join(import.meta.dir, '..', …)`.
+        return /new URL\(\s*['"`]\.\.?\//.test(text) || text.includes('import.meta.dir')
+      })
       .map((path) => path.slice(projectRoot().length + 1).replaceAll('\\', '/'))
 
     // Aki ide kerül: a fájl a saját helyéhez képest nyit meg fájlt, ezért

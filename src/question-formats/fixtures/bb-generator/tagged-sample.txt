@@ -1,6 +1,0 @@
-MC
-Which planet is closest to the Sun?
-Venus
-Earth
-*Mercury
-Mars

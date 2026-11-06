@@ -63,8 +63,8 @@ test('IndexedDB enforces one bank owner and substantive update timestamps', asyn
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
-      /* @vite-ignore */ '/src/question-bank-workspaces.ts'
-    ) as typeof import('../src/question-bank-workspaces')
+      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+    ) as typeof import('../src/bank/question-bank-workspaces')
     let day = 1
     const ids = ['bank-a', 'bank-b']
     const service = createQuestionBankWorkspaceService({

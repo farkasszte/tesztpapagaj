@@ -10,7 +10,7 @@ import type { Question } from './types'
 import { ChampionStage } from './champion-stage'
 import { GameLobby } from './lobby'
 import { gameMessage } from './messages'
-import { useT } from '../i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Bajnok mód diák-eszközökkel: a tanár füle a szoba, a diákok a telefonjukon.
