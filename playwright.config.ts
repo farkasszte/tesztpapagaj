@@ -12,6 +12,11 @@ export default defineConfig({
   retries: 2,
   use: {
     baseURL: 'http://127.0.0.1:4174',
+    // A service worker az első látogatáskor újratölti az oldalt (hogy vezérlés
+    // alá kerüljön). Tesztben ez a friss kontextusokkal versenyez, és
+    // `ERR_ABORTED` / „execution context destroyed" hibákká válik: blokkoljuk,
+    // az app a tartalék úton (hálózat) ugyanúgy működik.
+    serviceWorkers: 'block',
     // A fresh browser is a first visit, and a first visit to `/` is the
     // front door rather than Home. The suites start from Home, so every
     // context arrives already welcomed.
