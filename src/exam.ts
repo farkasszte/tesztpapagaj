@@ -41,7 +41,7 @@ import type { PageMargins } from './page-margins'
 import { paperStyleRules, type PaperStyle } from './paper-style'
 import { newMatchingNode } from './matching'
 import { newMultipartPartsNode } from './multipart'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export type QuestionType =
   | 'multiple-choice'

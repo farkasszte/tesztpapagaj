@@ -1,6 +1,6 @@
 import { saveWaitingImport, type WaitingImport } from './import-history'
 import { QUESTION_FILE_EXTENSIONS, isQuestionFileName } from './question-formats/catalog'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * What a teacher dropped to start converting a test, and the import that

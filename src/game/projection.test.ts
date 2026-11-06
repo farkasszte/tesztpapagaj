@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { SECTION_LABELS, type Question as BankQuestion, type QuestionType } from '../exam'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 import type { ProseMirrorJSON } from '../question-doc'
 import { playableQuestions } from './projection'
 

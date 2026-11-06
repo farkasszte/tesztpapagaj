@@ -14,7 +14,7 @@ import {
 import { autoDraft, difficultyDraft, hasDifficulty, placedQuestions } from './peril-board'
 import type { PerilPlan, PerilTemplate, TroveChoice } from './peril-plan'
 import type { Question } from './types'
-import { useT } from '../i18n/index'
+import { useT } from '../i18n'
 
 /**
  * A Veszély! táblájának kézi beosztása.

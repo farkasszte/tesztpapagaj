@@ -19,7 +19,7 @@ import { PageHeaderContent } from './page-item-view'
 import { PAGE_GEOMETRY } from './exam-page'
 import { TopicBadge } from './badges'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 
 /** How many Topics a Question Bank card shows before it counts the rest. */
 const SHOWN_TOPICS = 3

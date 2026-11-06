@@ -3,7 +3,7 @@ import { PDFDocument, rgb } from 'pdf-lib'
 import type { PdfFontLoader } from './pdf-export'
 import { drawnFigures, type DrawnPath, type Words } from './drawn-figures'
 import { isPicture, type PageBox } from './picture-rules'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * A Source Document is the teacher's own PDF, the test an assistant converts.

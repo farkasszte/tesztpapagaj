@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { aiFixRequest } from './import-file-route'
 import { supportMailto } from './support-email'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * A file an AI made that Test Parrot cannot import is almost always fixed by

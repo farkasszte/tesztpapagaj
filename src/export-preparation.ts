@@ -24,7 +24,7 @@ import {
   type ShuffleOptions,
 } from './export-versions'
 import { pendingImageOf, type ProseMirrorJSON } from './question-doc'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export type ExportFormat = 'pdf' | 'docx'
 

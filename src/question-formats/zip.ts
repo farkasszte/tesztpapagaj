@@ -1,6 +1,6 @@
 import JSZip from 'jszip'
 import type { ZipFiles } from './types'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 
 /**
  * A ZIP's files, read with limits a hostile file cannot get past: no more

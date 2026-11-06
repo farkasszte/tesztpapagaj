@@ -14,7 +14,7 @@ import JSZip from 'jszip'
 import { createExamDocx } from './docx-export'
 import type { MediaLoader } from './export-media'
 import { docxFingerprint } from './docx-fingerprint'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import { FIXTURES, PIXEL_PNG, type Fixture } from './export-fixtures'
 import {
   compareFingerprints,

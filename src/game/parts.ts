@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { clearSavedGame, saveGame, type SavedGame } from './game-store'
+import { clearSavedGame, saveGame, type SavedGame } from './store'
 import type { PlayableWords } from './projection'
 
 /**
- * A színpad közös adatai és horgai (a rajzoló darabok a `game-parts.tsx`-ben).
+ * A színpad közös adatai és horgai (a rajzoló darabok a `parts.tsx`-ben).
  * A Class Gauntlet nyelvét követik, hogy minden játékmód kivetítése ugyanúgy
  * nézzen ki.
  */

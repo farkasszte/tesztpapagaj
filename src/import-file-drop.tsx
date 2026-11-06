@@ -5,7 +5,7 @@ import { ImportError } from './import-error'
 import { routeImportFile } from './import-file-route'
 import { TEST_FILE_TYPES } from './source-file'
 import { navigate } from './use-route'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * The one place an import starts: a drop for the test itself, a question

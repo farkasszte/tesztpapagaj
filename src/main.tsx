@@ -12,7 +12,7 @@ import {
 import { persistentStorageStatus } from './storage/durable-storage'
 import { questionBankCollection } from './resource-collections'
 import { applyStagedRestore } from './storage/account-backup'
-import { initializeLanguage, t } from './i18n/index'
+import { initializeLanguage, t } from './i18n'
 import { expireWaitingImports } from './import-history'
 import { PopOverProvider } from './question-bank-pop-over'
 import './styles.css'

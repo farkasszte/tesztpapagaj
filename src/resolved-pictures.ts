@@ -9,7 +9,7 @@ import {
 } from './export-plan'
 import type { MediaAssetDeclaration, PendingImageOccurrence, PendingImageResolution } from './pending-images'
 import type { ImageTag, PageBox } from './source-document'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * What Resolve Images decides, as data: a picture for each Pending Image it

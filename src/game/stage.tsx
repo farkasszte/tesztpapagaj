@@ -6,14 +6,14 @@ import { buildClassicView } from './classic/views'
 import type { PlayableWords } from './projection'
 import type { Question } from './types'
 import { resumedClassicSession } from './resume'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { buildCsv, csvFilename, downloadCsv } from './standings-csv'
 import { recordRevealCounts } from './question-stats'
 import { buildGameResult } from './results'
 import { saveResult } from './results-store'
-import { Bell, Letter, Ring } from './game-shapes'
-import type { SavedGame } from './game-store'
-import { useT } from '../i18n/index'
+import { Bell, Letter, Ring } from './shapes'
+import type { SavedGame } from './store'
+import { useT } from '../i18n'
 
 /**
  * A kivetítés: a Klasszikus mód színpada diákeszközök nélkül.

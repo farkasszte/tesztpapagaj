@@ -12,7 +12,7 @@
 // own storage; one copied on another device names Questions that are not here,
 // and the paste reports that it found nothing to add.
 
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 
 const ATTRIBUTE = 'data-test-parrot-questions'
 

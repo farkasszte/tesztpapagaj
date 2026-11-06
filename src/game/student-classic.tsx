@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { ClassicView } from './classic/views'
-import { StudentBlocks } from './game-student-blocks'
-import { TINCTURES } from './game-parts'
-import { choiceTone, rightLetters } from './game-student-tone'
+import { StudentBlocks } from './student-blocks'
+import { TINCTURES } from './parts'
+import { choiceTone, rightLetters } from './student-tone'
 import { acceptedAnswersOf, textIsRight } from './text-match'
-import { useT } from '../i18n/index'
+import { useT } from '../i18n'
 
 /**
  * A Klasszikus mód diák-nézete: kérdés, válaszgombok, felfedés.

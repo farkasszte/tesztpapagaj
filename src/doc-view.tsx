@@ -14,7 +14,7 @@ import { keptAspect, legacyRatioOf, pictureCropOf, pictureKey as pictureKeyOf, p
 import { SheetPicture } from './sheet-pieces'
 import { PictureSlotContext } from './picture-slot'
 import { BLANK_LINE } from './blank'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 function attrsOf(node: ProseMirrorJSON): Record<string, unknown> {
   const attrs = node.attrs

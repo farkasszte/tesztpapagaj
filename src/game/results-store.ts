@@ -13,7 +13,7 @@ import type { GameResult } from './results'
  * kiesnek, hogy a tároló ne teljen meg némán.
  */
 
-import { openGameDatabase, RESULT_STORE } from './game-store'
+import { openGameDatabase, RESULT_STORE } from './store'
 
 /** Ennyi lejátszott játék marad meg; a régebbiek kiesnek. */
 export const MAX_RESULTS = 100

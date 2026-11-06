@@ -1,5 +1,5 @@
 import { Check, CircleDot, RefreshCw, TriangleAlert } from 'lucide-react'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** What the Working Copy's state is, in a slot that never changes size.
  *  A function, not a constant: a module-level `t()` would freeze the language

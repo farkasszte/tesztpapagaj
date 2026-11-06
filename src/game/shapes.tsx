@@ -1,7 +1,7 @@
 /**
  * A színpad rajzoló darabjai: a válasz betűjele, a gong, a hibalehetőség
  * pipája, a díjalap öve és a nagy visszaszámláló. A színek és a horgok a
- * `game-parts.ts`-ben vannak, mert ez a fájl csak komponenst exportál (a Fast
+ * `parts.ts`-ben vannak, mert ez a fájl csak komponenst exportál (a Fast
  * Refresh így tud frissülni).
  *
  * A válasz jelvénye szándékosan semleges: a betű és a kártya színe hordozza a

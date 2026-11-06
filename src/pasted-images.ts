@@ -1,5 +1,5 @@
 import type { Ctx } from '@milkdown/kit/ctx'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import { editorViewOptionsCtx } from '@milkdown/kit/core'
 import { Fragment, Slice, type Node as ProseMirrorNode } from '@milkdown/kit/prose/model'
 import type { EditorView } from '@milkdown/kit/prose/view'

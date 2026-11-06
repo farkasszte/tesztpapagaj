@@ -31,7 +31,7 @@ import {
   pictureCropOf,
   type CropBox,
 } from './picture-geometry'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export const QUESTION_BANK_FORMAT = 'test-parrot/question-bank'
 export const QUESTION_BANK_FORMAT_VERSION = '0.13.0'

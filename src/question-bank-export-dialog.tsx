@@ -25,7 +25,7 @@ import {
 } from './question-bank-file-outline'
 import type { QuestionBankResource } from './question-bank-workspaces'
 import { topicTint } from './topic-tint'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 
 /** How many rows of the preview are drawn at a time. A bank of thousands of
  *  Questions is drawn a batch at a time as the teacher scrolls, rather than

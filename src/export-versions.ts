@@ -21,7 +21,7 @@ import {
 } from './exam'
 import type { LayoutPlan } from './export-plan'
 import { hiddenAnswerIdsOf, hideableAnswerIdsOf } from './hidden-answers'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** What an export may shuffle. Question order moves only within each Question
  *  Section; answer order covers Multiple Choice answers, a Multipart

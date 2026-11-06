@@ -1,14 +1,14 @@
 import { toRecord, type ConvertedRecord } from './record'
 import { decodeText } from './text'
 import { readZip, zipFile, ZipLimitError } from './zip'
-import { FORMATS } from './formats/index'
+import { FORMATS } from './formats'
 import { FORMAT_LABELS } from './catalog'
 import { wordText } from './formats/docx'
 import type { ForeignImage, FormatId, FormatInput, FormatSpec, ZipFiles } from './types'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 
 export type { FormatId, ImportIssue } from './types'
-export { FORMATS } from './formats/index'
+export { FORMATS } from './formats'
 export { FORMAT_LABELS, QUESTION_FILE_EXTENSIONS, SUPPORTED_SOURCES, isQuestionFileName } from './catalog'
 
 /**

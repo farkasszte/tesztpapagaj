@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import type { ImportProposal } from './package-import'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * A Kahoot, brought in from its share link: the one import that starts from a

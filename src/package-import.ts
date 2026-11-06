@@ -12,9 +12,9 @@ import examSchema030 from './exam-record-0.3.0.schema.json'
 import examSchema040 from './exam-record-0.4.0.schema.json'
 import examSchema050 from './exam-record-0.5.0.schema.json'
 import packageSchema010 from './test-parrot-package-0.1.0.schema.json'
-import type { QuestionFileSummary } from './question-formats/index'
+import type { QuestionFileSummary } from './question-formats'
 import { PackageZipError, isPackageZip, readPackageZip } from './package-zip'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import {
   QUESTION_BANK_FORMAT,
   RECORD_TYPE_ORDER,

@@ -7,10 +7,10 @@ import type { PlayableWords } from './projection'
 import { newRoomCode, spacedRoomCode } from './room-protocol'
 import { connectRoom, type RoomConnection } from './room-client'
 import type { Question } from './types'
-import { ChampionStage } from './game-champion-stage'
-import { GameLobby } from './game-lobby'
-import { gameMessage } from './game-messages'
-import { useT } from '../i18n/index'
+import { ChampionStage } from './champion-stage'
+import { GameLobby } from './lobby'
+import { gameMessage } from './messages'
+import { useT } from '../i18n'
 
 /**
  * A Bajnok mód diák-eszközökkel: a tanár füle a szoba, a diákok a telefonjukon.

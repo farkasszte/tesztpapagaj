@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { DocView } from '../doc-view'
 import type { Flashcard } from './flashcard'
 import type { PlayableWords } from './projection'
-import { useExitOnEscape, useStageFocusTrap } from './game-parts'
-import { useT } from '../i18n/index'
+import { useExitOnEscape, useStageFocusTrap } from './parts'
+import { useT } from '../i18n'
 
 /**
  * Tanulókártya — kártyás ismétlés a bankból.

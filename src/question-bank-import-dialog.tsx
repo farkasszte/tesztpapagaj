@@ -73,7 +73,7 @@ import { bestWaitingImport } from './import-file-route'
 import { SourceDocumentSteps } from './source-document-steps'
 import { TEST_FILE_TYPES, kindOfFile, readSourceDocument, startWaitingImport } from './source-file'
 import { useModalScrollLock } from './use-modal-scroll-lock'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 import { KahootLinkField } from './kahoot-link-field'
 
 function formatBytes(bytes: number): string {

@@ -1,5 +1,5 @@
 import type { Question as BankQuestion } from '../exam'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 import { choiceIsCorrect, choiceNodesOf, stemNodesOf, type ProseMirrorJSON } from '../question-doc'
 import { BLANK_LINE, blankAnswerText, blankAnswersOf } from '../blank'
 import { acceptedAnswersOf } from './text-match'

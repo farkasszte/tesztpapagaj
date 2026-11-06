@@ -5,7 +5,7 @@ import {
   STORAGE_VERSION,
 } from './storage/storage-schema'
 import { pendingImageOf, type ProseMirrorJSON } from './question-doc'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 const imagePath = '/local-images/'
 const ownedReference = /^\/local-images\/[a-f0-9]{64}$/

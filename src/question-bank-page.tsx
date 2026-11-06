@@ -19,7 +19,7 @@ import { type QuestionBankResource, type QuestionBankSummary, type QuestionBankT
 import { AppShell } from './app-shell'
 import { type PersistentStorageStatus } from './storage/durable-storage'
 import { QuestionBankExportDialog } from './question-bank-export-dialog'
-import { countOf, t, useT } from './i18n/index'
+import { countOf, t, useT } from './i18n'
 import { QUESTION_TYPE_ICONS } from './question-type-icons'
 import { QuestionDialog } from './question-editor'
 import { QuestionDeletionConfirmation } from './confirmations'

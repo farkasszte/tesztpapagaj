@@ -5,14 +5,14 @@ import { buildView } from './views'
 import { Engine, createSession } from './engine'
 import type { EndReason, Help, Settings } from './types'
 import type { Session } from './types'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
-import { Coin, Heart, Letter, Ring } from './game-shapes'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './parts'
+import { Coin, Heart, Letter, Ring } from './shapes'
 import { recordRevealCounts } from './question-stats'
 import { buildCsv, csvFilename, downloadCsv } from './standings-csv'
 import type { PlayableWords } from './projection'
 import type { Question } from './types'
-import type { SavedGame } from './game-store'
-import { useT, type TextKey } from '../i18n/index'
+import type { SavedGame } from './store'
+import { useT, type TextKey } from '../i18n'
 
 /**
  * A Bajnok mód kivetítője, diákeszközök nélkül.

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import { choiceTone, rightLetters } from './game-student-tone'
+import { choiceTone, rightLetters } from './student-tone'
 
 test('a téves válasz indoklása minden helyes betűt felsorol', () => {
   // Két helyes válasz: nem csak az első betű kerülhet a szövegbe.

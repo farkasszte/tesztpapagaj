@@ -7,7 +7,7 @@ import type { EditorView, NodeViewConstructor } from '@milkdown/kit/prose/view'
 import { $viewAsync } from '@milkdown/kit/utils'
 import { pictureView } from './picture-view'
 import { pendingImageOf, type PendingImageReference, type ProseMirrorJSON } from './question-doc'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * Pending Images in the question editor. Both image nodes declare a `pending`

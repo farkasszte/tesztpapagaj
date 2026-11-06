@@ -1,6 +1,6 @@
 import type { PersistentStorageStatus } from './storage/durable-storage'
 import { AppShell } from './app-shell'
-import { useT } from './i18n/index'
+import { useT } from './i18n'
 
 const SUPPORT_EMAIL = 'farkas.szte@gmail.com'
 

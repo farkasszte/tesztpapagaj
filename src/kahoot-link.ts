@@ -1,5 +1,5 @@
 import type { ImportProposal } from './package-import'
-import type { QuestionFileSummary } from './question-formats/index'
+import type { QuestionFileSummary } from './question-formats'
 
 /**
  * A Kahoot link, read into the same proposal a file gives.

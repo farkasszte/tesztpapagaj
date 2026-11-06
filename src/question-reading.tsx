@@ -17,7 +17,7 @@ import type { ReactNode } from 'react'
 import { DifficultyBadge, TopicBadge } from './badges'
 import { DocView } from './doc-view'
 import type { QuestionReadingContent, QuestionReadingPart } from './question-reading-content'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** A Locked Answer's mark: it keeps its letter when answers are shuffled. */
 function LockMark() {

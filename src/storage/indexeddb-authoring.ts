@@ -12,7 +12,7 @@ import type {
   SavedState,
 } from '../exam-store'
 import type { ExportHistory, ExportRecord } from '../export-preparation'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 import {
   EXAM_STORE,
   EXAM_WORKSPACE_STORE,

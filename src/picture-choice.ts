@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { PendingImageOccurrence } from './pending-images'
 import { withPicture, type ResolvedPicture, type Resolutions, type ResolvingSource } from './resolved-pictures'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** Which page a picker or a crop opens on: the one the Pending Image names. */
 export function namedPage(occurrence: PendingImageOccurrence, source: ResolvingSource): number {

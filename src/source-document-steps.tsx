@@ -5,7 +5,7 @@ import { fillImageTags } from './image-tag-list'
 import type { WaitingImport } from './import-history'
 import { downloadInstructions } from './instructions-file'
 import { supportMailto } from './support-email'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * What to do with the test a teacher just dropped, while its import waits for

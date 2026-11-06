@@ -1,5 +1,5 @@
 import { richBlocks } from '../rich-text'
-import { t } from '../../i18n/index'
+import { t } from '../../i18n'
 import { excerpt, plainStructure, pointsIn } from '../text'
 import type { ForeignChoice, ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
 import { isBlankRow, readSheet, type SheetRow } from './sheet'

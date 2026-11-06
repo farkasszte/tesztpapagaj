@@ -6,7 +6,7 @@ import { afterAll, describe, expect, test } from 'bun:test'
 import { FIXTURES } from './export-fixtures'
 import { planExport } from './export-plan'
 import { SECTION_INSTRUCTIONS, SECTION_TITLE } from './section-headings'
-import { getLanguage, setLanguage } from './i18n/index'
+import { getLanguage, setLanguage } from './i18n'
 import { ANSWER_BLANK } from './paper-style'
 
 // A test file shares the process with the others: the language it sets is put

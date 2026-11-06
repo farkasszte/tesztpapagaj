@@ -51,7 +51,7 @@ import {
   type QuestionBankTabsWorkspace,
   type QuestionBankWorkspaceService,
 } from './question-bank-workspaces'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 
 /** Chrome's Document Picture-in-Picture, which not every browser offers. */
 type DocumentPictureInPicture = {

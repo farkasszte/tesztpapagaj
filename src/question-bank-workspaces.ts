@@ -6,7 +6,7 @@ import { examDatabaseName } from './exam-workspaces'
 import { createIndexedDBAuthoringBackend } from './storage/indexeddb-authoring'
 import { upgradeStoredQuestion } from './storage/stored-upgrade'
 import { pointsOnQuestion, readPoints } from './points'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import {
   CANONICAL_QUESTION_STORE,
   EDITOR_WORKSPACE_STORE,

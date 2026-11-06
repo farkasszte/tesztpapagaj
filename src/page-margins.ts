@@ -11,7 +11,7 @@
 // all the default stores nothing, so every Exam made before stays as it was.
 
 /** One edge of the sheet, in the order CSS and the Format menu list them. */
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export type MarginSide = 'top' | 'right' | 'bottom' | 'left'
 

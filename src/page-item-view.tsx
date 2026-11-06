@@ -47,7 +47,7 @@ import {
   rowsOfPlanned,
 } from './export-plan'
 import type { ProseMirrorJSON } from './question-doc'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** The blocks inside a node — a choice's own paragraphs, say. */
 function blocksOf(node: ProseMirrorJSON): ProseMirrorJSON[] {

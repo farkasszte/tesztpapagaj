@@ -12,15 +12,15 @@ import {
   type PerilPlan,
   type PerilTemplate,
 } from './peril-plan'
-import { PerilBoardBuilder } from './game-peril-builder'
+import { PerilBoardBuilder } from './peril-builder'
 import type { PlayableWords } from './projection'
 import { newRoomCode, spacedRoomCode } from './room-protocol'
 import { connectRoom, type RoomConnection } from './room-client'
 import type { Question } from './types'
-import { PerilStage } from './game-peril-stage'
-import { GameLobby } from './game-lobby'
-import { gameMessage } from './game-messages'
-import { useT } from '../i18n/index'
+import { PerilStage } from './peril-stage'
+import { GameLobby } from './lobby'
+import { gameMessage } from './messages'
+import { useT } from '../i18n'
 
 /**
  * A Veszély! diák-eszközökkel: a tanár füle a tábla, a diákok a telefonjukon.

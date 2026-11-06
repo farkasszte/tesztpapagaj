@@ -5,10 +5,10 @@ import type { PerilView } from './peril/views'
 import type { Help } from './types'
 import { cleanRoomCode, isRoomCode, type RoomCode } from './room-protocol'
 import { connectRoom, relayHealthUrl, type RoomConnection } from './room-client'
-import { ClassicStudentGame } from './game-student-classic'
-import { ChampionStudentGame } from './game-student-champion'
-import { PerilStudentGame } from './game-peril-student'
-import { FlashcardDeck } from './game-flashcard'
+import { ClassicStudentGame } from './student-classic'
+import { ChampionStudentGame } from './student-champion'
+import { PerilStudentGame } from './peril-student'
+import { FlashcardDeck } from './flashcard-view'
 import type { Flashcard } from './flashcard'
 // A diák lapja önálló útvonal (lustán töltött darab), ezért maga hozza a
 // színpad stíluslapját: enélkül a kártyák színtelenül, a színpad nyelvétől
@@ -21,7 +21,7 @@ import {
   type ReviewDeck,
   type ReviewView,
 } from './review-deck'
-import { useT } from '../i18n/index'
+import { useT } from '../i18n'
 
 /**
  * A diák telefonja: belépés a kóddal, majd a kérdés és a válasz.

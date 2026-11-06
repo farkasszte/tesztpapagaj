@@ -17,7 +17,7 @@ import {
   renameFolder,
   useFolderState,
 } from './folders'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 
 export function ResourceCollectionPage({
   kind,

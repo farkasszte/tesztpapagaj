@@ -23,7 +23,7 @@ import { layOutColumns, MATCHING_BESIDE_LIMIT, subpartLabelAt, TRUE_FALSE_MARKS 
 import { pendingImageOf, stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { choicesOf, partsOf, promptsOf, type ColumnSetting, type Part, type Question } from './exam'
 import { mathJaxTools } from './mathjax'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** One paragraph's worth of a copied Question: blocks of Question Content,
  *  led by a label such as "A. " or "_____ ", and indented under a Part when it

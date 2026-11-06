@@ -20,7 +20,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 const DEFAULT_BANK_PERCENT = 33
 // Neither pane is allowed to become a sliver: past these the divider is no

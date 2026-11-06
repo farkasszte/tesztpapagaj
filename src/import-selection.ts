@@ -1,5 +1,5 @@
 import type { ImportProposal } from './package-import'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * What a teacher has chosen to bring in from one import proposal: which banks

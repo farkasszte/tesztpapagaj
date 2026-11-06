@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import { fileURLToPath } from 'node:url'
 import { BODY_LINE_HEIGHT, bodyPoints, pointsOf, sectionHeadingPoints, titlePoints } from './export-typography'
 import { PDFDocument } from 'pdf-lib'

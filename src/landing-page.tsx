@@ -19,7 +19,7 @@ import {
   ScanLine,
   Sparkles,
 } from 'lucide-react'
-import { APP_NAME, useT, type TextKey } from './i18n/index'
+import { APP_NAME, useT, type TextKey } from './i18n'
 import { Footer, Link } from './site-chrome'
 import { markWelcomed } from './welcomed'
 

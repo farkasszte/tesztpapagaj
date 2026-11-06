@@ -18,7 +18,7 @@ import {
   STORAGE_NAME,
   STORAGE_VERSION,
 } from './storage/storage-schema'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export type ExamSummary = { id: string; createdAt: string; lastOpenedAt: string }
 type ActiveWorkspace = { key: 'active'; examId: string }

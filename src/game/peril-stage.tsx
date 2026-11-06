@@ -13,14 +13,14 @@ import {
   type PerilPlan,
   type PerilTemplate,
 } from './peril-plan'
-import { PerilBoardBuilder } from './game-peril-builder'
+import { PerilBoardBuilder } from './peril-builder'
 import type { PlayableWords } from './projection'
 import type { Question } from './types'
-import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
-import { Letter } from './game-shapes'
-import type { SavedGame } from './game-store'
-import { gameMessage } from './game-messages'
-import { useT } from '../i18n/index'
+import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './parts'
+import { Letter } from './shapes'
+import type { SavedGame } from './store'
+import { gameMessage } from './messages'
+import { useT } from '../i18n'
 
 /**
  * A Veszély! kivetítője, diákeszközök nélkül.

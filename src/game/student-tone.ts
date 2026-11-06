@@ -1,7 +1,7 @@
 /**
  * A válaszkártya hangvétele: a saját válasz, a helyes, a téves, vagy semmi.
  *
- * Külön fájlban, mert a `game-student-blocks.tsx` komponenst exportál — a Fast
+ * Külön fájlban, mert a `student-blocks.tsx` komponenst exportál — a Fast
  * Refresh csak komponenseket fogad el egy fájlban.
  */
 /** A helyes válaszok betűi, ahogy a diáknak kiírjuk: több helyes válasznál

@@ -12,7 +12,7 @@ import { readPoints } from '../question-doc'
 import { blocksText, isBlank, plainBlocks, textRun } from './rich-text'
 import { excerpt } from './text'
 import { BLANK_MARK, type Blocks, type ForeignBlank, type ForeignChoice, type ForeignImage, type ForeignQuestion, type ImportIssue, type ParseResult } from './types'
-import { t } from '../i18n/index'
+import { t } from '../i18n'
 
 /**
  * Every format's questions become one Question Bank Record here, so a kind

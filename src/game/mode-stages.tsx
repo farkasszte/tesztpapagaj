@@ -5,9 +5,9 @@ import { buildClassicView, type ClassicView } from './classic/views'
 import type { PlayableWords } from './projection'
 import { bossNameKey, bossOf } from './boss'
 import { raceOf } from './race'
-import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
-import { Letter } from './game-shapes'
-import { useT } from '../i18n/index'
+import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
+import { Letter } from './shapes'
+import { useT } from '../i18n'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.

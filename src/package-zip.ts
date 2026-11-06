@@ -1,7 +1,7 @@
 import JSZip from 'jszip'
 import { isZip, readZip, ZipLimitError } from './question-formats/zip'
 import type { ZipFiles } from './question-formats/types'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * The zip a Test Parrot Package travels in (ADR-0036): `parrot.json` at its

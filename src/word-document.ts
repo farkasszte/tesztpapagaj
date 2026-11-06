@@ -1,7 +1,7 @@
 import JSZip from 'jszip'
 import { isPicture, type PageBox } from './picture-rules'
 import { SourceDocumentError, type ImageTag, type SourceDocumentAnalysis } from './source-document'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /**
  * A Word document (.docx) as a Source Document. It is read for pictures the

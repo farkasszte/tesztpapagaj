@@ -36,7 +36,7 @@ import {
   type SemanticNode,
 } from './question-bank-export'
 import { subpartLabelAt } from './export-plan'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 export const DEFAULT_QUESTION_BANK_IMPORT_LIMITS = Object.freeze({
   pdfBytes: 100 * 1024 * 1024,

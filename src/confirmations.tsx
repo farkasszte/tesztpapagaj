@@ -5,7 +5,7 @@ import { examDeletionMessage } from './exam-deletion'
 import type { ExamDeletionSummary } from './exam-deletion'
 import type { QuestionDeletionImpact, QuestionUsage } from './exam-workspaces'
 import type { QuestionBankCollectionItem } from './resource-collections'
-import { useT } from './i18n/index'
+import { useT } from './i18n'
 
 /**
  * A visszafordíthatatlan műveletek megerősítő ablakai.

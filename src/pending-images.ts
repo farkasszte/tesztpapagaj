@@ -1,5 +1,5 @@
 import { bankLetter } from './matching'
-import { t } from './i18n/index'
+import { t } from './i18n'
 import {
   holdsSubparts,
   partLetter,

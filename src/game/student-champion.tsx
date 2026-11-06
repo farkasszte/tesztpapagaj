@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { View } from './views'
 import type { Help } from './types'
-import { TINCTURES } from './game-parts'
-import { Heart } from './game-shapes'
-import { StudentBlocks } from './game-student-blocks'
-import { choiceTone } from './game-student-tone'
-import { useT, type TextKey } from '../i18n/index'
+import { TINCTURES } from './parts'
+import { Heart } from './shapes'
+import { StudentBlocks } from './student-blocks'
+import { choiceTone } from './student-tone'
+import { useT, type TextKey } from '../i18n'
 
 /**
  * A Bajnok mód diák-nézete.

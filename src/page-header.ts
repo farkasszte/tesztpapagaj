@@ -18,7 +18,7 @@ export const HEADER_LINES: readonly HeaderLine[] = ['first', 'later']
 // Underscores are the blanks, so the line is plain text — what is typed is
 // exactly what prints, in every output. The default's fit on one line beside
 // the ID at the sheet's type, with the name given the longest.
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 const blank = (length: number) => '_'.repeat(length)
 

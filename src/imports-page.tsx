@@ -18,7 +18,7 @@ import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { SourceDocumentSteps } from './source-document-steps'
 import { ImportError } from './import-error'
 import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
-import { countOf, t } from './i18n/index'
+import { countOf, t } from './i18n'
 import type { ImportProposal } from './package-import'
 
 /**

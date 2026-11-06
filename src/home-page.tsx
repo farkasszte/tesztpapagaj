@@ -4,7 +4,7 @@ import type { QuestionBankCollectionItem } from './resource-collections'
 import { homePreview } from './resource-collections'
 import { CreateFirstCard, ExamCard, NewResourceCard, QuestionBankCard, ResourceCarousel } from './resource-cards'
 import { AppShell } from './app-shell'
-import { useT } from './i18n/index'
+import { useT } from './i18n'
 
 /**
  * Home is a resume surface and nothing else: a shelf of the Exams you were

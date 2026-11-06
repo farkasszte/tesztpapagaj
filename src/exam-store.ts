@@ -94,7 +94,7 @@ import {
 } from './export-preparation'
 import { wordBankLayoutFor, wordBankLayoutOf, type BankAnswerWidth } from './export-plan'
 import { clampSize } from './picture-geometry'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 /** Everything authoring owns: canonical content, the selection made from it,
  *  and whether that has reached the saved state yet. */

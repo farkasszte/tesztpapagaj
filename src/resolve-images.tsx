@@ -18,7 +18,7 @@ import {
 } from './resolved-pictures'
 import type { ImageTag, PageBox } from './source-document'
 import { namedPage, usePictureChoice, type PictureChoice } from './picture-choice'
-import { t } from './i18n/index'
+import { t } from './i18n'
 
 const SOURCE_FILE_TYPES = 'application/pdf,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx'
 
