@@ -121,6 +121,10 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await stage.getByRole('button', { name: 'Finish' }).click()
 
   await expect(stage.getByText('Winner: Panni')).toBeVisible()
+  // Dobogó: a futam végén fokokkal, nem csak szöveggel.
+  await expect(stage.locator('.gq-podium')).toBeVisible()
+  await expect(stage.locator('.gq-podium-step')).toHaveCount(1)
+  await expect(stage.locator('.gq-podium-step').first()).toHaveAttribute('data-place', '1')
   const result = stage.locator('.gq-lane-meters').first()
   expect(Number((await result.innerText()).replace('%', ''))).toBeGreaterThan(
     Number(halfway.replace('%', '')),

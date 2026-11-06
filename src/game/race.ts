@@ -87,9 +87,20 @@ export function raceOf(session: ClassicSession): Racer[] {
     }
   })
 
-  return racers
-    .sort((a, b) => b.distance - a.distance || b.right - a.right || a.nickname.localeCompare(b.nickname))
-    .map((racer, index) => ({ ...racer, place: index + 1 }))
+  const sorted = racers.sort(
+    (a, b) => b.distance - a.distance || b.right - a.right || a.nickname.localeCompare(b.nickname),
+  )
+
+  // Holtverseny: azonos táv (és azonos jó válasz) azonos hely — a következő
+  // hely kimarad, ahogy a versenyeken szokás (1, 1, 3).
+  let place = 0
+  return sorted.map((racer, index) => {
+    const previous = sorted[index - 1]
+    const tied =
+      previous !== undefined && previous.distance === racer.distance && previous.right === racer.right
+    if (!tied) place = index + 1
+    return { ...racer, place }
+  })
 }
 
 function findAnswer(list: ClassicAnswer[] | undefined, playerId: string): ClassicAnswer | undefined {
@@ -101,7 +112,7 @@ export function raceFinished(session: ClassicSession): boolean {
   return session.phase === 'REPORT' || session.phase === 'ENDED'
 }
 
-/** Egy futó helye az ovál pályán, a pálya terének százalékában. */
+/** Egy jelvény a pályán: egy futó vagy egy egy helyen álló csoport. */
 export type TrackSpot = {
   id: string
   x: number
@@ -110,6 +121,8 @@ export type TrackSpot = {
   at: number
   /** Melyik sávban áll (0 = a vonalon, 1–2 = keresztirányban kifelé). */
   slot: number
+  /** A jelvényhez tartozó futók: egynél többnél a jelvényen létszám áll. */
+  racers: Racer[]
 }
 
 /**
@@ -120,16 +133,30 @@ export type TrackSpot = {
  * sávban), hogy a színpadon ne takarják egymást — ezért a hely nem tisztán
  * geometriai, hanem a mezőnyhöz igazodik.
  */
+/** Egy jelvényen legfeljebb ennyi futó fér el. */
+const CLUSTER_SIZE = 3
+
 export function trackPositions(racers: Racer[]): TrackSpot[] {
+  // Csoportosítás: a 4%-nál közelebb állók egy jelvényre kerülnek, legfeljebb
+  // hárman. A csoport a legjobb helyen álló futó távján ül.
+  const groups: Racer[][] = []
+  for (const racer of racers) {
+    const last = groups[groups.length - 1]
+    const anchor = last?.[0]
+    if (last && anchor && last.length < CLUSTER_SIZE && Math.abs(racer.distance - anchor.distance) < 4) {
+      last.push(racer)
+    } else {
+      groups.push([racer])
+    }
+  }
+
   let previous = Number.NEGATIVE_INFINITY
-  let cluster = 0
+  return groups.map((group, index) => {
+    const anchor = group[0]!
+    const cluster = Math.abs(anchor.distance - previous) < 4 ? index % 3 : 0
+    previous = anchor.distance
 
-  return racers.map((racer) => {
-    if (Math.abs(racer.distance - previous) < 4) cluster += 1
-    else cluster = 0
-    previous = racer.distance
-
-    const at = Math.max(0, Math.min(100, racer.distance)) / 100
+    const at = Math.max(0, Math.min(100, anchor.distance)) / 100
     const angle = at * Math.PI * 2 - Math.PI / 2
     // Keresztirány: a pálya érintőjére merőleges egységvektor. Egyedül álló
     // futó a vonalon marad; a holtversenyesek [0, −, +] sávba nyílnak.
@@ -137,11 +164,12 @@ export function trackPositions(racers: Racer[]): TrackSpot[] {
     const offset = [0, -7, 7][slot] ?? 0
 
     return {
-      id: racer.id,
+      id: anchor.id,
       x: 50 + 44 * Math.cos(angle) - Math.sin(angle) * offset,
-      y: 50 + 38 * Math.sin(angle) + Math.cos(angle) * offset,
-      at: racer.distance,
+      y: 38 * Math.sin(angle) + Math.cos(angle) * offset + 50,
+      at: anchor.distance,
       slot,
+      racers: group,
     }
   })
 }

@@ -239,23 +239,26 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
               <ellipse cx="50" cy="50" rx="34" ry="28" className="gq-oval-inner" />
               <line x1="50" y1="10" x2="50" y2="18" className="gq-oval-start" />
             </svg>
-            {trackPositions(racers).map((spot, index) => {
-              const racer = racers.find((one) => one.id === spot.id)
+            {trackPositions(racers).map((spot) => {
+              const anchor = spot.racers[0]
+              const many = spot.racers.length > 1
               return (
                 <span
                   key={spot.id}
                   className="gq-runner"
-                  data-lead={racer?.place === 1 ? 'yes' : undefined}
+                  data-lead={anchor?.place === 1 ? 'yes' : undefined}
                   data-slot={spot.slot}
+                  data-count={many ? spot.racers.length : undefined}
+                  title={spot.racers.map((one) => one.nickname).join(', ')}
                   style={{
                     left: `${spot.x}%`,
                     top: `${spot.y}%`,
-                    background: TINCTURES[index % TINCTURES.length],
-                    zIndex: 100 - (racer?.place ?? 99),
+                    background: TINCTURES[((anchor?.place ?? 1) - 1) % TINCTURES.length],
+                    zIndex: 100 - (anchor?.place ?? 99),
                   }}
                 >
-                  <span className="gq-runner-dot" />
-                  <span className="gq-runner-name">{racer?.nickname}</span>
+                  <span className="gq-runner-dot">{many ? spot.racers.length : ''}</span>
+                  {many ? null : <span className="gq-runner-name">{anchor?.nickname}</span>}
                 </span>
               )
             })}
@@ -288,6 +291,28 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
         leader ? (
           <>
             <h2 className="gq-big">{t('game.race.winner', { name: leader.nickname })}</h2>
+            {/* Dobogó: a legjobb három, a holtversenyesek azonos fokon. */}
+            <ol className="gq-podium" aria-label={t('game.race.standings')}>
+              {[1, 0, 2].map((order) => {
+                const racer = racers[order]
+                if (!racer) return null
+                const tied = racers.filter((one) => one.place === racer.place).length > 1
+                return (
+                  <li
+                    key={racer.id}
+                    className="gq-podium-step"
+                    data-place={racer.place}
+                    data-tied={tied ? 'yes' : undefined}
+                  >
+                    <span className="gq-podium-name">{racer.nickname}</span>
+                    <span className="gq-podium-height">
+                      <span className="gq-podium-place">{racer.place}</span>
+                    </span>
+                    <span className="gq-podium-meters">{Math.round(racer.distance)}%</span>
+                  </li>
+                )
+              })}
+            </ol>
             <ol className="gq-track">
               {racers.slice(0, 3).map((racer) => (
                 <li key={racer.id} className="gq-lane" data-lead={racer.place === 1 ? 'yes' : undefined}>

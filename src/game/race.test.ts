@@ -79,6 +79,35 @@ describe('Grand Prix: táv a pont helyett', () => {
   })
 })
 
+describe('Grand Prix: holtverseny', () => {
+  test('azonos táv és azonos jó válasz azonos hely, a következő hely kimarad', () => {
+    // Mindkét játékos ugyanazt válaszolja ugyanannyi idő alatt: 1, 1.
+    const racers = raceOf(
+      session([
+        [
+          { playerId: 'p1', choice: 0, ms: 4000, at: 1 },
+          { playerId: 'p2', choice: 0, ms: 4000, at: 1 },
+        ],
+        [],
+      ] as never),
+    )
+    expect(racers.map((racer) => racer.place)).toEqual([1, 1])
+  })
+
+  test('ha csak az egyik ér célba, a helyek 1 és 2', () => {
+    const racers = raceOf(
+      session([
+        [
+          { playerId: 'p1', choice: 0, ms: 4000, at: 1 },
+          { playerId: 'p2', choice: 1, ms: 4000, at: 1 },
+        ],
+        [],
+      ] as never),
+    )
+    expect(racers.map((racer) => racer.place)).toEqual([1, 2])
+  })
+})
+
 describe('Grand Prix: egy pálya, a hely a mezőnyhöz igazodik', () => {
   const racer = (id: string, distance: number) => ({
     id,
@@ -108,11 +137,19 @@ describe('Grand Prix: egy pálya, a hely a mezőnyhöz igazodik', () => {
     expect(three!.x).toBeCloseTo(6, 0)
   })
 
-  test('a holtversenyben állók keresztirányban szétnyílnak', () => {
+  test('az egy helyen állók egy jelvényre kerülnek, létszámmal', () => {
     const spots = trackPositions([racer('a', 30), racer('b', 30), racer('c', 31)])
-    expect(spots).toHaveLength(3)
+    expect(spots).toHaveLength(1)
+    expect(spots[0]!.racers.map((one) => one.id)).toEqual(['a', 'b', 'c'])
+  })
+
+  test('egy jelvényen legfeljebb hárman állnak, a többi külön jelvény', () => {
+    const spots = trackPositions([40, 40, 40, 41, 41].map((at, index) => racer(`r${index}`, at)))
+    expect(spots).toHaveLength(2)
+    expect(spots[0]!.racers).toHaveLength(3)
+    expect(spots[1]!.racers).toHaveLength(2)
     const xs = new Set(spots.map((spot) => Math.round(spot.x * 10)))
-    expect(xs.size).toBeGreaterThan(1)
+    expect(xs.size).toBe(2)
   })
 
   test('minden futó a pálya terén belül marad', () => {

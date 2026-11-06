@@ -101,34 +101,61 @@ test('a pálya képe három futóval', async ({ page, browser }) => {
 
   await page.screenshot({ path: 'race-oval.png' })
 
-  // Mérés: a pöttyök és a nevek nem csúszhatnak egymásra.
+  // Mérés: a jelvények nem csúszhatnak egymásra; a pálya nem túl magas.
   const boxes = await stage.locator('.gq-runner').evaluateAll((nodes) =>
     nodes.map((node) => {
       const dot = node.querySelector('.gq-runner-dot')!.getBoundingClientRect()
-      const name = node.querySelector('.gq-runner-name')!.getBoundingClientRect()
+      const name = node.querySelector('.gq-runner-name')
+      const label = name ? name.getBoundingClientRect() : dot
       return {
-        name: (node.querySelector('.gq-runner-name')?.textContent ?? '').trim(),
+        name: (node.textContent ?? '').trim() || '?',
+        count: node.getAttribute('data-count'),
         dot: { x: dot.x, y: dot.y, w: dot.width, h: dot.height },
-        label: { x: name.x, y: name.y, w: name.width, h: name.height },
+        label: { x: label.x, y: label.y, w: label.width, h: label.height },
       }
     }),
   )
-  const overlaps = (a: typeof boxes[number], b: typeof boxes[number]) =>
+  const overlaps = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
     a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
   const problems: string[] = []
   for (let i = 0; i < boxes.length; i += 1) {
     for (let j = i + 1; j < boxes.length; j += 1) {
-      const one = boxes[i]!
-      const other = boxes[j]!
-      if (overlaps(one.dot, other.dot)) problems.push(`pötty ütközik: ${one.name} / ${other.name}`)
-      if (overlaps(one.label, other.label)) problems.push(`név ütközik: ${one.name} / ${other.name}`)
+      if (overlaps(boxes[i]!.dot, boxes[j]!.dot)) problems.push(`jelvény ütközik: ${boxes[i]!.name} / ${boxes[j]!.name}`)
+      if (overlaps(boxes[i]!.label, boxes[j]!.label)) problems.push(`név ütközik: ${boxes[i]!.name} / ${boxes[j]!.name}`)
     }
   }
   for (const box of boxes) {
     console.log(
-      `${box.name}: pötty ${Math.round(box.dot.x)},${Math.round(box.dot.y)} név ${Math.round(box.label.x)},${Math.round(box.label.y)}`,
+      `jelvény ${box.name}${box.count ? ` (${box.count})` : ''}: ${Math.round(box.dot.x)},${Math.round(box.dot.y)}`,
     )
   }
+  const sizes = await page.evaluate(() => {
+    const oval = document.querySelector('.gq-oval')!.getBoundingClientRect()
+    const dialog = document.querySelector('.gq-stage, [role=dialog]')!.getBoundingClientRect()
+    return { oval: Math.round(oval.height), dialog: Math.round(dialog.height), ovalWidth: Math.round(oval.width) }
+  })
+  console.log(`pálya ${sizes.ovalWidth}x${sizes.oval} a színpad ${sizes.dialog} magas (${Math.round((sizes.oval / sizes.dialog) * 100)}%)`)
   console.log('ütközés:', problems.length === 0 ? 'nincs' : problems.join('; '))
+
+  // A lebegő szövegméret-pirula ne takarjon semmit a színpadon.
+  const cover = await page.evaluate(() => {
+    const pill = document.querySelector('[class*=text-size], .gq-text-size, [data-testid=text-size]')
+    const targets = Array.from(document.querySelectorAll('.gq-track, .gq-oval, .gq-prompt'))
+    if (!pill) return { pill: null, hits: [] as string[] }
+    const box = pill.getBoundingClientRect()
+    const hits = targets
+      .map((node) => ({
+        cls: (node.getAttribute('class') ?? '').split(' ')[0] ?? '',
+        overlap:
+          box.left < node.getBoundingClientRect().right &&
+          node.getBoundingClientRect().left < box.left + box.width &&
+          box.top < node.getBoundingClientRect().bottom &&
+          node.getBoundingClientRect().top < box.top + box.height,
+      }))
+      .filter((entry) => entry.overlap)
+      .map((entry) => entry.cls)
+    return { pill: `${Math.round(box.width)}x${Math.round(box.height)} @${Math.round(box.x)},${Math.round(box.y)}`, hits }
+  })
+  console.log('pirula:', cover.pill, 'takar:', cover.hits.length ? cover.hits.join(', ') : 'semmit')
   for (const phone of phones) await phone.close()
 })
