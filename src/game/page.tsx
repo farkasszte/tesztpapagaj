@@ -89,6 +89,8 @@ export function GamePage({
    *  értelme, ha a diákok a saját eszközükön játszanak: kivetítésnél nincs
    *  kit rangsorolni. */
   const [roundResults, setRoundResults] = useState(false)
+  /** A felfedés után a válasz kártyáján a betű helyén a választók száma. */
+  const [showCounts, setShowCounts] = useState(false)
   /** Diákok a saját telefonjukon (egyelőre a Klasszikus módban). */
   const [devices, setDevices] = useState(false)
   /** A futam és a szörny minden választ számol, tehát diák-eszköz nélkül nem megy. */
@@ -184,7 +186,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults: false }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults: false, showCounts: false }}
           onExit={exit}
           bankId={bankId}
           stage={mode}
@@ -194,7 +196,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts }}
           onExit={exit}
           bankId={bankId}
         />
@@ -235,7 +237,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts }}
           onExit={exit}
           restored={restored ?? undefined}
           bankId={bankId}
@@ -408,6 +410,19 @@ export function GamePage({
                   onChange={(event) => setRoundResults(event.target.checked)}
                 />
                 {t('game.roundResults')}
+              </label>
+            ) : null}
+            {/* A megoszlás csak ott olvasható, ahol van kitől: diák-eszközös
+                Klasszikus. A kivetítésnél senki nem válaszol, tehát minden
+                kártyán nulla állna. */}
+            {devices && mode === 'classic' ? (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showCounts}
+                  onChange={(event) => setShowCounts(event.target.checked)}
+                />
+                {t('game.showCounts')}
               </label>
             ) : null}
           </div>

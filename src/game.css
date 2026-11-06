@@ -451,6 +451,11 @@
 @media (min-width: 1600px) {
   .gq-letter { width: 56px; height: 56px; font-size: 29px; }
 }
+/* A megoszlás száma ugyanabban a karikában: két számjegy is elférjen. */
+.gq-letter[data-counts='true'] { font-size: 19px; letter-spacing: 0; }
+@media (min-width: 1600px) {
+  .gq-letter[data-counts='true'] { font-size: 23px; }
+}
 /* A gong: a helyes válasz jelvénye, arany karikában. */
 .gq-tick {
   flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px;

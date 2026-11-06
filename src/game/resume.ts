@@ -11,11 +11,15 @@ import type { SavedGame } from './store';
  */
 export function resumedClassicSession(
   saved: SavedGame,
-  display: { roundResults?: boolean },
+  display: { roundResults?: boolean; showCounts?: boolean },
 ): ClassicSession {
   const session = saved.session as ClassicSession;
   return {
     ...session,
-    settings: { ...session.settings, roundResults: !!display.roundResults },
+    settings: {
+      ...session.settings,
+      roundResults: !!display.roundResults,
+      showCounts: !!display.showCounts,
+    },
   };
 }

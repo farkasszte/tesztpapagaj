@@ -9,10 +9,14 @@
  * amit később le kellene venni.
  */
 
-/** A válasz betűjele: vékony karika a kártya szélén, benne a betű. */
-export function Letter({ letter }: { letter?: string }) {
+/**
+ * A válasz betűjele: vékony karika a kártya szélén, benne a betű — felfedéskor
+ * a választók száma is állhat ugyanott (tp#40), ezért a szám kisebb betűvel
+ * íródik, hogy két számjegy is elférjen a karikában.
+ */
+export function Letter({ letter, counts }: { letter?: string; counts?: boolean }) {
   return (
-    <span className="gq-letter" aria-hidden="true">
+    <span className="gq-letter" data-counts={counts ? 'true' : undefined} aria-hidden="true">
       {letter}
     </span>
   )

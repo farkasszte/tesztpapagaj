@@ -386,3 +386,42 @@ test('ha a szerver egyáltalán nem érhető el, azt mondja, hogy nincs kapcsola
   await page.getByRole('button', { name: 'Join the game' }).click()
   await expect(page.getByText(/No connection to the game server/)).toBeVisible({ timeout: 15000 })
 })
+
+test('a megoszlás bekapcsolva a betű helyén a válaszok számát mutatja', async ({ page }) => {
+  await seedBank(page, 'Counts bank', [THREE('c1', 'Which gas do plants take in?')])
+  await connectRelay(page.context())
+
+  await page.goto('/jatek')
+  await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  // A megoszlás jelölője csak diák-eszközös Klasszikus módban jelenik meg: ott
+  // van kitől számolni.
+  await page.getByRole('checkbox', { name: 'Show how many picked each answer' }).check()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+  const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
+
+  // Egy diák válaszol a helyesre: a megoszlás 1 / 0 / 0.
+  const phone = await page.context().newPage()
+  await phone.setViewportSize({ width: 390, height: 844 })
+  await phone.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
+  await phone.getByPlaceholder('For example: Panni').fill('Panni')
+  await phone.getByRole('button', { name: 'Join the game' }).click()
+  await expect(phone.getByText('You are in.')).toBeVisible()
+  await lobby.getByRole('button', { name: 'Start the game' }).click()
+  const choice = phone.locator('.gq-stu-choice').filter({ hasText: 'Carbon dioxide' })
+  await expect(choice).toBeVisible()
+  await choice.click()
+
+  const stage = page.locator('.gq-stage')
+  await expect(stage.locator('.gq-answer[data-state="correct"]')).toHaveCount(1)
+  // A kártya betűjele helyén a választók száma áll, a karikában.
+  await expect(stage.locator('.gq-answer[data-counts="true"]')).toHaveCount(3)
+  const numbers = await stage
+    .locator('.gq-answer .gq-letter')
+    .evaluateAll((nodes) => nodes.map((node) => (node.textContent ?? '').trim()))
+  expect(numbers.sort()).toEqual(['0', '0', '1'])
+  // A teljes kártya akadálymentes neve is kimondja, hányan választották.
+  await expect(stage.locator('.gq-answer').first()).toHaveAttribute('aria-label', /\d+ picked$/)
+})

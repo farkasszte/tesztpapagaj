@@ -14,6 +14,8 @@ export type ClassicSettings = {
   shuffleQuestions: boolean;
   /** A felfedés után a tanár színpadán az első öt áll a pontszámaival. */
   roundResults?: boolean;
+  /** A felfedés után a válasz kártyáján a betű helyén a választók száma áll. */
+  showCounts?: boolean;
 };
 
 export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = {
@@ -21,6 +23,7 @@ export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = {
   scoring: false,
   shuffleQuestions: false,
   roundResults: false,
+  showCounts: false,
 };
 
 export type ClassicPlayer = {

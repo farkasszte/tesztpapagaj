@@ -64,7 +64,13 @@ export function ClassicStage({
     if (given) return given
     // A mentés régi: a megjelenítési beállítást a mostani felületről vesszük,
     // különben a bejelölt körönkénti eredmény a folytatott játékban nem látszana.
-    if (restored) return new ClassicEngine(resumedClassicSession(restored, { roundResults: settings.roundResults }))
+    if (restored)
+      return new ClassicEngine(
+        resumedClassicSession(restored, {
+          roundResults: settings.roundResults,
+          showCounts: settings.showCounts,
+        }),
+      )
     const session = createClassicSession({ code: '', title, questions, settings, noDevices: true })
     const created = new ClassicEngine(session)
     created.start()
@@ -257,17 +263,26 @@ export function ClassicStage({
                     : right.includes(index)
                       ? 'correct'
                       : 'faded'
+              // A megoszlás: a betű helyén a választók száma (tp#40). Csak
+              // felfedéskor és csak kártyás kérdésnél van értelme.
+              const count = question.counts ? (question.counts[index] ?? 0) : null
+              const numbers = session.settings.showCounts === true && count !== null
               return (
                 <div
                   key={index}
                   className="gq-answer"
                   data-state={state}
                   data-tint={index}
+                  data-counts={numbers ? 'true' : undefined}
                   style={{ ['--c' as string]: TINCTURES[index] ?? TINCTURES[0] }}
                   role="group"
-                  aria-label={`${LETTERS[index]}: ${question.choices[index] ?? ''}`}
+                  aria-label={
+                    numbers
+                      ? `${LETTERS[index]}: ${question.choices[index] ?? ''} — ${t('game.stage.pickedCount', { count: count ?? 0 })}`
+                      : `${LETTERS[index]}: ${question.choices[index] ?? ''}`
+                  }
                 >
-                  <Letter letter={LETTERS[index]} />
+                  <Letter letter={numbers ? String(count) : LETTERS[index]} counts={numbers} />
                   <DocView content={choiceWords} />
                   {state === 'correct' ? (
                     <span className="gq-tick" aria-hidden="true">
