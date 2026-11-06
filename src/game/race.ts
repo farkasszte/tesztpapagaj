@@ -27,6 +27,8 @@ export type Racer = {
   right: number
   /** A legutóbb mért sebesség km/h-ban, csak kijelzésre. */
   speed: number
+  /** A legjobb helyes válasz ideje ms-ban (a körideje); nincs jó válasz → null. */
+  bestMs: number | null
 }
 
 /** A pálya: ennyi kérdés alatt lehet végigérni. */
@@ -57,6 +59,7 @@ export function raceOf(session: ClassicSession): Racer[] {
     let answered = 0
     let right = 0
     let speed = 0
+    let bestMs: number | null = null
     session.questions.forEach((question, index) => {
       const answer = findAnswer(session.answers[index], player.id)
       if (!answer) return
@@ -66,6 +69,7 @@ export function raceOf(session: ClassicSession): Racer[] {
       distance += gain
       if (ok) {
         right += 1
+        bestMs = bestMs === null ? answer.ms : Math.min(bestMs, answer.ms)
         const ratio = Math.max(0, Math.min(1, 1 - answer.ms / Math.max(1, limitMs)))
         speed = Math.round(90 + ratio * 130)
         if (ratio > 0.5) nitro += 1
@@ -84,6 +88,7 @@ export function raceOf(session: ClassicSession): Racer[] {
       answered,
       right,
       speed,
+      bestMs,
     }
   })
 
@@ -112,6 +117,12 @@ export function raceFinished(session: ClassicSession): boolean {
   return session.phase === 'REPORT' || session.phase === 'ENDED'
 }
 
+/**
+ * A pálya aránya: a magasság a szélesség hányada. A stíluslap ugyanezt a számot
+ * használja (`aspect-ratio: 1 / 0.22`), ezért a kettőt együtt kell módosítani.
+ */
+export const OVAL_RATIO = 0.22
+
 /** Egy jelvény a pályán: egy futó vagy egy egy helyen álló csoport. */
 export type TrackSpot = {
   id: string
@@ -125,20 +136,53 @@ export type TrackSpot = {
   racers: Racer[]
 }
 
-/**
- * A mezőny **egyetlen** ovál pályán: a táv a pálya hosszának százaléka.
- *
- * A startvonal a pálya tetején van, az óramutató járásával egyezően haladunk.
- * A közel azonos helyen állókat keresztirányban szétnyitjuk (legfeljebb három
- * sávban), hogy a színpadon ne takarják egymást — ezért a hely nem tisztán
- * geometriai, hanem a mezőnyhöz igazodik.
- */
 /** Egy jelvényen legfeljebb ennyi futó fér el. */
 const CLUSTER_SIZE = 3
+/** A keresztirányú szétnyílás a pálya szélességének arányában. */
+const SLOT_OFFSET = 0.03
 
+/**
+ * Pont a stadion alakú pályán, `at` = 0–1 közötti hely a teljes hosszon.
+ *
+ * A pálya két egyenesből és két félkörből áll (mint egy igazi ovál), a
+ * rajzvonal a felső egyenes közepén van. Az egységek a szélesség arányában
+ * értendők: x 0–1, y 0–`OVAL_RATIO`.
+ */
+function pointOnTrack(at: number): { x: number; y: number } {
+  const height = OVAL_RATIO
+  const radius = height / 2
+  const straight = 1 - 2 * radius
+  const arc = Math.PI * radius
+  const lap = 2 * straight + 2 * arc
+  // A start a felső egyenes közepe: ennyivel kell eltolni a körüljárást.
+  const offset = (0.5 - radius) % lap
+  let travelled = (((at % 1) + 1) % 1) * lap + offset
+  travelled = ((travelled % lap) + lap) % lap
+
+  if (travelled < straight) return { x: radius + travelled, y: 0 }
+
+  travelled -= straight
+  if (travelled < arc) {
+    const angle = -Math.PI / 2 + travelled / radius
+    return { x: 1 - radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) }
+  }
+
+  travelled -= arc
+  if (travelled < straight) return { x: 1 - radius - travelled, y: height }
+
+  travelled -= straight
+  const angle = Math.PI / 2 + travelled / radius
+  return { x: radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) }
+}
+
+/**
+ * A mezőny **egyetlen** stadion pályán: a táv a pálya hosszának százaléka.
+ *
+ * A közel azonos helyen állókat egy jelvényre tesszük (legfeljebb hármat), a
+ * csoportot a legjobb helyen álló futó távján ültetjük. A jelvény a vonalra
+ * merőlegesen nyílik szét, hogy a színpadon ne takarják egymást.
+ */
 export function trackPositions(racers: Racer[]): TrackSpot[] {
-  // Csoportosítás: a 4%-nál közelebb állók egy jelvényre kerülnek, legfeljebb
-  // hárman. A csoport a legjobb helyen álló futó távján ül.
   const groups: Racer[][] = []
   for (const racer of racers) {
     const last = groups[groups.length - 1]
@@ -153,20 +197,24 @@ export function trackPositions(racers: Racer[]): TrackSpot[] {
   let previous = Number.NEGATIVE_INFINITY
   return groups.map((group, index) => {
     const anchor = group[0]!
-    const cluster = Math.abs(anchor.distance - previous) < 4 ? index % 3 : 0
+    const at = Math.max(0, Math.min(100, anchor.distance)) / 100
+    const slot = Math.abs(anchor.distance - previous) < 4 ? index % 3 : 0
     previous = anchor.distance
 
-    const at = Math.max(0, Math.min(100, anchor.distance)) / 100
-    const angle = at * Math.PI * 2 - Math.PI / 2
-    // Keresztirány: a pálya érintőjére merőleges egységvektor. Egyedül álló
-    // futó a vonalon marad; a holtversenyesek [0, −, +] sávba nyílnak.
-    const slot = cluster % 3
-    const offset = [0, -7, 7][slot] ?? 0
+    const point = pointOnTrack(at)
+    const ahead = pointOnTrack(at + 0.004)
+    const dx = ahead.x - point.x
+    const dy = ahead.y - point.y
+    const length = Math.hypot(dx, dy) || 1
+    const offset = [0, -SLOT_OFFSET, SLOT_OFFSET][slot] ?? 0
+    // A vonalra merőleges irány: a haladás irányának 90°-os elforgatása.
+    const x = point.x - (dy / length) * offset
+    const y = point.y + (dx / length) * offset
 
     return {
       id: anchor.id,
-      x: 50 + 44 * Math.cos(angle) - Math.sin(angle) * offset,
-      y: 38 * Math.sin(angle) + Math.cos(angle) * offset + 50,
+      x: x * 100,
+      y: (y / OVAL_RATIO) * 100,
       at: anchor.distance,
       slot,
       racers: group,

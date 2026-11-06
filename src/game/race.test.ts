@@ -121,20 +121,22 @@ describe('Grand Prix: egy pálya, a hely a mezőnyhöz igazodik', () => {
     speed: 0,
   })
 
-  test('a start a pálya tetején van, a negyedek a négy égtáj', () => {
+  test('a start a felső egyenes közepe, a negyedek a stadion négy oldala', () => {
     const [start] = trackPositions([racer('a', 0)])
     expect(start!.x).toBeCloseTo(50, 0)
-    expect(start!.y).toBeCloseTo(12, 0)
+    expect(start!.y).toBeCloseTo(0, 0)
 
     const [quarter] = trackPositions([racer('a', 25)])
-    expect(quarter!.x).toBeCloseTo(94, 0)
+    expect(quarter!.x).toBeCloseTo(100, 0)
     expect(quarter!.y).toBeCloseTo(50, 0)
 
     const [half] = trackPositions([racer('a', 50)])
-    expect(half!.y).toBeCloseTo(88, 0)
+    expect(half!.x).toBeCloseTo(50, 0)
+    expect(half!.y).toBeCloseTo(100, 0)
 
     const [three] = trackPositions([racer('a', 75)])
-    expect(three!.x).toBeCloseTo(6, 0)
+    expect(three!.x).toBeCloseTo(0, 0)
+    expect(three!.y).toBeCloseTo(50, 0)
   })
 
   test('az egy helyen állók egy jelvényre kerülnek, létszámmal', () => {
@@ -155,10 +157,10 @@ describe('Grand Prix: egy pálya, a hely a mezőnyhöz igazodik', () => {
   test('minden futó a pálya terén belül marad', () => {
     const spots = trackPositions([racer('a', 0), racer('b', 33), racer('c', 66), racer('d', 100)])
     for (const spot of spots) {
-      expect(spot.x).toBeGreaterThan(0)
-      expect(spot.x).toBeLessThan(100)
-      expect(spot.y).toBeGreaterThan(0)
-      expect(spot.y).toBeLessThan(100)
+      expect(spot.x).toBeGreaterThanOrEqual(0)
+      expect(spot.x).toBeLessThanOrEqual(100)
+      expect(spot.y).toBeGreaterThanOrEqual(0)
+      expect(spot.y).toBeLessThanOrEqual(100)
     }
   })
 })

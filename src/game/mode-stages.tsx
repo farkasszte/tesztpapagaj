@@ -163,7 +163,6 @@ function ModeStage({
       aria-label={t(nameKey as never)}
     >
       <div className="gq-stage-bar">
-      <TextSizeControl className="gq-textsize-stage" />
         <span className="gq-mode-left">{status}</span>
         <span className="gq-where">
           <span>{title}</span>
@@ -174,6 +173,10 @@ function ModeStage({
               </strong>
             </span>
           ) : null}
+          {/* A szövegméret a cím alatt, a kód helyén — nem lebeg a sarokban. */}
+          <span className="gq-textsize-row">
+            <TextSizeControl className="gq-textsize-stage" />
+          </span>
         </span>
         <button type="button" className="gq-quiet" onClick={onExit}>
           {t('game.stage.endGame')}
@@ -234,11 +237,9 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
         <>
           {/* Egyetlen ovál pálya: a mezőny együtt fut, a hely összemérhető. */}
           <div className="gq-oval" aria-hidden="true">
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-              <ellipse cx="50" cy="50" rx="44" ry="38" className="gq-oval-road" />
-              <ellipse cx="50" cy="50" rx="34" ry="28" className="gq-oval-inner" />
-              <line x1="50" y1="10" x2="50" y2="18" className="gq-oval-start" />
-            </svg>
+            <span className="gq-oval-road" />
+            <span className="gq-oval-inner" />
+            <span className="gq-oval-start" />
             {trackPositions(racers).map((spot) => {
               const anchor = spot.racers[0]
               const many = spot.racers.length > 1
@@ -263,28 +264,43 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
               )
             })}
           </div>
-          <ol className="gq-track" aria-label={t('game.race.standings')}>
-          {racers.map((racer) => (
-            <li key={racer.id} className="gq-lane" data-lead={racer.place === 1 ? 'yes' : undefined}>
-              <span className="gq-lane-place">{racer.place}.</span>
-              <span className="gq-lane-name">{racer.nickname}</span>
-              <span className="gq-lane-road" aria-hidden="true">
-                <span className="gq-lane-runner" style={{ left: `${racer.distance}%` }} />
-              </span>
-              <span className="gq-lane-meters">{Math.round(racer.distance)}%</span>
-              {racer.nitro > 0 ? (
-                <span className="gq-lane-nitro" title={t('game.race.nitroCount', { count: racer.nitro })}>
-                  {racer.nitro}
-                </span>
-              ) : null}
-              {racer.spunOut > 0 ? (
-                <span className="gq-lane-spin" title={t('game.race.spinCount', { count: racer.spunOut })}>
-                  !
-                </span>
-              ) : null}
-            </li>
-          ))}
-          </ol>
+          <table className="gq-laptimes" aria-label={t('game.race.standings')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('game.race.place')}</th>
+                <th scope="col">{t('game.race.racer')}</th>
+                <th scope="col">{t('game.race.bestLap')}</th>
+                <th scope="col">{t('game.race.nitroCount', { count: '' })}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {racers.map((racer) => (
+                <tr key={racer.id} data-lead={racer.place === 1 ? 'yes' : undefined}>
+                  <td className="gq-lap-place">{racer.place}.</td>
+                  <td className="gq-lap-name">{racer.nickname}</td>
+                  <td className="gq-lap-time">
+                    {racer.bestMs === null
+                      ? t('game.race.noLap')
+                      : t('game.race.seconds', {
+                          seconds: (racer.bestMs / 1000).toFixed(1).replace('.', ','),
+                        })}
+                  </td>
+                  <td className="gq-lap-marks">
+                    {racer.nitro > 0 ? (
+                      <span className="gq-lap-nitro" title={t('game.race.nitroCount', { count: racer.nitro })}>
+                        {racer.nitro}
+                      </span>
+                    ) : null}
+                    {racer.spunOut > 0 ? (
+                      <span className="gq-lap-spin" title={t('game.race.spinCount', { count: racer.spunOut })}>
+                        !
+                      </span>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </>
       )}
       outcome={
@@ -308,21 +324,16 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
                     <span className="gq-podium-height">
                       <span className="gq-podium-place">{racer.place}</span>
                     </span>
-                    <span className="gq-podium-meters">{Math.round(racer.distance)}%</span>
+                    <span className="gq-podium-meters">
+                      {racer.bestMs === null
+                        ? t('game.race.noLap')
+                        : t('game.race.seconds', {
+                            seconds: (racer.bestMs / 1000).toFixed(1).replace('.', ','),
+                          })}
+                    </span>
                   </li>
                 )
               })}
-            </ol>
-            <ol className="gq-track">
-              {racers.slice(0, 3).map((racer) => (
-                <li key={racer.id} className="gq-lane" data-lead={racer.place === 1 ? 'yes' : undefined}>
-                  <span className="gq-lane-place">{racer.place}.</span>
-                  <span className="gq-lane-name">{racer.nickname}</span>
-                  <span className="gq-lane-meters">
-                    {t('game.race.result', { meters: Math.round(racer.distance), right: racer.right })}
-                  </span>
-                </li>
-              ))}
             </ol>
           </>
         ) : (

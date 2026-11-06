@@ -19,10 +19,23 @@ import './styles.css'
 
 async function start() {
   initializeLanguage()
+  // A service worker a képek gyorsítótára. Két dolog miatt nem várunk rá
+  // örökké: ha a böngésző megtagadja (privát mód, blokkolt SW), a regisztráció
+  // ígérete nem is oldódik fel; ilyenkor a játék a hálózatról tölti a képeket,
+  // de el kell indulnia.
   if ('serviceWorker' in navigator) {
-    await navigator.serviceWorker.register('/image-worker.js')
-    await navigator.serviceWorker.ready
-    if (!navigator.serviceWorker.controller) { window.location.reload(); return }
+    try {
+      const ready = await Promise.race([
+        navigator.serviceWorker.register('/image-worker.js').then(() => navigator.serviceWorker.ready),
+        new Promise<'timeout'>((resolve) => window.setTimeout(resolve, 1500, 'timeout' as const)),
+      ])
+      if (ready !== 'timeout' && !navigator.serviceWorker.controller) {
+        window.location.reload()
+        return
+      }
+    } catch {
+      // nincs gyorsítótár — nem hiba
+    }
   }
   // A restore replaces the account before anything below opens it.
   const restored = await applyStagedRestore()

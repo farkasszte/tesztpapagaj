@@ -34,8 +34,12 @@ const question = (id: string, stem: string) => ({
 })
 
 async function seedBanks(page: Page): Promise<void> {
-  await page.goto('/about')
-  await page.evaluate(async (given) => {
+  // A vetés utáni navigációt a service worker elviheti: újrapróbáljuk. A vetés
+  // idempotens — csak a hiányzó neveket hozza létre.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await page.goto('/about').catch(() => undefined)
+    try {
+      await page.evaluate(async (given) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
     )) as typeof import('../src/bank/question-bank-workspaces')
@@ -57,6 +61,12 @@ async function seedBanks(page: Page): Promise<void> {
       questions: [question('b1', 'Első haladó kérdés'), question('b2', 'Második haladó kérdés')],
     },
   ])
+      return
+    } catch {
+      await page.waitForTimeout(600)
+    }
+  }
+  throw new Error('a bankok vetése nem sikerült')
 }
 
 test('a differenciált mód két bankot kér, és a hosszabbat a rövidebbre vágja', async ({ page }) => {

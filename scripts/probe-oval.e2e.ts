@@ -99,6 +99,30 @@ test('a pálya képe három futóval', async ({ page, browser }) => {
 
   await page.waitForTimeout(1200)
 
+  // A szövegméret-állító: hol van, és hat-e a válaszokra?
+  const before = await page.evaluate(() => {
+    const control = document.querySelector('.gq-textsize-stage')?.getBoundingClientRect()
+    const answer = document.querySelector('.gq-answer .doc-content')
+    return {
+      control: control ? `${Math.round(control.x)},${Math.round(control.y)}` : 'nincs',
+      atBottom: control ? control.y > window.innerHeight * 0.75 : false,
+      answer: answer ? Number.parseFloat(getComputedStyle(answer).fontSize) : 0,
+    }
+  })
+  await page.locator('.gq-textsize-stage .gq-textsize-button').last().click()
+  await page.locator('.gq-textsize-stage .gq-textsize-button').last().click()
+  await page.waitForTimeout(400)
+  const after = await page.evaluate(() => {
+    const answer = document.querySelector('.gq-answer .doc-content')
+    return answer ? Number.parseFloat(getComputedStyle(answer).fontSize) : 0
+  })
+  console.log(`szövegméret-állító: ${before.control} (alul: ${before.atBottom ? 'igen' : 'nem'}), válasz betű ${before.answer} → ${after}`)
+
+  // Vissza 100%-ra a képhez.
+  await page.locator('.gq-textsize-stage .gq-textsize-button').first().click()
+  await page.locator('.gq-textsize-stage .gq-textsize-button').first().click()
+  await page.waitForTimeout(300)
+
   await page.screenshot({ path: 'race-oval.png' })
 
   // Mérés: a jelvények nem csúszhatnak egymásra; a pálya nem túl magas.
@@ -140,7 +164,7 @@ test('a pálya képe három futóval', async ({ page, browser }) => {
   // A lebegő szövegméret-pirula ne takarjon semmit a színpadon.
   const cover = await page.evaluate(() => {
     const pill = document.querySelector('[class*=text-size], .gq-text-size, [data-testid=text-size]')
-    const targets = Array.from(document.querySelectorAll('.gq-track, .gq-oval, .gq-prompt'))
+    const targets = Array.from(document.querySelectorAll('.gq-laptimes, .gq-oval, .gq-prompt'))
     if (!pill) return { pill: null, hits: [] as string[] }
     const box = pill.getBoundingClientRect()
     const hits = targets

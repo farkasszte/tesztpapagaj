@@ -85,9 +85,11 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   const stage = page.getByRole('dialog', { name: 'Grand Prix' })
   await expect(stage).toBeVisible()
   // A mód minden választ számol: a beállításban ezt ki is mondja.
-  const lanes = stage.locator('.gq-lane')
-  await expect(lanes).toHaveCount(1)
-  await expect(lanes.first()).toContainText('Panni')
+  const rows = stage.locator('.gq-laptimes tbody tr')
+  await expect(rows).toHaveCount(1)
+  await expect(rows.first()).toContainText('Panni')
+  // A táblázat köridőt mutat, nem százalékot.
+  await expect(rows.first().locator('.gq-lap-time')).toHaveText('—')
 
   // A mezőny egyetlen ovál pályán fut: egy futó, a startvonalon (fent).
   const oval = stage.locator('.gq-oval')
@@ -98,10 +100,9 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   // Helyes válasz a telefonon: a futó elindul, és nitrót kap.
   const choices = student.locator('.gq-stu-choice')
   await choices.filter({ hasText: 'Carbon dioxide' }).click()
-  await expect(stage.locator('.gq-lane-nitro')).toHaveCount(1)
-  await expect(lanes.first()).toContainText('%')
-  const halfway = await lanes.first().locator('.gq-lane-meters').innerText()
-  expect(Number(halfway.replace('%', ''))).toBeGreaterThan(0)
+  await expect(stage.locator('.gq-lap-nitro')).toHaveCount(1)
+  const halfway = (await rows.first().locator('.gq-lap-time').innerText()).replace(',', '.')
+  expect(Number(halfway.replace(' s', ''))).toBeGreaterThan(0)
 
   // A pályán is elmozdult: a futó már nem a startvonalon áll.
   await expect
@@ -125,10 +126,9 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await expect(stage.locator('.gq-podium')).toBeVisible()
   await expect(stage.locator('.gq-podium-step')).toHaveCount(1)
   await expect(stage.locator('.gq-podium-step').first()).toHaveAttribute('data-place', '1')
-  const result = stage.locator('.gq-lane-meters').first()
-  expect(Number((await result.innerText()).replace('%', ''))).toBeGreaterThan(
-    Number(halfway.replace('%', '')),
-  )
+  // A dobogó a köridőt hozza, és a verseny végére javul (kisebb lesz).
+  const result = (await stage.locator('.gq-podium-meters').first().innerText()).replace(',', '.')
+  expect(Number(result.replace(' s', ''))).toBeLessThan(Number(halfway.replace(' s', '')) + 0.001)
 
   // A telefonon nincs értelme pontot mutatni ebben a módban.
   await expect(student.locator('.gq-stu-points')).toHaveCount(0)

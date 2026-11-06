@@ -1,10 +1,10 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer, useState, type CSSProperties } from 'react'
 import { useT } from '../../i18n'
 import type { ClassicEngine } from '../classic/engine'
 import { buildClassicView } from '../classic/views'
 import { mergeRanks, type Side } from './pair'
 import { TextSizeControl } from '../text-size'
-import { useStageFocusTrap } from '../parts'
+import { TINCTURES, useStageFocusTrap } from '../parts'
 
 /**
  * A differenciált kvíz színpada (tp#45): a két bank kérdése egyszerre, bal és
@@ -64,6 +64,9 @@ export function SplitStage({
       <div className="gq-stage-bar">
         <span className="gq-pin">{left.title}</span>
         <span className="gq-players">{t('game.devices.joined', { count: players.filter((p) => p.connected).length })}</span>
+        <span className="gq-textsize-row">
+          <TextSizeControl className="gq-textsize-stage" />
+        </span>
       </div>
 
       <div className="gq-split-panels">
@@ -80,15 +83,23 @@ export function SplitStage({
                     {t('game.split.round', { number: question.number, total: question.total })}
                   </p>
                   <p className="gq-split-prompt">{question.prompt}</p>
-                  <ol className="gq-split-answers">
+                  <ol
+                    className="gq-split-answers"
+                    data-revealed={view.phase === 'REVEAL' ? 'true' : undefined}
+                  >
                     {question.choices.map((choice, index) => {
                       const right =
                         view.phase === 'REVEAL' &&
                         (question.correctChoices ?? (question.correct === null ? [] : [question.correct])).includes(index)
                       return (
-                        <li key={index} className="gq-split-answer" data-right={right ? 'true' : undefined}>
+                        <li
+                          key={index}
+                          className="gq-split-answer"
+                          data-right={right ? 'true' : undefined}
+                          style={{ '--c': TINCTURES[index % TINCTURES.length] } as CSSProperties}
+                        >
                           <span className="gq-split-letter">{'ABCD'[index] ?? index + 1}</span>
-                          <span>{choice}</span>
+                          <span className="gq-split-text">{choice}</span>
                         </li>
                       )
                     })}
@@ -168,7 +179,6 @@ export function SplitStage({
           {t('game.devices.back')}
         </button>
       </div>
-      <TextSizeControl />
     </div>
   )
 }

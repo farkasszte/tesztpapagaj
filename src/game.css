@@ -471,7 +471,7 @@
   font-family: var(--game-text); font-weight: 600; font-size: calc(clamp(22px, 1.7vw, 38px) * var(--gq-text, 1)); line-height: 1.2;
   overflow-wrap: anywhere; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
 }
-@media (min-width: 1600px) { .gq-answer .doc-content { font-size: 38px; } }
+@media (min-width: 1600px) { .gq-answer .doc-content { font-size: calc(38px * var(--gq-text, 1)); } }
 .gq-answer .doc-content p { margin: 0; }
 /* A válasz betűjele: vékony karika, benne a betű — szín nélkül is látszik. */
 .gq-letter {
@@ -797,18 +797,30 @@ select.gq-input-small { text-align: center; }
   color: #fffaf3;
 }
 .gq-split-answers { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+/* A válaszok színesek, mint a Klasszikusban: a betű színe a `--c` tincture. */
 .gq-split-answer {
-  display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px;
-  background: rgb(255 250 243 / 0.08); border: 1.5px solid rgb(255 250 243 / 0.28);
-  color: #fffaf3; font-family: var(--game-text);
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px;
+  background: var(--c, var(--gules)); color: #fff;
+  border: 1.5px solid rgb(255 255 255 / 0.2);
+  box-shadow:
+    inset 0 -4px 0 rgb(0 0 0 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+  font-family: var(--game-text);
   font-size: calc(clamp(15px, 1.1vw, 19px) * var(--gq-text, 1));
 }
+/* Felfedéskor a nem helyes válaszok visszafogottak lesznek. */
+.gq-split-answers[data-revealed='true'] .gq-split-answer:not([data-right='true']) {
+  filter: saturate(0.5) brightness(0.68);
+}
 .gq-split-answer[data-right='true'] {
-  border-color: var(--paper); background: rgb(255 250 243 / 0.16);
+  border-color: #fffaf3;
+  box-shadow:
+    inset 0 0 0 2px #fffaf3,
+    inset 0 -4px 0 rgb(0 0 0 / 0.22);
 }
 .gq-split-letter {
   flex: 0 0 26px; display: grid; place-items: center; width: 26px; height: 26px;
-  border-radius: 999px; border: 1.5px solid rgb(255 250 243 / 0.7);
+  border-radius: 999px; border: 1.5px solid rgb(255 255 255 / 0.75);
   font-size: 13px; font-weight: 700;
 }
 .gq-split-text { min-width: 0; }
@@ -837,7 +849,8 @@ select.gq-input-small { text-align: center; }
 .gq-stu-side[data-picked='true'] {
   border-color: var(--paper-accent); background: var(--paper-surface-low);
   box-shadow: 0 0 0 3px rgb(217 167 44 / 0.22);
-}
+}
+
 
 /* Teljes képernyős QR: a hátsó sorból is beolvasható legyen. */
 .gq-qr-full {
@@ -1968,40 +1981,43 @@ select.gq-input-small { text-align: center; }
 .gq-boss-pip[data-on='yes'] { background: #2f5c8c; border-color: #6f9cc4; }
 .gq-boss-bites { margin-inline-start: 8px; font-size: 13px; color: rgb(245 236 220 / 0.72); }
 
-/* Grand Prix: egyetlen ovál pálya, a futók a vonalon. */
+/* ── Grand Prix (tp#43) ────────────────────────────────────────────────────
+   Egyetlen stadion alakú pálya (két egyenes és két félkör), a mezőny a vonalon.
+   Az arány a `race.ts` OVAL_RATIO értékével egyezik: 1 / 0.22. */
 .gq-oval {
   position: relative;
-  width: min(100%, 72vh);
-  aspect-ratio: 1 / 0.86;
-  margin: 0 auto clamp(6px, 1vh, 14px);
-}
-
-.gq-oval svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  width: min(100%, 1180px);
+  aspect-ratio: 1 / 0.22;
+  margin: 0 auto clamp(8px, 1.2vh, 16px);
 }
 
 .gq-oval-road,
-.gq-oval-inner {
-  fill: none;
-  stroke: rgb(255 250 243 / 0.28);
+.gq-oval-inner,
+.gq-oval-start {
+  position: absolute;
+  display: block;
 }
 
 .gq-oval-road {
-  stroke-width: 2.4;
-  stroke-dasharray: 1.6 1.6;
+  inset: 0;
+  border: 3px dashed rgb(255 250 243 / 0.3);
+  border-radius: 999px;
 }
 
+/* A belső ív ugyanazt a stadiont kicsinyíti: a függőleges behúzás 13%-a. */
 .gq-oval-inner {
-  stroke-width: 0.8;
-  opacity: 0.5;
+  inset: 13% 2.9%;
+  border: 1px solid rgb(255 250 243 / 0.16);
+  border-radius: 999px;
 }
 
 .gq-oval-start {
-  stroke: rgb(255 250 243 / 0.9);
-  stroke-width: 1.4;
+  top: -3%;
+  left: 50%;
+  width: 3px;
+  height: 13%;
+  transform: translateX(-50%);
+  background: rgb(255 250 243 / 0.55);
 }
 
 .gq-runner {
@@ -2016,22 +2032,36 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-runner-dot {
-  width: clamp(12px, 1.4vw, 19px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(13px, 1.3vw, 20px);
   aspect-ratio: 1;
   border-radius: 999px;
   border: 2px solid rgb(20 14 10 / 0.55);
   background: inherit;
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  color: rgb(255 250 243 / 0.96);
+  font-family: var(--display);
+  font-size: calc(clamp(10px, 0.9vw, 14px) * var(--gq-text, 1));
+}
+
+.gq-runner[data-count] .gq-runner-dot {
+  width: clamp(22px, 2.2vw, 31px);
+}
+
+.gq-runner-name {
+  font-family: var(--display);
+  font-size: calc(clamp(9px, 0.8vw, 13px) * var(--gq-text, 1));
+  line-height: 1.1;
+  color: rgb(255 250 243 / 0.92);
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
 }
 
 /* A szomszédos sávban álló futó neve a pötty másik oldalára kerül. */
 .gq-runner[data-slot='1'] .gq-runner-name,
-.gq-runner[data-slot='2'] .gq-track {
-  /* A jobb alsó lebegő szövegméret-pirula ne takarja a sorok végét. */
-  padding-right: clamp(48px, 5vw, 76px);
-}
-
-.gq-runner-name {
+.gq-runner[data-slot='2'] .gq-runner-name {
   order: -1;
 }
 
@@ -2039,45 +2069,75 @@ select.gq-input-small { text-align: center; }
   box-shadow: 0 0 0 3px rgb(255 250 243 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
 }
 
-.gq-track {
-  /* A jobb alsó lebegő szövegméret-pirula ne takarja a sorok végét. */
-  padding-right: clamp(48px, 5vw, 76px);
-}
-
-.gq-runner-name {
-  font-family: var(--gq-display, inherit);
-  font-size: calc(clamp(9px, 0.78vw, 13px) * var(--gq-text, 1));
-  line-height: 1.1;
-  color: rgb(255 250 243 / 0.92);
-  white-space: nowrap;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .gq-runner {
-    transition: none;
-  }
+  .gq-runner { transition: none; }
 }
 
-/* Grand Prix: lapos ovál — a pálya ne vigye el a színpad magasságát. */
-.gq-oval {
-  --oval-height: min(34vh, 280px);
-  height: var(--oval-height);
-  width: min(100%, calc(var(--oval-height) * 2.5));
-  aspect-ratio: auto;
+/* Kompakt köridő-táblázat: hely, név, legjobb kör, nitró/kipördülés. */
+.gq-laptimes {
+  width: 100%;
+  border-collapse: collapse;
+  color: rgb(255 250 243 / 0.92);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Csoportjelvény: név helyett létszám. */
-.gq-runner[data-count] .gq-runner-dot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(22px, 2.4vw, 32px);
-  font-family: var(--gq-display, inherit);
-  font-size: calc(clamp(11px, 1vw, 15px) * var(--gq-text, 1));
-  color: rgb(255 250 243 / 0.96);
-  border-width: 2px;
+.gq-laptimes thead th {
+  padding: 4px 10px;
+  text-align: start;
+  font-family: var(--display);
+  font-size: calc(clamp(10px, 0.8vw, 13px) * var(--gq-text, 1));
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 250 243 / 0.5);
+  border-bottom: 1px solid rgb(255 250 243 / 0.18);
 }
+
+.gq-laptimes tbody td {
+  padding: 5px 10px;
+  font-size: calc(clamp(13px, 1vw, 17px) * var(--gq-text, 1));
+  border-bottom: 1px solid rgb(255 250 243 / 0.08);
+}
+
+.gq-laptimes tbody tr[data-lead='yes'] td {
+  background: rgb(203 162 60 / 0.12);
+  color: #fffaf3;
+}
+
+.gq-lap-place {
+  width: 4em;
+  font-family: var(--display);
+  color: rgb(255 250 243 / 0.7);
+}
+
+.gq-lap-name { font-weight: 600; }
+
+.gq-lap-time {
+  width: 9em;
+  font-family: var(--display);
+}
+
+.gq-lap-marks {
+  width: 7em;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.gq-lap-nitro,
+.gq-lap-spin {
+  display: inline-block;
+  min-width: 24px;
+  margin-inline-start: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-family: var(--display);
+  font-size: calc(12px * var(--gq-text, 1));
+  font-weight: 700;
+  text-align: center;
+}
+
+.gq-lap-nitro { color: #241c17; background: #f0c04a; }
+.gq-lap-spin { color: #fffaf3; background: rgb(196 64 47 / 0.85); }
 
 /* Dobogó a futam végén: 2. – 1. – 3., a középső fok a legmagasabb. */
 .gq-podium {
@@ -2099,7 +2159,7 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-podium-name {
-  font-family: var(--gq-display, inherit);
+  font-family: var(--display);
   font-size: calc(clamp(11px, 1vw, 15px) * var(--gq-text, 1));
   color: rgb(255 250 243 / 0.92);
 }
@@ -2121,16 +2181,11 @@ select.gq-input-small { text-align: center; }
   border-color: rgb(203 162 60 / 0.6);
 }
 
-.gq-podium-step[data-place='2'] .gq-podium-height {
-  height: clamp(38px, 5vh, 70px);
-}
-
-.gq-podium-step[data-place='3'] .gq-podium-height {
-  height: clamp(28px, 3.6vh, 52px);
-}
+.gq-podium-step[data-place='2'] .gq-podium-height { height: clamp(38px, 5vh, 70px); }
+.gq-podium-step[data-place='3'] .gq-podium-height { height: clamp(28px, 3.6vh, 52px); }
 
 .gq-podium-place {
-  font-family: var(--gq-display, inherit);
+  font-family: var(--display);
   font-size: calc(clamp(14px, 1.6vw, 24px) * var(--gq-text, 1));
   padding-top: 4px;
   color: rgb(255 250 243 / 0.9);
@@ -2144,6 +2199,28 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-podium-meters {
-  font-size: calc(clamp(9px, 0.8vw, 12px) * var(--gq-text, 1));
+  font-size: calc(clamp(10px, 0.85vw, 13px) * var(--gq-text, 1));
   color: rgb(255 250 243 / 0.66);
 }
+
+/* A szövegméret-állító a színpadon nem lebeg: a cím alatt, saját sorban. */
+.gq-textsize-stage {
+  position: static;
+  inset: auto;
+  margin-top: 2px;
+  padding: 1px;
+  background: rgb(255 250 243 / 0.06);
+  border-color: rgb(255 250 243 / 0.18);
+}
+
+.gq-mode-stage .gq-where { flex-wrap: wrap; }
+
+/* A szövegméret-állító saját sorban, középen — a cím (kód) alatt. */
+.gq-textsize-row {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* A differenciált kvíz fejlécében is a kód alatt, saját sorban. */
+.gq-split .gq-stage-bar { flex-wrap: wrap; row-gap: 6px; }
