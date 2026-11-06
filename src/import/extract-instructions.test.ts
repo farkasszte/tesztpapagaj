@@ -2,13 +2,13 @@ import { describe, expect, test } from 'bun:test'
 import { EXAM_FORMAT_VERSION } from './package-import'
 import { QUESTION_BANK_FORMAT, QUESTION_BANK_FORMAT_VERSION } from '../export/question-bank-export'
 import { inspectQuestionBankRecordValue } from './question-bank-import'
-import { publicPath } from '../paths'
+import { publicPath, srcPath } from '../paths'
 
-// The instructions an assistant converts a test by (`public/extract.md`) show
+// The instructions an assistant converts a test by (`src/import/extract.md`) show
 // it what to write in JSON examples. An assistant copies an example's shape,
 // so every example must be one Test Parrot would import.
 
-const instructions = await Bun.file(publicPath('extract.md')).text()
+const instructions = await Bun.file(srcPath('import', 'extract.md')).text()
 const examples = [...instructions.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!) as Record<string, unknown>)
 
 type Json = Record<string, unknown>

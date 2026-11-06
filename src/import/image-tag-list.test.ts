@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test'
 import { IMAGE_TAGS_SLOT, NO_LABELED_COPY, fillImageTags } from './image-tag-list'
 import { QUESTION_BANK_FORMAT_VERSION } from '../export/question-bank-export'
 import type { ImageTag } from './source-document'
-import { publicPath } from '../paths'
+import { publicPath, srcPath } from '../paths'
 
-const instructions = await Bun.file(publicPath('extract.md')).text()
+const instructions = await Bun.file(srcPath('import', 'extract.md')).text()
 const tag = (number: number, page: number): ImageTag => ({
   tag: number,
   page,

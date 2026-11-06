@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronDown, Download, FileText, ImageIcon, UploadCloud } from 'lucide-react'
-import extractInstructions from '../../public/extract.md?raw'
+import extractInstructions from './extract.md?raw'
 import { fillImageTags } from './image-tag-list'
 import type { WaitingImport } from './import-history'
 import { downloadInstructions } from './instructions-file'

@@ -46,7 +46,7 @@ describe('a forrás nem függ a saját helyétől', () => {
 
   test('minden relatív hivatkozás létező fájlra mutat', () => {
     // A `tsc` a `?raw`/`?url` hivatkozásokat nem ellenőrzi (azokat a Vite
-    // oldja fel), ezért egy elcsúszott `../public/extract.md?raw` csak az
+    // oldja fel), ezért egy elcsúszott `./extract.md?raw` csak az
     // éles buildben derül ki — a deploy pedig csendben elmarad.
     const offenders: string[] = []
     const reference = /(?:from|import)\s*\(?\s*['"](\.[^'"]+)['"]/g

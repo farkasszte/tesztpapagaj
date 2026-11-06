@@ -8,16 +8,17 @@ import { fillImageTags } from './src/import/image-tag-list'
  * `/extract` is a plain HTML page, not a route of the app. Its readers are AI
  * assistants that fetch a URL — they never run the SPA's JavaScript, so the
  * instructions have to be in the markup itself. The page is rendered from
- * public/extract.md, which stays published raw at `/extract.md`, so the two
- * cannot drift. The dev server renders it per request; a build emits
- * `extract.html`, which Vercel's `cleanUrls` serves at `/extract`.
+ * src/import/extract.md — the same file the app imports for its own download —
+ * and is published raw at `/extract.md`, so the two cannot drift. The dev
+ * server renders both per request; a build emits `extract.html` (which Vercel's
+ * `cleanUrls` serves at `/extract`) and `extract.md`.
  *
  * Both are served with the image tag list filled in: an assistant that
  * fetches a link was given no labeled copy, so every picture it writes names
- * its page. `/extract.md` is overwritten with that filled copy for the same
+ * its page. The published `/extract.md` is the filled copy for the same
  * reason — the source keeps the slot, a reader never sees it.
  */
-const SOURCE = 'public/extract.md'
+const SOURCE = 'src/import/extract.md'
 
 export function renderExtractPage(markdown: string): string {
   const body = marked.parse(markdown, { async: false })
@@ -93,7 +94,6 @@ export function extractPage(): Plugin {
   let source = SOURCE
   const markdown = () => fillImageTags(fs.readFileSync(source, 'utf8'), null)
   const render = () => renderExtractPage(markdown())
-  let outDir = 'dist'
   const serve: Connect.NextHandleFunction = (req, res, next) => {
     const url = req.url?.split('?')[0]
     if (url === '/extract.md') {
@@ -109,7 +109,6 @@ export function extractPage(): Plugin {
     name: 'extract-page',
     configResolved(config) {
       source = path.resolve(config.root, SOURCE)
-      outDir = path.resolve(config.root, config.build.outDir)
     },
     configureServer(server) {
       server.middlewares.use(serve)
@@ -119,12 +118,8 @@ export function extractPage(): Plugin {
     },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'extract.html', source: render() })
-    },
-    // Public files are copied as they are, after the bundle; the filled copy
-    // replaces the template once they have been.
-    closeBundle() {
-      const published = path.join(outDir, 'extract.md')
-      if (fs.existsSync(published)) fs.writeFileSync(published, markdown())
+      // A nyers Markdown is a build kimenete: a `public/`-ból már nem másolódik.
+      this.emitFile({ type: 'asset', fileName: 'extract.md', source: markdown() })
     },
   }
 }
