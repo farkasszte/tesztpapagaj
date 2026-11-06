@@ -77,6 +77,23 @@ test('a klasszikus színpad végigjátszható: kérdés, felfedés, jelentés', 
   // A három válasz mind kint van, betűvel a színpadon — a sorrend kevert.
   await expect(stage.locator('.gq-answer')).toHaveCount(3)
 
+  // A játék szövege Lexend (tp#46): a betűtípus tényleg betöltődik, nem esik
+  // vissza a rendszer-sansra, és a szélesebb betű sem lóg ki a kártyából.
+  const font = await stage.locator('.gq-prompt').evaluate((node) => {
+    const style = getComputedStyle(node)
+    return { family: style.fontFamily, width: node.scrollWidth, box: node.clientWidth }
+  })
+  expect(font.family).toContain('Lexend')
+  expect(font.width).toBeLessThanOrEqual(font.box + 1)
+  // A magyar ékezetek a latin-ext részhalmazból jönnek: enélkül az ő/ű
+  // rendszer-sansra esne vissza. A böngésző a részhalmazt csak akkor tölti le,
+  // ha kell, ezért előbb kérjük (`fonts.load`), és csak utána ellenőrzünk.
+  const loaded = await page.evaluate(async () => {
+    await document.fonts.load('16px Lexend', 'Árvíztűrő')
+    return document.fonts.check('16px Lexend', 'Árvíztűrő')
+  })
+  expect(loaded).toBe(true)
+
   // A visszaszámláló száma és mértékegysége külön sorban áll, nem csúszik
   // egymásra: a korong közepén egy oszlopban ülnek, köztük valódi rés van.
   const numberBox = (await stage.locator('.gq-timer-number').boundingBox())!

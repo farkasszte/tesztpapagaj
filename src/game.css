@@ -12,6 +12,29 @@
  * is csak a latin darabban vannak, tehát a számokért a latin felel).
  */
 
+/* Lexend (OFL): a játék szövegének betűje a színpadon és a telefonon. A
+   literata-latin mellett él, mert a kérdés és a válaszok ehhez váltanak; a
+   címek, a számok és a menet továbbra is az Oswald. A latin-ext részhalmaz
+   nélkül az ő/ű/Ő/Ű rendszer-sansra esne vissza. */
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/lexend-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/game-fonts/lexend-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 @font-face {
   font-family: 'Literata';
   font-style: normal;
@@ -95,6 +118,9 @@
   --bone: #d8cfbc;
   --leather: #8a5a2b;
   --serif: 'Literata', Georgia, 'Times New Roman', serif;
+  /* A játék szövegének betűje (tp#46): a tanár kivetítésén és a diák
+     telefonján ugyanaz. A címek és a számok maradnak az Oswald. */
+  --game-text: 'Lexend', var(--serif);
   --display: 'Oswald', 'Literata', Georgia, sans-serif;
   --sans: Arial, Helvetica, sans-serif;
   /* A sarokoszlop: arany henger, sötét szalaggal a fogásnál. */
@@ -308,7 +334,7 @@
 /* A `--gq-text` a tanár/diák által választott szövegméret (tp#47): csak a
    kérdés és a válaszok betűjét szorozza, a váz nem mozdul. */
 .gq-prompt {
-  margin: 0; font-family: var(--serif); font-weight: 400; line-height: 1.2;
+  margin: 0; font-family: var(--game-text); font-weight: 500; line-height: 1.2;
   font-size: calc(clamp(28px, 3.4vw, 51px) * var(--gq-text, 1)); text-wrap: balance;
 }
 @media (min-width: 1600px) { .gq-prompt { font-size: calc(51px * var(--gq-text, 1)); } }
@@ -442,7 +468,7 @@
 }
 @media (min-width: 1600px) { .gq-answer { min-height: 138px; padding: 22px 36px; } }
 .gq-answer .doc-content {
-  font-family: var(--serif); font-weight: 700; font-size: calc(clamp(22px, 1.7vw, 38px) * var(--gq-text, 1)); line-height: 1.2;
+  font-family: var(--game-text); font-weight: 600; font-size: calc(clamp(22px, 1.7vw, 38px) * var(--gq-text, 1)); line-height: 1.2;
   overflow-wrap: anywhere; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
 }
 @media (min-width: 1600px) { .gq-answer .doc-content { font-size: 38px; } }
@@ -957,6 +983,7 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-stu-prompt {
+  font-family: var(--game-text);
   font-size: calc(19px * var(--gq-text, 1));
   line-height: 1.4;
 }
@@ -1079,6 +1106,7 @@ select.gq-input-small { text-align: center; }
 
 .gq-stu-choice-words {
   min-width: 0;
+  font-family: var(--game-text);
   font-size: calc(17px * var(--gq-text, 1));
   line-height: 1.35;
 }

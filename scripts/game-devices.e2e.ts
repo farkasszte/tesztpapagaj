@@ -327,6 +327,23 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
   // A küldés gomb négy válasz mellett is a képernyőn van.
   await expect(student.getByRole('button', { name: 'Send my answers' })).toBeInViewport()
 
+  // A telefon szövege is Lexend (tp#46), és a szélesebb betű sem löki ki a
+  // küldés gombot: a lapnak nincs vízszintes túlcsordulása, a gomb a nézetben
+  // marad.
+  const phoneType = await student.evaluate(() => {
+    const words = document.querySelector('.gq-stu-choice-words')
+    const send = document.querySelector('.gq-stu-confirm')
+    return {
+      family: words ? getComputedStyle(words).fontFamily : '',
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+      sendBottom: send ? Math.round(send.getBoundingClientRect().bottom) : -1,
+      viewport: window.innerHeight,
+    }
+  })
+  expect(phoneType.family).toContain('Lexend')
+  expect(phoneType.overflow).toBeLessThanOrEqual(1)
+  expect(phoneType.sendBottom).toBeLessThanOrEqual(phoneType.viewport)
+
   // A betűk a színpadon kevert sorrendből jönnek: a helyes betűket a
   // megjelenített sorrendből olvassuk ki.
   const shown = await choices.evaluateAll((nodes) =>
