@@ -937,13 +937,14 @@ select.gq-input-small { text-align: center; }
    A betű és a szöveg mind a négyen fehér — a színt a kártya hordozza. */
 .gq-stu-choice {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  padding: 12px;
+  padding: 7px 10px;
   /* Alacsonyabb kártya: négy válasz és a küldés gomb is kiférjen egy telefonra. */
-  min-height: 54px;
+  min-height: 44px;
   border-radius: 14px;
-  border: 1px solid rgb(255 250 243 / 0.18);
+  /* Határozottabb keret: a színes kártya szélét eddig szinte semmi nem jelezte. */
+  border: 1.5px solid rgb(255 250 243 / 0.68);
   background: var(--c);
   /* A kártya szövege tiszta fehér, akárcsak a színpad betűjelei: a mély arany
      kártyán a krémes (`--paper`, #f5ecdc) csak 4,35:1, a fehér 4,55:1 — ez a
@@ -963,10 +964,11 @@ select.gq-input-small { text-align: center; }
 /* A megjelölt kártya **egész** kerete krémes, és a végén pipa áll — a diák
    ujja a kártya közepén van, a betűjel a keze alatt maradna. */
 .gq-stu-choice[data-tone='picked'] {
+  /* A keret **vastagsága** nem változik: a kártya belseje nem lép el, tehát a
+     válasz szövege nem tördelődik újra. A hangsúlyt a krémes szín és a gyűrű
+     adja. */
   border-color: var(--paper);
-  border-width: 2px;
-  padding: 11px;
-  box-shadow: 0 0 0 2px rgb(36 28 23 / 0.18);
+  box-shadow: 0 0 0 2px rgb(36 28 23 / 0.18), inset 0 0 0 1px var(--paper);
 }
 
 /* Ha már van jelölés, a nem jelöltek halványulnak: a kiválasztás nem csak a
@@ -978,9 +980,9 @@ select.gq-input-small { text-align: center; }
 /* A kijelölt válasz betűje kitöltött karika: a tanár és a diák is egy
    pillantással látja, mit jelölt be (több helyes válasznál több kártyán). */
 .gq-stu-choice[data-tone='picked'] .gq-stu-letter {
+  /* A tinta színét a `[data-ticked]` szabály dönti el: a betű helyén pipa áll. */
   background: var(--paper);
   border-color: var(--paper);
-  color: #241c17;
 }
 
 .gq-stu-choice[data-tone='correct'] {
@@ -999,15 +1001,18 @@ select.gq-input-small { text-align: center; }
 
 /* A jelölő betű ugyanaz, mint a színpadon: karikás fehér betű. */
 .gq-stu-letter {
-  flex: 0 0 34px;
+  /* A pipa a betű helyére kerül, ezért a jelölő saját vonatkoztatási pont. */
+  position: relative;
+  /* Kisebb karika: a kártya alacsonyabb, és több hely marad a válasznak. */
+  flex: 0 0 28px;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
   border: 1.5px solid rgb(255 250 243 / 0.75);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--paper);
 }
 
@@ -1015,7 +1020,6 @@ select.gq-input-small { text-align: center; }
 .gq-stu-choice[data-tone='correct'] .gq-stu-letter {
   background: var(--paper);
   border-color: var(--paper);
-  color: #241c17;
 }
 
 .gq-stu-choice-words {
@@ -1024,14 +1028,25 @@ select.gq-input-small { text-align: center; }
   line-height: 1.35;
 }
 
-.gq-stu-tick {
-  flex: 0 0 auto;
-  margin-inline-start: auto;
-  padding-inline-start: 6px;
-  font-size: 20px;
+/* A pipa a betűjel **helyén** áll: a kártya végén a jel újratördelte a válasz
+   szövegét, ráadásul a diák ujja alá esett. A jelet a stíluslap rajzolja
+   (`::after`), hogy a kártya szövege és a képernyőolvasó olvasata ne változzon. */
+.gq-stu-letter[data-ticked='true'] {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: transparent;
+}
+
+.gq-stu-letter[data-ticked='true']::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1;
-  color: var(--paper);
+  color: #241c17;
 }
 
 .gq-stu-verdict {

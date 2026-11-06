@@ -265,7 +265,9 @@ export function ClassicStudentGame({
                     )
                   }}
                 >
-                  <span className="gq-stu-letter">
+                  {/* A pipa nem DOM-szöveg: a `data-ticked` jelzi, a jelet a stíluslap rajzolja,
+                    így a kártya szövege (és a képernyőolvasó) változatlan marad. */}
+                  <span className="gq-stu-letter" data-ticked={tone === 'picked' || tone === 'correct'}>
                     {question.ordered && marked.includes(index)
                       ? marked.indexOf(index) + 1
                       : ('ABCD'[index] ?? index + 1)}
@@ -273,13 +275,6 @@ export function ClassicStudentGame({
                   <span className="gq-stu-choice-words">
                     <StudentBlocks rich={question.rich?.choices?.[index]} plain={choice} />
                   </span>
-                  {/* A jelölés a kártya **végén** is látszik: a diák ujja a
-                      kártya közepén van, a betűt eltakarja. */}
-                  {tone === 'picked' || tone === 'correct' ? (
-                    <span className="gq-stu-tick" aria-hidden="true">
-                      ✓
-                    </span>
-                  ) : null}
                 </button>
               )
             })}

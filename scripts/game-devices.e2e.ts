@@ -313,8 +313,13 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
   await choices.filter({ hasText: 'Neon' }).click()
   await expect(choices.filter({ hasText: 'Oxygen' })).toHaveAttribute('data-tone', 'picked')
   await expect(choices.filter({ hasText: 'Neon' })).toHaveAttribute('data-tone', 'picked')
-  // A jelölés a kártya végén is látszik (a diák ujja a közepe fölött van).
-  await expect(choices.filter({ hasText: 'Oxygen' }).locator('.gq-stu-tick')).toBeVisible()
+  // A jelölés a **betű helyén** látszik: a karika krémes lesz, benne pipával
+  // (a jelet a stíluslap rajzolja, ezért a kártya szövege nem tördelődik újra).
+  const marked = choices.filter({ hasText: 'Oxygen' }).locator('.gq-stu-letter')
+  await expect(marked).toHaveAttribute('data-ticked', 'true')
+  await expect
+    .poll(() => marked.evaluate((node) => getComputedStyle(node, '::after').content))
+    .toContain('✓')
   // A küldés gomb négy válasz mellett is a képernyőn van.
   await expect(student.getByRole('button', { name: 'Send my answers' })).toBeInViewport()
 
