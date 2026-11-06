@@ -177,6 +177,10 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   const full = page.getByRole('dialog', { name: 'Full-screen QR' })
   await expect(full).toBeVisible()
   await expect(full.locator('svg.gq-qr')).toBeVisible()
+  // A nagy QR alatt is látja a tanár a létszámot (bruttó: mindenki, aki belepett)
+  // és az utoljára belépőt — a táblát nézi, nem a jobb oldali listát.
+  await expect(full.getByText('1 joined')).toBeVisible()
+  await expect(full.getByText('Last in: Panni')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(full).toBeHidden()
 

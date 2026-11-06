@@ -712,6 +712,21 @@ select.gq-input-small { text-align: center; }
   font-size: clamp(26px, 3.4vw, 52px); letter-spacing: 0.08em; color: #fffaf3;
 }
 .gq-qr-full-hint { margin: 0; font-size: 17px; color: rgb(255 250 243 / 0.78); }
+/* A nagy QR fölötti számláló: kivetítőről is olvasható, és minden belépésnél
+   felvillan (a `key` a létszám, ezért rajzolódik újra). */
+.gq-qr-full-joined {
+  margin: 0; padding: 6px 20px; border-radius: 999px;
+  background: rgb(255 250 243 / 0.12); border: 1px solid rgb(255 250 243 / 0.28);
+  color: #fffaf3; font-size: clamp(20px, 2.2vw, 34px); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  animation: gq-join-bump 420ms ease-out;
+}
+.gq-qr-full-last { margin: 0; font-size: clamp(16px, 1.6vw, 24px); color: rgb(255 250 243 / 0.9); }
+@keyframes gq-join-bump {
+  from { transform: scale(1.14); box-shadow: 0 0 0 10px rgb(255 250 243 / 0.18); }
+  to { transform: scale(1); box-shadow: 0 0 0 10px rgb(255 250 243 / 0); }
+}
+@media (prefers-reduced-motion: reduce) { .gq-qr-full-joined { animation: none; } }
 
 .gq-qr {
   border-radius: 10px;

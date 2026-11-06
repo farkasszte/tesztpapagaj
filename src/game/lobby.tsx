@@ -146,8 +146,20 @@ export function GameLobby({
           aria-label={t('game.devices.qrFull')}
           onClick={() => setFullQr(false)}
         >
+          {/* A számláló **bruttó**: mindenki, aki egyszer belepett. A nagy QR
+              alatt a tanár a táblát nézi, nem a jobb oldali listát; ha közben
+              jön valaki, itt kell látnia. A `key` a szám, ezért minden belépés
+              újra felvillantja (a `aria-live` pedig fel is olvassa). */}
+          <p className="gq-qr-full-joined" aria-live="polite" key={players.length}>
+            {t('game.devices.joined', { count: players.length })}
+          </p>
           <QrCode text={url} size={720} />
           <p className="gq-qr-full-code">{spacedRoomCode(code)}</p>
+          <p className="gq-qr-full-last">
+            {players.length
+              ? t('game.devices.qrFullLast', { name: players[players.length - 1].nickname })
+              : t('game.devices.qrFullWaiting')}
+          </p>
           <p className="gq-qr-full-hint">{t('game.devices.qrFullClose')}</p>
         </div>
       ) : null}
