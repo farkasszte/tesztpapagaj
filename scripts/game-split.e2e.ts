@@ -101,10 +101,20 @@ test('a diák a belépésnél oldalt választ, oldal nélkül nem lép be', asyn
 // tanár lobbija nem kapja meg a diák belépését (a `game-devices.e2e.ts` ugyanezt
 // a mockot használja, ott zöld). Amíg ez tisztázatlan, a teszt kikapcsolva fut,
 // hogy a zöld készlet ne hazudjon: a `tp#45` tétel ezért marad `doing`-ban.
+// NYITOTT (tp#45): a teszt-harness, nem a termék. A host socketje ebben a
+// folyamatban nem megy át a `routeWebSocket`-en: a böngésző a valódi
+// `ws://127.0.0.1:8788/room/<kód>` címre próbál csatlakozni és
+// `ERR_CONNECTION_REFUSED`-ot kap (a `game-devices.e2e.ts` ugyanezt a mockot
+// használja, ott zöld). Amíg ezt nem sikerül kiváltani, a teszt kikapcsolva
+// fut, hogy a zöld készlet ne hazudjon.
 test.skip('két oldal egy szobában: mindenki csak a saját kérdését látja, közös a tábla', async ({
   page,
 }) => {
   await seedBanks(page)
+  // A relay-útvonal a navigáció ELŐTT regisztrálódik: a host socketje a
+  // szoba megnyitásakor azonnal csatlakozik, és a későbbi regisztrációt a
+  // Playwright már nem látja el.
+  await connectRelay(page.context())
   await page.goto('/jatek').catch(() => undefined)
   await page.getByRole('button', { name: /^Split quiz/ }).click()
 
@@ -123,7 +133,6 @@ test.skip('két oldal egy szobában: mindenki csak a saját kérdését látja, 
   await pickBank('#gq-bank', 'Split alap')
   await pickBank('#gq-bank-b', 'Split haladó')
 
-  await connectRelay(page.context())
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
   const lobby = page.locator('.gq-lobby')
