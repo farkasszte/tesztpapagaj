@@ -6,8 +6,8 @@
 // reprints the blank it printed.
 
 import 'fake-indexeddb/auto'
-import { fileURLToPath } from 'node:url'
 import { IDBFactory } from 'fake-indexeddb'
+import { publicPath } from '../paths'
 import { beforeEach, expect, test } from 'bun:test'
 import { createExamDocx } from '../docx-export'
 import { createExamPdf, type PdfFontLoader } from '../pdf-export'
@@ -21,7 +21,7 @@ beforeEach(() => {
   globalThis.indexedDB = new IDBFactory()
 })
 
-const fontFile = (name: string) => fileURLToPath(new URL(`../../public/fonts/${name}`, import.meta.url))
+const fontFile = (name: string) => publicPath('fonts', name)
 const fonts: PdfFontLoader = async (style) => Bun.file(fontFile({
   regular: 'FreeSerif.ttf',
   bold: 'FreeSerifBold.ttf',

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test'
 import { t } from './i18n'
-import { fileURLToPath } from 'node:url'
 import { BODY_LINE_HEIGHT, bodyPoints, pointsOf, sectionHeadingPoints, titlePoints } from './export-typography'
 import { PDFDocument } from 'pdf-lib'
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs'
@@ -17,13 +16,14 @@ import {
   EMPTY_EXPORT_HISTORY,
   prepareExport,
 } from './export-preparation'
+import { publicPath } from './paths'
 
 const fontFiles = {
-  regular: fileURLToPath(new URL('../public/fonts/FreeSerif.ttf', import.meta.url)),
-  bold: fileURLToPath(new URL('../public/fonts/FreeSerifBold.ttf', import.meta.url)),
-  italic: fileURLToPath(new URL('../public/fonts/FreeSerifItalic.ttf', import.meta.url)),
-  boldItalic: fileURLToPath(new URL('../public/fonts/FreeSerifBoldItalic.ttf', import.meta.url)),
-  mono: fileURLToPath(new URL('../public/fonts/FreeMono.ttf', import.meta.url)),
+  regular: publicPath('fonts/FreeSerif.ttf'),
+  bold: publicPath('fonts/FreeSerifBold.ttf'),
+  italic: publicPath('fonts/FreeSerifItalic.ttf'),
+  boldItalic: publicPath('fonts/FreeSerifBoldItalic.ttf'),
+  mono: publicPath('fonts/FreeMono.ttf'),
 } as const
 
 const fonts: PdfFontLoader = async (style) => Bun.file(fontFiles[style]).arrayBuffer()

@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test'
-import { fileURLToPath } from 'node:url'
 import {
   choicesOf,
   orderedChoices,
@@ -30,6 +29,7 @@ import { shownChoices } from './hidden-answers'
 import { pointsOfQuestion } from './points'
 import { importedQuestionsFromRecord } from './question-bank-import'
 import type { QuestionBankResource } from './question-bank-workspaces'
+import { publicPath } from './paths'
 
 const fontFiles = {
   regular: 'FreeSerif.ttf',
@@ -39,7 +39,7 @@ const fontFiles = {
   mono: 'FreeMono.ttf',
 } as const
 const fonts: PdfFontLoader = async (style) =>
-  Bun.file(fileURLToPath(new URL(`../public/fonts/${fontFiles[style]}`, import.meta.url))).arrayBuffer()
+  Bun.file(publicPath(`fonts/${fontFiles[style]}`)).arrayBuffer()
 const noImages = async () => null
 
 const paragraph = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] })

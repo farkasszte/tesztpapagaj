@@ -4,8 +4,9 @@ import JSZip from 'jszip'
 import { inspectImportValue } from '../../package-import'
 import { readQuestionFile } from '..'
 import { blankAnswers, blocksText } from '../rich-text'
+import { fixturePath } from '../../paths'
 
-const fixture = (path: string) => new Uint8Array(readFileSync(new URL(`../fixtures/${path}`, import.meta.url)))
+const fixture = (path: string) => new Uint8Array(readFileSync(fixturePath(`${path}`)))
 const encode = (text: string) => new TextEncoder().encode(text)
 const PNG = Uint8Array.from(
   atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='),

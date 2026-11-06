@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test'
-import { fileURLToPath } from 'node:url'
 import { t } from './i18n'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { partsOf, type Question } from './exam'
@@ -26,6 +25,7 @@ import {
   createQuestionBankPdf,
   type QuestionBankPdfFontLoader,
 } from './question-bank-pdf'
+import { publicPath } from './paths'
 
 /** Read an export's record back the way import reads it: its pictures are
  *  the files beside it, as they are in its zip. */
@@ -43,11 +43,11 @@ async function pagesText(reader: Awaited<ReturnType<typeof getDocument>['promise
 }
 
 const fontFiles = {
-  regular: fileURLToPath(new URL('../public/fonts/FreeSans.ttf', import.meta.url)),
-  bold: fileURLToPath(new URL('../public/fonts/FreeSansBold.ttf', import.meta.url)),
-  italic: fileURLToPath(new URL('../public/fonts/FreeSansOblique.ttf', import.meta.url)),
-  boldItalic: fileURLToPath(new URL('../public/fonts/FreeSansBoldOblique.ttf', import.meta.url)),
-  mono: fileURLToPath(new URL('../public/fonts/FreeMono.ttf', import.meta.url)),
+  regular: publicPath('fonts/FreeSans.ttf'),
+  bold: publicPath('fonts/FreeSansBold.ttf'),
+  italic: publicPath('fonts/FreeSansOblique.ttf'),
+  boldItalic: publicPath('fonts/FreeSansBoldOblique.ttf'),
+  mono: publicPath('fonts/FreeMono.ttf'),
 } as const
 const fonts: QuestionBankPdfFontLoader = async (style) =>
   Bun.file(fontFiles[style]).arrayBuffer()
@@ -701,7 +701,7 @@ describe('Question Bank exchange export seam', () => {
   })
 
   test('draws Test Parrot’s logo atop the file and teacher.dev’s beside its credit, both linked where they belong', async () => {
-    const png = async () => new Uint8Array(await Bun.file(fileURLToPath(new URL('../public/logo.png', import.meta.url))).arrayBuffer())
+    const png = async () => new Uint8Array(await Bun.file(publicPath('logo.png')).arrayBuffer())
     const prepared = await prepareQuestionBankExport(bank([multipleChoice]))
     const plain = await createQuestionBankPdf(prepared, fonts)
     const branded = await createQuestionBankPdf(prepared, fonts, { logo: png, teacherDevLogo: png })
@@ -1105,7 +1105,7 @@ describe('a picture’s Authored Image Size and Picture Crop in Record 0.7.0', (
 
   test('a sized, cropped picture reads back as the same size and crop, with its Media Asset’s pixel size', async () => {
     const example = await Bun.file(
-      fileURLToPath(new URL('../public/formats/question-bank/0.7.0/examples/cropped-picture.json', import.meta.url)),
+      publicPath('formats/question-bank/0.7.0/examples/cropped-picture.json'),
     ).json()
     const asset = example.media[0]
     const crop = { left: 0.1, top: 0.2, right: 0.6, bottom: 0.9, width: asset.width, height: asset.height }

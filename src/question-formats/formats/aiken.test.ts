@@ -5,8 +5,9 @@ import { candidatesFor, readQuestionFile } from '..'
 import { blocksText } from '../rich-text'
 import { aiken } from './aiken'
 import { gift } from './gift'
+import { fixturePath } from '../../paths'
 
-const fixture = (path: string) => new Uint8Array(readFileSync(new URL(`../fixtures/${path}`, import.meta.url)))
+const fixture = (path: string) => new Uint8Array(readFileSync(fixturePath(`${path}`)))
 const decode = (bytes: Uint8Array) => new TextDecoder().decode(bytes)
 
 async function read(name: string, bytes: Uint8Array) {

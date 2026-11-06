@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import JSZip from 'jszip'
 import { inspectImportValue } from '../../package-import'
 import { readQuestionFile } from '..'
 import { blankAnswers, blocksText } from '../rich-text'
+import { fixturePath } from '../../paths'
 
-const fixtures = fileURLToPath(new URL('../fixtures/qti/', import.meta.url))
+const fixtures = fixturePath('qti')
 const fixture = (path: string) => new Uint8Array(readFileSync(join(fixtures, path)))
 const encode = (text: string) => new TextEncoder().encode(text)
 const PNG = Uint8Array.from(

@@ -5,8 +5,9 @@ import { readQuestionFile } from '.'
 import { blankAnswers, blocksText, plainBlocks } from './rich-text'
 import { toRecord } from './record'
 import { BLANK_MARK, type ForeignQuestion } from './types'
+import { fixturePath } from '../paths'
 
-const fixture = (path: string) => new Uint8Array(readFileSync(new URL(`./fixtures/${path}`, import.meta.url)))
+const fixture = (path: string) => new Uint8Array(readFileSync(fixturePath(`${path}`)))
 
 /** A file read, then checked by the import every Test Parrot file goes through. */
 async function read(name: string, bytes: Uint8Array) {

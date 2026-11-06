@@ -8,7 +8,6 @@
 
 import { DEFAULT_HEADER } from './page-header'
 import { describe, expect, test } from 'bun:test'
-import { fileURLToPath } from 'node:url'
 import JSZip from 'jszip'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { createExamDocx } from './docx-export'
@@ -29,6 +28,7 @@ import {
   pointsOf,
 } from './export-typography'
 import { createPublicationPdf, type PdfFontLoader } from './pdf-export'
+import { publicPath, srcPath } from './paths'
 
 const fontFile = {
   regular: 'FreeSerif.ttf',
@@ -38,7 +38,7 @@ const fontFile = {
   mono: 'FreeMono.ttf',
 } as const
 const fonts: PdfFontLoader = async (style) =>
-  Bun.file(fileURLToPath(new URL(`../public/fonts/${fontFile[style]}`, import.meta.url))).arrayBuffer()
+  Bun.file(publicPath(`fonts/${fontFile[style]}`)).arrayBuffer()
 
 function plansOfFixture(name: string) {
   const fixture = FIXTURES.find((candidate) => candidate.name === name)!
@@ -59,7 +59,7 @@ const FIXTURE = 'all four sections on one paper'
 
 describe('print’s stylesheet is the table', () => {
   // A fájl sorvége platformfüggő; a szelektorok összevetése sortörésre érzéketlen.
-  const css = Bun.file(fileURLToPath(new URL('./styles.css', import.meta.url)))
+  const css = Bun.file(srcPath('styles.css'))
     .text()
     .then((source) => source.replace(/\r\n/g, '\n'))
 

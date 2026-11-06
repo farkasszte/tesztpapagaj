@@ -3,8 +3,9 @@ import { readFileSync } from 'node:fs'
 import { inspectImportValue } from '../../package-import'
 import { readQuestionFile } from '..'
 import { blankAnswers, blocksText } from '../rich-text'
+import { fixturePath } from '../../paths'
 
-const fixture = (path: string) => new Uint8Array(readFileSync(new URL(`../fixtures/${path}`, import.meta.url)))
+const fixture = (path: string) => new Uint8Array(readFileSync(fixturePath(`${path}`)))
 const encode = (text: string) => new TextEncoder().encode(text)
 
 async function read(name: string, bytes: Uint8Array) {

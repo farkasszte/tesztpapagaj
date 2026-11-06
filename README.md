@@ -59,6 +59,17 @@ terület már külön mappában él:
   (`account-backup.ts`), a Google Drive mentés (`google-drive.ts`,
   `drive-*.ts`), valamint a régi rekordok olvasása (`stored-*.ts`).
 
+Két szabály tartja mozgathatóvá ezt a szerkezetet:
+
+- **A fájlok a projekt gyökerétől számítanak, nem a saját helyüktől.** A
+  betűtípusokat, a logót, a formátum-sémákat és a próbaanyagokat a
+  `src/paths.ts` segédei nyitják meg (`publicPath`, `srcPath`, `fixturePath`),
+  amelyek felfelé lépkedve keresik a `package.json`-t. Ha egy fájl a saját
+  helyéhez képest nyitna meg valamit (`new URL('../…', import.meta.url)`),
+  minden mozgatás csendben eltörné — ezt a `src/paths.test.ts` el is kapja.
+- **A próbaanyagok a gyökér `fixtures/` mappájában élnek**, nem a kód mellett,
+  ezért a formátumok mappái szabadon átrendezhetők.
+
 A többi fájl a `src/` gyökerében van, és a neve mondja meg, mihez tartozik:
 `export-*`/`pdf-*`/`docx-*` a kimenet, `question-bank-*` és `resource-*` a
 bankok és a gyűjtemény, `exam-*` a dolgozat, `import-*`/`package-*` a
