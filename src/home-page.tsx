@@ -27,6 +27,7 @@ export function HomePage({
   onOpenBank,
   onExportBank,
   onDeleteBank,
+  onDuplicateBank,
   onDeleteExam,
   onImport,
 }: {
@@ -40,6 +41,7 @@ export function HomePage({
   onOpenBank: (id: string) => void
   onExportBank: (bank: QuestionBankCollectionItem) => void
   onDeleteBank: (bank: QuestionBankCollectionItem) => void
+  onDuplicateBank: (bank: QuestionBankCollectionItem) => void
   onDeleteExam: (exam: RecentExam) => void
   onImport: () => void
 }) {
@@ -116,6 +118,7 @@ export function HomePage({
                 onOpen={onOpenBank}
                 onExport={onExportBank}
                 onDelete={onDeleteBank}
+                onDuplicate={onDuplicateBank}
               />
             ))}
             <NewResourceCard label={t('home.newBank')} shape="card" onClick={onNewBank} />

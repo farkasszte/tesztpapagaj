@@ -29,6 +29,7 @@ export function ResourceCollectionPage({
   onNewExam,
   onNewBank,
   onExportBank,
+  onDuplicateBank,
   onDeleteBank,
   onDeleteExam,
   onImportBank,
@@ -43,6 +44,7 @@ export function ResourceCollectionPage({
   onNewExam?: () => void
   onNewBank?: () => void
   onExportBank?: (bank: QuestionBankCollectionItem) => void
+  onDuplicateBank?: (bank: QuestionBankCollectionItem) => void
   onDeleteBank?: (bank: QuestionBankCollectionItem) => void
   onDeleteExam?: (exam: RecentExam) => void
   onImportBank?: () => void
@@ -276,6 +278,7 @@ export function ResourceCollectionPage({
                     bank={resource as QuestionBankCollectionItem}
                     onOpen={onOpenBank}
                     onExport={onExportBank}
+                    onDuplicate={onDuplicateBank}
                     onDelete={onDeleteBank}
                     folders={folders}
                     folderId={folderOfResource(resource.id)}

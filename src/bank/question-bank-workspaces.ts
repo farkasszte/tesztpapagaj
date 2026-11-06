@@ -609,6 +609,30 @@ export function createQuestionBankWorkspaceService(
     async read(id: string) {
       return readBank(await registry, id)
     },
+    /**
+     * Másolat egy kérdésbankról: ugyanazok a kérdések **új azonosítóval** (a
+     * másolat önálló bank, a kérdései nem ütközhetnek az eredetivel), a neve
+     * „(másolat)" végű, a szerzői adatok átjönnek.
+     */
+    async duplicate(id: string): Promise<QuestionBankResource | null> {
+      const source = await service.read(id)
+      if (!source) return null
+      const copy = await service.create()
+      await service.commit(copy.id, { kind: 'rename', name: t('bank.copyName', { name: source.name }) })
+      if (source.description || source.author) {
+        await service.commit(copy.id, {
+          kind: 'update-provenance',
+          provenance: { description: source.description, author: source.author },
+        })
+      }
+      if (source.questions.length > 0) {
+        await service.commit(copy.id, {
+          kind: 'create-questions',
+          questions: source.questions.map((question) => duplicateQuestion(question)),
+        })
+      }
+      return (await service.read(copy.id)) ?? copy
+    },
     async ownerOfQuestion(questionId: string): Promise<QuestionBankResource | null> {
       const database = await registry
       const transaction = database.transaction(CANONICAL_QUESTION_STORE, 'readonly')

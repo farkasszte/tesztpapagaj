@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
+  Copy,
   EllipsisVertical,
   FolderOpen,
   PictureInPicture2,
@@ -334,6 +335,7 @@ export function QuestionBankCard({
   bank,
   onOpen,
   onExport,
+  onDuplicate,
   onDelete,
   folders = [],
   folderId = null,
@@ -342,6 +344,7 @@ export function QuestionBankCard({
   bank: QuestionBankCollectionItem
   onOpen: (id: string) => void
   onExport?: (bank: QuestionBankCollectionItem) => void
+  onDuplicate?: (bank: QuestionBankCollectionItem) => void
   onDelete?: (bank: QuestionBankCollectionItem) => void
   /** A mappák, ahova tehető; üresen a menüben nincs mappa-szakasz. */
   folders?: readonly { id: string; name: string }[]
@@ -357,6 +360,16 @@ export function QuestionBankCard({
     { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(bank.id) },
     ...(popOver.supported
       ? [{ kind: 'action' as const, label: t('bank.popOver'), icon: <PictureInPicture2 />, onSelect: () => popOver.open(bank.id) }]
+      : []),
+    // A másolat az eredeti mellett jelenik meg, új azonosítókkal: a tanár
+    // ugyanarra a bankra építhet variánst anélkül, hogy az eredetit átírná.
+    ...(onDuplicate
+      ? [{
+          kind: 'action' as const,
+          label: t('bank.duplicateAction'),
+          icon: <Copy />,
+          onSelect: () => onDuplicate(bank),
+        }]
       : []),
     // Sharing a bank starts here as well as inside it: teachers looking for a
     // way to share a bank look at the bank, not in it.

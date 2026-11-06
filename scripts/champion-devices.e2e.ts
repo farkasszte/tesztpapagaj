@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type BrowserContext, type Page, type WebSocketRoute } from '@playwright/test'
 import type { ClientMessage, PeerId, RoomRole } from '../src/game/room-protocol'
 
@@ -76,8 +77,11 @@ let bankCounter = 0
 async function seedBank(page: Page): Promise<void> {
   bankCounter += 1
   const tag = `b${bankCounter}`
-  await page.goto('/about')
-  await page.evaluate(async (suffix) => {
+  // A vetés utáni navigációt a service worker újratöltése elviheti.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await go(page, '/about').catch(() => undefined)
+    try {
+      await page.evaluate(async (suffix) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
     )) as typeof import('../src/bank/question-bank-workspaces')
@@ -115,7 +119,13 @@ async function seedBank(page: Page): Promise<void> {
       kind: 'create-questions',
       questions: [question(`c1-${suffix}`), question(`c2-${suffix}`)],
     } as never)
-  }, tag)
+      }, tag)
+      return
+    } catch {
+      await page.waitForTimeout(600)
+    }
+  }
+  throw new Error('a bank vetése nem sikerült')
 }
 
 /** A tanár szobát nyit, két diák belép, a menet elindul a bajnok válaszáig. */
@@ -125,15 +135,7 @@ async function openChampionRoom(page: Page, room: Room, name: string) {
 
   await seedBank(page)
   // A vetés importja után a Vite még újratölthet: az ERR_ABORTED nem hiba.
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      await page.goto('/jatek', { waitUntil: 'domcontentloaded' })
-      break
-    } catch (error) {
-      if (attempt === 2) throw error
-      await page.waitForTimeout(400)
-    }
-  }
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Bajnok/ }).click()
   await page.getByRole('checkbox', { name: 'Diákok a saját eszközükön' }).check()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()

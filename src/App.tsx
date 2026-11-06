@@ -192,6 +192,16 @@ export default function App({
       if (resource) setExportingBank(resource)
     })
   }, [bankWorkspaces])
+  // Másolat: a bank a listán marad, az új példány „(másolat)" névvel jelenik meg
+  // mellette — a tanár innen nyithatja meg és szerkesztheti tovább.
+  const duplicateBank = useCallback((bank: QuestionBankCollectionItem) => {
+    void bankWorkspaces.duplicate(bank.id).then(async (copy) => {
+      if (!copy) return
+      const [recent, recentBanks] = await Promise.all([workspaces.recent(), bankWorkspaces.recent()])
+      setExams(recent)
+      setBankCollection(await questionBankCollection(recentBanks, bankWorkspaces, workspaces))
+    })
+  }, [bankWorkspaces, workspaces])
   const bankExportDialog = exportingBank && (
     <Suspense fallback={null}>
       <QuestionBankExportDialog
@@ -418,6 +428,7 @@ export default function App({
     onOpenBank={openBank}
     onNewBank={newBank}
     onExportBank={requestBankExport}
+    onDuplicateBank={duplicateBank}
     onDeleteBank={requestBankDeletion}
     onImportBank={() => openImport()}
     error={homeError}
@@ -446,6 +457,7 @@ export default function App({
     onNewBank={newBank}
     onOpenBank={openBank}
     onExportBank={requestBankExport}
+    onDuplicateBank={duplicateBank}
     onDeleteBank={requestBankDeletion}
     onDeleteExam={(exam) => requestExamDeletion(exam.id)}
     onImport={() => openImport()}
