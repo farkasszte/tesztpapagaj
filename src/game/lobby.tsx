@@ -22,6 +22,7 @@ export function GameLobby({
   onExit,
   onKick,
   onEditBoard,
+  split,
 }: {
   code: RoomCode
   players: LobbyPlayer[]
@@ -34,12 +35,14 @@ export function GameLobby({
   onKick?: (playerId: string) => void
   /** Vissza a tábla beosztásához (a szoba közben nyitva marad). */
   onEditBoard?: () => void
+  /** Differenciált szoba: a diák a belépésnél oldalt választ (tp#45). */
+  split?: boolean
 }) {
   const t = useT()
   const [copied, setCopied] = useState(false)
   /** A QR teljes képernyőn: a hátsó sorból is beolvasható legyen. */
   const [fullQr, setFullQr] = useState(false)
-  const url = joinUrl(window.location.origin, code)
+  const url = joinUrl(window.location.origin, code, { split })
 
   // A nagyított QR-t Esc-pel (és koppintással) be lehet zárni.
   useEffect(() => {

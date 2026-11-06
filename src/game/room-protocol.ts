@@ -94,9 +94,11 @@ export function newRoomCode(random: () => number = Math.random): RoomCode {
 }
 
 /** A diák linkje, amit a QR-kód hordoz. */
-export function joinUrl(origin: string, code: RoomCode): string {
+export function joinUrl(origin: string, code: RoomCode, options: { split?: boolean } = {}): string {
   const base = origin.replace(/\/+$/, '')
-  return `${base}/diak?kod=${code}`
+  // A differenciált szobában a diák a belépésnél oldalt választ (tp#45): ezt a
+  // link viszi, mert a szoba kódja önmagában nem mondja meg, milyen játék lesz.
+  return `${base}/diak?kod=${code}${options.split ? '&oldal=1' : ''}`
 }
 
 // ---------------------------------------------------------------------------

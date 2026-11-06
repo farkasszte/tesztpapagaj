@@ -6,6 +6,8 @@ import { ChampionStage } from './champion-stage'
 import { PerilStage } from './peril-stage'
 import { ClassicStage } from './stage'
 import { ClassicDevices } from './devices'
+import { SplitDevices } from './split/devices'
+import { pairQuestions } from './split/pair'
 import { ChampionDevices } from './champion-devices'
 import { PerilDevices } from './peril-devices'
 import { FlashcardDeck } from './flashcard-view'
@@ -28,7 +30,7 @@ import '../game.css'
  * a lista megnevezi, nem csendben hagyja ki.
  */
 
-type Mode = GameMode | 'flashcard' | 'race' | 'boss'
+type Mode = GameMode | 'flashcard' | 'race' | 'boss' | 'split'
 
 /**
  * A félbehagyott játék kérdései a mentett session-ből: a Klasszikus és a Bajnok
@@ -55,9 +57,12 @@ const MODES: { id: Mode; name: string; blurb: string; ready: boolean; tincture: 
   // kiválasztása bekapcsolja).
   { id: 'race', name: 'game.mode.race.name', blurb: 'game.mode.race.blurb', ready: true, tincture: '#2f6b4f' },
   { id: 'boss', name: 'game.mode.boss.name', blurb: 'game.mode.boss.blurb', ready: true, tincture: '#7a2f4a' },
+  // A differenciált kvíz két bankot játszik egyszerre: a diák a belépésnél
+  // választ oldalt, a pont közös (tp#45).
+  { id: 'split', name: 'game.mode.split.name', blurb: 'game.mode.split.blurb', ready: true, tincture: '#4a6b8a' },
 ] as const
 /** A módok, amelyekhez diák-eszköz kell (a napló minden választ számol). */
-const DEVICE_MODES: readonly Mode[] = ['race', 'boss'] as const
+const DEVICE_MODES: readonly Mode[] = ['race', 'boss', 'split'] as const
 
 export function GamePage({
   banks,
@@ -80,6 +85,9 @@ export function GamePage({
   const [bankId, setBankId] = useState('')
   /** Kereső a bankok között: száz fölött a legördülő nem elég. */
   const [bankFilter, setBankFilter] = useState('')
+  /** A differenciált kvíz jobb oldalának bankja (tp#45). */
+  const [bankBId, setBankBId] = useState('')
+  const [bankB, setBankB] = useState<QuestionBankResource | null>(null)
   const [bank, setBank] = useState<QuestionBankResource | null>(null)
   const [loading, setLoading] = useState(false)
   const [timerSeconds, setTimerSeconds] = useState(20)
@@ -125,11 +133,27 @@ export function GamePage({
       const wanted = initialBankId ? list.find((summary) => summary.id === initialBankId) : undefined
       if (initialBankId && !wanted) setMissingBank(true)
       setBankId((chosen) => chosen || wanted?.id || list[0]?.id || '')
+      setBankBId((chosen) => chosen || list[1]?.id || list[0]?.id || '')
     })
     return () => {
       live = false
     }
   }, [banks, initialBankId])
+
+  // A differenciált kvíz második bankja: ugyanazon a szolgáltatáson át nyílik.
+  useEffect(() => {
+    if (mode !== 'split' || !bankBId) {
+      setBankB(null)
+      return
+    }
+    let live = true
+    void banks.open(bankBId).then((opened) => {
+      if (live) setBankB(opened)
+    })
+    return () => {
+      live = false
+    }
+  }, [banks, bankBId, mode])
 
   // A kereső a **legördülő** listáját szűri, nem cseréli le: a választás
   // ugyanaz marad, csak rövidebb a lista. A kiválasztott bank mindig látszik,
@@ -185,6 +209,16 @@ export function GamePage({
   const resumed = restored
     ? { title: restored.title, questions: questionsOf(restored), words: new Map(restored.words) }
     : null
+  const playableB = useMemo(
+    () => (bankB ? playableQuestions(bankB.questions, { classic: true, shuffleAnswers: false }) : null),
+    [bankB],
+  )
+  /** A közös kör: a két oldal ugyanannyi kérdést játszik. */
+  const pairing = useMemo(
+    () => (playable && playableB ? pairQuestions(playable.questions, playableB.questions) : null),
+    [playable, playableB],
+  )
+
   const playingNow = playing && (resumed ?? (playable && bank ? { title: bank.name, questions: playable.questions, words: playable.words } : null))
   if (playingNow) {
     const source = playingNow
@@ -213,6 +247,15 @@ export function GamePage({
           onExit={exit}
           bankId={bankId}
           stage={mode}
+        />
+      ) : mode === 'split' && bankBId && bankBId !== bankId && pairing && playable && playableB && bank && bankB ? (
+        <SplitDevices
+          banks={{
+            a: { name: bank.name, questions: pairing.a, words: playable.words },
+            b: { name: bankB.name, questions: pairing.b, words: playableB.words },
+          }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle }}
+          onExit={exit}
         />
       ) : devices && mode === 'classic' ? (
         <ClassicDevices
@@ -383,6 +426,30 @@ export function GamePage({
             </select>
             <p className="gq-hint">{t('game.chooseBankHint')}</p>
           </div>
+
+          {mode === 'split' ? (
+            <div className="gq-field">
+              <label htmlFor="gq-bank-b">{t('game.split.bankB')}</label>
+              <select
+                id="gq-bank-b"
+                value={bankBId}
+                onChange={(event) => setBankBId(event.target.value)}
+                disabled={(summaries?.length ?? 0) === 0}
+              >
+                {(summaries ?? []).map((summary) => (
+                  <option key={summary.id} value={summary.id}>
+                    {summary.name} ({summary.questionCount})
+                  </option>
+                ))}
+              </select>
+              <p className="gq-hint">
+                {pairing
+                  ? t('game.split.pairCut', { count: pairing.length })
+                  : t('game.split.needsTwoBanks')}
+              </p>
+              <p className="gq-hint">{t('game.split.onlyChoice')}</p>
+            </div>
+          ) : null}
 
           {summaries && summaries.length === 0 ? <p className="gq-lead">{t('game.noBanks')}</p> : null}
           {missingBank ? (

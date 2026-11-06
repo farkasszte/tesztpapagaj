@@ -765,6 +765,80 @@ select.gq-input-small { text-align: center; }
   .gq-textsize { right: 10px; bottom: 10px; }
 }
 
+
+/* ── Differenciált kvíz (tp#45) ─────────────────────────────────────────── */
+/* Két kérdés egyszerre: a színpad két oszlopa. A váz a szokásos sötét vászon,
+   a kérdés és a válaszok a játék betűjével (Lexend). */
+.gq-split { display: flex; flex-direction: column; gap: 14px; padding: 18px 22px; }
+.gq-split-panels {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px; flex: 1; min-height: 0;
+}
+@media (max-width: 1024px) { .gq-split-panels { grid-template-columns: minmax(0, 1fr); } }
+.gq-split-panel {
+  display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: auto;
+  padding: 16px 18px; border-radius: 12px;
+  background: rgb(255 250 243 / 0.06); border: 1px solid rgb(255 250 243 / 0.16);
+}
+.gq-split-panel[data-side='a'] { border-color: rgb(47 92 140 / 0.55); }
+.gq-split-panel[data-side='b'] { border-color: rgb(108 74 134 / 0.55); }
+.gq-split-name {
+  margin: 0; display: flex; align-items: baseline; gap: 10px;
+  font-family: var(--display); font-size: clamp(17px, 1.5vw, 24px);
+  letter-spacing: 0.03em; text-transform: uppercase; color: #fffaf3;
+}
+.gq-split-round {
+  font-family: var(--display); font-size: 14px; letter-spacing: 0.06em;
+  color: rgb(255 250 243 / 0.65);
+}
+.gq-split-prompt {
+  margin: 0; font-family: var(--game-text); font-weight: 500; line-height: 1.25;
+  font-size: calc(clamp(19px, 1.9vw, 30px) * var(--gq-text, 1)); text-wrap: balance;
+  color: #fffaf3;
+}
+.gq-split-answers { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.gq-split-answer {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px;
+  background: rgb(255 250 243 / 0.08); border: 1.5px solid rgb(255 250 243 / 0.28);
+  color: #fffaf3; font-family: var(--game-text);
+  font-size: calc(clamp(15px, 1.1vw, 19px) * var(--gq-text, 1));
+}
+.gq-split-answer[data-right='true'] {
+  border-color: var(--paper); background: rgb(255 250 243 / 0.16);
+}
+.gq-split-letter {
+  flex: 0 0 26px; display: grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 999px; border: 1.5px solid rgb(255 250 243 / 0.7);
+  font-size: 13px; font-weight: 700;
+}
+.gq-split-text { min-width: 0; }
+.gq-split-answered { margin: 0; font-size: 14px; color: rgb(255 250 243 / 0.7); font-variant-numeric: tabular-nums; }
+.gq-split-board {
+  margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 14px;
+  font-size: 14px; color: rgb(255 250 243 / 0.85);
+}
+.gq-split-row { display: flex; align-items: baseline; gap: 8px; }
+.gq-split-row[data-side='a'] .gq-split-row-side { color: rgb(122 168 214); }
+.gq-split-row[data-side='b'] .gq-split-row-side { color: rgb(178 150 210); }
+.gq-split-row-name { font-weight: 600; }
+.gq-split-row-side { font-size: 12px; }
+.gq-split-row-points { font-variant-numeric: tabular-nums; }
+
+/* A diák oldalválasztója a belépő kártyán: két nagy gomb, a „0. kérdés". */
+.gq-stu-sides { margin: 0; padding: 0; border: 0; display: flex; gap: 10px; }
+.gq-stu-sides legend {
+  padding: 0; margin-bottom: 8px; font-size: 15px; font-weight: 700; color: var(--paper-ink);
+}
+.gq-stu-side {
+  flex: 1; min-height: 56px; padding: 10px 12px; border-radius: 12px;
+  border: 2px solid var(--paper-outline); background: var(--paper-surface);
+  color: var(--paper-ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.gq-stu-side[data-picked='true'] {
+  border-color: var(--paper-accent); background: var(--paper-surface-low);
+  box-shadow: 0 0 0 3px rgb(217 167 44 / 0.22);
+}
+
 /* Teljes képernyős QR: a hátsó sorból is beolvasható legyen. */
 .gq-qr-full {
   position: fixed; inset: 0; z-index: 80;

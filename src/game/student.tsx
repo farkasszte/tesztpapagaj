@@ -64,6 +64,11 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [code, setCode] = useState<RoomCode>(() => cleanRoomCode(initialCode))
   const [typedCode, setTypedCode] = useState(initialCode)
   const [nickname, setNickname] = useState('')
+  /** Differenciált szoba: a link `oldal=1`-et hoz, a diák itt választ oldalt. */
+  const [splitRoom] = useState(
+    () => new URLSearchParams(window.location.search).get('oldal') === '1',
+  )
+  const [side, setSide] = useState<'a' | 'b' | ''>('')
   const [seat, setSeat] = useState<Seat | null>(null)
   const [view, setView] = useState<StudentView | null>(null)
   const [status, setStatus] = useState<'idle' | 'connecting' | 'open' | 'denied'>('idle')
@@ -115,6 +120,9 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           live.sendReply({
             kind: 'join',
             nickname: mine?.nickname || name,
+            // Az oldal a belépés „0. kérdése" (tp#45): a tanár gépe ez alapján
+            // sorolja a diákot az egyik vagy a másik bankhoz.
+            ...(splitRoom && side ? { side } : {}),
             ...(mine ? { playerId: mine.playerId, secret: mine.secret } : {}),
           })
         },
@@ -283,11 +291,36 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
               setProblem(t('game.student.nameTooShort'))
               return
             }
+            if (splitRoom && !side) {
+              setProblem(t('game.split.sideRequired'))
+              return
+            }
             join(code, name)
           }}
         >
           <h1>{t('game.student.joinTitle')}</h1>
           <p className="gq-hint">{t('game.student.joinHint', { code: code.slice(0, 3) + ' ' + code.slice(3) })}</p>
+          {splitRoom ? (
+            <fieldset className="gq-stu-sides">
+              <legend>{t('game.split.chooseSide')}</legend>
+              {(['a', 'b'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className="gq-stu-side"
+                  data-picked={side === option ? 'true' : undefined}
+                  aria-pressed={side === option}
+                  onClick={() => {
+                    setSide(option)
+                    // A hiányzó oldal miatti üzenet ne maradjon ott a választás után.
+                    setProblem(null)
+                  }}
+                >
+                  {t(`game.split.side.${option}` as never)}
+                </button>
+              ))}
+            </fieldset>
+          ) : null}
           <label className="gq-stu-field">
             {t('game.student.nickname')}
             <input
