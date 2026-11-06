@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // A Veszély! táblájának kézi beosztása: a tanár a játék előtt dönti el, melyik
 // kérdés melyik értékes mezőre kerül (a Class Gauntlet táblaépítője nyomán).
@@ -59,7 +60,7 @@ test.beforeEach(async ({ page }) => {
 async function openSetup(page: Page) {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await seedBank(page)
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Veszély/ }).click()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
   const stage = page.getByRole('dialog', { name: 'Veszély!' })
@@ -213,7 +214,7 @@ test('húzással is a helyére kerül a kérdés', async ({ page }) => {
 test('a lobbi visszaadja a táblát, és a terv megmarad', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await seedBank(page)
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Veszély/ }).click()
   await page.getByRole('checkbox', { name: 'Diákok a saját eszközükön' }).check()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
@@ -278,7 +279,7 @@ test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre tes
     } as never)
   })
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Veszély/ }).click()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
   const stage = page.getByRole('dialog', { name: 'Veszély!' })

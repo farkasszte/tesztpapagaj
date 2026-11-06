@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // A bajnok mód magyar felületének jelképei: a nagycím ékezetei nem lógnak a
 // felső sorba, az életjelzők piros szívek, a díjalap aranytallér.
@@ -56,7 +57,7 @@ test.beforeEach(async ({ page }) => {
 async function openChampion(page: Page) {
   await page.setViewportSize({ width: 1600, height: 1024 })
   await seedBank(page, 'Bajnok bank')
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Bajnok/ }).click()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
   const stage = page.getByRole('dialog', { name: 'Bajnok' })

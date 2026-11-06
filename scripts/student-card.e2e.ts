@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test'
+import { go } from './navigate'
 
 // A diák válaszkártyája (tp#42): a pipa a betű **helyén** áll, ezért nem
 // tördeli újra a válasz szövegét, és a kártya alacsonyabb. A mérés a valódi
 // `game.css`-t használja: a `/jatek` oldal betölti a stíluslapot, a kártyát
 // utána a lapba injektáljuk — így a stílus és a geometria együtt mérhető.
 test('a diák kártyája: a pipa nem tördeli újra a szöveget', async ({ page }) => {
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.locator('.gq-stage, .gq-page, main').first()).toBeVisible()
 
   const measured = await page.evaluate(() => {

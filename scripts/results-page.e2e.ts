@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { go } from './navigate'
 
 /**
  * Játékeredmények oldal: a lejátszott vetítés utólag böngészhető.
@@ -14,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 async function seed(page: import('@playwright/test').Page) {
-  await page.goto('/about')
+  await go(page, '/about')
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
       await page.evaluate(async () => {
@@ -53,7 +54,7 @@ async function openResults(page: import('@playwright/test').Page) {
   for (let attempt = 0; attempt < 6; attempt += 1) {
     // A vetés utáni újratöltés közben a navigáció elakadhat (ERR_ABORTED):
     // ilyenkor várunk és újrapróbáljuk.
-    await page.goto('/eredmenyek').catch(() => undefined)
+    await go(page, '/eredmenyek').catch(() => undefined)
     const heading = page.getByRole('heading', { name: 'Játékeredmények' })
     if (await heading.isVisible().catch(() => false)) return
     await page.waitForTimeout(400)

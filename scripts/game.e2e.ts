@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // A kvízjáték kivetítős útja: a három mód színpada végigjátszható a tanár
 // kattintásaival, eszköz nélkül. A bankot a valódi IndexedDB-szolgáltatáson
@@ -55,7 +56,7 @@ async function seedBank(
 }
 
 async function openGame(page: Page, mode: string): Promise<void> {
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.getByRole('heading', { name: 'Quiz game' })).toBeVisible()
   if (mode !== 'Classic') await page.getByRole('button', { name: new RegExp(`^${mode}`) }).click()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
@@ -66,7 +67,7 @@ test('a klasszikus színpad végigjátszható: kérdés, felfedés, jelentés', 
     name: 'Classic bank',
     questions: [THREE('c1', 'Which gas do plants take in?'), THREE('c2', 'Which gas do plants give off?')],
   })
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.getByText('2 of 2 questions can be played.')).toBeVisible()
   await openGame(page, 'Classic')
 
@@ -207,7 +208,7 @@ test('a válaszok sorrendje kevert, és a tanár visszaadhatja a bank sorrendjé
     name: 'Answer order bank',
     questions: [THREE('k1', 'Which gas do plants take in?')],
   })
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.getByText('1 of 1 questions can be played.')).toBeVisible()
 
   /** A színpadon álló válaszok szövege, a betűjel nélkül. */

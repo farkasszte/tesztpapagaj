@@ -5,7 +5,8 @@ import {
   type Page,
   type WebSocketRoute,
 } from '@playwright/test'
-import type { ClientMessage, PeerId, RoomRole } from '../src/game/room-protocol'
+import type { ClientMessage, PeerId, RoomRole } from '../src/game/room-protocol'
+import { go } from './navigate'
 
 // A diák-eszközös út: a tanár füle futtatja a motort, a szoba-relay csak
 // továbbít. A relay helyét itt a Playwright WebSocket-útvonala veszi át: a
@@ -141,7 +142,7 @@ test('a diák a saját lapján csatlakozik, és a tanár színpadán vezet', asy
   await seedBank(page, 'Devices bank', [THREE('s1', 'Which gas do plants take in?')])
   await connectRelay(page.context())
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   // A körönkénti eredmény a diák-eszközös módhoz tartozik: a jelölő ekkor
   // jelenik meg, és a felfedés után az első ötöt írja ki.
@@ -290,7 +291,7 @@ test('több helyes válasznál a jelölés látszik, és a téves indoklás mind
   ])
   await connectRelay(page.context())
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.getByText('1 of 1 questions can be played.')).toBeVisible()
   // Rövid idő: a kérdés lejárta előtt a jelölések maguktól elmennek.
   await page.getByLabel('Time per question (seconds)').fill('5')
@@ -373,7 +374,7 @@ test('ha a relay nem érhető el, a tanár és a diák is megkapja az okot', asy
     route.fulfill({ status: 200, body: '{"ok":true}', contentType: 'application/json' }),
   )
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
@@ -408,7 +409,7 @@ test('a megoszlás bekapcsolva a betű helyén a válaszok számát mutatja', as
   await seedBank(page, 'Counts bank', [THREE('c1', 'Which gas do plants take in?')])
   await connectRelay(page.context())
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   // A megoszlás jelölője csak diák-eszközös Klasszikus módban jelenik meg: ott
   // van kitől számolni.

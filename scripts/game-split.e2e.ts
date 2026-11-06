@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
-import { connectRelay } from './room-mock'
+import { connectRelay } from './room-mock'
+import { go } from './navigate'
 
 // tp#45: differenciált kvíz — két bank egyszerre, a diák a belépésnél választ
 // oldalt. A két oldal ugyanannyi kérdést játszik: a hosszabbat a rövidebbre
@@ -73,7 +74,7 @@ test('a differenciált mód két bankot kér, és a hosszabbat a rövidebbre vá
   // A teljes készlet együtt fut: a vetés és az első betöltés lassabb lehet.
   test.setTimeout(120_000)
   await seedBanks(page)
-  await page.goto('/jatek').catch(() => undefined)
+  await go(page, '/jatek').catch(() => undefined)
 
   await page.getByRole('button', { name: /^Split quiz/ }).click()
   // Két bankválasztó: bal és jobb oldal.
@@ -127,7 +128,7 @@ test.skip('két oldal egy szobában: mindenki csak a saját kérdését látja, 
   // szoba megnyitásakor azonnal csatlakozik, és a későbbi regisztrációt a
   // Playwright már nem látja el.
   await connectRelay(page.context())
-  await page.goto('/jatek').catch(() => undefined)
+  await go(page, '/jatek').catch(() => undefined)
   await page.getByRole('button', { name: /^Split quiz/ }).click()
 
   // A két oldal bankja nevén: bal a 3 kérdéses, jobb a 2 kérdéses. A legördülő

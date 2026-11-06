@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // Mérési segéd: a Grand Prix ovál pályájának képe három futóval, hogy a
 // takarás és a méretek szemmel is ellenőrizhetők legyenek. Nem része a
@@ -64,7 +65,7 @@ test('a pálya képe három futóval', async ({ page, browser }) => {
   test.setTimeout(150_000)
   await seedBank(page)
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Grand Prix/ }).click()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 

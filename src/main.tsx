@@ -29,7 +29,11 @@ async function start() {
         navigator.serviceWorker.register('/image-worker.js').then(() => navigator.serviceWorker.ready),
         new Promise<'timeout'>((resolve) => window.setTimeout(resolve, 1500, 'timeout' as const)),
       ])
-      if (ready !== 'timeout' && !navigator.serviceWorker.controller) {
+      // Legfeljebb egyszer töltünk újra egy munkamenetben: ha a böngésző
+      // mégsem adja át a vezérlést, nem esünk végtelen újratöltésbe.
+      const reloaded = window.sessionStorage.getItem('tesztpapagaj:sw-reload') === '1'
+      if (ready !== 'timeout' && !navigator.serviceWorker.controller && !reloaded) {
+        window.sessionStorage.setItem('tesztpapagaj:sw-reload', '1')
         window.location.reload()
         return
       }

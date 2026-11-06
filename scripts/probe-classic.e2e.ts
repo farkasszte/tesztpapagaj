@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // Mérési segéd a Klasszikus színpadhoz: a felső sáv elemei nem csúszhatnak
 // egymásra, és a szövegméret-állító a kérdésre és a válaszokra is kell hasson.
@@ -53,7 +54,7 @@ test('a klasszikus felső sáv és a szövegméret', async ({ page }) => {
   test.setTimeout(90_000)
   await page.setViewportSize({ width: 1900, height: 930 })
   await seedBank(page)
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Classic/ }).click()
 
   const value = await page

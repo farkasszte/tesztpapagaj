@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // tp#47: a szövegméret állítható a színpadon és a diák telefonján. A lépcső
 // szűk (85 / 100 / 115 / 130%), csak a kérdés és a válaszok betűjét szorozza,
@@ -44,7 +45,7 @@ async function seedBank(page: Page): Promise<void> {
 
 test('a színpadon állítható a szövegméret, és megmarad újratöltés után', async ({ page }) => {
   await seedBank(page)
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
   const stage = page.locator('.gq-stage')

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // Mérési segéd a differenciált kvízhez: két diák két oldalon, kép a színpadról,
 // és mérés arra, hogy a válaszok színesek-e, illetve a betűméret-állító a
@@ -58,7 +59,7 @@ test.skip(!process.env.PROBE, 'mérési segéd — PROBE=1 nélkül kimarad')
 test('a differenciált színpad képe és színei', async ({ page, browser }) => {
   test.setTimeout(150_000)
   await seedBanks(page)
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Split quiz/ }).click()
 
   const pick = async (selector: string, name: string) => {

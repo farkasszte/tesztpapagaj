@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
-import { connectRelay } from './room-mock'
+import { connectRelay } from './room-mock'
+import { go } from './navigate'
 
 // Grand Prix és Szörnytámadás: ugyanaz a Klasszikus napló, más jelentéssel.
 // A futamban a helyes válasz távot ad (a gyors nitrót), a szörnyet a többség
@@ -55,7 +56,7 @@ async function seedBank(page: Page) {
 
 /** A tanár szobát nyit, a diák bejön, és elindul a játék. */
 async function joinRoom(page: Page, mode: RegExp) {
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('button', { name: mode }).click()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
   const lobby = page.locator('.gq-lobby')

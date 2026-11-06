@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // tp#44: száz kérdésbank fölött a legördülő nem elég — a játék oldalán a
 // bankválasztó fölött kereső szűri a listát. A kereső csak sok banknál jelenik
@@ -52,7 +53,7 @@ test('a bankok között kereső szűr, és a választott bank megmarad', async (
 
   // A vetés utáni első navigációt a service worker újratöltése elviheti
   // (`ERR_ABORTED`); a láthatóságra várás ezt helyre teszi.
-  await page.goto('/jatek').catch(() => undefined)
+  await go(page, '/jatek').catch(() => undefined)
   const search = page.getByRole('searchbox', { name: 'Search the question banks…' })
   await expect(search).toBeVisible()
 

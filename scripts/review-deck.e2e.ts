@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
-import { connectRelay } from './room-mock'
+import { connectRelay } from './room-mock'
+import { go } from './navigate'
 
 // Hibalista: a Klasszikus játék végén a tanár gépe mindenkinek kiküldi a saját
 // elrontott kérdéseit, a diák telefonja eltárolja hét napra, és a tanulókártya-
@@ -53,7 +54,7 @@ test('a játék végén a diák telefonján marad a hibalista, és átnézhető'
   await seedBank(page)
   await connectRelay(page.context())
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 

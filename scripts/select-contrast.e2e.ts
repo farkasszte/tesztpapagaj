@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+import { go } from './navigate'
 
 // A legördülő menük kontrasztja: a zárt mező szövege a saját hátterén legalább
 // 4,5:1 (WCAG AA normál szövegre), és a vásznon a mező **átlátszatlan**, mert a
@@ -103,7 +104,7 @@ test('a legördülő menük olvashatók minden képernyőn', async ({ page }) =>
   assertReadable(await page.evaluate(MEASURE), 'bank')
 
   // A játék beállításai: a bankválasztó (világos papíron).
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await expect(page.locator('.gq-setup')).toBeVisible()
   assertReadable(await page.evaluate(MEASURE), 'jatek')
 

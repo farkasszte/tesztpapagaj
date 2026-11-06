@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
-import { Room } from './room-mock'
+import { Room } from './room-mock'
+import { go } from './navigate'
 
 /**
  * Mérés: mennyi relay-üzenetet küld a tanár egy játék alatt?
@@ -73,7 +74,7 @@ test('a tanár körözéseinek száma egy játék alatt', async ({ page }) => {
     }
   })
 
-  await page.goto('/jatek')
+  await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
