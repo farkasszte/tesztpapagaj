@@ -56,3 +56,4 @@ Desktop.ini
 # Agent-skill készlet: helyben marad, a repóba nem kerül
 .agents/
 .claude/
+.scratch/
