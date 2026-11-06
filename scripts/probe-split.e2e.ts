@@ -52,6 +52,9 @@ async function seedBanks(page: Page) {
   throw new Error('a bankok vetése nem sikerült')
 }
 
+// Mérési segéd: a teljes készletben kimarad, csak `PROBE=1` mellett fut.
+test.skip(!process.env.PROBE, 'mérési segéd — PROBE=1 nélkül kimarad')
+
 test('a differenciált színpad képe és színei', async ({ page, browser }) => {
   test.setTimeout(150_000)
   await seedBanks(page)

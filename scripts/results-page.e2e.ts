@@ -50,19 +50,19 @@ async function seed(page: import('@playwright/test').Page) {
 /** A vetés utáni első betöltést a service worker újratöltése elviheti, ezért
  *  addig nyitjuk az oldalt, amíg a fejléc meg nem jelenik. */
 async function openResults(page: import('@playwright/test').Page) {
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
     // A vetés utáni újratöltés közben a navigáció elakadhat (ERR_ABORTED):
     // ilyenkor várunk és újrapróbáljuk.
     await page.goto('/eredmenyek').catch(() => undefined)
     const heading = page.getByRole('heading', { name: 'Játékeredmények' })
     if (await heading.isVisible().catch(() => false)) return
-    await page.waitForTimeout(800)
+    await page.waitForTimeout(400)
   }
 }
 
 test('a lejátszott játék eredménye böngészhető', async ({ page }) => {
   // A teljes készlet együtt fut, és a vetés utáni újratöltés lassabb lehet.
-  test.setTimeout(90_000)
+  test.setTimeout(120_000)
   await page.setViewportSize({ width: 1600, height: 1000 })
   await seed(page)
   await openResults(page)

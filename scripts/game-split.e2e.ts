@@ -70,6 +70,8 @@ async function seedBanks(page: Page): Promise<void> {
 }
 
 test('a differenciált mód két bankot kér, és a hosszabbat a rövidebbre vágja', async ({ page }) => {
+  // A teljes készlet együtt fut: a vetés és az első betöltés lassabb lehet.
+  test.setTimeout(120_000)
   await seedBanks(page)
   await page.goto('/jatek').catch(() => undefined)
 

@@ -46,6 +46,9 @@ async function seedBank(page: Page) {
   throw new Error('a bank vetése nem sikerült')
 }
 
+// Mérési segéd: a teljes készletben kimarad, csak `PROBE=1` mellett fut.
+test.skip(!process.env.PROBE, 'mérési segéd — PROBE=1 nélkül kimarad')
+
 test('a klasszikus felső sáv és a szövegméret', async ({ page }) => {
   test.setTimeout(90_000)
   await page.setViewportSize({ width: 1900, height: 930 })
