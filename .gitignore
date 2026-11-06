@@ -57,3 +57,7 @@ Desktop.ini
 .agents/
 .claude/
 .scratch/
+
+# Mérési képek a probe-spec-ekből — nem kerülnek a repóba.
+race-oval.png
+split-stage.png
