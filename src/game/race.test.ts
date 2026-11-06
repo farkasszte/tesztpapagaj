@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { RACE_LENGTH, distanceOf, raceOf } from './race'
+import { RACE_LENGTH, distanceOf, raceOf, trackPositions } from './race'
 import type { ClassicSession } from './classic/types'
 import type { Question } from './types'
 
@@ -76,5 +76,52 @@ describe('Grand Prix: táv a pont helyett', () => {
     const racers = raceOf(session([[], []]))
     expect(racers.every((racer) => racer.distance === 0)).toBe(true)
     expect(racers.map((racer) => racer.answered)).toEqual([0, 0])
+  })
+})
+
+describe('Grand Prix: egy pálya, a hely a mezőnyhöz igazodik', () => {
+  const racer = (id: string, distance: number) => ({
+    id,
+    nickname: id,
+    distance,
+    place: 1,
+    nitro: 0,
+    spunOut: 0,
+    answered: 0,
+    right: 0,
+    speed: 0,
+  })
+
+  test('a start a pálya tetején van, a negyedek a négy égtáj', () => {
+    const [start] = trackPositions([racer('a', 0)])
+    expect(start!.x).toBeCloseTo(50, 0)
+    expect(start!.y).toBeCloseTo(12, 0)
+
+    const [quarter] = trackPositions([racer('a', 25)])
+    expect(quarter!.x).toBeCloseTo(94, 0)
+    expect(quarter!.y).toBeCloseTo(50, 0)
+
+    const [half] = trackPositions([racer('a', 50)])
+    expect(half!.y).toBeCloseTo(88, 0)
+
+    const [three] = trackPositions([racer('a', 75)])
+    expect(three!.x).toBeCloseTo(6, 0)
+  })
+
+  test('a holtversenyben állók keresztirányban szétnyílnak', () => {
+    const spots = trackPositions([racer('a', 30), racer('b', 30), racer('c', 31)])
+    expect(spots).toHaveLength(3)
+    const xs = new Set(spots.map((spot) => Math.round(spot.x * 10)))
+    expect(xs.size).toBeGreaterThan(1)
+  })
+
+  test('minden futó a pálya terén belül marad', () => {
+    const spots = trackPositions([racer('a', 0), racer('b', 33), racer('c', 66), racer('d', 100)])
+    for (const spot of spots) {
+      expect(spot.x).toBeGreaterThan(0)
+      expect(spot.x).toBeLessThan(100)
+      expect(spot.y).toBeGreaterThan(0)
+      expect(spot.y).toBeLessThan(100)
+    }
   })
 })

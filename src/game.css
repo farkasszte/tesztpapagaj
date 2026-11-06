@@ -1967,3 +1967,94 @@ select.gq-input-small { text-align: center; }
 }
 .gq-boss-pip[data-on='yes'] { background: #2f5c8c; border-color: #6f9cc4; }
 .gq-boss-bites { margin-inline-start: 8px; font-size: 13px; color: rgb(245 236 220 / 0.72); }
+
+/* Grand Prix: egyetlen ovál pálya, a futók a vonalon. */
+.gq-oval {
+  position: relative;
+  width: min(100%, 72vh);
+  aspect-ratio: 1 / 0.86;
+  margin: 0 auto clamp(6px, 1vh, 14px);
+}
+
+.gq-oval svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gq-oval-road,
+.gq-oval-inner {
+  fill: none;
+  stroke: rgb(255 250 243 / 0.28);
+}
+
+.gq-oval-road {
+  stroke-width: 2.4;
+  stroke-dasharray: 1.6 1.6;
+}
+
+.gq-oval-inner {
+  stroke-width: 0.8;
+  opacity: 0.5;
+}
+
+.gq-oval-start {
+  stroke: rgb(255 250 243 / 0.9);
+  stroke-width: 1.4;
+}
+
+.gq-runner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%);
+  transition: left 320ms cubic-bezier(0.22, 1, 0.36, 1), top 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.gq-runner-dot {
+  width: clamp(12px, 1.4vw, 19px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 2px solid rgb(20 14 10 / 0.55);
+  background: inherit;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+/* A szomszédos sávban álló futó neve a pötty másik oldalára kerül. */
+.gq-runner[data-slot='1'] .gq-runner-name,
+.gq-runner[data-slot='2'] .gq-track {
+  /* A jobb alsó lebegő szövegméret-pirula ne takarja a sorok végét. */
+  padding-right: clamp(48px, 5vw, 76px);
+}
+
+.gq-runner-name {
+  order: -1;
+}
+
+.gq-runner[data-lead='yes'] .gq-runner-dot {
+  box-shadow: 0 0 0 3px rgb(255 250 243 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+.gq-track {
+  /* A jobb alsó lebegő szövegméret-pirula ne takarja a sorok végét. */
+  padding-right: clamp(48px, 5vw, 76px);
+}
+
+.gq-runner-name {
+  font-family: var(--gq-display, inherit);
+  font-size: calc(clamp(9px, 0.78vw, 13px) * var(--gq-text, 1));
+  line-height: 1.1;
+  color: rgb(255 250 243 / 0.92);
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gq-runner {
+    transition: none;
+  }
+}

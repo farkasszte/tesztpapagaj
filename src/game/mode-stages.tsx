@@ -4,7 +4,7 @@ import type { ClassicEngine } from './classic/engine'
 import { buildClassicView, type ClassicView } from './classic/views'
 import type { PlayableWords } from './projection'
 import { bossNameKey, bossOf } from './boss'
-import { raceOf } from './race'
+import { raceOf, trackPositions } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { Letter } from './shapes'
 import { useT } from '../i18n/index'
@@ -231,7 +231,36 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
       hint={hint}
       onExit={onExit}
       board={() => (
-        <ol className="gq-track" aria-label={t('game.race.standings')}>
+        <>
+          {/* Egyetlen ovál pálya: a mezőny együtt fut, a hely összemérhető. */}
+          <div className="gq-oval" aria-hidden="true">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+              <ellipse cx="50" cy="50" rx="44" ry="38" className="gq-oval-road" />
+              <ellipse cx="50" cy="50" rx="34" ry="28" className="gq-oval-inner" />
+              <line x1="50" y1="10" x2="50" y2="18" className="gq-oval-start" />
+            </svg>
+            {trackPositions(racers).map((spot, index) => {
+              const racer = racers.find((one) => one.id === spot.id)
+              return (
+                <span
+                  key={spot.id}
+                  className="gq-runner"
+                  data-lead={racer?.place === 1 ? 'yes' : undefined}
+                  data-slot={spot.slot}
+                  style={{
+                    left: `${spot.x}%`,
+                    top: `${spot.y}%`,
+                    background: TINCTURES[index % TINCTURES.length],
+                    zIndex: 100 - (racer?.place ?? 99),
+                  }}
+                >
+                  <span className="gq-runner-dot" />
+                  <span className="gq-runner-name">{racer?.nickname}</span>
+                </span>
+              )
+            })}
+          </div>
+          <ol className="gq-track" aria-label={t('game.race.standings')}>
           {racers.map((racer) => (
             <li key={racer.id} className="gq-lane" data-lead={racer.place === 1 ? 'yes' : undefined}>
               <span className="gq-lane-place">{racer.place}.</span>
@@ -252,7 +281,8 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
               ) : null}
             </li>
           ))}
-        </ol>
+          </ol>
+        </>
       )}
       outcome={
         leader ? (

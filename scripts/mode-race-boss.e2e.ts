@@ -89,6 +89,12 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await expect(lanes).toHaveCount(1)
   await expect(lanes.first()).toContainText('Panni')
 
+  // A mezőny egyetlen ovál pályán fut: egy futó, a startvonalon (fent).
+  const oval = stage.locator('.gq-oval')
+  await expect(oval).toBeVisible()
+  await expect(oval.locator('.gq-runner')).toHaveCount(1)
+  const startTop = await oval.locator('.gq-runner').evaluate((node) => node.getBoundingClientRect().top)
+
   // Helyes válasz a telefonon: a futó elindul, és nitrót kap.
   const choices = student.locator('.gq-stu-choice')
   await choices.filter({ hasText: 'Carbon dioxide' }).click()
@@ -96,6 +102,17 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await expect(lanes.first()).toContainText('%')
   const halfway = await lanes.first().locator('.gq-lane-meters').innerText()
   expect(Number(halfway.replace('%', ''))).toBeGreaterThan(0)
+
+  // A pályán is elmozdult: a futó már nem a startvonalon áll.
+  await expect
+    .poll(async () =>
+      Math.abs(
+        (await oval.locator('.gq-runner').evaluate((node) => node.getBoundingClientRect().top)) -
+          startTop,
+      ),
+    )
+    .toBeGreaterThan(10)
+  await expect(oval.locator('.gq-runner')).toHaveAttribute('data-lead', 'yes')
 
   // A második kérdésre is jó válasz: a futam végére a táv nő.
   await stage.getByRole('button', { name: 'Next question' }).click()

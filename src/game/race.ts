@@ -100,3 +100,48 @@ function findAnswer(list: ClassicAnswer[] | undefined, playerId: string): Classi
 export function raceFinished(session: ClassicSession): boolean {
   return session.phase === 'REPORT' || session.phase === 'ENDED'
 }
+
+/** Egy futó helye az ovál pályán, a pálya terének százalékában. */
+export type TrackSpot = {
+  id: string
+  x: number
+  y: number
+  /** A megtett táv (0–100), csak kijelzésre. */
+  at: number
+  /** Melyik sávban áll (0 = a vonalon, 1–2 = keresztirányban kifelé). */
+  slot: number
+}
+
+/**
+ * A mezőny **egyetlen** ovál pályán: a táv a pálya hosszának százaléka.
+ *
+ * A startvonal a pálya tetején van, az óramutató járásával egyezően haladunk.
+ * A közel azonos helyen állókat keresztirányban szétnyitjuk (legfeljebb három
+ * sávban), hogy a színpadon ne takarják egymást — ezért a hely nem tisztán
+ * geometriai, hanem a mezőnyhöz igazodik.
+ */
+export function trackPositions(racers: Racer[]): TrackSpot[] {
+  let previous = Number.NEGATIVE_INFINITY
+  let cluster = 0
+
+  return racers.map((racer) => {
+    if (Math.abs(racer.distance - previous) < 4) cluster += 1
+    else cluster = 0
+    previous = racer.distance
+
+    const at = Math.max(0, Math.min(100, racer.distance)) / 100
+    const angle = at * Math.PI * 2 - Math.PI / 2
+    // Keresztirány: a pálya érintőjére merőleges egységvektor. Egyedül álló
+    // futó a vonalon marad; a holtversenyesek [0, −, +] sávba nyílnak.
+    const slot = cluster % 3
+    const offset = [0, -7, 7][slot] ?? 0
+
+    return {
+      id: racer.id,
+      x: 50 + 44 * Math.cos(angle) - Math.sin(angle) * offset,
+      y: 50 + 38 * Math.sin(angle) + Math.cos(angle) * offset,
+      at: racer.distance,
+      slot,
+    }
+  })
+}
