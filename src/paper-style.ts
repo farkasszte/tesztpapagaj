@@ -16,7 +16,7 @@
 // Exam that never chose one prints exactly as it always did.
 
 import type { WorkSpace } from './exam'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 export type PaperStyle = 'standard' | 'classic' | 'condensed' | 'exam-board'
 

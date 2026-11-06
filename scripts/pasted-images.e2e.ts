@@ -5,7 +5,7 @@ async function activeExamDatabaseName(page: import('@playwright/test').Page) {
   // Examonkénti névben — a régi `…-exam-<id>` név üres adatbázist nyitott.
   return page.evaluate(async () => {
     const { STORAGE_NAME } = await import(
-      /* @vite-ignore */ '/src/storage-schema.ts'
+      /* @vite-ignore */ '/src/storage/storage-schema.ts'
     ) as typeof import('../src/storage-schema')
     return STORAGE_NAME
   })

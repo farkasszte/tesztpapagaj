@@ -1,5 +1,5 @@
 import { htmlBlocks, plainBlocks, richBlocks, type HtmlOptions } from '../rich-text'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { excerpt, pointsIn } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignBlank, type ForeignChoice, type ForeignImage, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult } from '../types'
 import {

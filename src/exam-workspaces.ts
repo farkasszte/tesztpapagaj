@@ -1,7 +1,7 @@
 import type { Question } from './exam'
 import type { ProseMirrorJSON } from './question-doc'
 import type { AuthoringState, SaveAsSnapshot } from './exam-store'
-import { createIndexedDBAuthoringBackend } from './indexeddb-authoring'
+import { createIndexedDBAuthoringBackend } from './storage/indexeddb-authoring'
 import { withCanonicalQuestionProjection } from './canonical-question-projection'
 import { withoutQuestions } from './question-deletion'
 import { createWorkingCopy } from './question-bank'
@@ -17,8 +17,8 @@ import {
   MEDIA_ASSET_STORE,
   STORAGE_NAME,
   STORAGE_VERSION,
-} from './storage-schema'
-import { t } from './i18n'
+} from './storage/storage-schema'
+import { t } from './i18n/index'
 
 export type ExamSummary = { id: string; createdAt: string; lastOpenedAt: string }
 type ActiveWorkspace = { key: 'active'; examId: string }

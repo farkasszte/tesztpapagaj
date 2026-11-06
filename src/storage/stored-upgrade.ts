@@ -6,8 +6,8 @@
 // writes a blank draft over the teacher's work. This is where each such rename
 // is undone on the way in, so everything downstream reads only current shapes.
 
-import type { Question } from './exam'
-import type { ProseMirrorJSON } from './question-doc'
+import type { Question } from '../exam'
+import type { ProseMirrorJSON } from '../question-doc'
 
 // The Multipart Question Type was first built as "Stimulus", and a question
 // written then carries that type and those node names.

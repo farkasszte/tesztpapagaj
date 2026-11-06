@@ -1,13 +1,13 @@
 import { useEffect, useReducer, type ReactNode } from 'react'
-import { DocView } from './doc-view'
-import type { ClassicEngine } from './game/classic/engine'
-import { buildClassicView, type ClassicView } from './game/classic/views'
-import type { PlayableWords } from './game/projection'
-import { bossNameKey, bossOf } from './game/boss'
-import { raceOf } from './game/race'
+import { DocView } from '../doc-view'
+import type { ClassicEngine } from './classic/engine'
+import { buildClassicView, type ClassicView } from './classic/views'
+import type { PlayableWords } from './projection'
+import { bossNameKey, bossOf } from './boss'
+import { raceOf } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { Letter } from './game-shapes'
-import { useT } from './i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.

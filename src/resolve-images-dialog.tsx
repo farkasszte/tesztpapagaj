@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PendingImageOccurrence, PendingImageResolution } from './pending-images'
 import { ResolveImages } from './resolve-images'
 import { prefilledPictures, resolutionOf, type Resolutions, type ResolvingSource } from './resolved-pictures'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /**
  * Resolve Images reopened after an import, for Pending Images that remain.

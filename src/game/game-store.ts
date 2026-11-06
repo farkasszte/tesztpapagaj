@@ -12,7 +12,7 @@
  * kérdésekhez.
  */
 
-import type { PlayableWords } from './game/projection'
+import type { PlayableWords } from './projection'
 
 export type GameMode = 'classic' | 'champion' | 'peril'
 

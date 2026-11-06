@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { clearSavedGame, saveGame, type SavedGame } from './game-store'
-import type { PlayableWords } from './game/projection'
+import type { PlayableWords } from './projection'
 
 /**
  * A színpad közös adatai és horgai (a rajzoló darabok a `game-parts.tsx`-ben).

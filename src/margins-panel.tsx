@@ -39,7 +39,7 @@ import {
   type PageMargins,
 } from './page-margins'
 import { scrubRaw, scrubValue, startsScrub, steppedValue, type ScrubRange } from './scrub-number'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 const SIDE_ICONS: Record<MarginSide, ReactNode> = {
   top: <PanelTop />,

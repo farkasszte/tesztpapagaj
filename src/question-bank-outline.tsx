@@ -14,7 +14,7 @@ import { AlignLeft, BookOpenText, Library, Link2, ListChecks, ListOrdered, Squar
 import { TopicSwatch } from './badges'
 import { SECTION_LABELS, SECTION_ORDER, topicsOf, type Question, type QuestionType } from './exam'
 import { topicOptions, type QuestionBankFilter } from './question-bank-view'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 const TYPE_ICONS: Record<QuestionType, ComponentType<{ 'aria-hidden'?: boolean }>> = {
   'multiple-choice': ListChecks,

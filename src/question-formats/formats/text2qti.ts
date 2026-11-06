@@ -1,5 +1,5 @@
 import type { SemanticMark, SemanticNode } from '../../question-bank-export'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { textRun } from '../rich-text'
 import { excerpt, linesOf, plainStructure, pointsIn, type Line } from '../text'
 import type { Blocks, ForeignChoice, ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'

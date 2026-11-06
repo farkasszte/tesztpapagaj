@@ -17,7 +17,7 @@ import {
   MEDIA_ASSET_STORE,
   QUESTION_BANK_WORKSPACE_STORE,
   STORAGE_NAME,
-} from './storage-schema'
+} from './storage/storage-schema'
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory()

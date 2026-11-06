@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 import { resumedClassicSession } from './resume'
 import type { ClassicSession } from './classic/types'
-import type { SavedGame } from '../game-store'
+import type { SavedGame } from './game-store'
 
 function saved(settings: Partial<ClassicSession['settings']>): SavedGame {
   const session: ClassicSession = {

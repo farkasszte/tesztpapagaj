@@ -14,7 +14,7 @@ import {
   versionCountError,
   versionNamesIn,
 } from './export-versions'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 function progressMessage(progress: PreparationProgress): string {
   return progress.stage === 'planning'

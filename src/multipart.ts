@@ -6,7 +6,7 @@ import { Plugin, TextSelection } from '@milkdown/kit/prose/state'
 import type { EditorView, NodeView } from '@milkdown/kit/prose/view'
 import { multipleChoiceEditableCtx, newMultipleChoiceNode } from './multiple-choice'
 import { parsePointsInput, readPoints } from './question-doc'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 // A Multipart question: a stem — often shared material such as a passage, a
 // quote, an image or a table — and the lettered Parts a student answers from

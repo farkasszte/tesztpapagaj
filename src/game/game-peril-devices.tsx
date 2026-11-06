@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { PerilEngine, createPerilSession } from './game/peril/engine'
-import { buildPerilView } from './game/peril/views'
-import { autoDraft, planBoard } from './game/peril-board'
+import { PerilEngine, createPerilSession } from './peril/engine'
+import { buildPerilView } from './peril/views'
+import { autoDraft, planBoard } from './peril-board'
 import {
   listTemplates,
   loadPlan,
@@ -11,16 +11,16 @@ import {
   saveTemplate,
   type PerilPlan,
   type PerilTemplate,
-} from './game/peril-plan'
+} from './peril-plan'
 import { PerilBoardBuilder } from './game-peril-builder'
-import type { PlayableWords } from './game/projection'
-import { newRoomCode, spacedRoomCode } from './game/room-protocol'
-import { connectRoom, type RoomConnection } from './game/room-client'
-import type { Question } from './game/types'
+import type { PlayableWords } from './projection'
+import { newRoomCode, spacedRoomCode } from './room-protocol'
+import { connectRoom, type RoomConnection } from './room-client'
+import type { Question } from './types'
 import { PerilStage } from './game-peril-stage'
 import { GameLobby } from './game-lobby'
 import { gameMessage } from './game-messages'
-import { useT } from './i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! diák-eszközökkel: a tanár füle a tábla, a diákok a telefonjukon.

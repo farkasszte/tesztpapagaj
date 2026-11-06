@@ -1,5 +1,5 @@
 import type { ImageTag } from './source-document'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /**
  * Every import this browser has started, newest first: the tests still

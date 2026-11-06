@@ -13,7 +13,7 @@ import { layOutColumns, subpartLabelAt } from './export-plan'
 import { bankLetter } from './matching'
 import { stemNodesOf, type ProseMirrorJSON } from './question-doc'
 import { defaultWordBank, type CopyFormat, type CopyPartFormat } from './question-copy'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import { trueFalseMarks } from './paper-style'
 
 const childrenOf = (node: ProseMirrorJSON): ProseMirrorJSON[] =>

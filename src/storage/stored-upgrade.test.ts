@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
-import { createMemoryBackend, loadExamStore, type AuthoringState } from './exam-store'
+import { createMemoryBackend, loadExamStore, type AuthoringState } from '../exam-store'
 import { upgradeStoredQuestion } from './stored-upgrade'
-import { questionOf } from './question-bank-workspaces'
-import { pointsOfQuestion } from './points'
-import type { Question } from './exam'
-import type { ProseMirrorJSON } from './question-doc'
+import { questionOf } from '../question-bank-workspaces'
+import { pointsOfQuestion } from '../points'
+import type { Question } from '../exam'
+import type { ProseMirrorJSON } from '../question-doc'
 
 const child = (node: ProseMirrorJSON, index: number) =>
   (node.content as ProseMirrorJSON[])[index]!

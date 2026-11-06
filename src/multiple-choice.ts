@@ -7,7 +7,7 @@ import type { Command } from '@milkdown/kit/prose/state'
 import { splitBlock } from '@milkdown/kit/prose/commands'
 import type { EditorView, NodeView } from '@milkdown/kit/prose/view'
 import { isLocked, type AnswerLock } from './locked-answers'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 // Whether the radio buttons can change the correct answer. Off in read-only
 // previews, on inside the question editor.

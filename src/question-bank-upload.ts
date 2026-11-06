@@ -1,5 +1,5 @@
 import type { ImportProposal } from './package-import'
-import type { FormatId } from './question-formats'
+import type { FormatId } from './question-formats/index'
 import { isQuestionFileName } from './question-formats/catalog'
 import type { ForeignImage } from './question-formats/types'
 
@@ -58,7 +58,7 @@ export function isQuestionFile(file: File): boolean {
 export async function inspectQuestionFile(file: File, options: { format?: FormatId } = {}): Promise<ImportProposal> {
   const bytes = new Uint8Array(await file.arrayBuffer())
   const [{ readQuestionFile, summaryOf }, importer] = await Promise.all([
-    import('./question-formats'),
+    import('./question-formats/index'),
     import('./package-import'),
   ])
   const reading = await readQuestionFile(

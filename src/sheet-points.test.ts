@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { setLanguage } from './i18n'
+import { setLanguage } from './i18n/index'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { QuestionView } from './exam-page'

@@ -1,7 +1,7 @@
 import { htmlBlocks } from './rich-text'
 import { excerpt } from './text'
 import type { ForeignChoice, ForeignQuestion, ImportIssue, ParseResult } from './types'
-import { t } from '../i18n'
+import { t } from '../i18n/index'
 
 /**
  * A Kahoot quiz as Kahoot's own API hands it over, read into questions.

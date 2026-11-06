@@ -2,13 +2,13 @@ import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { join } from 'node:path'
-import { accountDatabaseNames } from './account-backup'
+import { accountDatabaseNames } from './storage/account-backup'
 import { PIXEL_PNG } from './export-fixtures'
 import { initialSelection } from './import-selection'
 import { inspectImportRecord } from './package-import'
 import { mediaAssetOf, pendingImagesOf } from './pending-images'
 import { createQuestionBankWorkspaceService } from './question-bank-workspaces'
-import { MEDIA_ASSET_STORE, STORAGE_NAME } from './storage-schema'
+import { MEDIA_ASSET_STORE, STORAGE_NAME } from './storage/storage-schema'
 import {
   IMPORT_HISTORY_DATABASE,
   discardWaitingImport,

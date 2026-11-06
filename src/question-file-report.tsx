@@ -1,7 +1,7 @@
 import { AlertTriangle, Info, XCircle } from 'lucide-react'
-import type { QuestionFileSummary } from './question-formats'
+import type { QuestionFileSummary } from './question-formats/index'
 import type { ImportIssue } from './question-formats/types'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 
 /**
  * What reading a question file from another tool found, shown above its

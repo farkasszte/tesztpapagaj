@@ -1,5 +1,5 @@
 import { looksLikeHtml } from '../rich-text'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { decodeText } from '../text'
 import type { Blocks, FormatInput, FormatSpec, ParseResult, ZipFiles } from '../types'
 import { attributeOf, childOf, childrenOf, descendantsOf, documentElement, parseXml, textOf, type XmlElement } from '../xml'

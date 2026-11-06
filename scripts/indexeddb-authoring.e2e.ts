@@ -112,7 +112,7 @@ test('failed normalized write and Save transactions expose no partial state', as
   baseline.workingCopy.title = 'Last complete write'
 
   const restored = await page.evaluate(async (state: AuthoringState) => {
-    const modulePath = '/src/indexeddb-authoring.ts'
+    const modulePath = '/src/storage/indexeddb-authoring.ts'
     const { createIndexedDBAuthoringBackend } = (await import(
       /* @vite-ignore */ modulePath
     )) as typeof import('../src/indexeddb-authoring')
@@ -208,7 +208,7 @@ test('publication aborts every store when a required Media Asset is absent', asy
   // the IndexedDB probe in the navigation that registration replaces.
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   const result = await page.evaluate(async () => {
-    const authoringPath = '/src/indexeddb-authoring.ts'
+    const authoringPath = '/src/storage/indexeddb-authoring.ts'
     const preparationPath = '/src/export-preparation.ts'
     const selectedPath = '/src/selected-exam.ts'
     const planPath = '/src/export-plan.ts'

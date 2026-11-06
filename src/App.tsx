@@ -11,17 +11,17 @@ import type { ExamWorkspaceService, QuestionDeletionImpact, RecentExam } from '.
 import { type ExamDeletionSummary } from './exam-deletion'
 import { type QuestionBankResource, type QuestionBankWorkspaceService } from './question-bank-workspaces'
 import { useDriveAutoBackup } from './use-drive-autobackup'
-import { persistentStorageStatus, type PersistentStorageStatus } from './durable-storage'
+import { persistentStorageStatus, type PersistentStorageStatus } from './storage/durable-storage'
 import { BankFileDropTarget } from './bank-file-drop'
 import { questionBankCollection, type QuestionBankCollectionItem } from './resource-collections'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 import { BankDeletionConfirmation, ExamDeletionConfirmation } from './confirmations'
 
 const AboutPage = lazy(() => import('./site-pages').then((m) => ({ default: m.AboutPage })))
 const PrivacyPage = lazy(() => import('./site-pages').then((m) => ({ default: m.PrivacyPage })))
 const SettingsPage = lazy(() => import('./settings-page').then((m) => ({ default: m.SettingsPage })))
-const GamePage = lazy(() => import('./game-page').then((m) => ({ default: m.GamePage })))
-const GameStudent = lazy(() => import('./game-student').then((m) => ({ default: m.GameStudent })))
+const GamePage = lazy(() => import('./game/game-page').then((m) => ({ default: m.GamePage })))
+const GameStudent = lazy(() => import('./game/game-student').then((m) => ({ default: m.GameStudent })))
 const ResourceCollectionPage = lazy(() => import('./resource-collection-page').then((m) => ({ default: m.ResourceCollectionPage })))
 const ImportsPage = lazy(() => import('./imports-page').then((m) => ({ default: m.ImportsPage })))
 const WaitingImportPage = lazy(() => import('./imports-page').then((m) => ({ default: m.WaitingImportPage })))

@@ -307,7 +307,7 @@ test('a bank that disappears is dropped from an Exam workspace on restore', asyn
   await expect(page.getByRole('tab', { name: 'Physics' })).toHaveAttribute('aria-selected', 'true')
   await page.evaluate(async (bankId) => {
     const { QUESTION_BANK_REGISTRY_STORE, STORAGE_NAME, STORAGE_VERSION } = await import(
-      /* @vite-ignore */ '/src/storage-schema.ts'
+      /* @vite-ignore */ '/src/storage/storage-schema.ts'
     ) as typeof import('../src/storage-schema')
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open(STORAGE_NAME, STORAGE_VERSION)

@@ -1,5 +1,5 @@
 import { inMarkedOrder, markNamedBlanks, richBlocks } from '../rich-text'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { delimitedRows, excerpt, plainStructure, trimTrailingEmpty } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
 

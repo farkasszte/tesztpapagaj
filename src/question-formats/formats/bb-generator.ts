@@ -1,7 +1,7 @@
 import { plainBlocks } from '../rich-text'
 import { blocksOf, excerpt, plainStructure, type Line } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 
 /**
  * The plain text teachers type or paste into the Blackboard Test Generator —

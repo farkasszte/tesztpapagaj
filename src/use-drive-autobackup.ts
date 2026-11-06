@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { backupDue, loadDriveState } from './drive-backup'
-import { driveClientId, saveToDrive } from './drive-run'
+import { backupDue, loadDriveState } from './storage/drive-backup'
+import { driveClientId, saveToDrive } from './storage/drive-run'
 
 /**
  * Csendes mentés a megnyitáskor: ha a tanár egyszer csatlakoztatta a Drive-ot és

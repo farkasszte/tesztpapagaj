@@ -140,7 +140,7 @@ import {
   type MenuSide,
 } from './context-menu'
 import { domMeasure, imageSourcesOfDocuments } from './dom-measure'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /** Every question id across every page, in on-page (number) order. */
 function orderedQuestionIds(pages: readonly PlannedPage[]): string[] {

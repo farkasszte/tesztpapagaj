@@ -1,11 +1,11 @@
-import { EXAM_STORE } from './storage-schema'
+import { EXAM_STORE } from './storage/storage-schema'
 import {
   MEDIA_ASSET_STORE,
   STORAGE_NAME,
   STORAGE_VERSION,
-} from './storage-schema'
+} from './storage/storage-schema'
 import { pendingImageOf, type ProseMirrorJSON } from './question-doc'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 const imagePath = '/local-images/'
 const ownedReference = /^\/local-images\/[a-f0-9]{64}$/

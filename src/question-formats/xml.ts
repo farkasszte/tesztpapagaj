@@ -15,7 +15,7 @@
  * entities decode.
  */
 
-import { t } from '../i18n'
+import { t } from '../i18n/index'
 
 export type XmlElement = {
   name: string

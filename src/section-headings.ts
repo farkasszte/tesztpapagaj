@@ -14,7 +14,7 @@
 // Exam that never changed it.
 
 import type { QuestionType } from './exam'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 // The section headings and directions a school test carries. The `'open'`
 // question type prints under "Short Answer".

@@ -1,9 +1,9 @@
 import { useReducer, useState, type ReactNode } from 'react'
-import { DocView } from './doc-view'
-import { PerilEngine, createPerilSession } from './game/peril/engine'
-import { buildPerilView } from './game/peril/views'
-import type { Column, PerilSession } from './game/peril/types'
-import { autoDraft, planBoard } from './game/peril-board'
+import { DocView } from '../doc-view'
+import { PerilEngine, createPerilSession } from './peril/engine'
+import { buildPerilView } from './peril/views'
+import type { Column, PerilSession } from './peril/types'
+import { autoDraft, planBoard } from './peril-board'
 import {
   listTemplates,
   loadPlan,
@@ -12,15 +12,15 @@ import {
   saveTemplate,
   type PerilPlan,
   type PerilTemplate,
-} from './game/peril-plan'
+} from './peril-plan'
 import { PerilBoardBuilder } from './game-peril-builder'
-import type { PlayableWords } from './game/projection'
-import type { Question } from './game/types'
+import type { PlayableWords } from './projection'
+import type { Question } from './types'
 import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useStageFocusTrap, useStageKeys } from './game-parts'
 import { Letter } from './game-shapes'
 import type { SavedGame } from './game-store'
 import { gameMessage } from './game-messages'
-import { useT } from './i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! kivetítője, diákeszközök nélkül.

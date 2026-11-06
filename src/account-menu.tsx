@@ -10,14 +10,14 @@ import {
   stageRestore,
   AccountBackupError,
   type AccountManifest,
-} from './account-backup'
-import type { PersistentStorageStatus } from './durable-storage'
-import { DRIVE_CHANGED_EVENT, loadDriveState } from './drive-backup'
-import { saveToDrive } from './drive-run'
+} from './storage/account-backup'
+import type { PersistentStorageStatus } from './storage/durable-storage'
+import { DRIVE_CHANGED_EVENT, loadDriveState } from './storage/drive-backup'
+import { saveToDrive } from './storage/drive-run'
 import { useModalScrollLock } from './use-modal-scroll-lock'
 import { navigate } from './use-route'
 import './account-menu.css'
-import { getLanguage, t } from './i18n'
+import { getLanguage, t } from './i18n/index'
 
 /**
  * Where the work lives, and the way to keep it. An icon in the top bar says

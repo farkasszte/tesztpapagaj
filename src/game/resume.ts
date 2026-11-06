@@ -1,5 +1,5 @@
 import type { ClassicSession } from './classic/types';
-import type { SavedGame } from '../game-store';
+import type { SavedGame } from './game-store';
 
 /**
  * A félbehagyott játék a **mostani** megjelenítési beállításokkal folytatódik.

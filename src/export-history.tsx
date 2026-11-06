@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { exportTime } from './export-time'
 import type { ExportRecord } from './export-preparation'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 
 // A few names, then how many more, so a long batch keeps its card short.
 function versionsLabel(versions: readonly string[]): string {

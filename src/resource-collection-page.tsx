@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { RecentExam } from './exam-workspaces'
-import type { PersistentStorageStatus } from './durable-storage'
+import type { PersistentStorageStatus } from './storage/durable-storage'
 import { CreateFirstCard, ExamCard, QuestionBankCard } from './resource-cards'
 import {
   filterExamCollection,
@@ -17,7 +17,7 @@ import {
   renameFolder,
   useFolderState,
 } from './folders'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 
 export function ResourceCollectionPage({
   kind,

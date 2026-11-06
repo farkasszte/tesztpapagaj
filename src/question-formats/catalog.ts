@@ -1,5 +1,5 @@
 import type { FormatId } from './types'
-import { t } from '../i18n'
+import { t } from '../i18n/index'
 
 /**
  * What a teacher is told about the question formats Test Parrot reads, kept

@@ -1,8 +1,8 @@
 import { BackupSettings } from './account-menu'
-import { DriveSettings } from './drive-settings'
+import { DriveSettings } from './storage/drive-settings'
 import { AppShell } from './app-shell'
-import type { PersistentStorageStatus } from './durable-storage'
-import { LANGUAGE_NAMES, getLanguage, setLanguage, useT, type LanguageCode } from './i18n'
+import type { PersistentStorageStatus } from './storage/durable-storage'
+import { LANGUAGE_NAMES, getLanguage, setLanguage, useT, type LanguageCode } from './i18n/index'
 
 /**
  * Where the teacher keeps a copy of their work — and, since this is a

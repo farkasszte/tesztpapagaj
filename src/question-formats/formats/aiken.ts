@@ -1,4 +1,4 @@
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { plainBlocks } from '../rich-text'
 import { blocksOf, excerpt, plainStructure, type Line } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'

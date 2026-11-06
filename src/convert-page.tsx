@@ -1,7 +1,7 @@
 import { ImportFileDrop } from './import-file-drop'
 import { LandingHeader } from './landing-page'
 import { Footer, Link } from './site-chrome'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /**
  * The second onboarding page, for a teacher with a test already in hand. It

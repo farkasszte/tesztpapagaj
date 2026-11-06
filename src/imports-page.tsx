@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, EllipsisVertical, FileImage, FileJson, FileT
 import { AppShell } from './app-shell'
 import { DEFAULT_EXAM_TITLE } from './exam'
 import { KahootLinkField } from './kahoot-link-field'
-import type { PersistentStorageStatus } from './durable-storage'
+import type { PersistentStorageStatus } from './storage/durable-storage'
 import {
   WAITING_IMPORT_LIFETIME_MS,
   discardWaitingImport,
@@ -18,7 +18,7 @@ import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { SourceDocumentSteps } from './source-document-steps'
 import { ImportError } from './import-error'
 import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 import type { ImportProposal } from './package-import'
 
 /**

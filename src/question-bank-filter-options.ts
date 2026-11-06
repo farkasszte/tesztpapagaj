@@ -9,7 +9,7 @@ import {
   type QuestionType,
 } from './exam'
 import type { DifficultyFilter, QuestionBankSort } from './question-bank-view'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 export type FilterOption<T extends string> = { value: T; label: string }
 

@@ -4,7 +4,7 @@ import { $nodeSchema, $prose, $view } from '@milkdown/kit/utils'
 import type { Node as ProseNode } from '@milkdown/kit/prose/model'
 import { Plugin } from '@milkdown/kit/prose/state'
 import type { NodeView } from '@milkdown/kit/prose/view'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /**
  * A magyarázat: amit a felfedés után a tanár (és a kvízjáték kivetítője) megmutat

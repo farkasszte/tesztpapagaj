@@ -55,7 +55,7 @@ import {
 import { topicTint } from './topic-tint'
 import { mathPieces, type TypesetMath } from './pdf-math'
 import { MATH_SIZE, drawTypesetMath, mathTypesetter, type MathTypesetter } from './pdf-math-draw'
-import { countOf, t } from './i18n'
+import { countOf, t } from './i18n/index'
 
 /** Whether any Question holds an equation, so MathJax loads only for one. */
 const holdsMath = (questions: readonly QuestionBankRecordQuestion[]) =>

@@ -89,7 +89,7 @@ import {
   QUESTION_BANK_ATTACHMENT_NAME,
 } from './question-bank-export'
 import { PACKAGE_ZIP_ATTACHMENT_NAME, PACKAGE_ZIP_MIME_TYPE } from './package-zip'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 const PDF_MIME = 'application/pdf'
 const POINTS_PER_PX = 0.75

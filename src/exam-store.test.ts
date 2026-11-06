@@ -22,7 +22,7 @@ import type {
   ExamStore,
   SavedState,
 } from './exam-store'
-import { STORAGE_NAME } from './indexeddb-authoring'
+import { STORAGE_NAME } from './storage/indexeddb-authoring'
 import {
   DEFAULT_EXPORT_CONFIGURATION,
   prepareExport,

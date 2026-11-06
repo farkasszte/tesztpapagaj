@@ -45,6 +45,26 @@ ugyanezek átmennek; a hiba nem a kódban van.
 
 ## Hogyan épül fel
 
+A forrás mappákra bomlik aszerint, hogy mi tartozik össze. Két nagy, önálló
+terület már külön mappában él:
+
+- **`src/game/`** — a játék: a keretrendszer-független motor (`classic/`,
+  `peril/`, `race.ts`, `boss.ts`), a szoba protokollja, a színpad és a diák
+  lapja (`devices.tsx`, `stage.tsx`, `student.tsx`), a tanulókártya és a
+  játékok eredménye (`results.ts`, `results-store.ts`). Ide tartozik a
+  `game.css` is — a színpad saját stíluslapja, amelyet a diák lapja külön is
+  betölt, mert az önálló útvonalon nyílik.
+- **`src/storage/`** — mi történik az adattal: az IndexedDB sémája
+  (`storage-schema.ts`), a tartós tárolás, a fiók biztonsági másolata
+  (`account-backup.ts`), a Google Drive mentés (`google-drive.ts`,
+  `drive-*.ts`), valamint a régi rekordok olvasása (`stored-*.ts`).
+
+A többi fájl a `src/` gyökerében van, és a neve mondja meg, mihez tartozik:
+`export-*`/`pdf-*`/`docx-*` a kimenet, `question-bank-*` és `resource-*` a
+bankok és a gyűjtemény, `exam-*` a dolgozat, `import-*`/`package-*` a
+behozatal, `question-doc`/`matching`/`multiple-choice` és társaik a szerkesztő
+Milkdown-moduljai.
+
 Vite + React 19, kliensoldali SPA, szerver és fiók nélkül: a dolgozatok, a
 kérdésbankok és a képek az IndexedDB-ben maradnak a gépen. Az export DOCX-et
 (`docx`), PDF-et (`pdf-lib` + MathJax) és nyomtatási stílust állít elő, és a

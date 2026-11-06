@@ -9,19 +9,19 @@ import 'fake-indexeddb/auto'
 import { fileURLToPath } from 'node:url'
 import { IDBFactory } from 'fake-indexeddb'
 import { beforeEach, expect, test } from 'bun:test'
-import { createExamDocx } from './docx-export'
-import { createExamPdf, type PdfFontLoader } from './pdf-export'
-import { FIXTURES } from './export-fixtures'
-import { layoutFingerprint } from './export-fingerprint'
-import { LEGACY_ANSWER_BLANK, planExport, questionIndentOf, type LayoutPlan } from './export-plan'
+import { createExamDocx } from '../docx-export'
+import { createExamPdf, type PdfFontLoader } from '../pdf-export'
+import { FIXTURES } from '../export-fixtures'
+import { layoutFingerprint } from '../export-fingerprint'
+import { LEGACY_ANSWER_BLANK, planExport, questionIndentOf, type LayoutPlan } from '../export-plan'
 import { createIndexedDBAuthoringBackend } from './indexeddb-authoring'
-import type { ExportRecord } from './export-preparation'
+import type { ExportRecord } from '../export-preparation'
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory()
 })
 
-const fontFile = (name: string) => fileURLToPath(new URL(`../public/fonts/${name}`, import.meta.url))
+const fontFile = (name: string) => fileURLToPath(new URL(`../../public/fonts/${name}`, import.meta.url))
 const fonts: PdfFontLoader = async (style) => Bun.file(fontFile({
   regular: 'FreeSerif.ttf',
   bold: 'FreeSerifBold.ttf',

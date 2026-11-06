@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { joinUrl, spacedRoomCode, type RoomCode } from './game/room-protocol'
+import { joinUrl, spacedRoomCode, type RoomCode } from './room-protocol'
 import { QrCode } from './game-qr'
-import { useT } from './i18n'
+import { useT } from '../i18n/index'
 
 /**
  * A tanári lobbi: a szobakód, a QR, a bent lévők és az indítás.

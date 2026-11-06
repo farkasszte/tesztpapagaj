@@ -56,7 +56,7 @@ import {
   type QuestionBankFilter,
   type QuestionBankSort,
 } from './question-bank-view'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import { rightPercent, useQuestionStats } from './game/question-stats'
 
 /** The width the filter list is laid out at, and the gap it keeps from the

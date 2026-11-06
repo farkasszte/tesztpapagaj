@@ -37,7 +37,7 @@ import { keepMultipartParts, multipartMode, multipartPartSchema, multipartPartSt
 import { blankIcon, blankSchema, isInBlank, toggleBlank } from './blank-editor'
 import { keepSuggestedAnswer, suggestedAnswerMode, suggestedAnswerSchema, suggestedAnswerView } from './suggested-answer'
 import { explanationMode, explanationSchema, explanationView, keepExplanation } from './explanation'
-import { t, useT } from './i18n'
+import { t, useT } from './i18n/index'
 import { QUESTION_TYPE_ICONS } from './question-type-icons'
 
 /**

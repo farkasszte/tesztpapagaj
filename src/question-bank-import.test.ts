@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import { PDFDocument } from 'pdf-lib'
 import { PIXEL_PNG } from './export-fixtures'
 import { choicesOf, partsOf, promptsOf } from './exam'

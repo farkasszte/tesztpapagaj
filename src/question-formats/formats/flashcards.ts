@@ -1,5 +1,5 @@
 import { htmlBlocks, plainBlocks, richBlocks } from '../rich-text'
-import { t } from '../../i18n'
+import { t } from '../../i18n/index'
 import { delimitedRows, excerpt, plainStructure } from '../text'
 import { BLANK_MARK, type Blocks, type ForeignQuestion, type FormatInput, type FormatSpec, type ImportIssue, type ParseResult } from '../types'
 

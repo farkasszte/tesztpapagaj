@@ -116,7 +116,7 @@ import { DIFFICULTY_LABELS } from './exam'
 import type { ProseMirrorJSON } from './question-doc'
 import { BLANK_LINE } from './blank'
 import { pictureKey, printedPictureWidth } from './picture-geometry'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 const DOCX_MIME =
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'

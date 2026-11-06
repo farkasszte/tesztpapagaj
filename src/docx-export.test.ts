@@ -8,7 +8,7 @@
 // relationships and parts rather than as text about them.
 
 import { describe, expect, test } from 'bun:test'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import JSZip from 'jszip'
 import {
   createExamDocx,

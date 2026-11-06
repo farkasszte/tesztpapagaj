@@ -1,7 +1,7 @@
 import type { LayoutPlan } from './export-plan'
 import { keptPixels, pictureCropOf, pictureKey, type CropBox } from './picture-geometry'
 import type { ProseMirrorJSON } from './question-doc'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /** One decoded image, ready for an Export Adapter to embed. */
 export type ExportImage = {

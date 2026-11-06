@@ -86,7 +86,7 @@ import { selectedExam, type SelectedExam } from './selected-exam'
 import { hiddenAnswerIdsOf, varySelectedAnswers, withShownIncorrect } from './hidden-answers'
 import { withCanonicalQuestionProjection } from './canonical-question-projection'
 import { withoutQuestions } from './question-deletion'
-import { upgradeStoredQuestion } from './stored-upgrade'
+import { upgradeStoredQuestion } from './storage/stored-upgrade'
 import {
   EMPTY_EXPORT_HISTORY,
   type ExportHistory,
@@ -94,7 +94,7 @@ import {
 } from './export-preparation'
 import { wordBankLayoutFor, wordBankLayoutOf, type BankAnswerWidth } from './export-plan'
 import { clampSize } from './picture-geometry'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /** Everything authoring owns: canonical content, the selection made from it,
  *  and whether that has reached the saved state yet. */

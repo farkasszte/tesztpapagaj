@@ -9,10 +9,10 @@ import {
   createQuestionBankWorkspaceService,
   type QuestionBankResource,
 } from './question-bank-workspaces'
-import { persistentStorageStatus } from './durable-storage'
+import { persistentStorageStatus } from './storage/durable-storage'
 import { questionBankCollection } from './resource-collections'
-import { applyStagedRestore } from './account-backup'
-import { initializeLanguage, t } from './i18n'
+import { applyStagedRestore } from './storage/account-backup'
+import { initializeLanguage, t } from './i18n/index'
 import { expireWaitingImports } from './import-history'
 import { PopOverProvider } from './question-bank-pop-over'
 import './styles.css'

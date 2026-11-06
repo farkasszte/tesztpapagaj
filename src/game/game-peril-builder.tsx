@@ -10,11 +10,11 @@ import {
   TILES_PER_COLUMN,
   type BoardDraft,
   type TileSpot,
-} from './game/peril/draft'
-import { autoDraft, difficultyDraft, hasDifficulty, placedQuestions } from './game/peril-board'
-import type { PerilPlan, PerilTemplate, TroveChoice } from './game/peril-plan'
-import type { Question } from './game/types'
-import { useT } from './i18n'
+} from './peril/draft'
+import { autoDraft, difficultyDraft, hasDifficulty, placedQuestions } from './peril-board'
+import type { PerilPlan, PerilTemplate, TroveChoice } from './peril-plan'
+import type { Question } from './types'
+import { useT } from '../i18n/index'
 
 /**
  * A Veszély! táblájának kézi beosztása.

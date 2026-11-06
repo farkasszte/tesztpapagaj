@@ -10,7 +10,7 @@ import {
   setBankTarget,
   setExamAllowed,
 } from './import-selection'
-import { setLanguage } from './i18n'
+import { setLanguage } from './i18n/index'
 
 // A lábléc-mondat szerkezetét vizsgáljuk (mikor mit ír le, hány elemet sorol
 // fel), ezért ebben a fájlban angolul fut; a magyar megfogalmazást a magyar

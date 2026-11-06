@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Upload } from 'lucide-react'
 import { isQuestionFileName } from './question-formats/catalog'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /**
  * Dropping a Question Bank File anywhere on the site imports it.

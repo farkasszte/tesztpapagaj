@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import { ClipboardPaste } from 'lucide-react'
 import { SUPPORTED_SOURCES } from './question-formats/catalog'
-import { t } from './i18n'
+import { t } from './i18n/index'
 
 /** What an AI assistant converts, named first because most tests arrive as
  *  one of these. */

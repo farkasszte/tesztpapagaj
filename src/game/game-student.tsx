@@ -1,27 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ClassicView } from './game/classic/views'
-import type { View } from './game/views'
-import type { PerilView } from './game/peril/views'
-import type { Help } from './game/types'
-import { cleanRoomCode, isRoomCode, type RoomCode } from './game/room-protocol'
-import { connectRoom, relayHealthUrl, type RoomConnection } from './game/room-client'
+import type { ClassicView } from './classic/views'
+import type { View } from './views'
+import type { PerilView } from './peril/views'
+import type { Help } from './types'
+import { cleanRoomCode, isRoomCode, type RoomCode } from './room-protocol'
+import { connectRoom, relayHealthUrl, type RoomConnection } from './room-client'
 import { ClassicStudentGame } from './game-student-classic'
 import { ChampionStudentGame } from './game-student-champion'
 import { PerilStudentGame } from './game-peril-student'
 import { FlashcardDeck } from './game-flashcard'
-import type { Flashcard } from './game/flashcard'
+import type { Flashcard } from './flashcard'
 // A diák lapja önálló útvonal (lustán töltött darab), ezért maga hozza a
 // színpad stíluslapját: enélkül a kártyák színtelenül, a színpad nyelvétől
 // idegenül jelennének meg.
-import './game.css'
+import '../game.css'
 import {
   loadReviewDecks,
   removeReviewDeck,
   saveReviewDeck,
   type ReviewDeck,
   type ReviewView,
-} from './game/review-deck'
-import { useT } from './i18n'
+} from './review-deck'
+import { useT } from '../i18n/index'
 
 /**
  * A diák telefonja: belépés a kóddal, majd a kérdés és a válasz.

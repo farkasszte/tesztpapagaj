@@ -1,5 +1,5 @@
-import { DocView } from './doc-view'
-import { toProse, type RichText } from './game/rich-text'
+import { DocView } from '../doc-view'
+import { toProse, type RichText } from './rich-text'
 
 /**
  * Egy kérdés szavai a telefonon: a formázott változat, ha van, különben a sima

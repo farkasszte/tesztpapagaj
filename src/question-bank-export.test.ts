@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { fileURLToPath } from 'node:url'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { partsOf, type Question } from './exam'
 import { PIXEL_PNG, mark, paragraph, text } from './export-fixtures'

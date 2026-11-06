@@ -10,7 +10,7 @@
 // Test and diagnostic code only. Nothing in the application imports it.
 
 import JSZip from 'jszip'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import {
   line,
   renderInline,

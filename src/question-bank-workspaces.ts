@@ -1,12 +1,12 @@
 import { duplicateQuestion, type Question } from './exam'
-import { requestPersistentStorage } from './durable-storage'
+import { requestPersistentStorage } from './storage/durable-storage'
 import { collectUnusedMediaAssets } from './local-images'
 import { NO_FILTER, type QuestionBankFilter } from './question-bank-view'
 import { examDatabaseName } from './exam-workspaces'
-import { createIndexedDBAuthoringBackend } from './indexeddb-authoring'
-import { upgradeStoredQuestion } from './stored-upgrade'
+import { createIndexedDBAuthoringBackend } from './storage/indexeddb-authoring'
+import { upgradeStoredQuestion } from './storage/stored-upgrade'
 import { pointsOnQuestion, readPoints } from './points'
-import { t } from './i18n'
+import { t } from './i18n/index'
 import {
   CANONICAL_QUESTION_STORE,
   EDITOR_WORKSPACE_STORE,
@@ -17,7 +17,7 @@ import {
   MEDIA_ASSET_STORE,
   STORAGE_NAME,
   STORAGE_VERSION,
-} from './storage-schema'
+} from './storage/storage-schema'
 
 export const UNTITLED_QUESTION_BANK = 'Untitled Question Bank'
 
