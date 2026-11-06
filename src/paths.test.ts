@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fixturePath, projectRoot, publicPath, srcPath } from './paths'
 
@@ -41,6 +41,27 @@ describe('a forrás nem függ a saját helyétől', () => {
 
     // Aki ide kerül: a fájl a saját helyéhez képest nyit meg fájlt, ezért
     // bármelyik mozgatás csendben eltörné. Használja a `paths.ts` segédeit.
+    expect(offenders).toEqual([])
+  })
+
+  test('minden relatív hivatkozás létező fájlra mutat', () => {
+    // A `tsc` a `?raw`/`?url` hivatkozásokat nem ellenőrzi (azokat a Vite
+    // oldja fel), ezért egy elcsúszott `../public/extract.md?raw` csak az
+    // éles buildben derül ki — a deploy pedig csendben elmarad.
+    const offenders: string[] = []
+    const reference = /(?:from|import)\s*\(?\s*['"](\.[^'"]+)['"]/g
+    for (const path of sourceFiles(SRC)) {
+      const text = readFileSync(path, 'utf8')
+      for (const match of text.matchAll(reference)) {
+        const target = match[1].split('?')[0]
+        const absolute = join(path, '..', target)
+        const candidates = [absolute, `${absolute}.ts`, `${absolute}.tsx`, `${absolute}.json`,
+          `${absolute}.css`, join(absolute, 'index.ts'), join(absolute, 'index.tsx')]
+        if (!candidates.some((candidate) => existsSync(candidate))) {
+          offenders.push(`${path.slice(projectRoot().length + 1).replaceAll('\\', '/')} → ${match[1]}`)
+        }
+      }
+    }
     expect(offenders).toEqual([])
   })
 })
