@@ -184,7 +184,6 @@ export function ChampionStage({
 
   return (
     <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
-      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">
@@ -230,9 +229,12 @@ export function ChampionStage({
             </button>
           )
         ) : null}
-        <button type="button" className="gq-quiet" onClick={onExit}>
-          {t('game.stage.endGame')}
-        </button>
+        <span className="gq-bar-end">
+          <TextSizeControl className="gq-textsize-stage" />
+          <button type="button" className="gq-quiet" onClick={onExit}>
+            {t('game.stage.endGame')}
+          </button>
+        </span>
       </div>
 
       {notice ? <p className="gq-notice">{notice}</p> : null}

@@ -216,7 +216,6 @@ export function PerilStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
-      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">
@@ -228,9 +227,12 @@ export function PerilStage({
             </span>
           ))}
         </span>
-        <button type="button" className="gq-quiet" onClick={onExit}>
-          {t('game.stage.endGame')}
-        </button>
+        <span className="gq-bar-end">
+          <TextSizeControl className="gq-textsize-stage" />
+          <button type="button" className="gq-quiet" onClick={onExit}>
+            {t('game.stage.endGame')}
+          </button>
+        </span>
       </div>
 
       {notice ? <p className="gq-notice">{notice}</p> : null}

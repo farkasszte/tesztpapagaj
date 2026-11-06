@@ -238,7 +238,15 @@
 .gq-where {
   position: absolute; inset-inline-start: 50%; inset-block-start: 50%;
   transform: translate(-50%, -50%);
-  max-width: calc(100% - 340px);
+  /* A jobb oldali csoport (szövegméret, szünet, játék vége) helye: a kártya
+     nem csúszhat alá. */
+  max-width: calc(100% - 560px);
+}
+
+/* A fejléc jobb oldali gombfogója: a szövegméret-állító és a játékvezérlés. */
+.gq-bar-end {
+  display: flex; align-items: center; gap: 8px;
+  margin-inline-start: auto;
 }
 @media (max-width: 1279px) {
   .gq-where { position: static; transform: none; margin-inline: auto; }

@@ -139,7 +139,6 @@ export function ClassicStage({
 
   return (
     <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.title')}>
-      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         {session.noDevices || !question ? null : (
@@ -155,6 +154,8 @@ export function ClassicStage({
             ? t('game.stage.questionOf', { number: question.number, total: question.total })
             : view.title}
         </span>
+        <span className="gq-bar-end">
+          <TextSizeControl className="gq-textsize-stage" />
         {view.phase === 'QUESTION' && session.deadline !== null ? (
           <button type="button" className="gq-quiet" onClick={() => act(() => engine.pause())}>
             {t('game.stage.pause')}
@@ -168,6 +169,7 @@ export function ClassicStage({
         <button type="button" className="gq-quiet" onClick={onExit}>
           {t('game.stage.endGame')}
         </button>
+        </span>
       </div>
 
       {question && shown ? (
