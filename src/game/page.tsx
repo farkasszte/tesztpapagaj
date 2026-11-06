@@ -78,6 +78,8 @@ export function GamePage({
   )
   const [summaries, setSummaries] = useState<readonly QuestionBankSummary[] | null>(null)
   const [bankId, setBankId] = useState('')
+  /** Kereső a bankok között: száz fölött a legördülő nem elég. */
+  const [bankFilter, setBankFilter] = useState('')
   const [bank, setBank] = useState<QuestionBankResource | null>(null)
   const [loading, setLoading] = useState(false)
   const [timerSeconds, setTimerSeconds] = useState(20)
@@ -128,6 +130,27 @@ export function GamePage({
       live = false
     }
   }, [banks, initialBankId])
+
+  // A kereső a **legördülő** listáját szűri, nem cseréli le: a választás
+  // ugyanaz marad, csak rövidebb a lista. A kiválasztott bank mindig látszik,
+  // különben a legördülő értéke eltűnne a szűrés alatt.
+  const shownBanks = useMemo(() => {
+    const all = summaries ?? []
+    const needle = bankFilter.trim().toLocaleLowerCase('hu')
+    if (!needle) return all.map((summary) => ({ summary, pinned: false }))
+    const matches = all.filter((summary) => summary.name.toLocaleLowerCase('hu').includes(needle))
+    const chosen = all.find((summary) => summary.id === bankId)
+    // A kiválasztott bank a szűrés alatt is a listában marad — különben a
+    // legördülő értéke elveszne —, de **meg van jelölve**, hogy ne számoljunk
+    // vele találatként.
+    const pinned = chosen && !matches.some((summary) => summary.id === chosen.id)
+    return [
+      ...(pinned ? [{ summary: chosen, pinned: true }] : []),
+      ...matches.map((summary) => ({ summary, pinned: false })),
+    ]
+  }, [summaries, bankFilter, bankId])
+  /** Valódi találatok: a beragadt kiválasztott bank nem számít bele. */
+  const bankMatches = shownBanks.filter(({ pinned }) => !pinned).length
 
   useEffect(() => {
     if (!bankId) {
@@ -321,15 +344,40 @@ export function GamePage({
         <div>
           <div className="gq-field">
             <label htmlFor="gq-bank">{t('game.chooseBank')}</label>
+            {/* A kereső csak akkor jelenik meg, ha már sok a bank: két banknál
+                a mező csak zavarna. */}
+            {(summaries?.length ?? 0) >= 8 ? (
+              <>
+                <input
+                  id="gq-bank-search"
+                  className="gq-search"
+                  type="search"
+                  value={bankFilter}
+                  onChange={(event) => setBankFilter(event.target.value)}
+                  placeholder={t('game.bankSearch')}
+                  aria-label={t('game.bankSearch')}
+                  aria-controls="gq-bank"
+                />
+                <p className="gq-hint gq-search-count" role="status">
+                  {bankMatches === 0
+                    ? t('game.bankSearchNone')
+                    : t('game.bankSearchCount', {
+                        shown: bankMatches,
+                        total: summaries?.length ?? 0,
+                      })}
+                </p>
+              </>
+            ) : null}
             <select
               id="gq-bank"
               value={bankId}
               onChange={(event) => setBankId(event.target.value)}
-              disabled={!summaries || summaries.length === 0}
+              disabled={!summaries || summaries.length === 0 || shownBanks.length === 0}
             >
-              {(summaries ?? []).map((summary) => (
+              {shownBanks.map(({ summary, pinned }) => (
                 <option key={summary.id} value={summary.id}>
                   {summary.name} ({summary.questionCount})
+                  {pinned ? ` — ${t('game.bankSearchPinned')}` : ''}
                 </option>
               ))}
             </select>

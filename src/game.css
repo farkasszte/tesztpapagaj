@@ -135,6 +135,13 @@
 .gq-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .gq-field > label, .gq-field > .gq-label { font-size: 13px; font-weight: 700; color: var(--paper-ink-soft); }
 .gq-field select { height: 36px; padding: 0 10px; border: 1px solid var(--paper-outline); border-radius: 8px; background: var(--paper-surface); color: inherit; font: inherit; }
+/* Kereső a bankok között: ugyanaz a papír-mező, mint a legördülő, csak
+   írható. A találatszám a mező alatt áll, `role="status"`-szal. */
+.gq-field .gq-search {
+  height: 36px; padding: 0 12px; border: 1px solid var(--paper-outline); border-radius: 8px;
+  background: var(--paper-surface); color: inherit; font: inherit;
+}
+.gq-field .gq-search-count { margin: -2px 0 2px; font-variant-numeric: tabular-nums; }
 .gq-hint { margin: 0; font-size: 12px; color: var(--paper-ink-soft); }
 .gq-tally { font-size: 13px; color: var(--paper-ink-soft); }
 .gq-tally strong { color: var(--paper-accent); }
