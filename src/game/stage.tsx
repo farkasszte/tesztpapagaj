@@ -14,6 +14,7 @@ import { saveResult } from './results-store'
 import { Bell, Letter, Ring } from './shapes'
 import type { SavedGame } from './store'
 import { useT } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A kivetítés: a Klasszikus mód színpada diákeszközök nélkül.
@@ -138,6 +139,7 @@ export function ClassicStage({
 
   return (
     <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.title')}>
+      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         {session.noDevices || !question ? null : (

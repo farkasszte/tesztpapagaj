@@ -5,6 +5,7 @@ import { TINCTURES } from './parts'
 import { choiceTone, rightLetters } from './student-tone'
 import { acceptedAnswersOf, textIsRight } from './text-match'
 import { useT } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A Klasszikus mód diák-nézete: kérdés, válaszgombok, felfedés.
@@ -76,6 +77,7 @@ export function ClassicStudentGame({
 
   return (
     <div className="gq-stu">
+      <TextSizeControl />
       <header className="gq-stu-bar">
         <span className="gq-stu-name">{nickname}</span>
         {mine && !view?.theme ? (

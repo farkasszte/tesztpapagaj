@@ -3,6 +3,7 @@ import type { PerilView } from './peril/views'
 import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
 import { useT } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A Veszély! diák-nézete: csapatválasztás, mezőválasztás, buzzer, tét, válasz.
@@ -55,6 +56,7 @@ export function PerilStudentGame({
 
   return (
     <div className="gq-stu">
+      <TextSizeControl />
       <header className="gq-stu-bar">
         <span className="gq-stu-name">{nickname}</span>
         {myTeam ? <span className="gq-stu-role">{myTeam.name}</span> : null}

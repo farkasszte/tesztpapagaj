@@ -6,6 +6,7 @@ import { Heart } from './shapes'
 import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
 import { useT, type TextKey } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A Bajnok mód diák-nézete.
@@ -101,6 +102,7 @@ export function ChampionStudentGame({
 
   return (
     <div className="gq-stu">
+      <TextSizeControl />
       <header className="gq-stu-bar">
         <span className="gq-stu-name">{nickname}</span>
         <span className="gq-stu-role" data-one={isOne ? 'yes' : 'no'}>

@@ -305,11 +305,13 @@
 .gq-head { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 1024px) { .gq-head { grid-template-columns: minmax(0, 1fr) 150px; align-items: center; } }
 
+/* A `--gq-text` a tanár/diák által választott szövegméret (tp#47): csak a
+   kérdés és a válaszok betűjét szorozza, a váz nem mozdul. */
 .gq-prompt {
   margin: 0; font-family: var(--serif); font-weight: 400; line-height: 1.2;
-  font-size: clamp(28px, 3.4vw, 51px); text-wrap: balance;
+  font-size: calc(clamp(28px, 3.4vw, 51px) * var(--gq-text, 1)); text-wrap: balance;
 }
-@media (min-width: 1600px) { .gq-prompt { font-size: 51px; } }
+@media (min-width: 1600px) { .gq-prompt { font-size: calc(51px * var(--gq-text, 1)); } }
 .gq-prompt .doc-content p { margin: 0 0 0.35em; }
 .gq-prompt .doc-figure { margin: 12px 0; }
 
@@ -440,7 +442,7 @@
 }
 @media (min-width: 1600px) { .gq-answer { min-height: 138px; padding: 22px 36px; } }
 .gq-answer .doc-content {
-  font-family: var(--serif); font-weight: 700; font-size: clamp(22px, 1.7vw, 38px); line-height: 1.2;
+  font-family: var(--serif); font-weight: 700; font-size: calc(clamp(22px, 1.7vw, 38px) * var(--gq-text, 1)); line-height: 1.2;
   overflow-wrap: anywhere; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
 }
 @media (min-width: 1600px) { .gq-answer .doc-content { font-size: 38px; } }
@@ -711,6 +713,32 @@ select.gq-input-small { text-align: center; }
 }
 .gq-qr-button:focus-visible { outline: 2px solid var(--paper-accent); outline-offset: 6px; }
 
+/* A szövegméret állítója (tp#47): a sarokban lebeg, hogy a színpad és a
+   telefon elrendezését ne mozgassa. Sötét vásznon világos a pirula, a papír
+   hátterű telefonon a papír tinta. */
+.gq-textsize {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90;
+  display: flex; align-items: center; gap: 2px;
+  padding: 3px; border-radius: 999px;
+  background: rgb(20 15 12 / 0.72); border: 1px solid rgb(255 250 243 / 0.22);
+  color: #fffaf3; font-variant-numeric: tabular-nums;
+}
+.gq-textsize-button {
+  min-width: 34px; height: 30px; padding: 0 8px;
+  border: 0; border-radius: 999px; background: transparent;
+  color: inherit; font: inherit; font-weight: 700; font-size: 14px;
+  cursor: pointer;
+}
+.gq-textsize-button:not(:disabled):hover { background: rgb(255 250 243 / 0.16); }
+.gq-textsize-button:disabled { opacity: 0.4; cursor: default; }
+.gq-textsize-value { min-width: 42px; text-align: center; font-size: 13px; opacity: 0.85; }
+.gq-stu .gq-textsize {
+  background: rgb(36 28 23 / 0.06); border-color: var(--paper-outline); color: var(--paper-ink);
+}
+@media (max-width: 520px) {
+  .gq-textsize { right: 10px; bottom: 10px; }
+}
+
 /* Teljes képernyős QR: a hátsó sorból is beolvasható legyen. */
 .gq-qr-full {
   position: fixed; inset: 0; z-index: 80;
@@ -929,7 +957,7 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-stu-prompt {
-  font-size: 19px;
+  font-size: calc(19px * var(--gq-text, 1));
   line-height: 1.4;
 }
 
@@ -1051,7 +1079,7 @@ select.gq-input-small { text-align: center; }
 
 .gq-stu-choice-words {
   min-width: 0;
-  font-size: 17px;
+  font-size: calc(17px * var(--gq-text, 1));
   line-height: 1.35;
 }
 

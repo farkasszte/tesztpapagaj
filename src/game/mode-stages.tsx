@@ -8,6 +8,7 @@ import { raceOf } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { Letter } from './shapes'
 import { useT } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.
@@ -162,6 +163,7 @@ function ModeStage({
       aria-label={t(nameKey as never)}
     >
       <div className="gq-stage-bar">
+      <TextSizeControl className="gq-textsize-stage" />
         <span className="gq-mode-left">{status}</span>
         <span className="gq-where">
           <span>{title}</span>

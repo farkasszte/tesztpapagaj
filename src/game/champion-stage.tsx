@@ -13,6 +13,7 @@ import type { PlayableWords } from './projection'
 import type { Question } from './types'
 import type { SavedGame } from './store'
 import { useT, type TextKey } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A Bajnok mód kivetítője, diákeszközök nélkül.
@@ -183,6 +184,7 @@ export function ChampionStage({
 
   return (
     <div className="gq-stage" ref={trapRef} role="dialog" aria-modal="true" aria-label={t('game.mode.champion.name')}>
+      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">

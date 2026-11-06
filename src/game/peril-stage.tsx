@@ -21,6 +21,7 @@ import { Letter } from './shapes'
 import type { SavedGame } from './store'
 import { gameMessage } from './messages'
 import { useT } from '../i18n/index'
+import { TextSizeControl } from './text-size'
 
 /**
  * A Veszély! kivetítője, diákeszközök nélkül.
@@ -215,6 +216,7 @@ export function PerilStage({
 
   return (
     <div className="gq-stage" role="dialog" aria-modal="true" aria-label={t('game.mode.peril.name')}>
+      <TextSizeControl />
       <div className="gq-stage-bar">
         {status ?? <span className="gq-pin">{t('game.stage.noDevices')}</span>}
         <span className="gq-where">
