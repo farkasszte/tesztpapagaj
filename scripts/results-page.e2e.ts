@@ -61,8 +61,9 @@ async function openResults(page: import('@playwright/test').Page) {
 }
 
 test('a lejátszott játék eredménye böngészhető', async ({ page }) => {
-  // A teljes készlet együtt fut, és a vetés utáni újratöltés lassabb lehet.
-  test.setTimeout(120_000)
+  // A teljes készlet végén a böngésző és a fejlesztői szerver is elfárad: ez a
+  // spec egyedül 4-9 mp, a készlet végén viszont percet is kérhet.
+  test.setTimeout(180_000)
   await page.setViewportSize({ width: 1600, height: 1000 })
   await seed(page)
   await openResults(page)
