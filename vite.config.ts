@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { extractPage } from './extract-page'
+import { serviceWorker } from './service-worker'
 
 /**
  * Injects the Cloudflare Web Analytics beacon into the built index.html.
@@ -33,8 +34,11 @@ function cloudflareAnalytics(token: string | undefined): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   return {
-    plugins: [react(), extractPage(), cloudflareAnalytics(env.VITE_CF_BEACON_TOKEN)],
+    plugins: [react(), extractPage(), serviceWorker(), cloudflareAnalytics(env.VITE_CF_BEACON_TOKEN)],
     build: {
+      // A service worker ebből tudja, mit kell előre cache-elni (A2): a
+      // lustán töltött készlet is a héj része, különben offline nem nyílik meg.
+      manifest: 'assets-manifest.json',
       rollupOptions: {
         output: {
           manualChunks(id) {

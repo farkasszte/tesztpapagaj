@@ -26,7 +26,9 @@ async function start() {
   if ('serviceWorker' in navigator) {
     try {
       const ready = await Promise.race([
-        navigator.serviceWorker.register('/image-worker.js').then(() => navigator.serviceWorker.ready),
+        navigator.serviceWorker
+          .register(import.meta.env.PROD ? '/service-worker.js?offline=1' : '/service-worker.js')
+          .then(() => navigator.serviceWorker.ready),
         new Promise<'timeout'>((resolve) => window.setTimeout(resolve, 1500, 'timeout' as const)),
       ])
       // Legfeljebb egyszer töltünk újra egy munkamenetben: ha a böngésző
