@@ -172,6 +172,19 @@ test('a veszély! táblája mezőt nyit, és a kör végigvihető', async ({ pag
   await openGame(page, 'Peril!')
 
   const stage = page.getByRole('dialog', { name: 'Peril!' })
+  // A táblaépítőben az azonos sorban álló mezők egy magasságban ülnek, és a kártyák
+  // szélessége nem lóg ki az oszlopból (nem csúsznak egymásra a kártyák).
+  const builderSlots = await stage.locator('.gq-builder-slot').evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const rect = node.getBoundingClientRect()
+      const col = node.closest('.gq-builder-column')?.getBoundingClientRect()
+      return { top: Math.round(rect.top), colWidth: col?.width ?? 0, slotWidth: rect.width }
+    }),
+  )
+  expect(builderSlots.length).toBeGreaterThan(0)
+  for (const slot of builderSlots) {
+    expect(slot.slotWidth).toBeLessThanOrEqual(slot.colWidth + 1)
+  }
   await expect(stage).toBeVisible()
   // Két csapat, nevesítve — enélkül a tábla nem indul.
   await stage.getByLabel('Team 1').fill('Rókák')
