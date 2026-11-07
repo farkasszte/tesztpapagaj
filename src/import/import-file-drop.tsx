@@ -3,6 +3,7 @@ import { UploadCloud } from 'lucide-react'
 import { SupportedSources, TextOnlyChoices } from './import-choices'
 import { ImportError } from './import-error'
 import { routeImportFile } from './import-file-route'
+import { importStudentBankFile } from '../bank/student-bank-import'
 import { TEST_FILE_TYPES } from './source-file'
 import { navigate } from '../use-route'
 import { t } from '../i18n/index'
@@ -33,6 +34,15 @@ export function ImportFileDrop({
     const route = await routeImportFile(file)
     setReading(false)
     if (route.to === 'error') return setError(route)
+    if (route.to === 'student') {
+      try {
+        const added = await importStudentBankFile(file)
+        navigate(`/gyakorlas?bank=${encodeURIComponent(added.bankId)}`)
+      } catch (reason) {
+        setError({ message: reason instanceof Error ? reason.message : String(reason) })
+      }
+      return
+    }
     if (route.to === 'import') return onOpenImport(file)
     const id = route.to === 'waiting' ? route.waiting.id : route.waitingImportId
     navigate(`/import?id=${encodeURIComponent(id)}`)

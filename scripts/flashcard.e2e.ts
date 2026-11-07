@@ -52,10 +52,10 @@ test('a bankból indított tanulókártya megfordul, és a helyes választ mutat
   await page.setViewportSize({ width: 1440, height: 1000 })
   const bankId = await seedBank(page)
 
-  await go(page, `/question-bank?id=${bankId}`)
-  await page.getByRole('button', { name: 'Tanulókártyák ebből a bankból' }).click()
+  // A tanulókártya a játék oldaláról indul: a bank a címen jön, a mód készen.
+  await go(page, `/jatek?bank=${bankId}&mod=kartya`)
 
-  // A bank oldaláról a mód már kiválasztva érkezik; a tanár indítja a paklit.
+  // A mód már kiválasztva érkezik; a tanár indítja a paklit.
   await expect(page.getByRole('button', { name: /^Tanulókártya/ })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
 

@@ -3,6 +3,7 @@ import { checkAgainstSourceDocument, pendingImagesOf, type SourceDocumentCheck }
 import { waitingImports, type WaitingImport } from './import-history'
 import { inspectQuestionFile, inspectUploadedFile } from './question-bank-upload'
 import { kindOfFile, startWaitingImport, unsupportedFileMessage } from './source-file'
+import { isStudentBankFile } from '../bank/student-bank'
 
 /**
  * Where a file dropped to start an import goes. There is one way in, whatever
@@ -26,6 +27,8 @@ export type ImportFileRoute =
   | { to: 'waiting'; waiting: WaitingImport }
   | { to: 'answer'; waitingImportId: string }
   | { to: 'import' }
+  /** Tanulói példány: nem a szerkesztőbe kerül, hanem a gyakorlóba. */
+  | { to: 'student' }
   /** `aiMade` when the file is one an AI made and can make again. */
   | { to: 'error'; message: string; aiMade?: boolean }
 
@@ -74,6 +77,13 @@ export async function routeImportFile(file: File): Promise<ImportFileRoute> {
     }
   }
   if (kind === 'record') {
+    // Tanulói példány (base64, olvasható fejléccel): a saját útján megy.
+    try {
+      const parsed: unknown = JSON.parse(await file.text())
+      if (isStudentBankFile(parsed)) return { to: 'student' }
+    } catch {
+      // Nem JSON: a szokásos utakon próbáljuk tovább.
+    }
     let proposal: ImportProposal
     try {
       proposal = await inspectUploadedFile(file)

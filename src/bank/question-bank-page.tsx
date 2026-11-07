@@ -10,10 +10,11 @@ import { useWorkspaceDrag } from '../editor/use-workspace-drag'
 import { ResolveImagesDialog } from '../editor/resolve-images-dialog'
 import { storedPicture } from '../editor/resolved-pictures'
 import { pendingImagesOfQuestions, withStoredPictures, type PendingImageResolution, type StoredPicture } from '../editor/pending-images'
-import { FolderOpen, Import, Pencil, PictureInPicture2, Plus, Undo2, X } from 'lucide-react'
+import { Download, FolderOpen, Import, Pencil, PictureInPicture2, Plus, Undo2, X } from 'lucide-react'
 import { ContextMenu, type MenuPoint } from '../context-menu'
 import { usePopOver } from '../editor/pop-over-context'
 import { navigate } from '../use-route'
+import { exportStudentBank } from './student-bank-export'
 import type { ExamWorkspaceService, QuestionUsage } from '../exam/exam-workspaces'
 import { type QuestionBankResource, type QuestionBankSummary, type QuestionBankTabsWorkspace, type BankWorkspaceContext, closeBankTab, openBankTab, type QuestionBankWorkspaceService } from './question-bank-workspaces'
 import { AppShell } from '../app-shell'
@@ -674,7 +675,6 @@ export function QuestionBankPage({
   launchError,
   onImportInto,
   onPlay,
-  onFlashcards,
 }: {
   bank: QuestionBankResource
   bankWorkspaces: QuestionBankWorkspaceService
@@ -686,11 +686,29 @@ export function QuestionBankPage({
   onImportInto: (bankId: string) => void
   /** Elindítja a kvízjátékot ezzel a bankkal. */
   onPlay: () => void
-  /** Ugyanez tanulókártya-módban. */
-  onFlashcards: () => void
 }) {
   const t = useT()
   const [bank, setBank] = useState(initialBank)
+  /** Tanulói példány mentése: a fájl a böngészőben készül. */
+  const [exportingStudent, setExportingStudent] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  const onExportStudent = async () => {
+    setExportingStudent(true)
+    try {
+      await exportStudentBank(bank)
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : t('bank.studentExportHint'))
+    } finally {
+      setExportingStudent(false)
+    }
+  }
+
+  // Tanulói példány: nem nyitható meg szerkesztésre, a gyakorló a helye.
+  useEffect(() => {
+    if (!bank.student) return
+    navigate(`/gyakorlas?bank=${encodeURIComponent(bank.id)}`)
+  }, [bank.id, bank.student])
   const popOver = usePopOver()
   const [name, setName] = useState(initialBank.name)
   const [filter, setFilter] = useState<QuestionBankFilter>(NO_FILTER)
@@ -750,6 +768,9 @@ export function QuestionBankPage({
     }
   }
 
+  // Tanulói példány: nincs szerkesztő, nincs kérdéslista — a gyakorló a helye.
+  if (bank.student) return null
+
   return <AppShell
     crumbs={[
       { label: t('nav.home'), href: '/' },
@@ -765,14 +786,21 @@ export function QuestionBankPage({
         <button type="button" className="primary-button" onClick={onPlay}>
           {t('bank.play')}
         </button>
-        <button type="button" className="secondary-button" onClick={onFlashcards}>
-          {t('bank.flashcards')}
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={onExportStudent}
+          disabled={exportingStudent}
+          title={t('bank.studentExportHint')}
+        >
+          <Download aria-hidden="true" /> {t('bank.studentExport')}
         </button>
         <span className="bank-save-status">{t('bank.savesImmediately')}</span>
       </span>
     }
   >
     {launchError && <p className="home-error" role="alert">{launchError}</p>}
+    {exportError && <p className="home-error" role="alert">{exportError}</p>}
     {undoMessage && <p className="home-error" role="alert">{undoMessage}</p>}
     {importAnnouncement && <p className="sr-only" role="status" aria-live="polite">{importAnnouncement}</p>}
     {/* A file dropped anywhere on the page adds into this bank. */}

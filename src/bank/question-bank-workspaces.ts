@@ -39,6 +39,11 @@ export type QuestionBankProvenance = {
 export type QuestionBankResource = QuestionBankProvenance & {
   id: string
   name: string
+  /**
+   * Tanulói példány (megosztott gyakorló bank): nem szerkeszthető, nem nyitható
+   * meg — csak tanulókártya és gyakorló mód indul belőle.
+   */
+  student?: boolean
   createdAt: string
   lastUpdatedAt: string
   questions: Question[]
@@ -316,6 +321,7 @@ async function readBank(database: IDBDatabase, id: string): Promise<QuestionBank
     ...(bank.description !== undefined ? { description: bank.description } : {}),
     ...(bank.author !== undefined ? { author: bank.author } : {}),
     ...(bank.license !== undefined ? { license: { ...bank.license } } : {}),
+    ...(bank.student ? { student: true } : {}),
     createdAt: bank.createdAt,
     lastUpdatedAt: bank.lastUpdatedAt,
     questions: bank.questionIds.flatMap((questionId) => {
@@ -658,6 +664,54 @@ export function createQuestionBankWorkspaceService(
             questionIds: [],
           } satisfies StoredBank)
           transaction.objectStore(QUESTION_BANK_WORKSPACE_STORE).put({ key: 'active', bankId: bank.id } satisfies BankWorkspace)
+        },
+      )
+      return bank
+    },
+    /**
+     * Tanulói példány importja: a bank és a képei egy tranzakcióban kerülnek a
+     * tárolóba, `student: true` jelzéssel. Ez a bank nem szerkeszthető.
+     */
+    async importStudentBank(input: {
+      name: string
+      questions: Question[]
+      media: { hash: string; mimeType: string; bytes: ArrayBuffer; width: number; height: number }[]
+    }): Promise<QuestionBankResource> {
+      const timestamp = now().toISOString()
+      const bank: QuestionBankResource = {
+        id: createId(),
+        name: input.name,
+        student: true,
+        createdAt: timestamp,
+        lastUpdatedAt: timestamp,
+        questions: input.questions,
+      }
+      await transact(
+        [
+          QUESTION_BANK_REGISTRY_STORE,
+          CANONICAL_QUESTION_STORE,
+          MEDIA_ASSET_STORE,
+          QUESTION_BANK_WORKSPACE_STORE,
+        ],
+        'readwrite',
+        (transaction) => {
+          transaction.objectStore(QUESTION_BANK_REGISTRY_STORE).add({
+            id: bank.id,
+            name: bank.name,
+            student: true,
+            createdAt: bank.createdAt,
+            lastUpdatedAt: bank.lastUpdatedAt,
+            questionIds: bank.questions.map((question) => question.id),
+          } satisfies StoredBank)
+          const questionStore = transaction.objectStore(CANONICAL_QUESTION_STORE)
+          for (const question of bank.questions) {
+            questionStore.add({ ...question, bankId: bank.id } satisfies StoredQuestion)
+          }
+          const mediaStore = transaction.objectStore(MEDIA_ASSET_STORE)
+          for (const asset of input.media) mediaStore.put(asset)
+          transaction
+            .objectStore(QUESTION_BANK_WORKSPACE_STORE)
+            .put({ key: 'active', bankId: bank.id } satisfies BankWorkspace)
         },
       )
       return bank

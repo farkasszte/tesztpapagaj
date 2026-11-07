@@ -12,6 +12,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { usePopOver } from '../editor/pop-over-context'
+import { navigate } from '../use-route'
 import type { RecentExam } from '../exam/exam-workspaces'
 import type { QuestionBankCollectionItem } from './resource-collections'
 import type { PageFurniture } from '../export/export-plan'
@@ -356,14 +357,23 @@ export function QuestionBankCard({
   // every tile in a grid says "delete" far louder than a grid should.
   const [menu, setMenu] = useState<MenuPoint | null>(null)
   const popOver = usePopOver()
+  // Tanulói példány: nem szerkeszthető — a kártya a gyakorlóba visz, és a
+  // menüben nincs szerkesztés, másolat és kép-melléknézet.
+  const student = bank.student === true
+  const practiceHref = () => navigate(`/gyakorlas?bank=${encodeURIComponent(bank.id)}`)
   const items: MenuItem[] = [
-    { kind: 'action', label: t('card.open'), icon: <FolderOpen />, onSelect: () => onOpen(bank.id) },
-    ...(popOver.supported
+    {
+      kind: 'action',
+      label: t(student ? 'practice.open' : 'card.open'),
+      icon: <FolderOpen />,
+      onSelect: () => (student ? practiceHref() : onOpen(bank.id)),
+    },
+    ...(!student && popOver.supported
       ? [{ kind: 'action' as const, label: t('bank.popOver'), icon: <PictureInPicture2 />, onSelect: () => popOver.open(bank.id) }]
       : []),
     // A másolat az eredeti mellett jelenik meg, új azonosítókkal: a tanár
     // ugyanarra a bankra építhet variánst anélkül, hogy az eredetit átírná.
-    ...(onDuplicate
+    ...(!student && onDuplicate
       ? [{
           kind: 'action' as const,
           label: t('bank.duplicateAction'),
@@ -373,7 +383,7 @@ export function QuestionBankCard({
       : []),
     // Sharing a bank starts here as well as inside it: teachers looking for a
     // way to share a bank look at the bank, not in it.
-    ...(onExport
+    ...(!student && onExport
       ? [{
           kind: 'action' as const,
           label: t('bank.exportAction'),

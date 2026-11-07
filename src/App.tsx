@@ -26,6 +26,7 @@ const ResourceCollectionPage = lazy(() => import('./bank/resource-collection-pag
 const ImportsPage = lazy(() => import('./import/imports-page').then((m) => ({ default: m.ImportsPage })))
 const WaitingImportPage = lazy(() => import('./import/imports-page').then((m) => ({ default: m.WaitingImportPage })))
 const ResultsPage = lazy(() => import('./results-page').then((m) => ({ default: m.ResultsPage })))
+const PracticePage = lazy(() => import('./practice/practice-page').then((m) => ({ default: m.PracticePage })))
 const QuestionBankExportDialog = lazy(() => import('./export/question-bank-export-dialog').then((m) => ({ default: m.QuestionBankExportDialog })))
 const QuestionBankImportDialog = lazy(() => import('./import/question-bank-import-dialog').then((m) => ({ default: m.QuestionBankImportDialog })))
 const ExamEditor = lazy(() => import('./exam/exam-editor').then((m) => ({ default: m.ExamEditor })))
@@ -406,6 +407,15 @@ export default function App({
   }
   if (route === '/about') return <Suspense fallback={null}>{globalChrome}<AboutPage persistentStorage={storageStatus} /></Suspense>
   if (route === '/privacy') return <Suspense fallback={null}>{globalChrome}<PrivacyPage persistentStorage={storageStatus} /></Suspense>
+  if (route === '/gyakorlas') {
+    // A gyakorló bank a diák saját lapja: szoba, pont és tanár nélkül.
+    const practiceBank = new URLSearchParams(search).get('bank') ?? ''
+    return (
+      <Suspense fallback={null}>
+        <PracticePage bankId={practiceBank} />
+      </Suspense>
+    )
+  }
   if (route === '/eredmenyek') return <Suspense fallback={null}>{globalChrome}<ResultsPage persistentStorage={storageStatus} /></Suspense>
   if (route === '/settings') return <Suspense fallback={null}>{globalChrome}<SettingsPage persistentStorage={storageStatus} /></Suspense>
   if (route === '/exams') return <Suspense fallback={null}>{globalChrome}<ResourceCollectionPage
@@ -472,7 +482,6 @@ export default function App({
     launchError={pageBank.bank === bank ? initialError : null}
     onImportInto={(bankId) => openImport(null, bankId)}
     onPlay={() => navigate(`/jatek?bank=${pageBank.bank.id}`)}
-    onFlashcards={() => navigate(`/jatek?bank=${pageBank.bank.id}&mod=kartya`)}
   /></Suspense> : globalChrome
   return editorStore && editorId ? <Suspense fallback={globalChrome}>{globalChrome}<ExamEditor
     store={editorStore}
