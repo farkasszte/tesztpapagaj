@@ -107,7 +107,12 @@ function ImportCard({
         { kind: 'separator' },
         { kind: 'action', label: t('imports.discard'), icon: <Trash2 />, destructive: true, onSelect: onDiscard },
       ]
-    : opens.map(({ label, href, Icon }) => ({ kind: 'action', label: `Open ${label}`, icon: <Icon />, onSelect: () => window.location.assign(href) }))
+    : opens.map(({ label, href, Icon }) => ({
+        kind: 'action',
+        label: t('imports.openNamed', { name: label }),
+        icon: <Icon />,
+        onSelect: () => window.location.assign(href),
+      }))
   const caption = <>
     <ImportSheet entry={entry} />
     <span className="import-card-caption">
@@ -134,7 +139,7 @@ function ImportCard({
     {entry.stage === 'waiting'
       ? <Link href={importHref(entry.id)} className="import-card-main" aria-label={t('ui.continueFile', { file: entry.fileName })}>{caption}</Link>
       : first
-        ? <a href={first.href} className="import-card-main" aria-label={`Open ${first.label}`}>{caption}</a>
+        ? <a href={first.href} className="import-card-main" aria-label={t('imports.openNamed', { name: first.label })}>{caption}</a>
         : <div className="import-card-main">{caption}</div>}
     {items.length > 0 && (
       <button
