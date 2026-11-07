@@ -199,14 +199,18 @@ export function ContextMenu({
     // doing rather than the teacher moving the page out from under it, so
     // closing on scroll starts a frame later — otherwise a menu opened low on a
     // scrollable page closes itself the instant it appears.
+    const onScroll = (event: Event) => {
+      if (event.target && menu.current?.contains(event.target as Node)) return
+      onClose()
+    }
     const frame = requestAnimationFrame(() => {
-      window.addEventListener('scroll', onClose, true)
+      window.addEventListener('scroll', onScroll, true)
       window.addEventListener('resize', onClose)
     })
     return () => {
       cancelAnimationFrame(frame)
       document.removeEventListener('pointerdown', onPointerDown, true)
-      window.removeEventListener('scroll', onClose, true)
+      window.removeEventListener('scroll', onScroll, true)
       window.removeEventListener('resize', onClose)
     }
   }, [onClose])
@@ -298,7 +302,7 @@ export function ContextMenu({
 
   useEffect(() => {
     if (openSubmenu === null) return
-    submenuElements.current[submenuActive]?.focus()
+    submenuElements.current[submenuActive]?.focus({ preventScroll: true })
   }, [openSubmenu, submenuActive])
 
   return createPortal(

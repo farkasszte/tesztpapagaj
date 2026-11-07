@@ -158,3 +158,138 @@ test('Kezdőlap táblázat: tömeges kijelölés és csoportos törlés', async 
   await expect(bulkBar).toHaveCount(0)
 })
 
+test('Kezdőlap táblázat: több kijelölésnél az egyedi műveletek inaktívvá válnak és a sorra kattintás kijelöl', async ({ page }) => {
+  await seedResources(page)
+
+  await page.addInitScript(() => {
+    localStorage.setItem('test-parrot:home-view', 'table')
+  })
+  await go(page, '/')
+
+  const table = page.locator('.home-table')
+  await expect(table.locator('tbody tr')).toHaveCount(4)
+
+  const rows = table.locator('tbody tr')
+  const rowCheckboxes = table.locator('.home-td-select input[type="checkbox"]')
+  const openButtons = table.locator('.home-btn-open')
+  const menuButtons = table.locator('.home-btn-menu')
+
+  // 1. Initially without selection, single-item actions are enabled
+  await expect(openButtons.nth(0)).toBeEnabled()
+  await expect(menuButtons.nth(0)).toBeEnabled()
+  await expect(openButtons.nth(1)).toBeEnabled()
+  await expect(menuButtons.nth(1)).toBeEnabled()
+
+  // 2. Select first row
+  await rowCheckboxes.nth(0).click()
+  await expect(rowCheckboxes.nth(0)).toBeChecked()
+
+  // Selected row's action is enabled, unselected rows are disabled
+  await expect(openButtons.nth(0)).toBeEnabled()
+  await expect(menuButtons.nth(0)).toBeEnabled()
+  await expect(openButtons.nth(1)).toBeDisabled()
+  await expect(menuButtons.nth(1)).toBeDisabled()
+
+  // 3. Clicking on row 1 body toggles selection instead of opening the item
+  await rows.nth(1).click()
+  await expect(page).toHaveURL('/')
+  await expect(rowCheckboxes.nth(1)).toBeChecked()
+
+  // 4. Multiple selection (> 1 items): ALL single-item actions are disabled
+  await expect(openButtons.nth(0)).toBeDisabled()
+  await expect(menuButtons.nth(0)).toBeDisabled()
+  await expect(openButtons.nth(1)).toBeDisabled()
+  await expect(menuButtons.nth(1)).toBeDisabled()
+  await expect(openButtons.nth(2)).toBeDisabled()
+  await expect(menuButtons.nth(2)).toBeDisabled()
+
+  // 5. Clicking on row 0 toggles it off
+  await rows.nth(0).click()
+  await expect(rowCheckboxes.nth(0)).not.toBeChecked()
+  await expect(rowCheckboxes.nth(1)).toBeChecked()
+
+  // 6. Clear selection
+  await page.locator('.home-bulk-bar').getByRole('button', { name: /Clear selection/i }).click()
+  await expect(openButtons.nth(0)).toBeEnabled()
+  await expect(menuButtons.nth(0)).toBeEnabled()
+  await expect(openButtons.nth(1)).toBeEnabled()
+  await expect(menuButtons.nth(1)).toBeEnabled()
+})
+
+test('Kezdőlap táblázat: virtuális könyvtárak kezelése (tömeges áthelyezés, sormenü és szűrés)', async ({ page }) => {
+  await seedResources(page)
+
+  await page.addInitScript(() => {
+    localStorage.setItem('test-parrot:home-view', 'table')
+  })
+  await go(page, '/')
+
+  const table = page.locator('.home-table')
+  await expect(table.locator('tbody tr')).toHaveCount(4)
+
+  // 1. Tömeges áthelyezés új mappába (Level A)
+  const rowCheckboxes = table.locator('.home-td-select input[type="checkbox"]')
+  await rowCheckboxes.nth(0).click()
+  await rowCheckboxes.nth(1).click()
+
+  const bulkBar = page.locator('.home-bulk-bar')
+  await expect(bulkBar).toContainText('2 selected')
+
+  // Click "Move to folder" button in bulk bar
+  await bulkBar.getByRole('button', { name: /Move to folder/i }).click()
+
+  // Context menu opens: choose "+ New folder"
+  await page.getByRole('menuitem', { name: /\+ New folder/i }).first().click()
+
+  // Folder dialog opens: type name and submit
+  const dialog = page.getByRole('dialog', { name: /New folder/i })
+  await expect(dialog).toBeVisible()
+  await dialog.locator('input').fill('Midterm Exams')
+  await dialog.getByRole('button', { name: /Create/i }).click()
+
+  // Both items now carry the folder badge (Level C)
+  const badges = table.locator('.home-item-folder-badge')
+  await expect(badges).toHaveCount(2)
+  await expect(badges.first()).toContainText('Midterm Exams')
+
+  // 2. Mappa szerinti szűrés a fejlécben (Level C)
+  const folderSelect = page.locator('.home-folder-select')
+  await folderSelect.selectOption({ label: 'Midterm Exams' })
+
+  // Table now only shows the 2 items in this folder
+  await expect(table.locator('tbody tr')).toHaveCount(2)
+  await expect(table).toContainText('Algebra Midterm')
+  await expect(table).toContainText('Geometry Final')
+
+  // Rename folder via toolbar button
+  await page.locator('.home-folder-tool-btn[title="Rename"]').click()
+  const renameDialog = page.getByRole('dialog', { name: /Rename/i })
+  await expect(renameDialog).toBeVisible()
+  await renameDialog.locator('input').fill('Math Exams')
+  await renameDialog.getByRole('button', { name: /Rename/i }).click()
+
+  // Badge updated to new name
+  await expect(badges.first()).toContainText('Math Exams')
+
+  // Reset filter to All folders
+  await folderSelect.selectOption({ value: 'all' })
+  await expect(table.locator('tbody tr')).toHaveCount(4)
+
+  // 3. Egyedi áthelyezés sormenüből (Level B)
+  if (await bulkBar.isVisible()) {
+    await bulkBar.getByRole('button', { name: /Clear selection/i }).click()
+  }
+
+  // Open 3-dot menu on first row
+  const firstRowMenu = table.locator('.home-btn-menu').first()
+  await firstRowMenu.click()
+
+  // Submenu: Folder -> No folder
+  const folderMenuItem = page.getByRole('menuitem', { name: /Folder/i })
+  await folderMenuItem.hover()
+  await page.getByRole('menuitemradio', { name: /No folder/i }).click()
+
+  // First item no longer has the folder badge, second item still does
+  await expect(table.locator('.home-item-folder-badge')).toHaveCount(1)
+})
+

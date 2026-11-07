@@ -5,7 +5,7 @@ import {
   type Page,
   type WebSocketRoute,
 } from '@playwright/test'
-import type { ClientMessage, PeerId, RoomRole } from '../src/game/room-protocol'
+import type { ClientMessage, HostMessage, PeerId, RoomRole } from '../src/game/room-protocol'
 import { go } from './navigate'
 
 // A diák-eszközös út: a tanár füle futtatja a motort, a szoba-relay csak
@@ -32,7 +32,7 @@ class Room {
     socket.onMessage((raw) => {
       // Képkeret (ArrayBuffer) nem kell ehhez a forgatókönyvhöz: a kérdés szöveges.
       if (typeof raw !== 'string') return
-      const message = JSON.parse(raw) as ClientMessage
+      const message = JSON.parse(raw) as ClientMessage | HostMessage
       switch (message.type) {
         case 'hello': {
           this.seats.set(id, { socket, role: message.role })
@@ -129,7 +129,7 @@ async function seedBank(page: Page, name: string, questions: ReturnType<typeof m
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (given) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+      /* @vite-ignore */ ('/src/bank/question-bank-workspaces.ts' as string)
     )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()

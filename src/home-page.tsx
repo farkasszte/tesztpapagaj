@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   FileText,
   FolderOpen,
@@ -16,6 +16,7 @@ import {
   Copy,
   Trash2,
   PictureInPicture2,
+  Pencil,
 } from 'lucide-react'
 import type { RecentExam } from './exam/exam-workspaces'
 import type { PersistentStorageStatus } from './storage/durable-storage'
@@ -34,7 +35,19 @@ import { usePopOver } from './editor/pop-over-context'
 import { navigate } from './use-route'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { TopicBadge } from './editor/badges'
-import { BulkDeletionConfirmation } from './confirmations'
+import {
+  useFolderState,
+  foldersIn,
+  folderIn,
+  placeInFolder,
+  createFolder,
+  renameFolder,
+  removeFolder,
+  type Folder,
+  type FolderKind,
+} from './bank/folders'
+import { FolderDialog } from './bank/folder-modal'
+import { BulkDeletionConfirmation, DestructiveConfirmation } from './confirmations'
 
 function relativeTime(prefix: string, iso: string) {
   const minutes = Math.max(
@@ -65,6 +78,7 @@ type TableItem =
       questionCount: number
       date: string
       unsaved: boolean
+      folderId: string | null
       raw: RecentExam
     }
   | {
@@ -75,6 +89,7 @@ type TableItem =
       date: string
       topics: string[]
       student: boolean
+      folderId: string | null
       raw: QuestionBankCollectionItem
     }
 
@@ -124,6 +139,7 @@ export function HomePage({
 
   const handleSetView = useCallback((next: 'table' | 'cards') => {
     setView(next)
+    setSelectedKeys(new Set())
     try {
       localStorage.setItem('test-parrot:home-view', next)
     } catch {
@@ -145,6 +161,41 @@ export function HomePage({
     item: TableItem
     point: MenuPoint
   } | null>(null)
+
+  const folderState = useFolderState()
+  const examFolders = useMemo(() => foldersIn(folderState, 'exams'), [folderState])
+  const bankFolders = useMemo(() => foldersIn(folderState, 'question-banks'), [folderState])
+
+  const [folderFilter, setFolderFilter] = useState<'all' | 'none' | string>('all')
+  const [bulkMenuPoint, setBulkMenuPoint] = useState<MenuPoint | null>(null)
+  const [creatingFolderTarget, setCreatingFolderTarget] = useState<{
+    kind: FolderKind
+    resourceIds: string[]
+  } | null>(null)
+  const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null)
+  const [confirmingDeleteFolder, setConfirmingDeleteFolder] = useState<Folder | null>(null)
+
+  const hasSelection = selectedKeys.size > 0
+  const isMultiSelect = selectedKeys.size > 1
+
+  const toggleSelect = useCallback((item: TableItem) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev)
+      const key = `${item.kind}-${item.id}`
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }, [])
+
+  useEffect(() => {
+    if (activeMenu) {
+      const isSelected = selectedKeys.has(`${activeMenu.item.kind}-${activeMenu.item.id}`)
+      if (selectedKeys.size > 1 || (selectedKeys.size > 0 && !isSelected)) {
+        setActiveMenu(null)
+      }
+    }
+  }, [activeMenu, selectedKeys])
 
   const practiceHref = useCallback(
     (id: string) => navigate(`/gyakorlas?bank=${encodeURIComponent(id)}`),
@@ -172,6 +223,7 @@ export function HomePage({
       questionCount: exam.questionCount,
       date: exam.lastOpenedAt,
       unsaved: exam.unsaved,
+      folderId: folderIn(folderState, 'exams', exam.id),
       raw: exam,
     }))
 
@@ -183,20 +235,50 @@ export function HomePage({
       date: bank.lastUpdatedAt,
       topics: bank.topics || [],
       student: bank.student === true,
+      folderId: folderIn(folderState, 'question-banks', bank.id),
       raw: bank,
     }))
 
     return [...examItems, ...bankItems]
-  }, [exams, banks, tHook])
+  }, [exams, banks, folderState, tHook])
 
   const selectedItems = useMemo(() => {
     return allItems.filter((item) => selectedKeys.has(`${item.kind}-${item.id}`))
   }, [allItems, selectedKeys])
 
+  const availableFolders = useMemo(() => {
+    if (tab === 'exams') return examFolders
+    if (tab === 'banks') return bankFolders
+    const seen = new Set<string>()
+    const merged: Folder[] = []
+    for (const f of [...examFolders, ...bankFolders]) {
+      if (!seen.has(f.id)) {
+        seen.add(f.id)
+        merged.push(f)
+      }
+    }
+    return merged
+  }, [tab, examFolders, bankFolders])
+
+  useEffect(() => {
+    if (folderFilter !== 'all' && folderFilter !== 'none') {
+      const exists = availableFolders.some((f) => f.id === folderFilter)
+      if (!exists) setFolderFilter('all')
+    }
+  }, [folderFilter, availableFolders])
+
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
       if (tab === 'exams' && item.kind !== 'exam') return false
       if (tab === 'banks' && item.kind !== 'bank') return false
+
+      if (folderFilter !== 'all') {
+        if (folderFilter === 'none') {
+          if (item.folderId !== null) return false
+        } else {
+          if (item.folderId !== folderFilter) return false
+        }
+      }
 
       const q = query.trim().toLowerCase()
       if (!q) return true
@@ -207,7 +289,7 @@ export function HomePage({
       }
       return false
     })
-  }, [allItems, tab, query])
+  }, [allItems, tab, folderFilter, query])
 
   const sortedItems = useMemo(() => {
     const items = [...filteredItems]
@@ -239,6 +321,40 @@ export function HomePage({
   const menuItems: MenuItem[] = useMemo(() => {
     if (!activeMenu) return []
     const { item } = activeMenu
+    const itemKind: FolderKind = item.kind === 'exam' ? 'exams' : 'question-banks'
+    const itemFolders = foldersIn(folderState, itemKind)
+    const currentFolderId = item.folderId
+
+    const folderSubmenu: MenuItem = {
+      kind: 'submenu',
+      label: t('folder.move'),
+      icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+      items: [
+        {
+          kind: 'radio',
+          label: t('folder.none'),
+          checked: currentFolderId === null,
+          onSelect: () => placeInFolder(itemKind, item.id, null),
+        },
+        ...itemFolders.map((f) => ({
+          kind: 'radio' as const,
+          label: f.name,
+          checked: currentFolderId === f.id,
+          onSelect: () => placeInFolder(itemKind, item.id, f.id),
+        })),
+        {
+          kind: 'action',
+          label: `+ ${t('folder.new')}`,
+          onSelect: () => {
+            setCreatingFolderTarget({
+              kind: itemKind,
+              resourceIds: [item.id],
+            })
+          },
+        },
+      ],
+    }
+
     if (item.kind === 'exam') {
       return [
         {
@@ -247,6 +363,7 @@ export function HomePage({
           icon: <FolderOpen />,
           onSelect: () => onOpen(item.id),
         },
+        folderSubmenu,
         { kind: 'separator' },
         {
           kind: 'action',
@@ -266,6 +383,7 @@ export function HomePage({
         icon: <FolderOpen />,
         onSelect: () => (student ? practiceHref(item.id) : onOpenBank(item.id)),
       },
+      folderSubmenu,
       ...(!student && popOver.supported
         ? [
             {
@@ -304,6 +422,7 @@ export function HomePage({
     ]
   }, [
     activeMenu,
+    folderState,
     onOpen,
     onOpenBank,
     onDeleteExam,
@@ -313,6 +432,123 @@ export function HomePage({
     practiceHref,
     popOver,
   ])
+
+  const bulkFolderMenuItems: MenuItem[] = useMemo(() => {
+    if (selectedItems.length === 0) return []
+    const hasExams = selectedItems.some((i) => i.kind === 'exam')
+    const hasBanks = selectedItems.some((i) => i.kind === 'bank')
+
+    const moveSelected = (kind: FolderKind, folderId: string | null) => {
+      for (const item of selectedItems) {
+        if ((kind === 'exams' && item.kind === 'exam') || (kind === 'question-banks' && item.kind === 'bank')) {
+          placeInFolder(kind, item.id, folderId)
+        }
+      }
+      setBulkMenuPoint(null)
+    }
+
+    const items: MenuItem[] = [
+      {
+        kind: 'action',
+        label: t('folder.none'),
+        icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+        onSelect: () => {
+          for (const item of selectedItems) {
+            placeInFolder(item.kind === 'exam' ? 'exams' : 'question-banks', item.id, null)
+          }
+          setBulkMenuPoint(null)
+        },
+      },
+      { kind: 'separator' },
+    ]
+
+    if (hasExams && !hasBanks) {
+      for (const f of examFolders) {
+        items.push({
+          kind: 'action',
+          label: f.name,
+          icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+          onSelect: () => moveSelected('exams', f.id),
+        })
+      }
+      items.push({ kind: 'separator' })
+      items.push({
+        kind: 'action',
+        label: `+ ${t('folder.new')}`,
+        onSelect: () => {
+          setBulkMenuPoint(null)
+          setCreatingFolderTarget({
+            kind: 'exams',
+            resourceIds: selectedItems.filter((i) => i.kind === 'exam').map((i) => i.id),
+          })
+        },
+      })
+    } else if (hasBanks && !hasExams) {
+      for (const f of bankFolders) {
+        items.push({
+          kind: 'action',
+          label: f.name,
+          icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+          onSelect: () => moveSelected('question-banks', f.id),
+        })
+      }
+      items.push({ kind: 'separator' })
+      items.push({
+        kind: 'action',
+        label: `+ ${t('folder.new')}`,
+        onSelect: () => {
+          setBulkMenuPoint(null)
+          setCreatingFolderTarget({
+            kind: 'question-banks',
+            resourceIds: selectedItems.filter((i) => i.kind === 'bank').map((i) => i.id),
+          })
+        },
+      })
+    } else {
+      items.push({ kind: 'label', label: t('home.exams') })
+      for (const f of examFolders) {
+        items.push({
+          kind: 'action',
+          label: f.name,
+          icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+          onSelect: () => moveSelected('exams', f.id),
+        })
+      }
+      items.push({
+        kind: 'action',
+        label: `+ ${t('folder.new')} (${t('home.typeExam')})`,
+        onSelect: () => {
+          setBulkMenuPoint(null)
+          setCreatingFolderTarget({
+            kind: 'exams',
+            resourceIds: selectedItems.filter((i) => i.kind === 'exam').map((i) => i.id),
+          })
+        },
+      })
+      items.push({ kind: 'separator' })
+      items.push({ kind: 'label', label: t('home.banks') })
+      for (const f of bankFolders) {
+        items.push({
+          kind: 'action',
+          label: f.name,
+          icon: <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />,
+          onSelect: () => moveSelected('question-banks', f.id),
+        })
+      }
+      items.push({
+        kind: 'action',
+        label: `+ ${t('folder.new')} (${t('home.typeBank')})`,
+        onSelect: () => {
+          setBulkMenuPoint(null)
+          setCreatingFolderTarget({
+            kind: 'question-banks',
+            resourceIds: selectedItems.filter((i) => i.kind === 'bank').map((i) => i.id),
+          })
+        },
+      })
+    }
+    return items
+  }, [selectedItems, examFolders, bankFolders])
 
   const renderSortIndicator = (col: SortColumn) => {
     if (sortCol !== col) {
@@ -446,7 +682,7 @@ export function HomePage({
                   >
                     {recentExams.map((exam) => (
                       <div role="listitem" key={exam.id}>
-                        <ExamCard exam={exam} onOpen={onOpen} onDelete={onDeleteExam} />
+                        <ExamCard exam={exam} onOpen={onOpen} onDelete={onDeleteExam} folders={examFolders} folderId={folderIn(folderState, 'exams', exam.id)} onPlaceInFolder={(id, fid) => placeInFolder('exams', id, fid)} />
                       </div>
                     ))}
                     <div role="presentation">
@@ -479,6 +715,9 @@ export function HomePage({
                         onExport={onExportBank}
                         onDelete={onDeleteBank}
                         onDuplicate={onDuplicateBank}
+                        folders={bankFolders}
+                        folderId={folderIn(folderState, 'question-banks', bank.id)}
+                        onPlaceInFolder={(id, fid) => placeInFolder('question-banks', id, fid)}
                       />
                     ))}
                     <NewResourceCard label={tHook('home.newBank')} shape="card" onClick={onNewBank} />
@@ -497,7 +736,8 @@ export function HomePage({
                 </h2>
                 <div className="home-table-card">
                   <div className="home-table-toolbar">
-                    <div className="home-tabs" role="tablist">
+                    <div className="home-toolbar-left">
+                      <div className="home-tabs" role="tablist">
                       <button
                         type="button"
                         role="tab"
@@ -533,7 +773,53 @@ export function HomePage({
                       </button>
                     </div>
 
-                    <div className="home-search-wrapper">
+                    <div className="home-folder-filter-wrapper">
+                      <FolderOpen aria-hidden="true" style={{ width: 14, height: 14, color: '#6e5b4d' }} />
+                      <select
+                        className="home-folder-select"
+                        value={folderFilter}
+                        onChange={(e) => setFolderFilter(e.target.value)}
+                        aria-label={tHook('home.folderFilterAll')}
+                      >
+                        <option value="all">{tHook('home.folderFilterAll')}</option>
+                        <option value="none">{tHook('home.folderFilterNone')}</option>
+                        {availableFolders.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {folderFilter !== 'all' && folderFilter !== 'none' && (() => {
+                        const currentF = folderState.folders.find((f) => f.id === folderFilter)
+                        if (!currentF) return null
+                        return (
+                          <div className="home-folder-tools">
+                            <button
+                              type="button"
+                              className="home-folder-tool-btn"
+                              title={tHook('folder.rename')}
+                              aria-label={tHook('folder.rename')}
+                              onClick={() => setRenamingFolder(currentF)}
+                            >
+                              <Pencil aria-hidden="true" style={{ width: 13, height: 13 }} />
+                            </button>
+                            <button
+                              type="button"
+                              className="home-folder-tool-btn home-folder-tool-btn--delete"
+                              title={tHook('folder.delete')}
+                              aria-label={tHook('folder.delete')}
+                              onClick={() => setConfirmingDeleteFolder(currentF)}
+                            >
+                              <Trash2 aria-hidden="true" style={{ width: 13, height: 13 }} />
+                            </button>
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="home-search-wrapper">
                       <Search className="home-search-icon" aria-hidden="true" style={{ width: 16, height: 16 }} />
                       <input
                         type="search"
@@ -645,15 +931,34 @@ export function HomePage({
                         <tbody>
                           {sortedItems.map((item) => {
                             const isSelected = selectedKeys.has(`${item.kind}-${item.id}`)
+                            const isSingleDisabled = isMultiSelect || (hasSelection && !isSelected)
+                            const singleActionTitle = isMultiSelect
+                              ? tHook('home.actionDisabledMulti')
+                              : isSingleDisabled
+                              ? tHook('home.actionDisabledSelection')
+                              : undefined
                             return (
                               <tr
                                 key={`${item.kind}-${item.id}`}
                                 className={`home-table-row home-table-row--${item.kind}`}
                                 data-selected={isSelected}
-                                onClick={() => handleOpenItem(item)}
+                                onClick={() => {
+                                  if (hasSelection) {
+                                    toggleSelect(item)
+                                  } else {
+                                    handleOpenItem(item)
+                                  }
+                                }}
                                 tabIndex={0}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleOpenItem(item)
+                                  if (hasSelection) {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault()
+                                      toggleSelect(item)
+                                    }
+                                  } else if (e.key === 'Enter') {
+                                    handleOpenItem(item)
+                                  }
                                 }}
                               >
                                 <td className="home-td-select" onClick={(e) => e.stopPropagation()}>
@@ -662,13 +967,7 @@ export function HomePage({
                                     checked={isSelected}
                                     onChange={(e) => {
                                       e.stopPropagation()
-                                      setSelectedKeys((prev) => {
-                                        const next = new Set(prev)
-                                        const key = `${item.kind}-${item.id}`
-                                        if (next.has(key)) next.delete(key)
-                                        else next.add(key)
-                                        return next
-                                      })
+                                      toggleSelect(item)
                                     }}
                                     aria-label={t('home.selectItem', { name: item.title })}
                                   />
@@ -689,7 +988,11 @@ export function HomePage({
                                         className="home-item-title-btn"
                                         onClick={(e) => {
                                           e.stopPropagation()
-                                          handleOpenItem(item)
+                                          if (hasSelection) {
+                                            toggleSelect(item)
+                                          } else {
+                                            handleOpenItem(item)
+                                          }
                                         }}
                                       >
                                         <span className="sr-only">
@@ -707,6 +1010,23 @@ export function HomePage({
                                           <span>{tHook('home.unsaved')}</span>
                                         </span>
                                       )}
+                                      {item.folderId && (() => {
+                                        const f = folderState.folders.find((entry) => entry.id === item.folderId)
+                                        return f ? (
+                                          <button
+                                            type="button"
+                                            className="home-item-folder-badge"
+                                            title={`${tHook('folder.move')}: ${f.name}`}
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setFolderFilter(f.id)
+                                            }}
+                                          >
+                                            <FolderOpen aria-hidden="true" style={{ width: 12, height: 12 }} />
+                                            <span>{f.name}</span>
+                                          </button>
+                                        ) : null
+                                      })()}
                                     </div>
                                     {item.kind === 'bank' && item.topics && item.topics.length > 0 && (
                                       <div className="home-item-topics">
@@ -753,9 +1073,14 @@ export function HomePage({
                                   <button
                                     type="button"
                                     className="home-btn-open"
+                                    disabled={isSingleDisabled}
+                                    aria-disabled={isSingleDisabled}
+                                    title={singleActionTitle}
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      handleOpenItem(item)
+                                      if (!isSingleDisabled) {
+                                        handleOpenItem(item)
+                                      }
                                     }}
                                   >
                                     <FolderOpen aria-hidden="true" style={{ width: 14, height: 14 }} />
@@ -764,10 +1089,14 @@ export function HomePage({
                                   <button
                                     type="button"
                                     className="home-btn-menu"
+                                    disabled={isSingleDisabled}
+                                    aria-disabled={isSingleDisabled}
+                                    title={singleActionTitle}
                                     aria-label={t('ui.nameActions', { name: item.title })}
                                     aria-haspopup="menu"
                                     onClick={(e) => {
                                       e.stopPropagation()
+                                      if (isSingleDisabled) return
                                       const bounds = e.currentTarget.getBoundingClientRect()
                                       setActiveMenu({
                                         item,
@@ -793,6 +1122,17 @@ export function HomePage({
                         {tHook('home.selectedCount', { count: selectedItems.length })}
                       </span>
                       <div className="home-bulk-buttons">
+                        <button
+                          type="button"
+                          className="home-bulk-btn home-bulk-btn--folder"
+                          onClick={(e) => {
+                            const bounds = e.currentTarget.getBoundingClientRect()
+                            setBulkMenuPoint({ x: bounds.left, y: bounds.top - 6 })
+                          }}
+                        >
+                          <FolderOpen aria-hidden="true" style={{ width: 14, height: 14, marginRight: 6 }} />
+                          {tHook('home.bulkMove')}
+                        </button>
                         <button
                           type="button"
                           className="home-bulk-btn home-bulk-btn--delete"
@@ -824,10 +1164,67 @@ export function HomePage({
           {activeMenu && (
             <ContextMenu
               point={activeMenu.point}
+              side="left"
               items={menuItems}
               ariaLabel={t('ui.nameActions', { name: activeMenu.item.title })}
               onClose={() => setActiveMenu(null)}
             />
+          )}
+
+          {bulkMenuPoint && (
+            <ContextMenu
+              point={bulkMenuPoint}
+              side="left"
+              items={bulkFolderMenuItems}
+              ariaLabel={tHook('home.bulkMove')}
+              onClose={() => setBulkMenuPoint(null)}
+            />
+          )}
+
+          {creatingFolderTarget && (
+            <FolderDialog
+              title={tHook('folder.new')}
+              confirmLabel={tHook('folder.create')}
+              onCancel={() => setCreatingFolderTarget(null)}
+              onConfirm={(name) => {
+                const created = createFolder(creatingFolderTarget.kind, name)
+                if (created) {
+                  for (const id of creatingFolderTarget.resourceIds) {
+                    placeInFolder(creatingFolderTarget.kind, id, created.id)
+                  }
+                }
+                setCreatingFolderTarget(null)
+              }}
+            />
+          )}
+
+          {renamingFolder && (
+            <FolderDialog
+              title={tHook('folder.rename')}
+              initialValue={renamingFolder.name}
+              confirmLabel={tHook('folder.rename')}
+              onCancel={() => setRenamingFolder(null)}
+              onConfirm={(name) => {
+                renameFolder(renamingFolder.id, name)
+                setRenamingFolder(null)
+              }}
+            />
+          )}
+
+          {confirmingDeleteFolder && (
+            <DestructiveConfirmation
+              label={tHook('folder.delete')}
+              title={tHook('folder.delete')}
+              confirmLabel={tHook('folder.delete')}
+              onCancel={() => setConfirmingDeleteFolder(null)}
+              onConfirm={async () => {
+                removeFolder(confirmingDeleteFolder.id)
+                setFolderFilter('all')
+                setConfirmingDeleteFolder(null)
+              }}
+            >
+              <p>{tHook('home.deleteFolderConfirm', { name: confirmingDeleteFolder.name })}</p>
+            </DestructiveConfirmation>
           )}
 
           {confirmingBulkDelete && (

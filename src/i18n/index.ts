@@ -69,6 +69,12 @@ const en = {
   'home.bulkDeleteConfirm': 'Are you sure you want to delete the {count} selected items? This cannot be undone.',
   'home.bulkDeleteExamsCount': '{count} exams',
   'home.bulkDeleteBanksCount': '{count} question banks',
+  'home.actionDisabledMulti': 'Not available when multiple items are selected',
+  'home.actionDisabledSelection': 'Not available while another item is selected',
+  'home.bulkMove': 'Move to folder',
+  'home.folderFilterAll': 'All folders',
+  'home.folderFilterNone': 'Without folder',
+  'home.deleteFolderConfirm': 'Are you sure you want to delete the folder “{name}”? The items will stay, without a folder.',
 
   // --- nyitóoldal
   'landing.howItWorks': 'How it works',
@@ -1732,6 +1738,12 @@ const hu: Record<TextKey, string> = {
   'home.bulkDeleteConfirm': 'Biztosan törölni szeretnéd a kijelölt {count} elemet? A művelet nem vonható vissza.',
   'home.bulkDeleteExamsCount': '{count} dolgozat',
   'home.bulkDeleteBanksCount': '{count} kérdésbank',
+  'home.actionDisabledMulti': 'Több elem kijelölése esetén nem érhető el',
+  'home.actionDisabledSelection': 'Másik elem kijelölése mellett nem érhető el',
+  'home.bulkMove': 'Áthelyezés mappába',
+  'home.folderFilterAll': 'Minden mappa',
+  'home.folderFilterNone': 'Mappa nélkül',
+  'home.deleteFolderConfirm': 'Biztosan törölni szeretnéd a(z) „{name}” mappát? A benne lévő elemek megmaradnak mappa nélkül.',
 
   'landing.howItWorks': 'Hogyan működik',
   'landing.about': 'A projektről',
