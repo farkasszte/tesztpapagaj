@@ -10,7 +10,7 @@ import { useWorkspaceDrag } from '../editor/use-workspace-drag'
 import { ResolveImagesDialog } from '../editor/resolve-images-dialog'
 import { storedPicture } from '../editor/resolved-pictures'
 import { pendingImagesOfQuestions, withStoredPictures, type PendingImageResolution, type StoredPicture } from '../editor/pending-images'
-import { FolderOpen, Import, Pencil, PictureInPicture2, Plus, X } from 'lucide-react'
+import { FolderOpen, Import, Pencil, PictureInPicture2, Plus, Undo2, X } from 'lucide-react'
 import { ContextMenu, type MenuPoint } from '../context-menu'
 import { usePopOver } from '../editor/pop-over-context'
 import { navigate } from '../use-route'
@@ -660,6 +660,7 @@ export function QuestionBankPage({
   const [name, setName] = useState(initialBank.name)
   const [filter, setFilter] = useState<QuestionBankFilter>(NO_FILTER)
   const [nameError, setNameError] = useState<string | null>(null)
+  const [undoMessage, setUndoMessage] = useState<string | null>(null)
   const [editingDetails, setEditingDetails] = useState(false)
   const [details, setDetails] = useState({
     description: initialBank.description ?? '',
@@ -670,6 +671,18 @@ export function QuestionBankPage({
   const [detailsBusy, setDetailsBusy] = useState(false)
   const [resolvingPictures, setResolvingPictures] = useState(false)
   const pendingPictures = useMemo(() => pendingImagesOfQuestions(bank.questions), [bank.questions])
+  // A bank legutóbbi lépésének visszavonása (C6): a szolgáltatás a bankban
+  // tárolt pillanatképből állítja vissza a kérdéseket és a nevet.
+  const undo = async () => {
+    const restored = await bankWorkspaces.undo(bank.id)
+    if (!restored) {
+      setUndoMessage(t('bank.undoEmpty'))
+      return
+    }
+    setUndoMessage(null)
+    setBank(restored.bank)
+    setName(restored.bank.name)
+  }
   const resolvePictures = async (pictures: PendingImageResolution) => {
     const sources = new Map<string, StoredPicture>()
     for (const [key, picture] of pictures) {
@@ -711,6 +724,9 @@ export function QuestionBankPage({
     persistentStorage={persistentStorage}
     actions={
       <span className="bank-page-actions">
+        <button type="button" className="secondary-button" onClick={undo}>
+          <Undo2 aria-hidden="true" /> {t('bank.undo')}
+        </button>
         <button type="button" className="primary-button" onClick={onPlay}>
           {t('bank.play')}
         </button>
@@ -722,6 +738,7 @@ export function QuestionBankPage({
     }
   >
     {launchError && <p className="home-error" role="alert">{launchError}</p>}
+    {undoMessage && <p className="home-error" role="alert">{undoMessage}</p>}
     {importAnnouncement && <p className="sr-only" role="status" aria-live="polite">{importAnnouncement}</p>}
     {/* A file dropped anywhere on the page adds into this bank. */}
     <div className="bank-page" data-import-bank-id={bank.id} data-import-bank-name={bank.name}>

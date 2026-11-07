@@ -54,7 +54,21 @@ export type DeletionCascade = (questionIds: readonly string[]) => Promise<{
   finalize(): Promise<void>
 }>
 
-type StoredBank = Omit<QuestionBankResource, 'questions'> & { questionIds: string[] }
+/** Egy visszavonható lépés: a bank állapota a módosítás ELŐTT. */
+export type BankSnapshot = {
+  at: string
+  label: string
+  name: string
+  questions: Question[]
+}
+
+/** Ennyi lépés vonható vissza bankonként (C6). */
+export const HISTORY_DEPTH = 10
+
+type StoredBank = Omit<QuestionBankResource, 'questions'> & {
+  questionIds: string[]
+  history?: BankSnapshot[]
+}
 type StoredQuestion = Question & { bankId: string }
 type BankWorkspace = { key: 'active'; bankId: string }
 /** Which Exam the editor was last on, so a bare `/editor` can restore it.
@@ -235,6 +249,48 @@ function openRegistry(): Promise<IDBDatabase> {
     request.onblocked = () => reject(new Error(t('errors.storageOpen', { name: STORAGE_NAME })))
   })
 }
+
+/** Mit mond a visszavonás gomb a lépésről. */
+function labelOf(change: BankChange): string {
+  switch (change.kind) {
+    case 'rename':
+      return t('bank.step.rename')
+    case 'update-provenance':
+      return t('bank.step.provenance')
+    case 'create-question':
+    case 'create-questions':
+      return t('bank.step.add')
+    case 'duplicate-question':
+      return t('bank.step.duplicate')
+    default:
+      return t('bank.step.update')
+  }
+}
+
+/** A bank állapota a módosítás előtt — a visszavonás ebből dolgozik. */
+async function snapshotOf(
+  transaction: IDBTransaction,
+  bank: StoredBank,
+  label: string,
+  at: string,
+): Promise<BankSnapshot> {
+  const questions = transaction.objectStore(CANONICAL_QUESTION_STORE)
+  const stored = await Promise.all(
+    bank.questionIds.map((id) => requestOf(questions.get(id)) as Promise<StoredQuestion | undefined>),
+  )
+  return {
+    at,
+    label,
+    name: bank.name,
+    questions: stored
+      .filter((question): question is StoredQuestion => Boolean(question))
+      .map((question) => questionOf(question)),
+  }
+}
+
+/** A pillanatkép a tetejére kerül, és legfeljebb `HISTORY_DEPTH` lépés marad. */
+const withSnapshot = (bank: StoredBank, snapshot: BankSnapshot): BankSnapshot[] =>
+  [...(bank.history ?? []), snapshot].slice(-HISTORY_DEPTH)
 
 async function readBank(database: IDBDatabase, id: string): Promise<QuestionBankResource | null> {
   const transaction = database.transaction(
@@ -683,8 +739,17 @@ export function createQuestionBankWorkspaceService(
           async (transaction) => {
             transaction.objectStore(CANONICAL_QUESTION_STORE).delete(questionId)
             if (!removeBank) {
-              transaction.objectStore(QUESTION_BANK_REGISTRY_STORE).put({
+              const registryStore = transaction.objectStore(QUESTION_BANK_REGISTRY_STORE)
+              const stored = await requestOf(registryStore.get(bankId)) as StoredBank | undefined
+              const history = [...(stored?.history ?? []), {
+                at: timestamp,
+                label: t('bank.step.delete'),
+                name: before.name,
+                questions: before.questions,
+              } as BankSnapshot].slice(-HISTORY_DEPTH)
+              registryStore.put({
                 id: before.id, name: before.name, createdAt: before.createdAt,
+                history,
                 ...(before.description !== undefined ? { description: before.description } : {}),
                 ...(before.author !== undefined ? { author: before.author } : {}),
                 ...(before.license !== undefined ? { license: before.license } : {}),
@@ -729,6 +794,50 @@ export function createQuestionBankWorkspaceService(
         await exams.rollback()
         throw error
       }
+    },
+    /** A legutóbbi lépés visszavonása (legfeljebb `HISTORY_DEPTH` lépés). */
+    async undo(id: string): Promise<{ bank: QuestionBankResource; label: string } | null> {
+      const timestamp = now().toISOString()
+      const label = await transact(
+        [QUESTION_BANK_REGISTRY_STORE, CANONICAL_QUESTION_STORE],
+        'readwrite',
+        async (transaction) => {
+          const banks = transaction.objectStore(QUESTION_BANK_REGISTRY_STORE)
+          const questions = transaction.objectStore(CANONICAL_QUESTION_STORE)
+          const bank = await requestOf(banks.get(id)) as StoredBank | undefined
+          if (!bank) return null
+          const history = bank.history ?? []
+          const snapshot = history[history.length - 1]
+          if (!snapshot) return null
+
+          const keep = new Set(snapshot.questions.map((question) => question.id))
+          for (const questionId of bank.questionIds) {
+            if (!keep.has(questionId)) questions.delete(questionId)
+          }
+          for (const question of snapshot.questions) {
+            questions.put({ ...question, bankId: id } satisfies StoredQuestion)
+          }
+          banks.put({
+            ...bank,
+            name: snapshot.name,
+            questionIds: snapshot.questions.map((question) => question.id),
+            lastUpdatedAt: timestamp,
+            history: history.slice(0, -1),
+          })
+          return snapshot.label
+        },
+      )
+      if (label === null) return null
+      const bank = await readBank(await registry, id)
+      return bank ? { bank, label } : null
+    },
+    /** Hány lépés vonható vissza — a gomb állapotához. */
+    async historyLength(id: string): Promise<number> {
+      const database = await registry
+      const transaction = database.transaction(QUESTION_BANK_REGISTRY_STORE, 'readonly')
+      const stored = await requestOf(transaction.objectStore(QUESTION_BANK_REGISTRY_STORE).get(id)) as StoredBank | undefined
+      await completionOf(transaction)
+      return stored?.history?.length ?? 0
     },
     async commitCanonicalQuestion(
       id: string,
@@ -778,10 +887,11 @@ export function createQuestionBankWorkspaceService(
           const questions = transaction.objectStore(CANONICAL_QUESTION_STORE)
           const bank = await requestOf(banks.get(id)) as StoredBank | undefined
           if (!bank) throw new Error(t('errors.bankUnavailable'))
+          const history = withSnapshot(bank, await snapshotOf(transaction, bank, labelOf(change), timestamp))
 
           if (change.kind === 'rename') {
             if (change.name === bank.name) return
-            banks.put({ ...bank, name: change.name, lastUpdatedAt: timestamp })
+            banks.put({ ...bank, history, name: change.name, lastUpdatedAt: timestamp })
             return
           }
 
@@ -800,7 +910,7 @@ export function createQuestionBankWorkspaceService(
                 : undefined,
             }
             if (JSON.stringify(next) === JSON.stringify(bank)) return
-            banks.put({ ...next, lastUpdatedAt: timestamp })
+            banks.put({ ...next, history, lastUpdatedAt: timestamp })
             return
           }
 
@@ -813,6 +923,7 @@ export function createQuestionBankWorkspaceService(
             if (change.questions.length === 0) return
             banks.put({
               ...bank,
+              history,
               questionIds: [...bank.questionIds, ...change.questions.map(({ id }) => id)],
               lastUpdatedAt: timestamp,
             })
@@ -823,7 +934,7 @@ export function createQuestionBankWorkspaceService(
             const existing = await requestOf(questions.get(change.question.id)) as StoredQuestion | undefined
             if (existing) throw new Error(t('errors.questionAlreadyInBank'))
             questions.add({ ...change.question, bankId: id } satisfies StoredQuestion)
-            banks.put({ ...bank, questionIds: [...bank.questionIds, change.question.id], lastUpdatedAt: timestamp })
+            banks.put({ ...bank, history, questionIds: [...bank.questionIds, change.question.id], lastUpdatedAt: timestamp })
             return
           }
 
@@ -840,14 +951,14 @@ export function createQuestionBankWorkspaceService(
             }
             if (JSON.stringify(questionOf(existing)) === JSON.stringify(change.question)) return
             questions.put({ ...change.question, bankId: id } satisfies StoredQuestion)
-            banks.put({ ...bank, lastUpdatedAt: timestamp })
+            banks.put({ ...bank, history, lastUpdatedAt: timestamp })
           } else if (change.kind === 'duplicate-question') {
             const copy = duplicateQuestion(questionOf(existing))
             questions.add({ ...copy, bankId: id } satisfies StoredQuestion)
             const at = bank.questionIds.indexOf(questionId)
             const questionIds = [...bank.questionIds]
             questionIds.splice(at + 1, 0, copy.id)
-            banks.put({ ...bank, questionIds, lastUpdatedAt: timestamp })
+            banks.put({ ...bank, history, questionIds, lastUpdatedAt: timestamp })
           }
         },
       )
