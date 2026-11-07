@@ -141,3 +141,8 @@ NOTICE.md                    (ez a fájl)
     tehát kötelező feltüntetés nincs; ez a bejegyzés csak a forrás átláthatóságáért
     van itt. A képek **helyben**, a böngészőben készülnek: a program nem hívja a
     DiceBear HTTP API-ját, és nem tölt képet külső szerverről.
+
+15. **Háttérzene a kvízjátékhoz.** A játék színpadán választható ambient háttérzene
+    (`public/game-ambient/loop-1.mp3`) a Tesztpapagáj saját algoritmikus generálása,
+    **CC0 1.0** (Public Domain) licenc alatt. Részletek a `public/game-ambient/LICENSE.md`
+    fájlban.

@@ -99,3 +99,52 @@ test('a tanulókártya szóközre is fordul', async ({ page }) => {
   await page.keyboard.press('ArrowRight')
   await expect(deck.locator('.gq-where')).toContainText('2 / 2')
 })
+
+test('leitner módszer: dobozok közti haladás és ünneplés', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  const bankId = await seedBank(page)
+  await go(page, `/jatek?bank=${bankId}&mod=kartya`)
+  await page.getByRole('button', { name: 'Indítás', exact: true }).click()
+
+  const deck = page.getByRole('dialog', { name: 'Tanulókártya' })
+  const card = deck.locator('.gq-card')
+
+  // Kezdetben mindkét kártya az 1. dobozban van
+  await expect(deck.locator('.gq-leitner-box--1')).toContainText('1. doboz: 2')
+  await expect(deck.locator('.gq-leitner-box--2')).toContainText('2. doboz: 0')
+  await expect(deck.locator('.gq-leitner-box--3')).toContainText('3. doboz: 0')
+  await expect(card.locator('.gq-card-box-badge')).toContainText('1. doboz')
+
+  // Megfordítjuk a kártyát
+  await card.click()
+  const passBtn = deck.getByRole('button', { name: /Tudtam/ })
+  const failBtn = deck.getByRole('button', { name: /Nem tudtam/ })
+  await expect(passBtn).toBeVisible()
+  await expect(failBtn).toBeVisible()
+
+  // 1. kártya: Tudtam -> felkerül a 2. dobozba
+  await passBtn.click()
+  await expect(deck.locator('.gq-leitner-box--1')).toContainText('1. doboz: 1')
+  await expect(deck.locator('.gq-leitner-box--2')).toContainText('2. doboz: 1')
+
+  // 2. kártya: fordítjuk, és azt mondjuk, Tudtam -> felkerül a 2. dobozba
+  await card.click()
+  await passBtn.click()
+  await expect(deck.locator('.gq-leitner-box--1')).toContainText('1. doboz: 0')
+  await expect(deck.locator('.gq-leitner-box--2')).toContainText('2. doboz: 2')
+
+  // Mindkét kártyát még egyszer "Tudtam"-nak jelöljük -> átkerülnek a 3. dobozba
+  await card.click()
+  await passBtn.click()
+  await card.click()
+  await passBtn.click()
+
+  // Mind a kettő a 3. dobozban van -> Gratula képernyő jelenik meg
+  await expect(deck.locator('.gq-leitner-finished')).toBeVisible()
+  await expect(deck.locator('.gq-leitner-box--3')).toContainText('3. doboz: 2')
+
+  // Újrakezdés gombra kattintva visszaáll az 1. dobozba
+  await deck.getByRole('button', { name: /Gyakorlás újraindítása/ }).click()
+  await expect(deck.locator('.gq-leitner-box--1')).toContainText('1. doboz: 2')
+  await expect(deck.locator('.gq-card')).toBeVisible()
+})

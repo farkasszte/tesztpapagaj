@@ -14,6 +14,7 @@ import type { Question } from './types'
 import type { SavedGame } from './store'
 import { useT, type TextKey } from '../i18n/index'
 import { TextSizeControl } from './text-size'
+import { AmbientMusicControl } from './ambient-music'
 
 /**
  * A Bajnok mód kivetítője, diákeszközök nélkül.
@@ -230,6 +231,7 @@ export function ChampionStage({
           )
         ) : null}
         <span className="gq-bar-end">
+          <AmbientMusicControl />
           <TextSizeControl className="gq-textsize-stage" />
           <button type="button" className="gq-quiet" onClick={onExit}>
             {t('game.stage.endGame')}

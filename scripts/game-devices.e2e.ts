@@ -443,3 +443,59 @@ test('a megoszlás bekapcsolva a betű helyén a válaszok számát mutatja', as
   // A teljes kártya akadálymentes neve is kimondja, hányan választották.
   await expect(stage.locator('.gq-answer').first()).toHaveAttribute('aria-label', /\d+ picked$/)
 })
+
+
+test('veszély eszközös mód: csapatok beállítása, diák csapatválasztása és a lobbi megjelenítése', async ({ page }) => {
+  await seedBank(page, 'Peril Team Bank', [
+    THREE('p1', 'Which gas do plants take in?'),
+    THREE('p2', 'Which gas do plants give off?'),
+  ])
+  await connectRelay(page.context())
+
+  await go(page, '/jatek')
+  await page.getByRole('button', { name: /^Peril/ }).click()
+  await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+
+  const stage = page.getByRole('dialog', { name: 'Peril!' })
+  await expect(stage).toBeVisible()
+
+  const teamForm = stage.locator('.gq-team-form')
+  await expect(teamForm).toBeVisible()
+
+  // 2 csapat beállítása
+  await teamForm.locator('#gq-team-count').selectOption('2')
+  const teamInputs = teamForm.locator('.gq-team-names-grid input')
+  await expect(teamInputs).toHaveCount(2)
+  await teamInputs.first().fill('Tigrisek')
+  await teamInputs.nth(1).fill('Sasok')
+
+  // Kézi választás mód beállítása
+  await teamForm.locator('#gq-team-assign').selectOption('manual')
+
+  // Tovább a szobához / lobbihoz
+  await stage.getByRole('button', { name: 'On to the room' }).click()
+
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+  const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
+
+  // Diák csatlakozik mobilon
+  const student = await page.context().newPage()
+  await student.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
+  await expect(student.getByRole('heading', { name: 'Coming in' })).toBeVisible()
+  await student.getByPlaceholder('For example: Panni').fill('Panni')
+  await student.getByRole('button', { name: 'Join the game' }).click()
+
+  // Diák csapatválasztó képernyője megjelenik a 2 beállított csapattal
+  await expect(student.getByText('Pick your team')).toBeVisible()
+  const tigerChoice = student.locator('.gq-stu-choice').filter({ hasText: 'Tigrisek' })
+  await expect(tigerChoice).toBeVisible()
+
+  // Diák a Tigriseket választja
+  await tigerChoice.click()
+
+  // A tanár lobbijában a diák neve mellett megjelenik a választott csapat jelvénye
+  await expect(lobby.locator('.gq-roster-name')).toContainText('Panni')
+  await expect(lobby.locator('.gq-roster-team')).toContainText('Tigrisek')
+})

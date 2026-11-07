@@ -109,3 +109,52 @@ test('Kezdőlap táblázat nézet: szűrés, valós idejű keresés és nézetv�
   await expect(page).toHaveURL(/\/editor$/)
 })
 
+test('Kezdőlap táblázat: tömeges kijelölés és csoportos törlés', async ({ page }) => {
+  await seedResources(page)
+
+  await page.addInitScript(() => {
+    localStorage.setItem('test-parrot:home-view', 'table')
+  })
+  await go(page, '/')
+
+  const table = page.locator('.home-table')
+  await expect(table.locator('tbody tr')).toHaveCount(4)
+
+  // 1. Initially bulk action bar is not visible
+  const bulkBar = page.locator('.home-bulk-bar')
+  await expect(bulkBar).toHaveCount(0)
+
+  // 2. Select first row checkbox
+  const rowCheckboxes = table.locator('.home-td-select input[type="checkbox"]')
+  await rowCheckboxes.nth(0).click()
+  await expect(bulkBar).toBeVisible()
+  await expect(bulkBar).toContainText('1 selected')
+
+  // 3. Select second row checkbox
+  await rowCheckboxes.nth(1).click()
+  await expect(bulkBar).toContainText('2 selected')
+
+  // 4. Master checkbox: select all
+  const selectAll = table.locator('.home-th-select input[type="checkbox"]')
+  await selectAll.click()
+  await expect(bulkBar).toContainText('4 selected')
+
+  // 5. Clear selection via bulk bar clear button
+  await bulkBar.getByRole('button', { name: /Clear selection/i }).click()
+  await expect(bulkBar).toHaveCount(0)
+
+  // 6. Select 2 items and bulk delete them
+  await rowCheckboxes.nth(0).click()
+  await rowCheckboxes.nth(1).click()
+  await expect(bulkBar).toContainText('2 selected')
+
+  await bulkBar.getByRole('button', { name: /Delete/i }).click()
+  const confirmDialog = page.getByRole('dialog', { name: /Delete selected items/i })
+  await expect(confirmDialog).toBeVisible()
+  await confirmDialog.getByRole('button', { name: /Delete/i }).click()
+
+  // Verify 2 items were deleted and table has 2 remaining
+  await expect(table.locator('tbody tr')).toHaveCount(2)
+  await expect(bulkBar).toHaveCount(0)
+})
+

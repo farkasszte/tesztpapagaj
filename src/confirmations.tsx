@@ -142,3 +142,34 @@ export function ExamDeletionConfirmation({ summary, onCancel, onConfirm }: {
     <p>{message.body}</p>
   </DestructiveConfirmation>
 }
+
+export function BulkDeletionConfirmation({
+  examCount,
+  bankCount,
+  onCancel,
+  onConfirm,
+}: {
+  examCount: number
+  bankCount: number
+  onCancel: () => void
+  onConfirm: () => Promise<void>
+}) {
+  const t = useT()
+  const total = examCount + bankCount
+  return (
+    <DestructiveConfirmation
+      label={t('home.bulkDeleteTitle')}
+      title={t('home.bulkDeleteTitle')}
+      confirmLabel={t('home.bulkDelete')}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+    >
+      <p>{t('common.cannotBeUndone')}</p>
+      <p>{t('home.bulkDeleteConfirm', { count: total })}</p>
+      <ul>
+        {examCount > 0 && <li>{t('home.bulkDeleteExamsCount', { count: examCount })}</li>}
+        {bankCount > 0 && <li>{t('home.bulkDeleteBanksCount', { count: bankCount })}</li>}
+      </ul>
+    </DestructiveConfirmation>
+  )
+}

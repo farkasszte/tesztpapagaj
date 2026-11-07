@@ -276,3 +276,30 @@ test('a színpad fókuszcsapdája: a Tab nem visz ki a párbeszédből', async (
     expect(inside).toBe(true)
   }
 })
+
+
+test('a színpadon a háttérzene vezérlője elérhető és kezeli a némítást valamint a hangerőt', async ({ page }) => {
+  await seedBank(page, {
+    name: 'Music bank',
+    questions: [THREE('m1', 'What is ambient music?')],
+  })
+  await openGame(page, 'Classic')
+  const stage = page.getByRole('dialog', { name: 'Quiz game' })
+  await expect(stage).toBeVisible()
+
+  const ambient = stage.locator('.gq-ambient-control')
+  await expect(ambient).toBeVisible()
+
+  // Alapból néma (20%)
+  const btn = ambient.locator('.gq-ambient-btn')
+  await expect(btn).toContainText('🔇')
+  await expect(ambient.locator('.gq-ambient-val')).toContainText('20%')
+
+  // Gombnyomásra elindul / némítás megszűnik
+  await btn.click()
+  // Mentés a localStorage-ba
+  const saved = await page.evaluate(() => window.localStorage.getItem('tesztpapagaj:game-ambient'))
+  expect(saved).toBeTruthy()
+  expect(JSON.parse(saved!).playing).toBe(true)
+  expect(JSON.parse(saved!).volume).toBe(0.2)
+})

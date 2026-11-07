@@ -9,6 +9,7 @@ import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStag
 import { Letter } from './shapes'
 import { useT } from '../i18n/index'
 import { TextSizeControl } from './text-size'
+import { AmbientMusicControl } from './ambient-music'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.
@@ -175,6 +176,7 @@ function ModeStage({
           ) : null}
           {/* A szövegméret a cím alatt, a kód helyén — nem lebeg a sarokban. */}
           <span className="gq-textsize-row">
+            <AmbientMusicControl />
             <TextSizeControl className="gq-textsize-stage" />
           </span>
         </span>

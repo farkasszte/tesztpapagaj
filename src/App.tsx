@@ -243,6 +243,17 @@ export default function App({
       setBankCollection(await questionBankCollection(recentBanks, bankWorkspaces, workspaces))
     }}
   />
+  const bulkDelete = useCallback(async (items: { examIds: string[]; bankIds: string[] }) => {
+    for (const examId of items.examIds) {
+      await workspaces.deleteExam(examId)
+    }
+    for (const bankId of items.bankIds) {
+      await bankWorkspaces.permanentlyDeleteBank(bankId, (ids) => workspaces.forceDeleteQuestions(ids))
+    }
+    const [recent, recentBanks] = await Promise.all([workspaces.recent(), bankWorkspaces.recent()])
+    setExams(recent)
+    setBankCollection(await questionBankCollection(recentBanks, bankWorkspaces, workspaces))
+  }, [bankWorkspaces, workspaces])
   const saveAs = useCallback(async () => {
     if (!editorStore) return
     const sourceId = await workspaces.activeId()
@@ -458,6 +469,7 @@ export default function App({
     onDuplicateBank={duplicateBank}
     onDeleteBank={requestBankDeletion}
     onDeleteExam={(exam) => requestExamDeletion(exam.id)}
+    onBulkDelete={bulkDelete}
     onImport={() => openImport()}
   />{bankExportDialog}{bankDeletionConfirmation}{examDeletionConfirmation}</>
   if (route === '/question-bank') return pageBank && pageBankReady ? <Suspense fallback={globalChrome}>{globalChrome}<QuestionBankPage

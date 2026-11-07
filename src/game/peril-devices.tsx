@@ -34,8 +34,8 @@ import { useT } from '../i18n/index'
 
 type Seat = { playerId: string; secret: string; nickname: string }
 
-/** A lobliban ennyi csapat indul; a tanár a színpadon nem nevezi el őket. */
-const TEAM_NAMES = ['Csapat 1', 'Csapat 2', 'Csapat 3', 'Csapat 4']
+const DEFAULT_TEAMS = ['Csapat 1', 'Csapat 2', 'Csapat 3', 'Csapat 4']
+const TEAM_CHOICES = [2, 3, 4, 5, 6]
 
 export function PerilDevices({
   title,
@@ -52,12 +52,14 @@ export function PerilDevices({
 }) {
   const t = useT()
   const [code] = useState(() => newRoomCode())
+  const [teamNames, setTeamNames] = useState<string[]>(DEFAULT_TEAMS)
+  const [teamAssign, setTeamAssign] = useState<'auto' | 'manual'>('auto')
   const [engine] = useState(
     () =>
       new PerilEngine(
         createPerilSession({
           code,
-          settings: { teams: { names: TEAM_NAMES, assign: 'auto' }, avatarStyle },
+          settings: { teams: { names: DEFAULT_TEAMS, assign: 'auto' }, avatarStyle },
           noDevices: false,
         }),
       ),
@@ -210,6 +212,59 @@ export function PerilDevices({
         </div>
         <section className="gq-done">
           <h1 className="gq-big">{t('game.mode.peril.name')}</h1>
+          <p>{t('game.peril.teamsDeviceHint')}</p>
+          <div className="gq-team-form">
+            <div className="gq-team-form-row">
+              <label className="gq-label" htmlFor="gq-team-count">
+                {t('game.peril.teamCount')}
+              </label>
+              <select
+                id="gq-team-count"
+                className="gq-input gq-input-small"
+                value={teamNames.length}
+                onChange={(event) => {
+                  const count = Number(event.target.value)
+                  setTeamNames((current) =>
+                    Array.from({ length: count }, (_, index) => current[index] ?? `Csapat ${index + 1}`),
+                  )
+                }}
+              >
+                {TEAM_CHOICES.map((count) => (
+                  <option key={count} value={count}>
+                    {count}
+                  </option>
+                ))}
+              </select>
+
+              <label className="gq-label" htmlFor="gq-team-assign" style={{ marginLeft: 16 }}>
+                {t('game.peril.teamAssign')}
+              </label>
+              <select
+                id="gq-team-assign"
+                className="gq-input gq-input-small"
+                value={teamAssign}
+                onChange={(e) => setTeamAssign(e.target.value as 'auto' | 'manual')}
+              >
+                <option value="auto">{t('game.peril.teamAssignAuto')}</option>
+                <option value="manual">{t('game.peril.teamAssignManual')}</option>
+              </select>
+            </div>
+
+            <div className="gq-team-names-grid">
+              {teamNames.map((name, index) => (
+                <input
+                  key={index}
+                  className="gq-input gq-input-small"
+                  aria-label={t('game.peril.teamName', { n: index + 1 })}
+                  value={name}
+                  onChange={(event) =>
+                    setTeamNames((current) => current.map((other, i) => (i === index ? event.target.value : other)))
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
           <PerilBoardBuilder
             plan={activePlan}
             questions={questions}
@@ -219,7 +274,16 @@ export function PerilDevices({
             onLoadTemplate={changePlan}
             onRemoveTemplate={(id) => setTemplates(removeTemplate(id))}
           />
-          <button type="button" className="gq-go" onClick={() => setReady(true)}>
+          <button
+            type="button"
+            className="gq-go"
+            onClick={() => {
+              engine.configureTeams({ names: teamNames, assign: teamAssign })
+              setReady(true)
+              broadcast()
+              bump()
+            }}
+          >
             {t('game.peril.toLobby')}
           </button>
         </section>
@@ -258,6 +322,7 @@ export function PerilDevices({
         id: player.id,
         nickname: player.nickname,
         connected: player.connected,
+        teamName: engine.session.teams.find((t) => t.id === player.teamId)?.name,
       }))}
       onKick={(playerId) => {
         if (!engine.kick(playerId).ok) return

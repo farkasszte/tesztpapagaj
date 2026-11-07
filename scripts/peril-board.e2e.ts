@@ -298,3 +298,39 @@ test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre tes
   await expect(secondColumn.locator('.gq-builder-tile').nth(2)).toContainText('Nehézség kérdés 6')
   await expect(firstColumn.locator('.gq-builder-tile').nth(4)).toHaveAttribute('data-filled', 'no')
 })
+
+
+test('a veszély eszközös módban beállítja a csapatok számát, nevét és beosztását', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await seedBank(page)
+  await page.context().routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => {
+    socket.onMessage((raw) => {
+      const msg = JSON.parse(raw.toString())
+      if (msg.type === 'hello') {
+        socket.send(JSON.stringify({ type: 'welcome', id: 'host-1', role: 'host', players: 0 }))
+      }
+    })
+  })
+  await go(page, '/jatek')
+  await page.getByRole('button', { name: /^Veszély/ }).click()
+  await page.getByRole('checkbox', { name: /eszköz/i }).check()
+  await page.getByRole('button', { name: 'Indítás', exact: true }).click()
+
+  const stage = page.getByRole('dialog', { name: 'Veszély!' })
+  await stage.waitFor()
+
+  const teamForm = stage.locator('.gq-team-form')
+  await expect(teamForm).toBeVisible()
+
+  await teamForm.locator('#gq-team-count').selectOption('3')
+  const teamInputs = teamForm.locator('.gq-team-names-grid input')
+  await expect(teamInputs).toHaveCount(3)
+
+  await teamInputs.first().fill('Sárkányok')
+  await teamForm.locator('#gq-team-assign').selectOption('manual')
+
+  await stage.getByRole('button', { name: 'Tovább a lobbihoz' }).click()
+
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+})

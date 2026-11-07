@@ -34,6 +34,7 @@ import { usePopOver } from './editor/pop-over-context'
 import { navigate } from './use-route'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
 import { TopicBadge } from './editor/badges'
+import { BulkDeletionConfirmation } from './confirmations'
 
 function relativeTime(prefix: string, iso: string) {
   const minutes = Math.max(
@@ -90,6 +91,7 @@ export function HomePage({
   onDeleteBank,
   onDuplicateBank,
   onDeleteExam,
+  onBulkDelete,
   onImport,
 }: {
   exams: readonly RecentExam[]
@@ -104,6 +106,7 @@ export function HomePage({
   onDeleteBank: (bank: QuestionBankCollectionItem) => void
   onDuplicateBank: (bank: QuestionBankCollectionItem) => void
   onDeleteExam: (exam: RecentExam) => void
+  onBulkDelete?: (items: { examIds: string[]; bankIds: string[] }) => Promise<void>
   onImport: () => void
 }) {
   const tHook = useT()
@@ -132,6 +135,11 @@ export function HomePage({
   const [query, setQuery] = useState('')
   const [sortCol, setSortCol] = useState<SortColumn>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
+  const [confirmingBulkDelete, setConfirmingBulkDelete] = useState<{
+    examIds: string[]
+    bankIds: string[]
+  } | null>(null)
 
   const [activeMenu, setActiveMenu] = useState<{
     item: TableItem
@@ -180,6 +188,10 @@ export function HomePage({
 
     return [...examItems, ...bankItems]
   }, [exams, banks, tHook])
+
+  const selectedItems = useMemo(() => {
+    return allItems.filter((item) => selectedKeys.has(`${item.kind}-${item.id}`))
+  }, [allItems, selectedKeys])
 
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
@@ -555,6 +567,32 @@ export function HomePage({
                       <table className="home-table">
                         <thead>
                           <tr>
+                            <th scope="col" className="home-th-select">
+                              <input
+                                type="checkbox"
+                                checked={sortedItems.length > 0 && sortedItems.every((item) => selectedKeys.has(`${item.kind}-${item.id}`))}
+                                ref={(el) => {
+                                  if (el) {
+                                    const some = sortedItems.some((item) => selectedKeys.has(`${item.kind}-${item.id}`))
+                                    const all = sortedItems.length > 0 && sortedItems.every((item) => selectedKeys.has(`${item.kind}-${item.id}`))
+                                    el.indeterminate = some && !all
+                                  }
+                                }}
+                                onChange={() => {
+                                  const all = sortedItems.length > 0 && sortedItems.every((item) => selectedKeys.has(`${item.kind}-${item.id}`))
+                                  setSelectedKeys((prev) => {
+                                    const next = new Set(prev)
+                                    if (all) {
+                                      sortedItems.forEach((i) => next.delete(`${i.kind}-${i.id}`))
+                                    } else {
+                                      sortedItems.forEach((i) => next.add(`${i.kind}-${i.id}`))
+                                    }
+                                    return next
+                                  })
+                                }}
+                                aria-label={tHook('home.selectAll')}
+                              />
+                            </th>
                             <th
                               className="sortable"
                               scope="col"
@@ -605,21 +643,41 @@ export function HomePage({
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedItems.map((item) => (
-                            <tr
-                              key={`${item.kind}-${item.id}`}
-                              className={`home-table-row home-table-row--${item.kind}`}
-                              onClick={() => handleOpenItem(item)}
-                              tabIndex={0}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleOpenItem(item)
-                              }}
-                            >
-                              <td>
-                                <div className="home-item-info">
-                                  <div className={`home-item-icon home-item-icon--${item.kind}`}>
-                                    {item.kind === 'exam' ? (
-                                      <FileText aria-hidden="true" style={{ width: 18, height: 18 }} />
+                          {sortedItems.map((item) => {
+                            const isSelected = selectedKeys.has(`${item.kind}-${item.id}`)
+                            return (
+                              <tr
+                                key={`${item.kind}-${item.id}`}
+                                className={`home-table-row home-table-row--${item.kind}`}
+                                data-selected={isSelected}
+                                onClick={() => handleOpenItem(item)}
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleOpenItem(item)
+                                }}
+                              >
+                                <td className="home-td-select" onClick={(e) => e.stopPropagation()}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedKeys((prev) => {
+                                        const next = new Set(prev)
+                                        const key = `${item.kind}-${item.id}`
+                                        if (next.has(key)) next.delete(key)
+                                        else next.add(key)
+                                        return next
+                                      })
+                                    }}
+                                    aria-label={t('home.selectItem', { name: item.title })}
+                                  />
+                                </td>
+                                <td>
+                                  <div className="home-item-info">
+                                    <div className={`home-item-icon home-item-icon--${item.kind}`}>
+                                      {item.kind === 'exam' ? (
+                                        <FileText aria-hidden="true" style={{ width: 18, height: 18 }} />
                                     ) : (
                                       <FolderOpen aria-hidden="true" style={{ width: 18, height: 18 }} />
                                     )}
@@ -722,9 +780,40 @@ export function HomePage({
                                 </div>
                               </td>
                             </tr>
-                          ))}
+                            )
+                          })}
                         </tbody>
                       </table>
+                    </div>
+                  )}
+
+                  {selectedItems.length > 0 && (
+                    <div className="home-bulk-bar" role="region" aria-label={tHook('home.bulkActions')}>
+                      <span className="home-bulk-count">
+                        {tHook('home.selectedCount', { count: selectedItems.length })}
+                      </span>
+                      <div className="home-bulk-buttons">
+                        <button
+                          type="button"
+                          className="home-bulk-btn home-bulk-btn--delete"
+                          onClick={() => {
+                            const examIds = selectedItems.filter((i) => i.kind === 'exam').map((i) => i.id)
+                            const bankIds = selectedItems.filter((i) => i.kind === 'bank').map((i) => i.id)
+                            setConfirmingBulkDelete({ examIds, bankIds })
+                          }}
+                        >
+                          <Trash2 aria-hidden="true" style={{ width: 14, height: 14, marginRight: 6 }} />
+                          {tHook('home.bulkDelete')}
+                        </button>
+                        <button
+                          type="button"
+                          className="home-bulk-btn home-bulk-btn--clear"
+                          onClick={() => setSelectedKeys(new Set())}
+                        >
+                          <X aria-hidden="true" style={{ width: 14, height: 14, marginRight: 4 }} />
+                          {tHook('home.clearSelection')}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -738,6 +827,26 @@ export function HomePage({
               items={menuItems}
               ariaLabel={t('ui.nameActions', { name: activeMenu.item.title })}
               onClose={() => setActiveMenu(null)}
+            />
+          )}
+
+          {confirmingBulkDelete && (
+            <BulkDeletionConfirmation
+              examCount={confirmingBulkDelete.examIds.length}
+              bankCount={confirmingBulkDelete.bankIds.length}
+              onCancel={() => setConfirmingBulkDelete(null)}
+              onConfirm={async () => {
+                if (onBulkDelete) {
+                  await onBulkDelete(confirmingBulkDelete)
+                } else {
+                  for (const item of selectedItems) {
+                    if (item.kind === 'exam') onDeleteExam(item.raw)
+                    else onDeleteBank(item.raw)
+                  }
+                }
+                setSelectedKeys(new Set())
+                setConfirmingBulkDelete(null)
+              }}
             />
           )}
         </>

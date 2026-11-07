@@ -10,7 +10,7 @@ import { useT } from '../i18n/index'
  * játék más. A kódot és a linket is kiírja, hogy a QR mellett kézzel is
  * beírható legyen, ha a kamera nem működik.
  */
-export type LobbyPlayer = { id: string; nickname: string; connected: boolean }
+export type LobbyPlayer = { id: string; nickname: string; connected: boolean; teamName?: string }
 
 export function GameLobby({
   code,
@@ -105,7 +105,8 @@ export function GameLobby({
           <ul className="gq-roster">
             {players.map((player) => (
               <li key={player.id} className={player.connected ? undefined : 'gq-roster-gone'}>
-                {player.nickname}
+                <span className="gq-roster-name">{player.nickname}</span>
+                {player.teamName ? <span className="gq-roster-team">{player.teamName}</span> : null}
                 {onKick ? (
                   <button
                     type="button"

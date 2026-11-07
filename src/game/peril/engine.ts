@@ -236,6 +236,25 @@ export class PerilEngine {
     return this.changed();
   }
 
+  /** The teacher configures teams before the board starts. */
+  configureTeams(config: { names: string[]; assign: 'auto' | 'manual' }): Result {
+    const s = this.session;
+    const cleanNames = config.names.map((n) => normalizeNickname(n)).filter(Boolean);
+    if (cleanNames.length < 2) return no('At least two teams are required.');
+    s.settings.teams = { names: cleanNames, assign: config.assign };
+    s.teams = cleanNames.map((name, i) => {
+      const existing = s.teams[i];
+      return existing ? { ...existing, name } : { id: randomId(this.clock.random), name, points: 0 };
+    });
+    const validTeamIds = new Set(s.teams.map((t) => t.id));
+    for (const player of s.players) {
+      if (!player.teamId || !validTeamIds.has(player.teamId)) {
+        player.teamId = config.assign === 'auto' ? this.smallestTeam() : null;
+      }
+    }
+    return this.changed();
+  }
+
   /** Deals every student into the Teams again, as evenly as they go. */
   shuffleTeams(): Result {
     const s = this.session;
