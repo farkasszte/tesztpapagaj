@@ -814,6 +814,16 @@ export function createQuestionBankWorkspaceService(
           for (const questionId of bank.questionIds) {
             if (!keep.has(questionId)) questions.delete(questionId)
           }
+          // Ha egy áthelyezést vonunk vissza, a kérdés ne maradjon a másik
+          // bankban is: a visszaállított azonosítók máshonnan kikerülnek.
+          const restored = new Set(snapshot.questions.map((question) => question.id))
+          const otherBanks = await requestOf(banks.getAll()) as StoredBank[]
+          for (const other of otherBanks) {
+            if (other.id === id) continue
+            const left = other.questionIds.filter((questionId) => !restored.has(questionId))
+            if (left.length === other.questionIds.length) continue
+            banks.put({ ...other, questionIds: left, lastUpdatedAt: timestamp })
+          }
           for (const question of snapshot.questions) {
             questions.put({ ...question, bankId: id } satisfies StoredQuestion)
           }
@@ -830,6 +840,58 @@ export function createQuestionBankWorkspaceService(
       if (label === null) return null
       const bank = await readBank(await registry, id)
       return bank ? { bank, label } : null
+    },
+    /**
+     * Kérdések áthelyezése másik bankba (C7): a kérdés **azonosítója marad**
+     * (a statisztika és a hozzá tartozó kép is hozzátartozik), csak a bankja
+     * változik. Mindkét bank kap előzmény-lépést, tehát mindkét oldalon
+     * visszavonható.
+     */
+    async moveQuestions(
+      fromBankId: string,
+      questionIds: readonly string[],
+      toBankId: string,
+    ): Promise<{ from: QuestionBankResource; to: QuestionBankResource } | null> {
+      if (fromBankId === toBankId) return null
+      const timestamp = now().toISOString()
+      const moved = await transact(
+        [QUESTION_BANK_REGISTRY_STORE, CANONICAL_QUESTION_STORE],
+        'readwrite',
+        async (transaction) => {
+          const banks = transaction.objectStore(QUESTION_BANK_REGISTRY_STORE)
+          const questions = transaction.objectStore(CANONICAL_QUESTION_STORE)
+          const fromRecord = await requestOf(banks.get(fromBankId)) as StoredBank | undefined
+          const toRecord = await requestOf(banks.get(toBankId)) as StoredBank | undefined
+          if (!fromRecord || !toRecord) return null
+          const moving = fromRecord.questionIds.filter((id) => questionIds.includes(id))
+          if (moving.length === 0) return null
+
+          for (const id of moving) {
+            const stored = await requestOf(questions.get(id)) as StoredQuestion | undefined
+            if (stored) questions.put({ ...stored, bankId: toBankId })
+          }
+          const step = t('bank.step.move')
+          banks.put({
+            ...fromRecord,
+            history: withSnapshot(fromRecord, await snapshotOf(transaction, fromRecord, step, timestamp)),
+            questionIds: fromRecord.questionIds.filter((id) => !moving.includes(id)),
+            lastUpdatedAt: timestamp,
+          })
+          banks.put({
+            ...toRecord,
+            history: withSnapshot(toRecord, await snapshotOf(transaction, toRecord, step, timestamp)),
+            questionIds: [...toRecord.questionIds, ...moving],
+            lastUpdatedAt: timestamp,
+          })
+          return { count: moving.length }
+        },
+      )
+      if (!moved) return null
+      const [from, to] = await Promise.all([
+        readBank(await registry, fromBankId),
+        readBank(await registry, toBankId),
+      ])
+      return from && to ? { from, to } : null
     },
     /** Hány lépés vonható vissza — a gomb állapotához. */
     async historyLength(id: string): Promise<number> {

@@ -162,6 +162,31 @@ export function QuestionBankWorkspace({
   const [editing, setEditing] = useState<Question | null>(null)
   const [usage, setUsage] = useState<QuestionUsage[] | undefined>()
   const [confirmingDeletion, setConfirmingDeletion] = useState(false)
+  // Áthelyezés másik bankba (C7): a kérdés bankot vált, az azonosítója marad.
+  const [moveTargets, setMoveTargets] = useState<{ id: string; name: string; questionCount: number }[] | null>(null)
+  const [movingQuestion, setMovingQuestion] = useState<Question | null>(null)
+  const [moveMessage, setMoveMessage] = useState<string | null>(null)
+  const startMove = async (question: Question) => {
+    const others = (await service.recent()).filter((one) => one.id !== bank.id)
+    if (others.length === 0) {
+      setMoveMessage(t('bank.moveEmpty'))
+      return
+    }
+    setMovingQuestion(question)
+    setEditing(null)
+    setMoveTargets(others.map(({ id, name, questionCount }) => ({ id, name, questionCount })))
+  }
+  const moveInto = async (targetId: string) => {
+    const question = movingQuestion
+    setMoveTargets(null)
+    setMovingQuestion(null)
+    if (!question) return
+    const result = await service.moveQuestions(bank.id, [question.id], targetId)
+    if (!result) return
+    setMoveMessage(t('bank.moved', { name: result.to.name }))
+    onBankChange(result.from)
+    selection.clear()
+  }
   const [exporting, setExporting] = useState(false)
   const unavailableDrag = useWorkspaceDrag(() => undefined)
   const drag = providedDrag ?? unavailableDrag
@@ -245,6 +270,7 @@ export function QuestionBankWorkspace({
       ownerName={bank.name}
       onCancel={() => setEditing(null)}
       onDelete={bank.questions.some(({ id }) => id === editing.id) ? () => setConfirmingDeletion(true) : undefined}
+      onMove={bank.questions.some(({ id }) => id === editing.id) ? () => void startMove(editing) : undefined}
       onSave={async (question) => {
         const existing = bank.questions.some((candidate) => candidate.id === question.id)
         if (existing) await beforeCanonicalQuestionCommit?.()
@@ -263,6 +289,15 @@ export function QuestionBankWorkspace({
         setEditing(null)
       }}
     />}
+    {moveTargets && <ResourcePicker
+      title={t('bank.moveTitle')}
+      closeLabel={t('common.cancel')}
+      emptyMessage={t('bank.moveEmpty')}
+      resources={moveTargets}
+      onChoose={(targetId) => void moveInto(targetId)}
+      onClose={() => setMoveTargets(null)}
+    />}
+    {moveMessage && <p className="home-error bank-tabs-error" role="status">{moveMessage}</p>}
     {confirmingDeletion && editing && <QuestionDeletionConfirmation
       usage={usage ?? []}
       onCancel={() => setConfirmingDeletion(false)}

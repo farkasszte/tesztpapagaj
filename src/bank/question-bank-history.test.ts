@@ -66,3 +66,26 @@ test('üres előzménynél nincs mit visszavonni', async () => {
   const bank = await banks.create()
   expect(await banks.undo(bank.id)).toBeNull()
 })
+
+test('áthelyezés: a kérdés azonosítója marad, a bankja változik, és visszavonható', async () => {
+  const banks = createQuestionBankWorkspaceService()
+  const source = await banks.create()
+  await banks.commit(source.id, { kind: 'rename', name: 'Forrás' })
+  const question = createQuestion('open')
+  await banks.commit(source.id, { kind: 'create-question', question })
+  const target = await banks.create()
+  await banks.commit(target.id, { kind: 'rename', name: 'Cél' })
+
+  const moved = await banks.moveQuestions(source.id, [question.id], target.id)
+  expect(moved).not.toBeNull()
+  expect(moved!.from.questions).toHaveLength(0)
+  expect(moved!.to.questions.map(({ id }) => id)).toEqual([question.id])
+  // A statisztika és a kép a kérdés-azonosítóhoz tartozik: nem cserélődik.
+  expect(moved!.to.questions[0]!.id).toBe(question.id)
+
+  // A forrás bankon visszavonható: a kérdés visszakerül.
+  await banks.undo(source.id)
+  expect((await banks.read(source.id))?.questions.map(({ id }) => id)).toEqual([question.id])
+  // …és a cél bankból kikerül: egy kérdés nem lehet két bankban.
+  expect((await banks.read(target.id))?.questions).toHaveLength(0)
+})

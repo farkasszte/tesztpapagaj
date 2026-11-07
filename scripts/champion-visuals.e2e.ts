@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
 import { go } from './navigate'
 
 // A bajnok mód magyar felületének jelképei: a nagycím ékezetei nem lógnak a
@@ -9,8 +10,13 @@ const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
 /** Egy igazi kérdésbank a beépített szolgáltatással, két játszható kérdéssel. */
 async function seedBank(page: Page, name: string): Promise<void> {
-  await go(page, '/about')
-  await page.evaluate(async (bankName) => {
+  // Az első látogatás service worker-újratöltése elviheti az `evaluate`-t, és a
+  // kérdés-azonosítók nem ismételhetők: minden próbálkozás saját azonosítókat kap.
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    await go(page, '/about').catch(() => undefined)
+    const tag = `${Date.now().toString(36)}-${attempt}`
+    try {
+      await page.evaluate(async ({ bankName, suffix }) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
     )) as typeof import('../src/bank/question-bank-workspaces')
@@ -40,11 +46,20 @@ async function seedBank(page: Page, name: string): Promise<void> {
         ],
       },
     })
-    await banks.commit(bank.id, {
-      kind: 'create-questions',
-      questions: [question('c1', 'Melyik gáz kell a növényeknek?'), question('c2', 'Melyik gáz keletkezik?')],
-    } as never)
-  }, name)
+      await banks.commit(bank.id, {
+        kind: 'create-questions',
+        questions: [
+          question(`c1-${suffix}`, 'Melyik gáz kell a növényeknek?'),
+          question(`c2-${suffix}`, 'Melyik gáz keletkezik?'),
+        ],
+      } as never)
+      }, { bankName: name, suffix: tag })
+      return
+    } catch {
+      await page.waitForTimeout(600)
+    }
+  }
+  throw new Error('a bank vetése nem sikerült')
 }
 
 test.beforeEach(async ({ page }) => {

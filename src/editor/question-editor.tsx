@@ -31,7 +31,7 @@ import { RESOLVE_IMAGE_EVENT, configurePendingImages, pendingImageBlockView, pen
 import { ResolveImagesDialog } from './resolve-images-dialog'
 import { configurePictures, pictureKeys, PICTURE_MENU_EVENT, type PictureMenuRequest } from './picture-view'
 import { storedPicture } from './resolved-pictures'
-import { AlignCenter, AlignLeft, Captions, Check, Crop, FileType2, Gauge, Library, Plus, Tags, Trash2 } from 'lucide-react'
+import { AlignCenter, AlignLeft, Captions, Check, Crop, FileType2, Gauge, Library, MoveRight, Plus, Tags, Trash2 } from 'lucide-react'
 import { ContextMenu } from '../context-menu'
 import { keepMultipartParts, multipartMode, multipartPartSchema, multipartPartStemSchema, multipartPartStemView, multipartPartView, multipartPartsSchema, multipartPartsView, multipartSubpartSchema, multipartSubpartView, multipartSubpartsSchema, multipartSubpartsView } from './multipart'
 import { blankIcon, blankSchema, isInBlank, toggleBlank } from './blank-editor'
@@ -617,6 +617,7 @@ export function QuestionDialog({
   onCancel,
   onSave,
   onDelete,
+  onMove,
 }: {
   question: Question
   isNew: boolean
@@ -627,6 +628,8 @@ export function QuestionDialog({
   onCancel: () => void
   onSave: (question: Question) => Promise<void>
   onDelete?: () => void
+  /** Áthelyezés másik bankba — csak a bank oldalán van rá lehetőség. */
+  onMove?: () => void
 }) {
   const t = useT()
   // A question's type is settled when it is created, so the dialog reads it
@@ -925,6 +928,7 @@ export function QuestionDialog({
           />
         </div>
         <footer className="dialog-actions">
+          {!isNew && onMove && <button type="button" className="secondary-button question-move-button" onClick={onMove}><MoveRight />{t('bank.moveTo')}</button>}
           {!isNew && onDelete && <button type="button" className="danger-button question-delete-button" onClick={onDelete}><Trash2 />{t('editor.deleteQuestion')}</button>}
           {saveError && <p className="dialog-save-error" role="alert">{saveError}</p>}
           <button type="button" className="secondary-button" onClick={onCancel}>{t('common.cancel')}</button>
