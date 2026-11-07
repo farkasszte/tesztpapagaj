@@ -1,180 +1,112 @@
 # Tesztpapagáj
 
-Feladatszerkesztő tanároknak: kérdések (feleletválasztós, igaz/hamis, párosítás,
-rövid válasz, több részes) egy Milkdown-szerkesztőben, kérdésbankokba gyűjtve,
-dolgozatokká rendezve — nyomtatásra, PDF-be és Wordbe.
+Feladatszerkesztő tanároknak: kérdések (feleletválasztós, igaz/hamis, párosítás, rövid válasz, hiányos szöveg, több részes) egy modern Milkdown/Crepe szerkesztőben, kérdésbankokba gyűjtve, dolgozatokká rendezve — nyomtatásra, PDF-be és Wordbe (DOCX).
 
 A **Test Parrot** (teacher.dev) magyar fordítása és továbbfejlesztése.
-Apache License 2.0 — lásd `LICENSE` és `NOTICE.md` (a módosítások listájával).
+Apache License 2.0 — lásd a `LICENSE` és `NOTICE.md` fájlokat (a módosítások részletes listájával).
 
 - Eredeti projekt: <https://github.com/teacherdotdev/test-parrot>
 - Kapcsolat: **Farkas Gergely** — <farkas.szte@gmail.com>
 
-## Fordítás állapota
+---
 
-A munka folyamatban van; ez a lista mutatja, hol tartunk. A magyar szövegek
-egy helyen élnek: `src/i18n/index.ts`.
+## Főbb funkciók
+
+- **Intuitív feladatszerkesztő**: Feleletválasztós, Igaz/Hamis, Párosítás, Rövid válasz, Kiegészítés és Több részes kérdések megfogalmazása. Beépített matematikai képletszerkesztés KaTeX-szel, képek beillesztése és szerkesztése.
+- **Megújult kezdőlap**: A dolgozatok és kérdésbankok kényelmes áttekintése:
+  - **Nézetváltó**: szűrhető és rendezhető **Táblázat nézet** vagy vizuális **Kártyák nézet**.
+  - **Azonnali keresés és szűrés**: típusfülek (*Összes*, *Dolgozatok*, *Kérdésbankok*), keresés cím és tartalom szerint, oszloponkénti rendezés (*Név*, *Típus*, *Kérdések*, *Utolsó aktivitás*).
+  - **Gyorsműveletek**: Új dolgozat, Új kérdésbank és kiemelt Importálás gomb.
+- **Export és nyomtatás**: Dolgozatok és automatikus válaszkulcsok nyomtatása, exportálása PDF-be és Wordbe (DOCX) tökéletes formai és tipográfiai egyezéssel.
+- **Kérdésbankok és sokoldalú import**: Kérdések gyűjtése, csoportosítása és beemelése dolgozatokba. Széles körű formátumtámogatás: Moodle XML, Kahoot, Canvas/QTI (1.2, 2.1, 2.2, 3.0), Blackboard, Respondus CSV/Standard, GIFT, Excel/CSV táblázatok és Text2QTI.
+- **Kvízjátékok (`/jatek`)**: Interaktív osztálytermi vetítés és diák-eszközös valós idejű vetélkedők:
+  - **Klasszikus**, **Bajnok** és **Veszély!** (Peril) játékmódok.
+  - A Veszély! módban teljes értékű kézi táblaépítő, mezőcsere, kincsesbarlang (napi duplázó) jelölés és sablonmentés.
+  - **Tanulókártya** pakli önálló vagy tanórai átismétléshez.
+  - **Grand Prix** és **Szörnytámadás** közösségi módok.
+  - **Gyakorló mód**: diák-eszközös gyakorlás színes válaszkártyákkal, azonnali visszajelzéssel, megőrzött hibalistával és a korábbi eredmények telefonos naplójával.
+  - **Eredmények (`/eredmenyek`)**: játékonkénti mátrix, csoportátlag, feladatonkénti sikeresség és CSV export.
+- **Teljes adatvédelem és offline működés**: Minden dolgozat, kérdésbank és kép a böngésző helyi IndexedDB adatbázisában marad. Nincs kötelező felhőszolgáltatás, nincs követőkód, nincs szükség bejelentkezésre.
+- **Biztonsági mentés és mappák**: Helyi és tanári Google Drive mentés (`drive.file` hatókör, token csak a memóriában), valamint tetszőleges mapparendszerezés.
+
+---
+
+## Fordítás és lokalizáció
+
+A felhasználói felület és a hozzáférhetőségi címkék teljes egésze magyarul szólal meg (`src/i18n/index.ts`).
 
 | Terület | Állapot |
 |---|---|
-| Nyelvi réteg (`t()`, `useT()`, `countOf()`, nyelvválasztás, `<html lang>`) | kész |
-| Héj: navigáció, morzsamenü, súgó, lábléc | kész |
-| Kezdőlap, nyitóoldal, első indítás, gyűjtőoldalak | kész |
-| Indításkori hibaüzenetek | kész |
+| Nyelvi réteg (`t()`, `useT()`, `countOf()`, nyelvválasztás, `<html lang>`) | kész, típusbiztos |
+| Héj, navigáció, morzsamenü, súgó, lábléc | kész |
+| Kezdőlap (táblázatos és kártyás nézet, kereső, szűrők, rendezés) | kész |
 | Szerkesztő (dolgozat-oldal, eszköztár, szakaszok, formázás) | kész |
 | Kérdésbank-felületek, import, beállítások, fiók, A projektről, Adatvédelem | kész |
-| Accessible name-ek (aria-label, title, placeholder) | kész |
-| Nyomtatott feladatlap, válaszkulcs, PDF/Word export | kész: a válaszkulcs fejléce mindhárom kimeneten a szótárból jön |
-| e2e tesztek | a nagy készlet angolul fut (a nyelv a teszt-környezet beállítása), mellette 5 magyar felület-spec; a futás eredménye és az ismert eltérések a `NOTICE.md`-ben |
+| Kvízjátékok (színpadok, lobbi, diák-eszközök, táblaépítő, tanulókártyák) | kész |
+| Hozzáférhetőség (aria-label, title, placeholder, I/H igaz-hamis jelölés) | kész |
+| Nyomtatott feladatlap, válaszkulcs, PDF és Word export fejlécei | kész, mindhárom kimeneten egységes |
 
-## Futtatás
+---
+
+## Fejlesztés és futtatás
+
+A projekt [Bun](https://bun.sh/) csomagkezelőt és futtatókörnyezetet használ:
 
 ```sh
 bun install
-bun run dev      # fejlesztői szerver, http://localhost:8000
-bun run build    # típusellenőrzés + éles build a dist/-be
-bun test         # egységtesztek (~1700, 112 fájl)
-bun run test:e2e         # Playwright, a config szerint retry-jal
-bun run test:e2e:strict  # ugyanaz retry NÉLKÜL: ez mutatja meg a valódi bukásokat
-bun run test:e2e:fast    # csak a játék specjei (~45 mp), fejlesztés közben
+bun run dev          # Fejlesztői szerver indítása (http://localhost:8000)
+bun run dev:room     # Helyi szoba-relay indítása a diák-eszközös játékokhoz (8788)
+bun run build        # Típusellenőrzés + éles Vite build (dist/)
+bun test             # 1841 egységteszt futtatása (134 fájl, gyors és zöld)
+bun run test:e2e     # Teljes Playwright e2e tesztkészlet
+bun run test:e2e:fast # Gyors e2e tesztek a kvízjátékhoz
 ```
 
-Windowson a `bun test` 73 PDF-tesztje elbukik, mert a Bun elrontja a
-`public/fonts/*` útvonalát (`/E:/...` a `E:/...` helyett). Linuxon és CI-n
-ugyanezek átmennek; a hiba nem a kódban van.
+---
 
 ## Hogyan épül fel
 
-A forrás mappákra bomlik aszerint, hogy mi tartozik össze. A gyökérben a héj
-maradt (`App.tsx`, `main.tsx`, `app-shell.tsx`, a stíluslapok), a kezdőlap, a
-nyitóoldal és a jogi oldalak, valamint a `paths.ts`.
+A forráskód moduláris, szerepkörök szerint rendezett mappákban él:
 
-- **`src/export/`** — ami a tanár kezébe kerül: a válaszkulcs és a
-  feladatlap felépítése (`export-plan.ts`), a PDF (`pdf-*.ts`), a Word
-  (`docx-*.ts`), a nyomtatási stílus (`paper-style.ts`), a vászon méretei
-  (`page-*.ts`), a tipográfia és a bélyegképek.
-- **`src/import/`** — a behozatal: a fájlok felismerése, a csomagok
-  (`package-*.ts`), a Moodle/Kahoot/D2L/Respondus-formátumok
-  (`question-formats/`), a választó és az előnézet.
-- **`src/bank/`** — a kérdésbank és a gyűjtemény: a bank szolgáltatása, a
-  szerkesztő panel, a kártyák, a mappák, a törlés.
-- **`src/exam/`** — a dolgozat: a modell és a törlése, a szerkesztő, a pontok,
-  a kanonikus kérdés vetítése.
-- **`src/editor/`** — a szerkesztő moduljai: a Milkdown-dokumentum és a
-  kérdéstípusok (`multiple-choice.ts`, `matching.ts`, `blank.ts`), a
-  dokumentum-nézetek, a képek, a húzás és a panelek.
-- **`src/game/`** — a játék: a keretrendszer-független motor (`classic/`,
-  `peril/`, `race.ts`, `boss.ts`), a szoba protokollja, a színpad és a diák
-  lapja (`devices.tsx`, `stage.tsx`, `student.tsx`), a tanulókártya és a
-  játékok eredménye (`results.ts`, `results-store.ts`). Ide tartozik a
-  `game.css` is — a színpad saját stíluslapja, amelyet a diák lapja külön is
-  betölt, mert az önálló útvonalon nyílik.
-- **`src/storage/`** — mi történik az adattal: az IndexedDB sémája
-  (`storage-schema.ts`), a tartós tárolás, a fiók biztonsági másolata
-  (`account-backup.ts`), a Google Drive mentés (`google-drive.ts`,
-  `drive-*.ts`), valamint a régi rekordok olvasása (`stored-*.ts`).
+- **`src/editor/`** — A feladatszerkesztő magja: Milkdown és Crepe integráció, kérdéstípusok (`multiple-choice.ts`, `matching.ts`, `blank.ts`), dokumentum-nézetek, képkezelés és fogd-és-vidd mechanizmusok.
+- **`src/exam/`** — Dolgozatmodell: feladatsor összeállítása, pontszámítás, szakaszok és kérdések vetítése.
+- **`src/bank/`** — Kérdésbankok: tárolás, szerkesztőpanel, mappák (`folders.ts`), kérdések keresése és másolása.
+- **`src/import/`** — Behozatal: formátumfelismerés, többféle formátum elemzője (`question-formats/`), csomagok és importtörténet.
+- **`src/export/`** — Kiviteli motor: a feladatlap és válaszkulcs elrendezési terve (`plan.ts`), PDF generálás (`pdf-*.ts`), Word dokumentumok (`docx-*.ts`), nyomtatási CSS és tipográfia.
+- **`src/game/`** — Kvízjátékok: keretrendszer-független motorkészlet (`classic/`, `peril/`, `race.ts`, `boss.ts`, `flashcard.ts`), színpadok (`stage.tsx`, `peril-stage.tsx`, `champion-stage.tsx`), Veszély! táblaépítő (`peril-builder.tsx`), diák-felületek (`student.tsx`, `devices.tsx`), szobaprotokoll (`room-protocol.ts`) és eredménytároló (`results-store.ts`).
+- **`src/storage/`** — Perzisztens tárolás: IndexedDB séma (`storage-schema.ts`), biztonsági mentések exportálása/importálása (`account-backup.ts`) és Google Drive szinkronizáció (`google-drive.ts`, `drive-backup.ts`).
+- **`workers/room/`** — Cloudflare Durable Object alapú, alacsony késleltetésű szoba-relay a mobil eszközös diák-csatlakozáshoz (akár 50 egyidejű diákig).
 
-Két szabály tartja mozgathatóvá ezt a szerkezetet:
+---
 
-- **A fájlok a projekt gyökerétől számítanak, nem a saját helyüktől.** A
-  betűtípusokat, a logót, a formátum-sémákat és a próbaanyagokat a
-  `src/paths.ts` segédei nyitják meg (`publicPath`, `srcPath`, `fixturePath`),
-  amelyek felfelé lépkedve keresik a `package.json`-t. Ha egy fájl a saját
-  helyéhez képest nyitna meg valamit (`new URL('../…', import.meta.url)`),
-  minden mozgatás csendben eltörné — ezt a `src/paths.test.ts` el is kapja.
-- **A próbaanyagok a gyökér `fixtures/` mappájában élnek**, nem a kód mellett,
-  ezért a formátumok mappái szabadon átrendezhetők.
+## Kvízjátékok részletesen
 
-Egy mappán belül a fájl neve a szerepét mondja meg, nem a mappát ismétli:
-`export/answer-key` helyett `export/plan.ts` — a mappa már megmondta, hová
-tartozik.
+A `/jatek` oldal a **Class Gauntlet** Apache-2.0 motorjának korszerű átültetése:
 
-Vite + React 19, kliensoldali SPA, szerver és fiók nélkül: a dolgozatok, a
-kérdésbankok és a képek az IndexedDB-ben maradnak a gépen. Az export DOCX-et
-(`docx`), PDF-et (`pdf-lib` + MathJax) és nyomtatási stílust állít elő, és a
-három kimenetnek egyeznie kell — ezt a `bun test` ellenőrzi.
+1. **Vezérlés kétféle módon**:
+   - **Kivetítés**: A tanár a projektoron vezérli a játékot; a diákoknak nem szükséges külön eszköz.
+   - **Diák-eszközön**: A diákok 6 jegyű szobakóddal vagy QR-kóddal csatlakoznak a telefonjukon. A játékszabályok a tanár böngészőjében futnak, a relay csak a szinkronizációt biztosítja.
+2. **Válaszok keverése**: A kártyás kérdések válaszai véletlenszerűen, de determinisztikusan keverednek a kérdés azonosítója alapján (`playableQuestions(..., { shuffleAnswers })`), így a vetítésen és minden diák képernyőjén pontosan ugyanaz a sorrend jelenik meg, anélkül hogy a bank szerzői sorrendje elárulná a megoldást.
+3. **Veszély! (Peril) táblaépítő**: A tanár a játék előtt tetszőlegesen elrendezheti a kérdéseket a pontértékek szerint, mezőket cserélhet, új oszlopokat hozhat létre, és a kész elrendezést sablonként elmentheti későbbi órákra.
+4. **Tanulókártya pakli**: Időkorlát és verseny nélkül használható interaktív tanulókártyák, szóközre vagy kattintásra forduló kártyalapokkal, magyarázattal a hátoldalon.
+5. **Gyakorló mód és hibalista**: A diákok saját tempójukban gyakorolhatnak; a tévesztett kérdések automatikusan bekerülnek a telefonjukon megőrzött hibalistába (`/diak`), amit a következő óráig bármikor újra átnézhetnek.
 
-A feliratok a `src/i18n/index.ts`-ben vannak, nem a komponensekben. Az angol a
-forrás: a `TextKey` típus minden kulcsot számon kér, tehát hiányzó fordítás
-típushiba, nem üres gomb.
-
-### Kvízjáték
-
-A `/jatek` oldal három játékmódja (Klasszikus, Bajnok, Veszély!) a Class
-Gauntlet motorjának portja: a szabályok a `src/game/` alatt élnek, keretrendszer
-nélkül, a saját tesztjeikkel — a felület csak a nézeteket rajzolja. A játék a
-kérdésbank saját kérdéseiből dolgozik, és nem ír vissza a bankba.
-
-Két úton játszható: **kivetítéssel** (a tanár vezérli a színpadot, a napló nem
-rögzít választ) vagy **diák-eszközön** (szobakód és QR; a szabályok a tanár
-gépén futnak, a relay csak a nézeteket továbbítja).
-
-A Veszély! táblája kézzel is beosztható: a tanár a játék előtt mezőre teszi a
-kérdéseket, helyet cserél, levesz, oszlopot nevez el, és a kész táblát
-**sablonként** elmentheti a következő órára (`src/game-peril-builder.tsx`,
-`src/game/peril-plan.ts`). A beosztás a böngésző tárolójában marad, és a
-kincsesbarlang helye is beállítható.
-
-Negyedik, nem versenyző út a **Tanulókártya** (`src/game-flashcard.tsx`): a bank
-kérdéseiből pakli készül, elől a kérdés, hátul a helyes válasz és a magyarázat.
-Koppintásra (vagy szóközre) fordul, a nyilak lapoznak, a keverés és az automatikus
-fordítás a kártya alatt állítható — pont, idő és szoba nélkül. A bank oldaláról
-„Tanulókártyák ebből a bankból" indítja (`/jatek?bank=<id>&mod=kartya`), a hátlap
-tartalmát a kérdés típusa adja (`src/game/flashcard.ts`).
-
-A biztonsági másolat **a tanár saját Google Drive-jára** is felmehet
-(`src/google-drive.ts`, `src/drive-backup.ts`, `src/drive-settings.tsx`):
-hitelesítés szolgáltató nélkül, a Google Identity Services token modelljével
-(`drive.file` scope, a token csak memóriában él). Egyszer kell csatlakoztatni;
-onnantól naponta egyszer, a megnyitáskor magától ment, és bármikor kérhető egy
-mentés. A mappa a Drive-on `Tesztpapagáj biztonsági másolatok`, tíz csomag marad
-meg, a visszaállítás a meglévő restore-utat használja. A `VITE_GOOGLE_CLIENT_ID`
-környezeti változó kell hozzá (helyben `.env.local`, élesben a Vercel
-környezeti változói).
-
-A **kérdésbankok és a dolgozatok mappákba** rendezhetők (`src/folders.ts`): a mappa
-nézet-rendezés, a böngésző tárolójában él, és a **biztonsági másolat viszi** — a
-mentés a saját névterünk kulcsait is tartalmazza (`tesztpapagaj:*`: mappák, a
-Veszély! táblaterve és sablonjai, kérdés-statisztika, hibalisták, nyelv).
-
-Két további mód ugyanezen a naplón fut, más jelentéssel: a **Grand Prix**
-(`src/game/race.ts`) a pont helyett megtett távot mér — a helyes válasz visz
-előre, a gyors nitrót ad, a rossz kipördülés; a **Szörnytámadás**
-(`src/game/boss.ts`) közös küldetés: a többség helyes válasza sebzi a szörnyet,
-a többség rossza az osztály pajzsát rágja. Mindkettő a diák-eszközös házon megy
-át (minden válasz kell hozzá), a színpad a `src/game-mode-stages.tsx`-ben van.
-
-A játék után a diák a **hibalistáját** is megkapja: a Klasszikus eszközös módban a
-tanár gépe mindenkinek kiküldi a maga elrontott kérdéseit, a telefon pedig hét
-napra eltárolja (`src/game/review-deck.ts`), és a tanulókártya-nézővel átnézhető.
-A kihagyott (lejárt idő) kérdés nem hiba, azt a lista nem gyűjti. A diák oldala
-`/diak` — itt van a kódkérő és a megőrzött hibalisták, tehát a szoba bezárása után
-is visszatalál hozzá (`src/game-devices.tsx` küldi, `src/game-student.tsx` fogadja).
-
-A lejátszott játék **eredménye megmarad és böngészhető** (`/eredmenyek`): a
-jelentés megjelenésekor a színpad elmenti a kérdésenkénti mátrixot
-(`src/game/results.ts`) a játék saját adatbázisába (`src/game/results-store.ts`,
-`test-parrot-game-v1` → `results` tároló, az utolsó száz játék marad meg). Az
-oldal játékonként mutatja a csoportátlagot és a legjobb eredményt (holtversenynél
-mindenkit), alatta diák × kérdés mátrixban a ✓ / ✗ / – cellákat, a fejlécben a
-kérdésenkénti sikerességet. CSV-be vihető a naplóhoz, kinyomtatható, és
-törölhető. Csak becenév kerül bele — valódi név soha.
-
-A színpad jelképei a sport-téma nyelvén szólnak: a bajnok életjelzője **piros
-szív**, a díjalapé **aranytallér**; a diák telefonja ugyanezt a négy
-arénaszínt viseli, mint a vetítés.
+---
 
 ## Ami eltér az eredetitől
 
-A teljes lista a `NOTICE.md`-ben. Röviden: magyar nyelv (alapértelmezés), saját
-logó és ikon, magyar oldalcím, valamint a kvízjáték (a Class Gauntlet Apache-2.0
-motorjának portja, saját felülettel). A program működése, a fájlformátumok és az
-exportok logikája változatlan.
+A részletes nyilvántartást a `NOTICE.md` tartalmazza. Főbb különbségek:
+- Teljes magyar lokalizáció és nyelvi réteg.
+- Saját arculat, logó, ikonok és megújult táblázatos/kártyás kezdőlap.
+- Kvízjáték modul (kivetítés, szobák, táblaépítő, tanulókártyák, eredménytáblázat).
+- Google Drive biztonsági mentési lehetőség.
+- Mapparendszerezés a bankokhoz és dolgozatokhoz.
+- Rögzített I/H (Igaz/Hamis) jelölések a nyomtatott és digitális kimeneteken.
+
+---
 
 ## Köszönet
 
-Az eredeti alkalmazást a **teacher.dev** csapata készítette az EdTech-a-thonon,
-és Apache-2.0 licenc alatt tette közzé. A szerkesztő, az exportok, a
-fájlformátumok és a szövegek alapja az ő munkájuk.
+Az eredeti alkalmazást a **teacher.dev** csapata készítette az EdTech-a-thonon, és Apache-2.0 licenc alatt tette közzé. A szerkesztő, az exportok és az alapvető fájlformátumok az ő munkájukra épülnek.
 
-A magyar változat gondozója: **Farkas Gergely** — <farkas.szte@gmail.com>.
+A magyar változat fejlesztője és gondozója: **Farkas Gergely** — <farkas.szte@gmail.com>.
