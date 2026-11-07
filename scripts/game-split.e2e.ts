@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test'
-import { connectRelay } from './room-mock'
 import { go } from './navigate'
 
 // tp#45: differenciált kvíz — két bank egyszerre, a diák a belépésnél választ
@@ -110,25 +109,29 @@ test('a diák a belépésnél oldalt választ, oldal nélkül nem lép be', asyn
   await expect(page.getByText('Pick a side to join.')).toHaveCount(0)
 })
 
-// NYITOTT: a két diák együttes játéka a szoba-mockkal még nem megy át — a
-// tanár lobbija nem kapja meg a diák belépését (a `game-devices.e2e.ts` ugyanezt
-// a mockot használja, ott zöld). Amíg ez tisztázatlan, a teszt kikapcsolva fut,
-// hogy a zöld készlet ne hazudjon: a `tp#45` tétel ezért marad `doing`-ban.
-// NYITOTT (tp#45): a teszt-harness, nem a termék. A host socketje ebben a
-// folyamatban nem megy át a `routeWebSocket`-en: a böngésző a valódi
-// `ws://127.0.0.1:8788/room/<kód>` címre próbál csatlakozni és
-// `ERR_CONNECTION_REFUSED`-ot kap (a `game-devices.e2e.ts` ugyanezt a mockot
-// használja, ott zöld). Amíg ezt nem sikerül kiváltani, a teszt kikapcsolva
-// fut, hogy a zöld készlet ne hazudjon.
-test.skip('két oldal egy szobában: mindenki csak a saját kérdését látja, közös a tábla', async ({
+// A szoba a **valódi** relay (bun run dev:room, 8788): a tanár és a diákok
+// ugyanazt a Durable Object-kódot járják, mint élesben. Ha a relay nem fut, a
+// teszt hangosan kimarad — nem hazudik zöldet.
+let relay = false
+
+test.beforeAll(async ({ request }) => {
+  try {
+    const answer = await request.get('http://127.0.0.1:8788/health', { timeout: 3000 })
+    relay = answer.ok() && (await answer.json()).ok === true
+  } catch {
+    relay = false
+  }
+  if (!relay) console.warn('A helyi relay nem fut (bun run dev:room, 8788) — a szobás teszt kimarad.')
+})
+
+test('két oldal egy szobában: mindenki csak a saját kérdését látja, közös a tábla', async ({
   page,
+  browser,
 }) => {
+  test.skip(!relay, 'a helyi relay nem fut (bun run dev:room, 8788)')
+  test.setTimeout(150_000)
   await seedBanks(page)
-  // A relay-útvonal a navigáció ELŐTT regisztrálódik: a host socketje a
-  // szoba megnyitásakor azonnal csatlakozik, és a későbbi regisztrációt a
-  // Playwright már nem látja el.
-  await connectRelay(page.context())
-  await go(page, '/jatek').catch(() => undefined)
+  await go(page, '/jatek')
   await page.getByRole('button', { name: /^Split quiz/ }).click()
 
   // A két oldal bankja nevén: bal a 3 kérdéses, jobb a 2 kérdéses. A legördülő
@@ -153,12 +156,21 @@ test.skip('két oldal egy szobában: mindenki csak a saját kérdését látja, 
   const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
 
   const join = async (side: 'Side A' | 'Side B', nickname: string) => {
-    const phone = await page.context().newPage()
+    // Minden diák **saját** böngésző-kontextusban: a hely (seat) a tárolóban él,
+    // és egy közös kontextusban a második diák már bent lévőnek hinné magát.
+    const context = await browser.newContext()
+    await context.addInitScript(() =>
+      window.localStorage.setItem('tesztpapagaj:language', 'en'))
+    const phone = await context.newPage()
     await phone.setViewportSize({ width: 390, height: 844 })
     await phone.goto(new URL(`/jatek?kod=${code}&oldal=1`, page.url()).toString())
-    await phone.locator('.gq-stu-side').filter({ hasText: side }).click()
+    const sides = phone.locator('.gq-stu-side')
+    await expect(sides).toHaveCount(2)
+    await (side === 'Side A' ? sides.first() : sides.nth(1)).click()
     await phone.getByPlaceholder('For example: Panni').fill(nickname)
     await phone.getByRole('button', { name: 'Join the game' }).click()
+    // A belépő űrlap eltűnése a jel, hogy a diák bent van.
+    await expect(phone.locator('.gq-stu-sides')).toHaveCount(0, { timeout: 20_000 })
     return phone
   }
   const anna = await join('Side A', 'Anna')
