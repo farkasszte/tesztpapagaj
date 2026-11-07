@@ -1906,20 +1906,33 @@ select.gq-input-small { text-align: center; }
   background: #fffaf3; color: #241c17; border-color: rgb(36 28 23 / 0.28);
 }
 .gq-card {
-  display: grid; align-content: start; gap: 18px; text-align: start; cursor: pointer;
-  width: 100%; max-width: 980px; min-height: 46vh; margin: 0 auto;
-  padding: 26px 30px 30px; border-radius: 10px;
+  display: flex; flex-direction: column; text-align: start; cursor: pointer;
+  width: 100%; max-width: 880px; height: clamp(340px, 44vh, 480px); margin: 0 auto;
+  padding: 24px 28px; border-radius: 12px;
   border: 1px solid rgb(36 28 23 / 0.16);
   background: var(--paper); color: #241c17;
-  box-shadow: 0 18px 40px rgb(0 0 0 / 0.35);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 0.35);
   font: inherit;
+  box-sizing: border-box;
+  transition: background 200ms ease, box-shadow 200ms ease, transform 150ms ease;
 }
-.gq-card[data-flipped='yes'] { background: linear-gradient(180deg, #fdf6ea, #f3e7d6); }
+.gq-card:hover {
+  box-shadow: 0 20px 44px rgb(0 0 0 / 0.42);
+  transform: translateY(-2px);
+}
+.gq-card[data-flipped='yes'] { background: linear-gradient(180deg, #fdf6ea, #f4e8d8); }
+.gq-card-header-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; flex: none;
+  margin-bottom: 8px;
+}
 .gq-card-side {
-  font-family: var(--display); font-size: 13px; font-weight: 600;
-  letter-spacing: 0.16em; text-transform: uppercase; color: #8a6a4a;
+  font-family: var(--display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #8a6a4a;
 }
-.gq-card-body { display: grid; gap: 14px; align-content: start; }
+.gq-card-body {
+  flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  overflow-y: auto; min-height: 0; padding-right: 4px;
+}
 .gq-card-stem {
   font-family: var(--serif); font-size: clamp(22px, 2.1vw, 34px); line-height: 1.45;
 }
@@ -1930,50 +1943,103 @@ select.gq-input-small { text-align: center; }
   font-weight: 700; color: #1f4d2e;
 }
 .gq-card-why { font-size: 17px; line-height: 1.5; color: #4e3b2f; }
-.gq-card-nav {
-  display: flex; align-items: center; justify-content: center; gap: 14px;
-  margin-top: 18px;
-}
-.gq-card-nav .gq-quiet, .gq-card-nav .gq-go { min-width: 132px; }
 
-/* Leitner-módszer stílusai */
-.gq-leitner-boxes {
-  display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+/* Leitner-módszer állomás-tábla a kártya felett */
+.gq-leitner-rack {
+  display: flex; align-items: stretch; justify-content: center; gap: 10px;
+  max-width: 880px; width: 100%; margin: 0 auto 6px;
 }
 .gq-leitner-box {
-  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
-  border-radius: 9999px; font-size: 12px; font-weight: 600; font-family: var(--display);
-  letter-spacing: 0.04em;
+  flex: 1; display: flex; flex-direction: column; gap: 3px;
+  padding: 10px 14px; border-radius: 8px; position: relative;
+  background: rgb(20 17 14 / 0.55);
+  border: 1px solid rgb(245 236 220 / 0.15);
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease, background 200ms ease;
 }
-.gq-leitner-box--1 { background: rgb(220 38 38 / 0.18); color: #fca5a5; border: 1px solid rgb(220 38 38 / 0.35); }
-.gq-leitner-box--2 { background: rgb(217 167 44 / 0.18); color: #fde047; border: 1px solid rgb(217 167 44 / 0.35); }
-.gq-leitner-box--3 { background: rgb(34 197 94 / 0.18); color: #86efac; border: 1px solid rgb(34 197 94 / 0.35); }
+.gq-leitner-box--active {
+  border-color: #f4cd63;
+  background: rgb(244 205 99 / 0.1);
+  box-shadow: 0 0 16px rgb(244 205 99 / 0.28);
+  transform: translateY(-2px);
+}
+.gq-leitner-box-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.gq-leitner-box-title {
+  font-family: var(--display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.gq-leitner-box--1 .gq-leitner-box-title { color: #f87171; }
+.gq-leitner-box--2 .gq-leitner-box-title { color: #fbbf24; }
+.gq-leitner-box--3 .gq-leitner-box-title { color: #4ade80; }
 
-.gq-card-header-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+.gq-leitner-box-role {
+  font-size: 13px; font-weight: 600; color: rgb(245 236 220 / 0.9);
+  font-family: var(--sans);
 }
+.gq-leitner-box-desc {
+  font-size: 12px; color: rgb(245 236 220 / 0.6);
+}
+.gq-leitner-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: rgb(245 236 220 / 0.35); font-size: 16px; flex: none;
+}
+.gq-leitner-active-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--display); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
+  background: #f4cd63; color: #1a140d;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+}
+
 .gq-card-box-badge {
-  font-family: var(--display); font-size: 12px; font-weight: 600;
-  padding: 2px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;
+  font-family: var(--display); font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;
 }
-.gq-card-box-badge--1 { background: #fee2e2; color: #991b1b; }
-.gq-card-box-badge--2 { background: #fef3c7; color: #92400e; }
-.gq-card-box-badge--3 { background: #dcfce7; color: #166534; }
+.gq-card-box-badge--1 { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.gq-card-box-badge--2 { background: #fef3c7; color: #92400e; border: 1px solid #fde047; }
+.gq-card-box-badge--3 { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
 
-.gq-leitner-actions {
-  display: flex; align-items: center; justify-content: center; gap: 16px;
-  margin-top: 18px; flex-wrap: wrap;
+/* Állandó vezérlősáv dokk a kártya alatt (nincs ugrálás, a gombok mindig kint vannak) */
+.gq-card-dock {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  max-width: 880px; width: 100%; margin: 12px auto 0;
+  min-height: 44px;
 }
+.gq-card-dock-btn {
+  height: 44px;
+  padding: 0 16px;
+  min-width: 100px;
+  box-sizing: border-box;
+}
+.gq-card-dock-flip {
+  min-width: 130px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .gq-leitner-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none;
-  font-family: var(--display); font-size: 15px; font-weight: 700;
-  letter-spacing: 0.04em; transition: filter 0.12s, transform 0.12s; min-width: 150px;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 44px; min-height: 44px; padding: 0 18px; border-radius: 6px; cursor: pointer; border: 1px solid transparent;
+  font-family: var(--display); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  transition: filter 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+  box-sizing: border-box;
 }
-.gq-leitner-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.gq-leitner-btn:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 4px 10px rgb(0 0 0 / 0.35); }
 .gq-leitner-btn:active { transform: translateY(1px); }
-.gq-leitner-btn--fail { background: #dc2626; color: #ffffff; }
-.gq-leitner-btn--pass { background: #16a34a; color: #ffffff; }
+
+/* Gomb és doboz vizuális kapcsolat (színek & szegélyek): */
+.gq-leitner-btn--fail {
+  background: #dc2626; color: #ffffff; border-color: #ef4444;
+}
+.gq-leitner-btn--pass.gq-leitner-btn--target-2 {
+  background: #d97706; color: #ffffff; border-color: #f59e0b;
+}
+.gq-leitner-btn--pass.gq-leitner-btn--target-3 {
+  background: #16a34a; color: #ffffff; border-color: #22c55e;
+}
 
 .gq-leitner-finished {
   display: grid; place-items: center; gap: 16px; text-align: center;

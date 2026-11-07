@@ -4,6 +4,7 @@ import type { Flashcard } from './flashcard'
 import type { PlayableWords } from './projection'
 import { useExitOnEscape, useStageFocusTrap } from './parts'
 import { useT } from '../i18n/index'
+import { StageTools } from './stage-tools'
 
 /**
  * Tanulókártya — kártyás ismétlés a bankból.
@@ -72,6 +73,7 @@ export function FlashcardDeck({
     } catch {
       // ignore
     }
+    setOrder([...cards])
     setIndex(0)
     setFlipped(false)
   }
@@ -93,14 +95,19 @@ export function FlashcardDeck({
   const [step, setStep] = useState<number>(0)
   const timer = useRef<number | null>(null)
 
+  // Csak akkor frissítjük a paklit a függőségekből, ha a kártyák listája vagy a mód megváltozik,
+  // vagy ha az index túlfutna a kártyák számán.
   useEffect(() => {
-    setOrder((current) => {
-      const activeIds = new Set(activeDeck.map((c) => c.id))
-      const filtered = current.filter((c) => activeIds.has(c.id))
-      return filtered.length > 0 ? filtered : activeDeck
-    })
-    setIndex((current) => (current < activeDeck.length ? current : 0))
-  }, [activeDeck])
+    if (!leitnerMode) {
+      setOrder([...cards])
+    } else {
+      const learning = cards.filter((c) => (boxMap[c.id] ?? 1) < 3)
+      setOrder(learning.length > 0 ? learning : [...cards])
+    }
+    setIndex(0)
+    setFlipped(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Csak a mód és a kártyalista váltásakor inicializálunk, dobozléptetéskor nem ugrunk az elejére.
+  }, [cards, leitnerMode])
 
   const allMastered = leitnerMode && cards.length > 0 && box3.length === cards.length
   const card = order[index]
@@ -128,11 +135,22 @@ export function FlashcardDeck({
 
   const handlePass = () => {
     if (!card) return
-    const nextLevel = cardLevel === 1 ? 2 : 3
+    const nextLevel = (cardLevel === 1 ? 2 : 3) as 1 | 2 | 3
     updateBox(card.id, nextLevel)
     setFlipped(false)
-    if (order.length > 1) {
-      setIndex((current) => (current + 1) % order.length)
+
+    if (leitnerMode && nextLevel === 3) {
+      // Ez a kártya bekerült a 3. dobozba (megtanulva), kikerül az aktív tanulási pakliból!
+      // A következő kártya a mostani index helyére csúszik, így NEM szabad indexet növelni!
+      const nextOrder = order.filter((c) => c.id !== card.id)
+      setOrder(nextOrder)
+      if (nextOrder.length > 0) {
+        setIndex((current) => current % nextOrder.length)
+      }
+    } else {
+      if (order.length > 1) {
+        setIndex((current) => (current + 1) % order.length)
+      }
     }
   }
 
@@ -167,22 +185,22 @@ export function FlashcardDeck({
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (
+        event.target instanceof HTMLSelectElement ||
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
+        return
+      }
+
       if (event.key === ' ' || event.key === 'Enter') {
-        // Gombon a böngésző maga aktivál (a kártya fordul); a mezőkben gépelni kell.
-        if (
-          event.target instanceof HTMLButtonElement ||
-          event.target instanceof HTMLSelectElement ||
-          event.target instanceof HTMLInputElement ||
-          event.target instanceof HTMLTextAreaElement
-        ) {
-          return
-        }
+        if (event.target instanceof HTMLButtonElement) return
         event.preventDefault()
         setFlipped((open) => !open)
-      } else if (event.key === '1' && flipped && leitnerMode) {
+      } else if (event.key === '1' && leitnerMode) {
         event.preventDefault()
         handleFail()
-      } else if (event.key === '2' && flipped && leitnerMode) {
+      } else if (event.key === '2' && leitnerMode) {
         event.preventDefault()
         handlePass()
       } else if (event.key === 'ArrowRight') {
@@ -202,30 +220,86 @@ export function FlashcardDeck({
       <div className="gq-stage-bar">
         <span className="gq-pin">{t('game.mode.flashcard.name')}</span>
         <span className="gq-where">
-          <span>{title}</span>
+          <span className="gq-one-name">{title}</span>
           <span className="gq-stat">
             <strong>
               {order.length === 0 ? 0 : index + 1} / {order.length}
             </strong>
           </span>
-          {leitnerMode && (
-            <span className="gq-leitner-boxes" aria-label={t('game.flashcard.leitnerMode')}>
-              <span className="gq-leitner-box gq-leitner-box--1" title={t('game.flashcard.box1')}>
+        </span>
+        <span className="gq-bar-end">
+          <StageTools />
+          <button type="button" className="gq-quiet" onClick={onExit}>
+            {t('game.stage.endGame')}
+          </button>
+        </span>
+      </div>
+
+      {leitnerMode && (
+        <div className="gq-leitner-rack" role="group" aria-label={t('game.flashcard.leitnerMode')}>
+          <div
+            className={`gq-leitner-box gq-leitner-box--1${cardLevel === 1 ? ' gq-leitner-box--active' : ''}`}
+            title={t('game.flashcard.box1')}
+          >
+            <div className="gq-leitner-box-header">
+              <span className="gq-leitner-box-title">
                 {t('game.flashcard.box1Short')}: {box1.length}
               </span>
-              <span className="gq-leitner-box gq-leitner-box--2" title={t('game.flashcard.box2')}>
+              {cardLevel === 1 && (
+                <span className="gq-leitner-active-badge">
+                  ● {t('game.flashcard.boxActiveBadge')}
+                </span>
+              )}
+            </div>
+            <span className="gq-leitner-box-role">{t('game.flashcard.box1Role')}</span>
+            <span className="gq-leitner-box-desc">{t('game.flashcard.box1Hint')}</span>
+          </div>
+
+          <span className="gq-leitner-arrow" aria-hidden="true">
+            ➔
+          </span>
+
+          <div
+            className={`gq-leitner-box gq-leitner-box--2${cardLevel === 2 ? ' gq-leitner-box--active' : ''}`}
+            title={t('game.flashcard.box2')}
+          >
+            <div className="gq-leitner-box-header">
+              <span className="gq-leitner-box-title">
                 {t('game.flashcard.box2Short')}: {box2.length}
               </span>
-              <span className="gq-leitner-box gq-leitner-box--3" title={t('game.flashcard.box3')}>
+              {cardLevel === 2 && (
+                <span className="gq-leitner-active-badge">
+                  ● {t('game.flashcard.boxActiveBadge')}
+                </span>
+              )}
+            </div>
+            <span className="gq-leitner-box-role">{t('game.flashcard.box2Role')}</span>
+            <span className="gq-leitner-box-desc">{t('game.flashcard.box2Hint')}</span>
+          </div>
+
+          <span className="gq-leitner-arrow" aria-hidden="true">
+            ➔
+          </span>
+
+          <div
+            className={`gq-leitner-box gq-leitner-box--3${cardLevel === 3 ? ' gq-leitner-box--active' : ''}`}
+            title={t('game.flashcard.box3')}
+          >
+            <div className="gq-leitner-box-header">
+              <span className="gq-leitner-box-title">
                 {t('game.flashcard.box3Short')}: {box3.length}
               </span>
-            </span>
-          )}
-        </span>
-        <button type="button" className="gq-quiet" onClick={onExit}>
-          {t('game.stage.endGame')}
-        </button>
-      </div>
+              {cardLevel === 3 && (
+                <span className="gq-leitner-active-badge">
+                  ● {t('game.flashcard.boxActiveBadge')}
+                </span>
+              )}
+            </div>
+            <span className="gq-leitner-box-role">{t('game.flashcard.box3Role')}</span>
+            <span className="gq-leitner-box-desc">{t('game.flashcard.box3Hint')}</span>
+          </div>
+        </div>
+      )}
 
       {allMastered ? (
         <div className="gq-leitner-finished" role="region" aria-label={t('game.flashcard.finishedTitle')}>
@@ -250,7 +324,11 @@ export function FlashcardDeck({
               <span className="gq-card-side">{t(flipped ? 'game.flashcard.back' : 'game.flashcard.front')}</span>
               {leitnerMode && (
                 <span className={`gq-card-box-badge gq-card-box-badge--${cardLevel}`}>
-                  {t(`game.flashcard.box${cardLevel}Short` as never)}
+                  {cardLevel === 1
+                    ? `${t('game.flashcard.box1Short')} · ${t('game.flashcard.box1Role')}`
+                    : cardLevel === 2
+                      ? `${t('game.flashcard.box2Short')} · ${t('game.flashcard.box2Role')}`
+                      : `${t('game.flashcard.box3Short')} · ${t('game.flashcard.box3Role')}`}
                 </span>
               )}
             </div>
@@ -263,7 +341,13 @@ export function FlashcardDeck({
                     </span>
                   ))}
                 </span>
-                {card.explanation ? <span className="gq-card-why">{card.explanation}</span> : null}
+                {rich?.explanation ? (
+                  <span className="gq-card-why">
+                    <DocView content={rich.explanation} />
+                  </span>
+                ) : card.explanation ? (
+                  <span className="gq-card-why">{card.explanation}</span>
+                ) : null}
               </span>
             ) : (
               <span className="gq-card-body">
@@ -279,33 +363,58 @@ export function FlashcardDeck({
             )}
           </button>
 
-          {flipped && leitnerMode && (
-            <div className="gq-leitner-actions">
-              <button
-                type="button"
-                className="gq-leitner-btn gq-leitner-btn--fail"
-                onClick={handleFail}
-              >
-                ✕ {t('game.flashcard.didNotKnow')}
-              </button>
-              <button
-                type="button"
-                className="gq-leitner-btn gq-leitner-btn--pass"
-                onClick={handlePass}
-              >
-                ✓ {t('game.flashcard.knewIt')}
-              </button>
-            </div>
-          )}
-
-          <div className="gq-card-nav">
-            <button type="button" className="gq-quiet" onClick={() => go(-1)} disabled={order.length < 2}>
+          <div className="gq-card-dock">
+            <button
+              type="button"
+              className="gq-quiet gq-card-dock-btn"
+              onClick={() => go(-1)}
+              disabled={order.length < 2}
+            >
               ← {t('game.flashcard.previous')}
             </button>
-            <button type="button" className="gq-go" onClick={() => setFlipped((open) => !open)}>
-              {t(flipped ? 'game.flashcard.front' : 'game.flashcard.flip')}
-            </button>
-            <button type="button" className="gq-quiet" onClick={() => go(1)} disabled={order.length < 2}>
+
+            {leitnerMode ? (
+              <>
+                <button
+                  type="button"
+                  className="gq-leitner-btn gq-leitner-btn--fail"
+                  onClick={handleFail}
+                >
+                  ✕ {t('game.flashcard.didNotKnow')}
+                </button>
+
+                <button
+                  type="button"
+                  className="gq-go gq-card-dock-btn gq-card-dock-flip"
+                  onClick={() => setFlipped((open) => !open)}
+                >
+                  {t(flipped ? 'game.flashcard.front' : 'game.flashcard.flip')}
+                </button>
+
+                <button
+                  type="button"
+                  className={`gq-leitner-btn gq-leitner-btn--pass gq-leitner-btn--target-${cardLevel === 1 ? '2' : '3'}`}
+                  onClick={handlePass}
+                >
+                  ✓ {t('game.flashcard.knewIt')}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="gq-go gq-card-dock-btn gq-card-dock-flip"
+                onClick={() => setFlipped((open) => !open)}
+              >
+                {t(flipped ? 'game.flashcard.front' : 'game.flashcard.flip')}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="gq-quiet gq-card-dock-btn"
+              onClick={() => go(1)}
+              disabled={order.length < 2}
+            >
               {t('game.flashcard.next')} →
             </button>
           </div>
