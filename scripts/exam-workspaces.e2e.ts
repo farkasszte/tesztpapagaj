@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 test('the IndexedDB workspace service keeps UUID identities and recency apart from authoring writes', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   // The image worker may take control and reload once on the first visit.
   await page.getByRole('heading', { name: 'Pick up where you left off', exact: true }).waitFor()
   const result = await page.evaluate(async () => {
@@ -59,7 +60,7 @@ test('the IndexedDB workspace service keeps UUID identities and recency apart fr
 })
 
 test('a failed Save As leaves the source Exam and active workspace unchanged', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('heading', { name: 'Pick up where you left off', exact: true }).waitFor()
   const result = await page.evaluate(async () => {
     const { createExamWorkspaceService } = await import(

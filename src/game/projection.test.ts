@@ -405,3 +405,30 @@ describe('shuffling the answers a game shows', () => {
   })
 })
 })
+
+describe('szavazás (B5): a helyes válasz nélküli kérdés játszható', () => {
+  test('a csupa-jelöletlen válaszú kérdés szavazásként játszható', () => {
+    const vote = question([choice('Igen'), choice('Nem')])
+    expect(playableQuestions([vote], { vote: true }).questions).toHaveLength(1)
+  })
+
+  test('amelyiknek van helyes válasza, nem szavazás — indoklással kimarad', () => {
+    const scored = question([choice('Négy'), choice('Öt', true)])
+    const result = playableQuestions([scored], { vote: true })
+    expect(result.questions).toHaveLength(0)
+    expect(result.skipped[0]?.reason).toBe(t('game.skip.hasCorrect'))
+  })
+
+  test('a szavazásba nem választható típus nem kerül be', () => {
+    const ordered = question([choice('Első'), choice('Második')], { type: 'ordering' })
+    const result = playableQuestions([ordered], { vote: true })
+    expect(result.questions).toHaveLength(0)
+  })
+
+  test('szavazás nélkül ugyanez a kérdés kimarad (nincs helyes válasz)', () => {
+    const vote = question([choice('Igen'), choice('Nem')])
+    const result = playableQuestions([vote])
+    expect(result.questions).toHaveLength(0)
+    expect(result.skipped[0]?.reason).toBe(t('game.skip.noCorrect'))
+  })
+})

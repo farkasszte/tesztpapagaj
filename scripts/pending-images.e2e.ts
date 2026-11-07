@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises'
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 import { assistantPackage, picture, sourceDocument } from './pending-images-fixtures'
 
@@ -13,7 +14,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   // Home's one button is Import, which opens the Import dialog; a test
   // dropped there starts an import that waits on its own page.
-  await page.goto('/')
+  await go(page, '/')
   await expect(page.getByRole('button', { name: 'Import Question Bank' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Import', exact: true }).click()
   await page.getByRole('dialog', { name: 'Import' }).getByLabel('Your test, a question file, or a Test Parrot file').setInputFiles({
@@ -42,7 +43,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   // Import again is a new import: it does not pick the waiting one up.
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Converting unit-test.pdf' })).toBeVisible()
-  await page.goto('/imports')
+  await go(page, '/imports')
   await page.getByRole('button', { name: 'Import', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Import' }).getByLabel('Your test, a question file, or a Test Parrot file')).toBeVisible()
   await expect(page.getByRole('region', { name: 'Convert your test' })).toHaveCount(0)
@@ -141,7 +142,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
 
   // Imports now lists it as imported, with what it brought in and the
   // picture it still needs; its Test opens from there.
-  await page.goto('/imports')
+  await go(page, '/imports')
   await expect(page.getByRole('region', { name: 'Pending' })).toHaveCount(0)
   const importedRow = page.getByRole('region', { name: 'History' }).getByRole('listitem', { name: 'unit-test.pdf' })
   // A sor a behozott kérdésszámot és a hiányzó képet mondja; a „Pending"
@@ -212,7 +213,7 @@ test('a converted test gets its pictures from the teacher’s own PDF', async ({
   await exporting.getByRole('button', { name: 'Cancel' }).click()
 
   // With its last picture added, the import needs nothing more.
-  await page.goto('/imports')
+  await go(page, '/imports')
   // A sor a hiányzó képről már nem beszél: ezzel az importálás lezárult.
   await expect(page.getByRole('listitem', { name: 'unit-test.pdf' })).not.toContainText('still needed')
 })

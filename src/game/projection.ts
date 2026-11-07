@@ -260,7 +260,7 @@ function scrambledIndices(count: number, seed: string): number[] {
 }
 
 /** Why a question can't be played, or null when it can. */
-function problemOf(question: BankQuestion, classic: boolean): string | null {
+function problemOf(question: BankQuestion, classic: boolean, vote: boolean): string | null {
   if (!PLAYABLE_TYPES.has(question.type))
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
   // A több helyes válasz csak a Klasszikus módban játszható: a Bajnok és a
@@ -312,8 +312,15 @@ function problemOf(question: BankQuestion, classic: boolean): string | null {
     return t('game.skip.choiceCount', { count: choices.length })
   // Sorrendezésnél nincs megjelölt helyes válasz: a szerzői sorrend a megoldás.
   const correct = choices.filter(choiceIsCorrect).length
-  if (question.type !== 'ordering' && correct === 0) return t('game.skip.noCorrect')
-  if (question.type === 'multiple-choice' && correct > 1) return t('game.skip.manyCorrect')
+  if (vote) {
+    // Szavazás: csak a választható, **helyes válasz nélküli** kérdés játszható.
+    if (question.type !== 'multiple-choice' && question.type !== 'true-false')
+      return t('game.skip.type', { type: SECTION_LABELS[question.type] })
+    if (correct > 0) return t('game.skip.hasCorrect')
+  } else {
+    if (question.type !== 'ordering' && correct === 0) return t('game.skip.noCorrect')
+    if (question.type === 'multiple-choice' && correct > 1) return t('game.skip.manyCorrect')
+  }
   if (choices.some((node) => !plainOf(gameNodes(childrenOf(node))).trim()))
     return t('game.skip.blankChoice')
   const said = choices.map((node) => plainOf(gameNodes(childrenOf(node))).trim().toLowerCase())
@@ -331,9 +338,11 @@ function problemOf(question: BankQuestion, classic: boolean): string | null {
  */
 export function playableQuestions(
   questions: readonly BankQuestion[],
-  options: { classic?: boolean; shuffleAnswers?: boolean } = {},
+  options: { classic?: boolean; shuffleAnswers?: boolean; vote?: boolean } = {},
 ): PlayableQuestions {
   const classic = options.classic ?? false
+  // Szavazás: a helyes válasz nélküli kérdések játéka (B5).
+  const vote = options.vote ?? false
   // A kártyás kérdés válaszai felkeverve állnak, hogy a szerzői sorrend ne
   // árulja el a megoldást. A keverés a kérdés azonosítójából jön, tehát a
   // tanár színpada és minden diák eszköze ugyanazt a sorrendet látja.
@@ -343,7 +352,7 @@ export function playableQuestions(
   const words = new Map<string, PlayableWords>()
   const plain = (rich: RichText) => plainOf(rich).trim()
   questions.forEach((question, index) => {
-    const problem = problemOf(question, classic)
+    const problem = problemOf(question, classic, vote)
     if (problem) {
       skipped.push({ number: index + 1, reason: problem })
       return

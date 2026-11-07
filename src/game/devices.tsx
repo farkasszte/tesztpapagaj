@@ -48,7 +48,7 @@ export function ClassicDevices({
   /** Melyik bankból indult a játék — az eredmény innen visszakereshető. */
   bankId?: string
   /** Melyik színpadot rajzolja: a Klasszikusét, a futamét vagy a szörnyét. */
-  stage?: 'classic' | 'race' | 'boss'
+  stage?: 'classic' | 'race' | 'boss' | 'vote'
 }) {
   const t = useT()
   const [code] = useState(() => newRoomCode())
@@ -78,7 +78,8 @@ export function ClassicDevices({
   const viewOf = useCallback((playerId: string) => buildClassicView(engine.session, {
     now: Date.now(),
     viewerId: playerId,
-    ...(stage === 'classic' ? {} : { theme: stage }),
+    // A szavazás a Klasszikus vásznát viseli (nincs saját témája).
+    ...(stage === 'classic' || stage === 'vote' ? {} : { theme: stage }),
   }), [engine, stage])
 
   /** Mindenkinek a saját nézete; a tanár színpada a sajátját maga rajzolja. */
@@ -220,6 +221,8 @@ export function ClassicDevices({
     return () => clearInterval(timer)
   }, [broadcast, engine, bump])
 
+  // A szavazás a Klasszikus színpadot használja: nincs helyes válasz, a
+  // felfedésnél a betűk helyén a szavazatok száma áll.
   const Stage = stage === 'race' ? RaceStage : stage === 'boss' ? BossStage : ClassicStage
 
   if (started) {

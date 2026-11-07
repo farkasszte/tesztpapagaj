@@ -30,7 +30,7 @@ const multiChoice = (id: string, stem: string) => ({
 })
 
 async function seedBank(page: Page): Promise<void> {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (questions) => {
     const { createQuestionBankWorkspaceService } = (await import(

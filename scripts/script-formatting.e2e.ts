@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Locator } from '@playwright/test'
 
 async function selectText(container: Locator, text: string, occurrence = 0) {
@@ -60,7 +61,7 @@ async function pasteContent(
 }
 
 test('authors can apply and persist semantic script formatting', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank: azt előbb létre kell hozni.
   await page.getByRole('button', { name: 'New Question Bank' }).click()

@@ -80,7 +80,8 @@ export function ClassicStudentGame({
       <TextSizeControl />
       <header className="gq-stu-bar">
         <span className="gq-stu-name">{nickname}</span>
-        {mine && !view?.theme ? (
+        {/* Szavazás: nincs pont, tehát pontszámot sem mutatunk (B5). */}
+        {mine && !view?.theme && view?.scoring !== false ? (
           <span className="gq-stu-points">{t('game.student.points', { points: mine.points })}</span>
         ) : null}
         {question && !ended ? (

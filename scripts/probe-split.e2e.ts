@@ -27,7 +27,7 @@ const choice = (id: string, stem: string) => ({
 
 async function seedBanks(page: Page) {
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    await page.goto('/about').catch(() => undefined)
+    await go(page, '/about').catch(() => undefined)
     try {
       await page.evaluate(async (banksToMake) => {
         const { createQuestionBankWorkspaceService } = (await import(

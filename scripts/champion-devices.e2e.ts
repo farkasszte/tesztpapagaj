@@ -270,6 +270,6 @@ test('a színpad fejlécsávja hosszú bajnoknév mellett sem takarja a nevet', 
     expect(rects.name!.right).toBeLessThanOrEqual(rects.pot!.left)
 
     await championContext.close()
-    await page.goto('/about')
+    await go(page, '/about')
   }
 })

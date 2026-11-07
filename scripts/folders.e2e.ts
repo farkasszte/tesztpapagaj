@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 // Mappák: a kérdésbankok és a dolgozatok virtuális mappákba rendezhetők. A mappa
@@ -7,7 +8,7 @@ import { expect, test, type Page } from '@playwright/test'
 const ENGLISH = { name: 'tesztpapagaj:language', value: 'en' }
 
 async function seedBanks(page: Page) {
-  await page.goto('/about')
+  await go(page, '/about')
   await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
@@ -29,7 +30,7 @@ test.beforeEach(async ({ page }) => {
 test('a bank mappába tehető, a mappa szűr, és a törlés nem viszi el a bankot', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await seedBanks(page)
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
 
   const cards = page.locator('.question-bank-card')
   await expect(cards).toHaveCount(2)
@@ -76,7 +77,7 @@ test('a mappanév átnevezhető, és a dolgozatok külön mappát kapnak', async
   await seedBanks(page)
 
   // Ugyanaz a név a két gyűjteményben külön mappa: nem ütköznek.
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   await page.getByRole('button', { name: '+ New folder' }).click()
   await page.getByLabel('Folder name').fill('Félév')
   await page.locator('.folder-new').getByRole('button', { name: 'Create' }).click()
@@ -84,7 +85,7 @@ test('a mappanév átnevezhető, és a dolgozatok külön mappát kapnak', async
   await page.getByRole('button', { name: 'Rename', exact: true }).click()
   await expect(page.getByRole('button', { name: /^Első félév/ })).toBeVisible()
 
-  await page.goto('/exams')
+  await go(page, '/exams')
   await page.getByRole('button', { name: '+ New folder' }).click()
   await page.getByLabel('Folder name').fill('Félév')
   await page.locator('.folder-new').getByRole('button', { name: 'Create' }).click()

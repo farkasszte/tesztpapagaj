@@ -11,7 +11,7 @@ async function seedBanks(page: Page, names: string[]): Promise<void> {
   // vetés **idempotens**: csak a hiányzó neveket hozza létre, különben a
   // második kör duplikálná a bankokat.
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    await page.goto('/about').catch(() => undefined)
+    await go(page, '/about').catch(() => undefined)
     try {
       await page.evaluate(async (given) => {
         const { createQuestionBankWorkspaceService } = (await import(

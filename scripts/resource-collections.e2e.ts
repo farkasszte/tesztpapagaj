@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 async function seedResources(page: Page, count = 8) {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async (amount) => {
     const { createExamWorkspaceService } = (await import(
@@ -71,7 +72,7 @@ test('Home empty state explains local storage without creating resources', async
       value: async () => false,
     })
   })
-  await page.goto('/')
+  await go(page, '/')
   const storage = page.getByRole('button', { name: 'Where your work is stored' })
   await expect(storage).toBeVisible()
   await storage.click()
@@ -105,7 +106,7 @@ test('Home provides keyboard-operable horizontal previews and full collections',
   page,
 }) => {
   await seedResources(page)
-  await page.goto('/')
+  await go(page, '/')
 
   const exams = page.getByRole('list', { name: 'Recent Exams' })
   const banks = page.getByRole('region', { name: 'Question Banks' })
@@ -146,7 +147,7 @@ test('Question Bank search matches names and Topics, not Question Content', asyn
   page,
 }) => {
   await seedResources(page, 6)
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   const search = page.getByRole('searchbox', { name: 'Search Question Banks' })
   const results = page.getByRole('region', {
     name: 'Question Banks search results',
@@ -165,7 +166,7 @@ test('a Question Bank card states how many Exams depend on it', async ({
   page,
 }) => {
   await seedResources(page, 6)
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   const search = page.getByRole('searchbox', { name: 'Search Question Banks' })
   await search.fill('Special Biology')
   const results = page.getByRole('region', {
@@ -179,7 +180,7 @@ test('a Question Bank card states how many Exams depend on it', async ({
 test('meaningful Question Bank changes update recency while browsing, composition, and formatting do not', async ({
   page,
 }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createExamWorkspaceService } = (await import(
@@ -271,7 +272,7 @@ test('Home reports a remembered persistent-storage denial', async ({
       value: async () => false,
     })
   })
-  await page.goto('/')
+  await go(page, '/')
   // A tárolási figyelmeztetés riasztásként szólal meg (a darabszám élő
   // állapot mellett), hogy a kettő ne ütközzön a képernyőolvasón.
   await expect(page.getByRole('alert')).toContainText(

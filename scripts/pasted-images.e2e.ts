@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Locator } from '@playwright/test'
 
 async function activeExamDatabaseName(page: import('@playwright/test').Page) {
@@ -67,7 +68,7 @@ async function writePngToClipboard(page: import('@playwright/test').Page) {
 test('pasted image files render and persist with a question', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -116,7 +117,7 @@ test('pasted image files render and persist with a question', async ({
 })
 
 test('images paste through the native browser clipboard', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -136,7 +137,7 @@ test('images paste through the native browser clipboard', async ({ page }) => {
 test('copied web images are captured and persist with a question', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -223,7 +224,7 @@ test('copied web images are captured and persist with a question', async ({
 })
 
 test('identical image bytes share one Media Asset', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -258,7 +259,7 @@ test('identical image bytes share one Media Asset', async ({ page }) => {
 })
 
 test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -274,7 +275,7 @@ test('an uncapturable pasted image is visibly unresolved', async ({ page }) => {
 })
 
 test('a nonexistent internal media reference is visibly unresolved', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -294,7 +295,7 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     await route.fulfill({ path: 'public/logo.png', contentType: 'image/png' })
   })
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -316,7 +317,7 @@ test('Save waits for a pending successful image capture', async ({ page }) => {
 })
 
 test('mixed HTML keeps every image and surrounding text', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -336,7 +337,7 @@ test('mixed HTML keeps every image and surrounding text', async ({ page }) => {
 test('copied web images with a clipboard file become a picture block', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.
@@ -357,7 +358,7 @@ test('copied web images with a clipboard file become a picture block', async ({
 })
 
 test('image files paste into answer choices', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank, a kérdés aztán születik: a
   // panel előbb bankot kér, és csak utána kínál „Add question" gombot.

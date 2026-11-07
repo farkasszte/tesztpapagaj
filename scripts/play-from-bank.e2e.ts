@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 // A bank oldaláról egy koppintással indul a játék: `/jatek?bank=<id>`.
@@ -6,7 +7,7 @@ import { expect, test, type Page } from '@playwright/test'
 const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
 async function seedBank(page: Page): Promise<string> {
-  await page.goto('/about')
+  await go(page, '/about')
   const id = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
@@ -56,7 +57,7 @@ test('a bank oldaláról indított játék ugyanazt a bankot választja ki', asy
   await page.setViewportSize({ width: 1440, height: 1000 })
   const bankId = await seedBank(page)
 
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   await page.getByRole('button', { name: 'Játssz ebből a bankból' }).click()
 
   await expect(page).toHaveURL(new RegExp(`/jatek[?]bank=${bankId}`))
@@ -69,7 +70,7 @@ test('a bank oldaláról indított játék ugyanazt a bankot választja ki', asy
 test('a nem létező bankot a játék kimondja, és nem némán vált', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await seedBank(page)
-  await page.goto('/jatek?bank=nincs-ilyen')
+  await go(page, '/jatek?bank=nincs-ilyen')
   await expect(page.getByRole('alert').filter({ hasText: 'Ez a bank már nincs meg' })).toBeVisible()
 })
 
@@ -92,11 +93,11 @@ test('a bank sora megmutatja a játékban mért eltalálási arányt', async ({ 
     } catch (error) {
       if (attempt === 3) throw error
       await page.waitForTimeout(600)
-      await page.goto('/about')
+      await go(page, '/about')
     }
   }
 
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   const badge = page.locator('.question-bank-row-stat').first()
   await expect(badge).toHaveText('60%')
   await expect(badge).toHaveAttribute('title', /60%-a találta el \(10 válaszból\)/)

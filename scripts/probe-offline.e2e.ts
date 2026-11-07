@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 // Mérési segéd (A2): a héj offline is indul-e. Éles buildet szolgál ki a
@@ -11,7 +12,7 @@ const PREVIEW = process.env.PREVIEW_URL ?? 'http://127.0.0.1:4175'
 test('a héj offline is betölt', async ({ page, context }) => {
   test.setTimeout(120_000)
 
-  await page.goto(`${PREVIEW}/`)
+  await go(page, `${PREVIEW}/`)
   await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 20_000 })
 
   // A service worker aktív, és a cache feltöltődött az első (online) látogatáskor.
@@ -44,7 +45,7 @@ test('a héj offline is betölt', async ({ page, context }) => {
 
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto(`${PREVIEW}/jatek`)
+  await go(page, `${PREVIEW}/jatek`)
   await page.waitForTimeout(1500)
   console.log('offline /jatek oldal:', (await page.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 220) || '(üres)')
   console.log('hibák:', errors.slice(0, 3).join(' | ') || 'nincs')

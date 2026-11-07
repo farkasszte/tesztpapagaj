@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 async function seedBanks(page: Page) {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
@@ -38,7 +39,7 @@ const search = (page: Page) => page.getByRole('searchbox', { name: 'Search quest
 
 /** The editor edits an Exam, so every tab test starts by opening one. */
 async function newExam(page: Page) {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
 }
@@ -50,7 +51,7 @@ async function openBankTab(page: Page, name: RegExp) {
 
 test('opening a Question Bank goes to its own page and creates no Exam', async ({ page }) => {
   const ids = await seedBanks(page)
-  await page.goto(`/question-bank?id=${ids.biology}`)
+  await go(page, `/question-bank?id=${ids.biology}`)
 
   await expect(page.getByRole('textbox', { name: 'Question Bank name' })).toHaveValue('Biology')
   await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('Question Banks')
@@ -71,7 +72,7 @@ test('opening a Question Bank goes to its own page and creates no Exam', async (
 
 test('the Question Bank page filters and opens a Question for editing', async ({ page }) => {
   const ids = await seedBanks(page)
-  await page.goto(`/question-bank?id=${ids.biology}`)
+  await go(page, `/question-bank?id=${ids.biology}`)
 
   await search(page).fill('oxygen')
   await expect(bank(page)).not.toContainText('Describe mitosis.')
@@ -291,7 +292,7 @@ test('closing an Exam bank tab leaves Questions referenced by the Exam unchanged
 
 test('a missing bank address reports the problem and returns to the collection', async ({ page }) => {
   await seedBanks(page)
-  await page.goto('/question-bank?id=missing-bank')
+  await go(page, '/question-bank?id=missing-bank')
   await expect(page).toHaveURL(/\/question-banks$/)
   // Két riasztás van a lapon: a tárhely-figyelmeztetés (sr-only) és a sajátunk.
   await expect(page.getByRole('alert').filter({ hasText: 'unavailable on this device' }))
@@ -321,7 +322,7 @@ test('a bank that disappears is dropped from an Exam workspace on restore', asyn
     })
   }, ids.chemistry)
 
-  await page.goto('/editor')
+  await go(page, '/editor')
   await expect(page.getByRole('alert')).toHaveText('A Question Bank in this workspace is unavailable on this device.')
   await expect(page.getByRole('tab')).toHaveText(['Biology', 'Physics'])
   await expect(page.getByRole('tab', { name: 'Chemistry' })).toHaveCount(0)

@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 // A tanulókártya a bank oldaláról indul (`/jatek?bank=<id>&mod=kartya`): elől a
@@ -6,7 +7,7 @@ import { expect, test, type Page } from '@playwright/test'
 const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
 async function seedBank(page: Page): Promise<string> {
-  await page.goto('/about')
+  await go(page, '/about')
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
@@ -51,7 +52,7 @@ test('a bankból indított tanulókártya megfordul, és a helyes választ mutat
   await page.setViewportSize({ width: 1440, height: 1000 })
   const bankId = await seedBank(page)
 
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   await page.getByRole('button', { name: 'Tanulókártyák ebből a bankból' }).click()
 
   // A bank oldaláról a mód már kiválasztva érkezik; a tanár indítja a paklit.
@@ -87,7 +88,7 @@ test('a bankból indított tanulókártya megfordul, és a helyes választ mutat
 test('a tanulókártya szóközre is fordul', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   const bankId = await seedBank(page)
-  await page.goto(`/jatek?bank=${bankId}&mod=kartya`)
+  await go(page, `/jatek?bank=${bankId}&mod=kartya`)
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()
 
   const deck = page.getByRole('dialog', { name: 'Tanulókártya' })

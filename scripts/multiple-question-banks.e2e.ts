@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 async function createQuestion(page: Page, stem: string, type = 'Multiple choice') {
@@ -22,7 +23,7 @@ async function createQuestion(page: Page, stem: string, type = 'Multiple choice'
 }
 
 test('Home creates and independently reopens durable Question Banks', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await expect(page.getByRole('region', { name: 'Question Banks' }).getByRole('button', { name: 'New Question Bank' })).toBeVisible()
 
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
@@ -59,7 +60,7 @@ test('Home creates and independently reopens durable Question Banks', async ({ p
 test('IndexedDB enforces one bank owner and substantive update timestamps', async ({ page }) => {
   // About loads the same browser storage adapter without Home's intentional
   // placeholder sweep racing these deliberately incremental adapter calls.
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = await import(
@@ -130,7 +131,7 @@ test('IndexedDB enforces one bank owner and substantive update timestamps', asyn
 })
 
 test('an abandoned placeholder bank is removed, while a renamed empty bank remains', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
   await page.getByRole('link', { name: 'Home', exact: true }).first().click()
   await expect(page.getByRole('region', { name: 'Question Banks' }).getByRole('button', { name: 'New Question Bank' })).toBeVisible()

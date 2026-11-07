@@ -12,6 +12,7 @@
 // edit needs a Question Bank the bank service knows, so the tests that save
 // write their Multipart question through the bank's own menu.
 
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 import { seedAuthoringState } from './seed-authoring'
 
@@ -98,7 +99,7 @@ test('the editor nests the Parts under the Multipart question, each tagged with 
 
 /** A new Multipart question, written through the bank's own Add Question menu. */
 async function newMultipart(page: Page) {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
   // A bank oldalának saját gombja (`bank.newQuestion`) — a „New question" felirat
   // részleges találatként a „New Question Bank" gombra is illeszkedett.

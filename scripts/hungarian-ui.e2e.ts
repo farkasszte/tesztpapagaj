@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 // A nagy e2e-készlet angolul fut (lásd playwright.config.ts), mert az a felület
@@ -14,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('a kezdőlap és a navigáció magyarul szólal meg', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await expect(page.getByRole('heading', { name: 'Folytasd ott, ahol abbahagytad', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Új dolgozat', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Új kérdésbank', exact: true })).toBeVisible()
@@ -25,7 +26,7 @@ test('a kezdőlap és a navigáció magyarul szólal meg', async ({ page }) => {
 })
 
 test('a nyelvváltó a Beállításokban átvált, és a választás megmarad', async ({ page }) => {
-  await page.goto('/settings')
+  await go(page, '/settings')
   await expect(page.getByRole('heading', { name: 'Beállítások', exact: true })).toBeVisible()
 
   const english = page.getByRole('button', { name: 'English', exact: true })
@@ -43,7 +44,7 @@ test('a nyelvváltó a Beállításokban átvált, és a választás megmarad', 
 })
 
 test('a szerkesztő magyar címkékkel nyílik', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
   await expect(page).toHaveURL(/\/editor$/)
 
@@ -85,7 +86,7 @@ test('a szerkesztő magyar címkékkel nyílik', async ({ page }) => {
 })
 
 test('az üres dolgozat magyar üzenettel hívja a kérdésbankot', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
   await expect(page).toHaveURL(/\/editor$/)
 
@@ -96,7 +97,7 @@ test('az üres dolgozat magyar üzenettel hívja a kérdésbankot', async ({ pag
 })
 
 test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', async ({ page }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'A projektről', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Forrás és licenc', exact: true })).toBeVisible()
   // A Drive-mentés külön kártyát kap: a munka nem hagyja el a gépet, kivéve a
@@ -109,7 +110,7 @@ test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', as
     /mailto:farkas\.szte@gmail\.com/,
   )
 
-  await page.goto('/privacy')
+  await go(page, '/privacy')
   await expect(page.getByRole('heading', { name: 'Adatvédelem', exact: true })).toBeVisible()
   await expect(page.getByText('nem gyűjt személyes adatot')).toBeVisible()
   // Az adatvédelmi lap kimondja, mi történik a Drive összekötésekor: közvetlen
@@ -120,7 +121,7 @@ test('a jogi oldalak magyarul, saját névvel és kapcsolattal jelennek meg', as
 })
 
 test('a kérdéspárbeszéd fejléce és a válaszgomb magyarul szól', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új kérdésbank', exact: true }).first().click()
   await expect(page).toHaveURL(/\/question-bank/)
 
@@ -145,7 +146,7 @@ test('a kérdéspárbeszéd fejléce és a válaszgomb magyarul szól', async ({
 })
 
 test('az exportálás párbeszéd magyar beállításokat kínál', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
   await expect(page).toHaveURL(/\/editor$/)
 
@@ -168,7 +169,7 @@ test('az exportálás párbeszéd magyar beállításokat kínál', async ({ pag
 })
 
 test('a Beállítások biztonsági másolat szakasza magyarul szól', async ({ page }) => {
-  await page.goto('/settings')
+  await go(page, '/settings')
   const card = page.locator('.account-settings')
   await expect(card).toBeVisible()
 
@@ -179,7 +180,7 @@ test('a Beállítások biztonsági másolat szakasza magyarul szól', async ({ p
 })
 
 test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új kérdésbank', exact: true }).first().click()
   await expect(page).toHaveURL(/\/question-bank/)
 
@@ -187,7 +188,7 @@ test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({
   await expect(page.getByRole('textbox', { name: 'Kérdésbank neve' })).toHaveValue('Névtelen kérdésbank')
 
   // A Formázás menü Margók panelje centiméterben mér.
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'Új dolgozat', exact: true }).first().click()
   await expect(page).toHaveURL(/\/editor$/)
   await page.getByRole('button', { name: 'Formázás', exact: true }).click()
@@ -206,7 +207,7 @@ test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({
 })
 
 test('az Importok oldal Kahoot linket is kínál, magyar hibával', async ({ page }) => {
-  await page.goto('/imports')
+  await go(page, '/imports')
   const card = page.locator('.kahoot-link')
   await expect(card).toBeVisible()
   await expect(card).toContainText('Kahoot importálása linkről')
@@ -217,7 +218,7 @@ test('az Importok oldal Kahoot linket is kínál, magyar hibával', async ({ pag
 })
 
 test('a Kahoot mező az import párbeszédben is ott van', async ({ page }) => {
-  await page.goto('/imports')
+  await go(page, '/imports')
   await page.getByRole('button', { name: 'Importálás', exact: true }).click()
 
   const dialog = page.getByRole('dialog')

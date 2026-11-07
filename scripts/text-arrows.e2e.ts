@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 test('typed -> and <- become real arrows', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Új dolgozatban még nincs nyitott kérdésbank: azt előbb létre kell hozni.
   await page.getByRole('button', { name: 'New Question Bank' }).click()

@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page, type Route } from '@playwright/test'
 
 // A Drive-mentés útja: Google Identity Services (hamis) → token → Drive REST
@@ -90,7 +91,7 @@ async function openSettings(page: Page, drive: FakeDrive) {
     route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE_GIS }),
   )
   await page.route('https://www.googleapis.com/**', (route) => drive.handle(route))
-  await page.goto('/settings')
+  await go(page, '/settings')
   return page.getByRole('region', { name: 'Backup to Google Drive' })
 }
 
@@ -172,7 +173,7 @@ test('ha a Google nem ad hozzáférést, a felület kimondja', async ({ page }) 
     }),
   )
   await page.route('https://www.googleapis.com/**', (route) => drive.handle(route))
-  await page.goto('/settings')
+  await go(page, '/settings')
 
   const card = page.getByRole('region', { name: 'Backup to Google Drive' })
   await card.getByRole('button', { name: 'Connect Google Drive' }).click()

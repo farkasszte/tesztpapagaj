@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 async function newExam(page: import('@playwright/test').Page) {
@@ -6,7 +7,7 @@ async function newExam(page: import('@playwright/test').Page) {
 }
 
 test('Home opens independently persisted recent Exams and restores the active Exam', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await expect(page.getByRole('region', { name: 'Pick up where you left off' })).toContainText('Create your first Exam')
   // A kérdés a dolgozat mellől születik: előbb a dolgozat, aztán a bank, mert
   // a kezdőlap bankja a saját oldalára visz, ahol nincs mihez hozzáadni.
@@ -38,7 +39,7 @@ test('Home opens independently persisted recent Exams and restores the active Ex
 })
 
 test('Recent Exams are ordered by opening, not background authoring writes', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await newExam(page)
   const name = page.getByRole('textbox', { name: 'Exam name' })
   await name.fill('First Exam')
@@ -78,10 +79,10 @@ test('Recent Exams are ordered by opening, not background authoring writes', asy
 })
 
 test('a stale launch restores and warns about the active valid Exam without creating another', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await newExam(page)
   await page.getByRole('textbox', { name: 'Exam name' }).fill('Active Exam')
-  await page.goto('/editor?exam=unavailable')
+  await go(page, '/editor?exam=unavailable')
   await expect(page).toHaveURL(/\/editor$/)
   await expect(page.getByRole('alert')).toHaveText('That Exam is unavailable on this device.')
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue('Active Exam')
@@ -90,18 +91,18 @@ test('a stale launch restores and warns about the active valid Exam without crea
 })
 
 test('a bare editor reload retains an active pristine workspace, while Home startup cleans it up', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await newExam(page)
   await page.reload()
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toHaveValue('Untitled Exam')
   // Simulates closing the editor and later starting at Home, rather than using
   // the Home action which intentionally cleans placeholders immediately.
-  await page.goto('/')
+  await go(page, '/')
   await expect(page.getByRole('region', { name: 'Pick up where you left off' })).toContainText('Create your first Exam')
 })
 
 test('client-side About navigation returns to refreshed Home cards without replaying editor state', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await newExam(page)
   await page.getByRole('textbox', { name: 'Exam name' }).fill('Renamed through editor')
   await page.getByRole('link', { name: 'about' }).click()

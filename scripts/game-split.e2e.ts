@@ -38,7 +38,7 @@ async function seedBanks(page: Page): Promise<void> {
   // A vetés utáni navigációt a service worker elviheti: újrapróbáljuk. A vetés
   // idempotens — csak a hiányzó neveket hozza létre.
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    await page.goto('/about').catch(() => undefined)
+    await go(page, '/about').catch(() => undefined)
     try {
       await page.evaluate(async (given) => {
     const { createQuestionBankWorkspaceService } = (await import(
@@ -95,7 +95,7 @@ test('a differenciált mód két bankot kér, és a hosszabbat a rövidebbre vá
 test('a diák a belépésnél oldalt választ, oldal nélkül nem lép be', async ({ page }) => {
   // A belépő űrlap relay nélkül is kirajzolódik: a választó és a kötelezőség
   // itt mérhető.
-  await page.goto('/jatek?kod=123456&oldal=1')
+  await go(page, '/jatek?kod=123456&oldal=1')
   const sides = page.locator('.gq-stu-side')
   await expect(sides).toHaveCount(2)
   await expect(sides.first()).toHaveText('Side A')

@@ -125,7 +125,7 @@ const THREE = (id: string, stem: string) =>
   ])
 
 async function seedBank(page: Page, name: string, questions: ReturnType<typeof multiChoice>[]) {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (given) => {
     const { createQuestionBankWorkspaceService } = (await import(
@@ -399,7 +399,7 @@ test('ha a szerver egyáltalán nem érhető el, azt mondja, hogy nincs kapcsola
   await page.context().routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => socket.close())
   await page.context().route('**/health', (route) => route.abort())
 
-  await page.goto('/jatek?kod=123456')
+  await go(page, '/jatek?kod=123456')
   await page.getByPlaceholder('For example: Panni').fill('Panni')
   await page.getByRole('button', { name: 'Join the game' }).click()
   await expect(page.getByText(/No connection to the game server/)).toBeVisible({ timeout: 15000 })

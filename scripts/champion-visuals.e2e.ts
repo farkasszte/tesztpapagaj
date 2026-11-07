@@ -9,7 +9,7 @@ const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
 /** Egy igazi kérdésbank a beépített szolgáltatással, két játszható kérdéssel. */
 async function seedBank(page: Page, name: string): Promise<void> {
-  await page.goto('/about')
+  await go(page, '/about')
   await page.evaluate(async (bankName) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'

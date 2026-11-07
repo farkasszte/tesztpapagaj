@@ -11,7 +11,7 @@ import { go } from './navigate'
 const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
 async function seedBank(page: Page): Promise<void> {
-  await page.goto('/about')
+  await go(page, '/about')
   await page.waitForLoadState('domcontentloaded')
   await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
@@ -234,7 +234,7 @@ test('a lobbi visszaadja a táblát, és a terv megmarad', async ({ page }) => {
 
 test('a nehézség szerinti feltöltés a nehéz kérdést az 500-as mezőre teszi', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
-  await page.goto('/about')
+  await go(page, '/about')
   await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'

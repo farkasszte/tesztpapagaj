@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 test('Save, local recovery, and Discard keep an Exam Working Copy distinct from its saved Exam', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   const name = page.getByRole('textbox', { name: 'Exam name' })
   await name.fill('Saved composition')
@@ -25,7 +26,7 @@ test('Save, local recovery, and Discard keep an Exam Working Copy distinct from 
 })
 
 test('Save As moves a changed Working Copy into a named independent Exam', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   const name = page.getByRole('textbox', { name: 'Exam name' })
   await name.fill('Original exam')

@@ -1,7 +1,8 @@
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 async function seed(page: Page) {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
@@ -125,7 +126,7 @@ test('teacher exports the complete active Question Bank without Exam or history 
   page,
 }) => {
   const bankId = await seed(page)
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   const before = await counts(page, bankId)
 
   // A visible filter must not change the authoritative stored order or scope.
@@ -161,7 +162,7 @@ test('teacher exports the complete active Question Bank without Exam or history 
 
 test('export dialog traps focus and cancellation produces no download', async ({ page }) => {
   const bankId = await seed(page)
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   const trigger = page.getByRole('button', { name: 'Export Question Bank' })
   await trigger.focus()
   await trigger.click()
@@ -186,7 +187,7 @@ test('export dialog traps focus and cancellation produces no download', async ({
 test('empty bank explains why export is unavailable and an open edit must be resolved', async ({
   page,
 }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const emptyId = await page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
@@ -198,14 +199,14 @@ test('empty bank explains why export is unavailable and an open edit must be res
       }).create()
     ).id
   })
-  await page.goto(`/question-bank?id=${emptyId}`)
+  await go(page, `/question-bank?id=${emptyId}`)
   await expect(page.getByRole('button', { name: 'Export Question Bank' })).toBeDisabled()
   await expect(
     page.getByText('At least one Question is required.'),
   ).toBeVisible()
 
   const bankId = await seed(page)
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   await page
     .getByRole('button', { name: /Edit Explain conservation of mass/ })
     .click()

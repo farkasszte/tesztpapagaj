@@ -42,7 +42,7 @@ async function seed(page: import('@playwright/test').Page) {
       return
     } catch {
       await page.waitForTimeout(700)
-      await page.goto('/about')
+      await go(page, '/about')
     }
   }
   throw new Error('nem sikerült az eredmény vetése')

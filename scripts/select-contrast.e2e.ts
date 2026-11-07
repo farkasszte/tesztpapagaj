@@ -44,7 +44,7 @@ const MEASURE = `(() => {
 type Measured = { where: string; ratio: number; alpha: number; color: string; background: string }
 
 async function seedBank(page: Page): Promise<string> {
-  await page.goto('/about')
+  await go(page, '/about')
   return page.evaluate(async () => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
@@ -98,7 +98,7 @@ test('a legördülő menük olvashatók minden képernyőn', async ({ page }) =>
   const bankId = await seedBank(page)
 
   // A bank listája: a rendezés legördülője (világos papíron).
-  await page.goto(`/question-bank?id=${bankId}`)
+  await go(page, `/question-bank?id=${bankId}`)
   const sort = page.locator('.bank-sort select')
   await expect(sort).toBeVisible()
   assertReadable(await page.evaluate(MEASURE), 'bank')

@@ -30,7 +30,7 @@ import '../game.css'
  * a lista megnevezi, nem csendben hagyja ki.
  */
 
-type Mode = GameMode | 'flashcard' | 'race' | 'boss' | 'split'
+type Mode = GameMode | 'flashcard' | 'race' | 'boss' | 'split' | 'vote'
 
 /**
  * A félbehagyott játék kérdései a mentett session-ből: a Klasszikus és a Bajnok
@@ -60,9 +60,12 @@ const MODES: { id: Mode; name: string; blurb: string; ready: boolean; tincture: 
   // A differenciált kvíz két bankot játszik egyszerre: a diák a belépésnél
   // választ oldalt, a pont közös (tp#45).
   { id: 'split', name: 'game.mode.split.name', blurb: 'game.mode.split.blurb', ready: true, tincture: '#4a6b8a' },
+  // A szavazás a helyes válasz nélküli kérdéseké: a tanár feltesz egy
+  // véleménykérdést, a diákok szavaznak, a színpad a megoszlást mutatja (B5).
+  { id: 'vote', name: 'game.mode.vote.name', blurb: 'game.mode.vote.blurb', ready: true, tincture: '#6c4a86' },
 ] as const
 /** A módok, amelyekhez diák-eszköz kell (a napló minden választ számol). */
-const DEVICE_MODES: readonly Mode[] = ['race', 'boss', 'split'] as const
+const DEVICE_MODES: readonly Mode[] = ['race', 'boss', 'split', 'vote'] as const
 
 export function GamePage({
   banks,
@@ -200,7 +203,12 @@ export function GamePage({
   // beleszámít abba, mi játszható.
   const playable = useMemo(
     () => (bank
-      ? playableQuestions(bank.questions, { classic: mode === 'classic', shuffleAnswers })
+      ? playableQuestions(bank.questions, {
+          classic: mode === 'classic',
+          // Szavazásnál a helyes válasz nélküli kérdések a játszhatók.
+          vote: mode === 'vote',
+          shuffleAnswers,
+        })
       : null),
     [bank, mode, shuffleAnswers],
   )
@@ -236,14 +244,21 @@ export function GamePage({
           words={source.words}
           onExit={exit}
         />
-      ) : (mode === 'race' || mode === 'boss') ? (
+      ) : (mode === 'race' || mode === 'boss' || mode === 'vote') ? (
         // A futam és a szörny a Klasszikus naplóját viszi, de minden válasz
         // kell hozzá: ezért mindig a diák-eszközös házon át indul.
         <ClassicDevices
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults: false, showCounts: false }}
+          settings={{
+            timerSeconds,
+            shuffleQuestions: shuffle,
+            roundResults: false,
+            // Szavazásnál nincs pont, és a megoszlás a lényeg.
+            showCounts: mode === 'vote',
+            scoring: mode !== 'vote',
+          }}
           onExit={exit}
           bankId={bankId}
           stage={mode}

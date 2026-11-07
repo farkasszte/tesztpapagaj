@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test, type Page } from "@playwright/test";
 
 async function seedDeletion(page: Page) {
@@ -60,7 +61,7 @@ test("full Question editor discloses impact, cancels safely, and permanently del
   page,
 }) => {
   const { examId } = await seedDeletion(page);
-  await page.goto(`/editor?exam=${examId}`);
+  await go(page, `/editor?exam=${examId}`);
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const exportDialog = page.getByRole("dialog", { name: "Export" });
   const initialDownload = page.waitForEvent("download");
@@ -106,7 +107,7 @@ test("unused Question uses a lightweight irreversible confirmation", async ({
   page,
 }) => {
   const { bankId } = await seedDeletion(page);
-  await page.goto(`/question-bank?id=${bankId}`);
+  await go(page, `/question-bank?id=${bankId}`);
   await page.getByRole("button", { name: "Edit Unused cell question" }).click();
   const editor = page.getByRole("dialog", { name: "Question editor" });
   await editor.getByRole("button", { name: "Delete Question" }).click();
@@ -121,7 +122,7 @@ test("unused Question uses a lightweight irreversible confirmation", async ({
 
 test("failed deletion leaves canonical and visible state unchanged", async ({ page }) => {
   const { bankId } = await seedDeletion(page);
-  await page.goto(`/question-bank?id=${bankId}`);
+  await go(page, `/question-bank?id=${bankId}`);
   await page.getByRole("button", { name: "Edit Shared cell question" }).click();
   const editor = page.getByRole("dialog", { name: "Question editor" });
   await editor.getByRole("button", { name: "Delete Question" }).click();
@@ -185,7 +186,7 @@ test("deleting the final Question from a pristine bank falls back without creati
   });
   // Deleting the only Question of an Untitled bank disposes of the bank too,
   // so its page has nothing left to be: it returns to the collection.
-  await page.goto(`/question-bank?id=${activeId}`);
+  await go(page, `/question-bank?id=${activeId}`);
   await page.getByRole("button", { name: "Edit Delete me" }).click();
   await page.getByRole("dialog", { name: "Question editor" }).getByRole("button", { name: "Delete Question" }).click();
   await page.getByRole("dialog", { name: "Permanently delete this Question?" }).getByRole("button", { name: "Delete Question" }).click();

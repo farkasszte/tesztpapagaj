@@ -7,6 +7,7 @@
 // say, and that the keyboard composition path puts a bank question onto the
 // Working Copy through the same authoring operations as everything else.
 
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 import { seedAuthoringState } from './seed-authoring'
 import type { Question, QuestionType } from '../src/exam/exam'
@@ -240,7 +241,7 @@ test('browsing the Question Bank is not an authoring action', async ({ page }) =
 })
 
 test('an empty Question Bank reads differently from one nothing matches', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // Üres dolgozat mellé előbb bank nyílik: az üresség a bankról szól, nem a lapról.
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()

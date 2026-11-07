@@ -38,7 +38,7 @@ const STAR = choice('r2', 'What is the closest star to Earth?', [
 ])
 
 async function seedBank(page: Page) {
-  await page.goto('/about')
+  await go(page, '/about')
   await page.evaluate(async (questions) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'

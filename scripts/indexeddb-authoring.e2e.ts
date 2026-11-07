@@ -4,6 +4,7 @@
 // is Chromium's implementation, and the assertions observe the Question Bank
 // and Working Copy the same way a teacher does after startup and reload.
 
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 import { createQuestion } from '../src/exam/exam'
 import type { AuthoringState } from '../src/exam/exam-store'
@@ -58,7 +59,7 @@ test('the fresh generation ignores earlier browser authoring data', async ({
       Promise.all([oldDatabase, oldCache])
   }, legacy)
 
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   await page.evaluate(
@@ -105,7 +106,7 @@ test('the fresh generation ignores earlier browser authoring data', async ({
 test('failed normalized write and Save transactions expose no partial state', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('textbox', { name: 'Exam name' }).waitFor()
   const baseline = legacyAuthoringState()
@@ -158,7 +159,7 @@ test('failed normalized write and Save transactions expose no partial state', as
 test('Question Metadata and bank-only content survive a user-visible reload', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // A dolgozat mellé előbb bank kell: a kérdés abban születik, nem a lapon.
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
@@ -201,7 +202,7 @@ test('Question Metadata and bank-only content survive a user-visible reload', as
 test('publication aborts every store when a required Media Asset is absent', async ({
   page,
 }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   // A first visit registers the image service worker, which may reload once
   // before it takes control. Wait for application startup rather than running

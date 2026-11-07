@@ -6,6 +6,7 @@
 // filters and commits the way a teacher expects, and that a save carries all of
 // it into the Question Bank.
 
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 const dialog = (page: Page) => page.getByRole('dialog', { name: 'Question editor' })
@@ -40,7 +41,7 @@ async function newQuestion(page: Page, type = 'Multiple choice') {
 }
 
 test('a question is classified and saved with its Difficulty and Topics', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page)
   await page.keyboard.type('Which gas do plants take in?')
@@ -75,7 +76,7 @@ test('a question is classified and saved with its Difficulty and Topics', async 
 })
 
 test('typing filters the Topics on offer, and writes one that is not there', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   // A first question puts two Topics into the bank for a second one to reuse.
@@ -114,7 +115,7 @@ test('typing filters the Topics on offer, and writes one that is not there', asy
 })
 
 test('an unclassified question still saves, stem and all', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
 
   // Nothing chosen anywhere: the permissive save behaviour is unchanged by
@@ -127,7 +128,7 @@ test('an unclassified question still saves, stem and all', async ({ page }) => {
 })
 
 test('a Short Answer question authors and restores its Suggested Answer inline', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: /^(New Exam|Create your first Exam)$/ }).first().click()
   await newQuestion(page, 'Short answer')
 
@@ -149,7 +150,7 @@ test('a Short Answer question authors and restores its Suggested Answer inline',
 })
 
 test('a question is created as a Short Answer question, and stays one', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page, 'Short answer')
 
@@ -163,7 +164,7 @@ test('a question is created as a Short Answer question, and stays one', async ({
 })
 
 test('Escape closes the front matter first, and then the popup', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page)
 
@@ -185,7 +186,7 @@ test('Escape closes the front matter first, and then the popup', async ({ page }
 })
 
 test('the type is stated in the front matter, above the question it classifies', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page, 'Short answer')
 
@@ -197,7 +198,7 @@ test('the type is stated in the front matter, above the question it classifies',
 })
 
 test('choosing a Difficulty again clears it, which is what a Clear button was for', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page)
 
@@ -211,7 +212,7 @@ test('choosing a Difficulty again clears it, which is what a Clear button was fo
 })
 
 test('Escape leaves the Topics list without leaving the popup', async ({ page }) => {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await newQuestion(page)
 

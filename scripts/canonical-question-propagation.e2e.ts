@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 const question = {
@@ -8,7 +9,7 @@ const question = {
 }
 
 test('a canonical edit propagates to clean and dirty Exams without manufacturing Exam activity', async ({ page }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const setup = await page.evaluate(async (shared) => {
     const banksModule = '/src/bank/question-bank-workspaces.ts'
@@ -57,7 +58,7 @@ test('a canonical edit propagates to clean and dirty Exams without manufacturing
     return { bankId: bank.id, bankUpdatedAt: (await bankService.read(bank.id))!.lastUpdatedAt, cleanId: clean.id, dirtyId: dirty.id }
   }, question)
 
-  await page.goto(`/editor?exam=${setup.cleanId}`)
+  await go(page, `/editor?exam=${setup.cleanId}`)
   await expect(page.getByRole('textbox', { name: 'Exam name' })).toBeVisible()
   const recentBefore = await page.evaluate(async () => {
     const examsModule = '/src/exam/exam-workspaces.ts'

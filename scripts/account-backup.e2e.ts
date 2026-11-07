@@ -1,9 +1,10 @@
 import { readFile } from 'node:fs/promises'
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 /** Creates a Question Bank holding one Question with an image in it. */
 async function seedAccount(page: Page, bankName: string) {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   // Az első látogatás regisztrálja a képkezelő service workert, és amíg át nem
   // veszi az irányítást, a lap egyszer újratöltődik: a vetés előtt ezt kivárjuk,
@@ -89,7 +90,7 @@ function backupCard(page: Page) {
 
 test('a downloaded account backup restores every Question Bank and image', async ({ page }) => {
   await seedAccount(page, 'Biology Bank')
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   await openPanel(page)
   // A jelző a helyi tárolást és a Drive-lehetőséget is kimondja.
   await expect(panel(page)).toContainText('Your work lives in this browser')
@@ -110,7 +111,7 @@ test('a downloaded account backup restores every Question Bank and image', async
   expect(await mediaCount(page)).toBe(1)
 
   // Settings is also a destination in the left nav.
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   await page.getByRole('link', { name: 'Settings', exact: true }).click()
   await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'test-parrot-account.zip', mimeType: 'application/zip', buffer: backup,
@@ -126,7 +127,7 @@ test('a downloaded account backup restores every Question Bank and image', async
   ])
 
   await expect(backupCard(page)).toBeVisible()
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   // A kártya neve a „Open {név}." kezdet után a bank nevét és a kérdésszámot is
   // hordozza, ezért a névre illesztünk, a számot pedig a kártyán mérjük.
   const biology = page.getByRole('button', { name: /^Open Biology Bank\./ })
@@ -139,7 +140,7 @@ test('a downloaded account backup restores every Question Bank and image', async
 
 test('a file that is not a backup is refused without changing anything', async ({ page }) => {
   await seedAccount(page, 'Keep me')
-  await page.goto('/settings')
+  await go(page, '/settings')
   await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'notes.zip', mimeType: 'application/zip', buffer: Buffer.from('not a zip'),
   })
@@ -150,7 +151,7 @@ test('a file that is not a backup is refused without changing anything', async (
 
 test('a mappába rendezés is átmegy a biztonsági másolatba', async ({ page }) => {
   await seedAccount(page, 'Foldered Bank')
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
 
   // Mappa, és a bank bele: a hely a böngésző tárolójában van, tehát a mentésnek
   // ezt is vinnie kell — különben a visszaállítás után a tanár rendezése elveszne.
@@ -162,13 +163,13 @@ test('a mappába rendezés is átmegy a biztonsági másolatba', async ({ page }
   await page.getByRole('menuitemradio', { name: 'Autumn' }).click()
   await expect(page.getByRole('button', { name: /^Autumn/ })).toContainText('1')
 
-  await page.goto('/settings')
+  await go(page, '/settings')
   const downloading = page.waitForEvent('download')
   await backupCard(page).getByRole('button', { name: 'Download backup' }).click()
   const backup = await readFile((await (await downloading).path())!)
 
   // A mappa törlése: a hely is elvész, tehát a visszaállításnak kell visszahoznia.
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   await page.getByRole('button', { name: /^Autumn/ }).click()
   await page.getByRole('button', { name: 'Delete folder' }).click()
   await expect(page.getByRole('button', { name: /^Autumn/ })).toHaveCount(0)
@@ -176,7 +177,7 @@ test('a mappába rendezés is átmegy a biztonsági másolatba', async ({ page }
     'Autumn',
   )
 
-  await page.goto('/settings')
+  await go(page, '/settings')
   await page.getByLabel('Choose an account backup to restore').setInputFiles({
     name: 'test-parrot-account.zip',
     mimeType: 'application/zip',
@@ -188,7 +189,7 @@ test('a mappába rendezés is átmegy a biztonsági másolatba', async ({ page }
     confirm.getByRole('button', { name: 'Replace and reload' }).click(),
   ])
 
-  await page.goto('/question-banks')
+  await go(page, '/question-banks')
   const folder = page.getByRole('button', { name: /^Autumn/ })
   await expect(folder).toContainText('1')
   await folder.click()

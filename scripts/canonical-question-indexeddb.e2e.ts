@@ -1,3 +1,4 @@
+import { go } from './navigate'
 import { expect, test } from '@playwright/test'
 
 const sharedQuestion = {
@@ -14,7 +15,7 @@ const sharedQuestion = {
 }
 
 test('IndexedDB projection preserves stable arrangements and resets changed choice sets', async ({ page }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
     const modulePath = '/src/exam/exam-workspaces.ts'
@@ -57,7 +58,7 @@ test('IndexedDB projection preserves stable arrangements and resets changed choi
 })
 
 test('a failed cross-resource save restores the canonical Question and every Exam', async ({ page }) => {
-  await page.goto('/about')
+  await go(page, '/about')
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   const result = await page.evaluate(async (question) => {
     const bankPath = '/src/bank/question-bank-workspaces.ts'

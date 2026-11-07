@@ -6,6 +6,7 @@
 // the bank without putting the question on the exam, that cancelling writes
 // nothing at all, and that a refresh brings all of it back.
 
+import { go } from './navigate'
 import { expect, test, type Page } from '@playwright/test'
 
 const bank = (page: Page) => page.getByRole('region', { name: 'Question Bank' })
@@ -22,7 +23,7 @@ const examQuestions = (page: Page) => page.locator('.exam-question')
  *  Question Bank picker, so the pane only appears once a bank exists: the
  *  picker's own New Question Bank makes one and opens it. */
 async function newExamWithBank(page: Page) {
-  await page.goto('/')
+  await go(page, '/')
   await page.getByRole('button', { name: 'New Exam' }).first().click()
   await page.getByRole('button', { name: 'New Question Bank' }).first().click()
   await expect(bank(page)).toBeVisible()

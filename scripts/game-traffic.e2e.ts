@@ -13,7 +13,7 @@ import { go } from './navigate'
 const ENGLISH = { name: 'tesztpapagaj:language', value: 'en' }
 
 async function seed(page: Page, count: number) {
-  await page.goto('/about')
+  await go(page, '/about')
   await page.evaluate(async (total) => {
     const { createQuestionBankWorkspaceService } = (await import(
       /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
