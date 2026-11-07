@@ -36,6 +36,8 @@ export type PerilSettings = {
   answerSeconds: number;
   voteSeconds: number;
   wagerSeconds: number;
+  /** A játékos-figurák készlete (DiceBear stílus-azonosító). */
+  avatarStyle?: string;
 };
 
 export const DEFAULT_PERIL_SETTINGS: PerilSettings = {
@@ -52,6 +54,8 @@ export type PerilPlayer = {
   id: string;
   secret: string;
   nickname: string;
+  /** A figura magja (a színpad ugyanezt rajzolja, mint a telefon). */
+  avatar?: string;
   /** Null in Solo, and in Teams until a student chooses one. */
   teamId: string | null;
   /** Solo score. In Teams, the Team holds the score. */

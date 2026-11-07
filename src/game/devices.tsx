@@ -161,13 +161,15 @@ export function ClassicDevices({
         },
         reply: (from, payload) => {
           const message = payload as
-            | { kind: 'join'; nickname: string; playerId?: string; secret?: string }
+            | { kind: 'join'; nickname: string; playerId?: string; secret?: string; avatar?: string }
+            | { kind: 'avatar'; seed?: string }
             | { kind: 'answer'; choice?: number; choices?: number[]; texts?: string[] }
           if (message?.kind === 'join') {
             const result = engine.join({
               ...(message.playerId ? { playerId: message.playerId } : {}),
               ...(message.secret ? { secret: message.secret } : {}),
               nickname: message.nickname ?? '',
+              ...(message.avatar ? { avatar: message.avatar } : {}),
             })
             if (!result.ok) {
               live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
@@ -185,6 +187,14 @@ export function ClassicDevices({
             live.send({ kind: 'view', view: viewOf(result.player.id) }, from)
             bump()
             broadcastSoon()
+            return
+          }
+          if (message?.kind === 'avatar') {
+            const playerId = seats.current.get(from)
+            if (playerId && message.seed) {
+              engine.setAvatar(playerId, message.seed)
+              bump()
+            }
             return
           }
           if (message?.kind === 'answer') {

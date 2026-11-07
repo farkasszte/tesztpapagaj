@@ -25,6 +25,8 @@ export type PerilView = {
   solo: boolean;
   /** Played with no student devices: the teacher taps every choice. */
   noDevices: boolean;
+  /** A tanár által választott avatar-készlet: csak ez töltődik a diákoknál. */
+  avatarStyle?: string;
   teams: {
     id: string;
     name: string;
@@ -34,6 +36,7 @@ export type PerilView = {
   roster: {
     id: string;
     nickname: string;
+    avatar?: string;
     teamId: string | null;
     points: number;
     connected: boolean;
@@ -152,9 +155,11 @@ export function buildPerilView(
         connected: p.connected,
       })),
     })),
+    avatarStyle: s.settings.avatarStyle,
     roster: s.players.map((p) => ({
       id: p.id,
       nickname: p.nickname,
+      ...(p.avatar ? { avatar: p.avatar } : {}),
       teamId: p.teamId,
       points: p.points,
       connected: p.connected,

@@ -17,17 +17,19 @@ test('az avatar determinisztikus, és a nevekhez külön figurát rajzol', async
   }
   await go(page, '/about')
   const drawn = await evaluate(async () => {
-    const { playerAvatarSvg, avatarSeed } = (await import(
+    const { ensureAvatarStyle, playerAvatarSvg, avatarSeed } = (await import(
       /* @vite-ignore */ '/src/game/avatar.ts'
     )) as typeof import('../src/game/avatar')
-    const names = ['Anna', 'Bence', 'Csilla', 'Dávid', 'Anna', '  anna  ']
+    await ensureAvatarStyle('critters')
+    const names = ['Anna', 'Bence', 'Csilla', 'Dávid', 'Anna', 'anna']
     const svgs = names.map((name) => playerAvatarSvg(name, 96))
     return {
       seed: avatarSeed('  Anna  '),
       lengths: svgs.map((svg) => svg.length),
       checks: svgs.map((svg) => svg.startsWith('<svg') && svg.includes('</svg>')),
+      // Ugyanaz a mag → ugyanaz a rajz; más mag → más figura.
       sameSeed: svgs[0] === svgs[4],
-      trimmedSeed: playerAvatarSvg('anna', 96) === svgs[5],
+      otherSeed: svgs[0] !== svgs[5],
       distinct: new Set(svgs.slice(0, 4)).size,
       gallery: ['Anna', 'Bence', 'Csilla', 'Dávid', 'Emese', 'Ferenc', 'Gitta', 'Huba'].map(
         (name) => ({ name, svg: playerAvatarSvg(name, 192) }),
@@ -40,7 +42,7 @@ test('az avatar determinisztikus, és a nevekhez külön figurát rajzol', async
   expect(drawn.lengths.every((len) => len > 500)).toBe(true)
   // Ugyanaz a seed → ugyanaz a rajz; a szóköz nem számít.
   expect(drawn.sameSeed).toBe(true)
-  expect(drawn.trimmedSeed).toBe(true)
+  expect(drawn.otherSeed).toBe(true)
   // Négy különböző név → négy különböző figura.
   expect(drawn.distinct).toBe(4)
 

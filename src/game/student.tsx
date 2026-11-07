@@ -22,6 +22,9 @@ import {
   type ReviewView,
 } from './review-deck'
 import { useT } from '../i18n/index'
+import { AvatarPicker } from './avatar-picker'
+import { applyAvatarStyle } from './avatar-styles'
+import { randomAvatarSeed } from './avatar'
 
 /**
  * A diák telefonja: belépés a kóddal, majd a kérdés és a válasz.
@@ -37,6 +40,27 @@ type StudentView = ClassicView | View | PerilView
 
 function seatKey(code: RoomCode): string {
   return `testparrot.game-seat.${code}`
+}
+
+/** A diák figurájának magja: a telefonon marad, a tanár csak a magot kapja meg. */
+function avatarKey(code: RoomCode): string {
+  return `testparrot.game-avatar.${code}`
+}
+
+function readAvatarSeed(code: RoomCode): string | null {
+  try {
+    return localStorage.getItem(avatarKey(code))
+  } catch {
+    return null
+  }
+}
+
+function writeAvatarSeed(code: RoomCode, seed: string): void {
+  try {
+    localStorage.setItem(avatarKey(code), seed)
+  } catch {
+    // Magánböngészés: a figura akkor is megy, csak újratöltésnél új lesz.
+  }
 }
 
 function readSeat(code: RoomCode): Seat | null {
@@ -64,6 +88,12 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [code, setCode] = useState<RoomCode>(() => cleanRoomCode(initialCode))
   const [typedCode, setTypedCode] = useState(initialCode)
   const [nickname, setNickname] = useState('')
+  /** A figura magja: ha a diák nem kért másikat, véletlen. A várakozás alatt
+   *  a kockával bármikor másikat kap. */
+  const [avatar, setAvatar] = useState(() => {
+    const stored = readAvatarSeed(cleanRoomCode(initialCode))
+    return stored ?? randomAvatarSeed()
+  })
   /** Differenciált szoba: a link `oldal=1`-et hoz, a diák itt választ oldalt. */
   const [splitRoom] = useState(
     () => new URLSearchParams(window.location.search).get('oldal') === '1',
@@ -123,6 +153,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             // Az oldal a belépés „0. kérdése" (tp#45): a tanár gépe ez alapján
             // sorolja a diákot az egyik vagy a másik bankhoz.
             ...(splitRoom && side ? { side } : {}),
+            avatar,
             ...(mine ? { playerId: mine.playerId, secret: mine.secret } : {}),
           })
         },
@@ -158,6 +189,9 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             return
           }
           if (message?.kind === 'view' && message.view) {
+            // Csak azt a készletet töltjük le, amit az oktató választott.
+            const style = (message.view as { avatarStyle?: string }).avatarStyle
+            if (style) applyAvatarStyle(style)
             // A hibalista nem játéknnézet: nem írja felül az eredményt, hanem
             // eltárolódik a telefonon, és az eredményképernyőről nyitható meg.
             if (message.view.mode === 'review') {
@@ -279,6 +313,16 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
     )
   }
 
+  const reply = (payload: unknown) => connection.current?.sendReply(payload)
+
+  /** Új figura: a mag a telefonon marad, a tanár gépe azonnal megkapja. */
+  const rollAvatar = () => {
+    const next = randomAvatarSeed()
+    setAvatar(next)
+    writeAvatarSeed(code, next)
+    if (seat) reply({ kind: 'avatar', seed: next })
+  }
+
   if (!seat || !nickname) {
     return (
       <div className="gq-stu">
@@ -299,6 +343,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           }}
         >
           <h1>{t('game.student.joinTitle')}</h1>
+          <AvatarPicker seed={avatar} onRoll={rollAvatar} />
           <p className="gq-hint">{t('game.student.joinHint', { code: code.slice(0, 3) + ' ' + code.slice(3) })}</p>
           {splitRoom ? (
             <fieldset className="gq-stu-sides">
@@ -346,7 +391,6 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
     )
   }
 
-  const reply = (payload: unknown) => connection.current?.sendReply(payload)
 
   if (view) {
     if (view.mode === 'champion') {
@@ -354,6 +398,8 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
         <ChampionStudentGame
           view={view}
           nickname={nickname}
+          avatar={avatar}
+          onRollAvatar={rollAvatar}
           problem={problem}
           sent={sent?.[0] ?? null}
           onAnswer={(attemptId, choice) => {
@@ -375,6 +421,8 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
         <PerilStudentGame
           view={view}
           nickname={nickname}
+          avatar={avatar}
+          onRollAvatar={rollAvatar}
           problem={problem}
           sent={sent?.[0] ?? null}
           onChooseTeam={(teamId) => reply({ kind: 'team', teamId })}
@@ -394,6 +442,8 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           view={view}
           sent={sent}
           nickname={nickname}
+          avatar={avatar}
+          onRollAvatar={rollAvatar}
           problem={problem}
           reviewCount={review?.cards.length ?? 0}
           onOpenReview={review ? () => setOpenDeck(review) : undefined}

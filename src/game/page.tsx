@@ -19,6 +19,7 @@ import type { Session } from './types'
 import type { PerilSession } from './peril/types'
 import type { QuestionBankResource, QuestionBankSummary, QuestionBankWorkspaceService } from '../bank/question-bank-workspaces'
 import { useT } from '../i18n/index'
+import { AVATAR_STYLES, DEFAULT_AVATAR_STYLE, applyAvatarStyle } from './avatar-styles'
 import '../game.css'
 
 /**
@@ -104,8 +105,27 @@ export function GamePage({
   const [roundResults, setRoundResults] = useState(false)
   /** A felfedés után a válasz kártyáján a betű helyén a választók száma. */
   const [showCounts, setShowCounts] = useState(false)
+  /** A játékos-figurák készlete: ezt a ~5 kB-os csomagot kapja meg a diák. */
+  const [avatarStyle, setAvatarStyle] = useState<string>(() => {
+    try {
+      return localStorage.getItem('testparrot.avatar-style') ?? DEFAULT_AVATAR_STYLE
+    } catch {
+      return DEFAULT_AVATAR_STYLE
+    }
+  })
   /** Diákok a saját telefonjukon (egyelőre a Klasszikus módban). */
   const [devices, setDevices] = useState(false)
+  // A kiválasztott készletet a tanár színpada is azonnal használja, és a
+  // következő megnyitáskor is ez marad.
+  useEffect(() => {
+    applyAvatarStyle(avatarStyle)
+    try {
+      localStorage.setItem('testparrot.avatar-style', avatarStyle)
+    } catch {
+      // Magánböngészés: a beállítás akkor sem visz el semmit.
+    }
+  }, [avatarStyle])
+
   /** A futam és a szörny minden választ számol, tehát diák-eszköz nélkül nem megy. */
   const needsDevices = DEVICE_MODES.includes(mode)
   const [playing, setPlaying] = useState(false)
@@ -277,7 +297,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts, avatarStyle }}
           onExit={exit}
           bankId={bankId}
         />
@@ -286,7 +306,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ shuffleQuestions: shuffle }}
+          settings={{ shuffleQuestions: shuffle, avatarStyle }}
           onExit={exit}
         />
       ) : mode === 'champion' ? (
@@ -294,7 +314,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, avatarStyle }}
           onExit={exit}
           restored={restored ?? undefined}
         />
@@ -303,6 +323,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
+          avatarStyle={avatarStyle}
           onExit={exit}
         />
       ) : mode === 'peril' ? (
@@ -318,7 +339,7 @@ export function GamePage({
           title={source.title}
           questions={source.questions}
           words={source.words}
-          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts }}
+          settings={{ timerSeconds, shuffleQuestions: shuffle, roundResults, showCounts, avatarStyle }}
           onExit={exit}
           restored={restored ?? undefined}
           bankId={bankId}
@@ -555,6 +576,16 @@ export function GamePage({
                 {t('game.showCounts')}
               </label>
             ) : null}
+            <label className="gq-avatar-style">
+              {t('game.avatar.styleLabel')}
+              <select value={avatarStyle} onChange={(event) => setAvatarStyle(event.target.value)}>
+                {AVATAR_STYLES.map((style) => (
+                  <option key={style.id} value={style.id}>
+                    {t(style.label as never)}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           {needsDevices ? (
             <p className="gq-hint">{t('game.mode.needsDevices')}</p>

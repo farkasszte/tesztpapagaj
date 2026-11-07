@@ -6,7 +6,7 @@ import { choiceTone, rightLetters } from './student-tone'
 import { acceptedAnswersOf, textIsRight } from './text-match'
 import { useT } from '../i18n/index'
 import { TextSizeControl } from './text-size'
-import { PlayerAvatar } from './avatar-view'
+import { AvatarPicker } from './avatar-picker'
 
 /**
  * A Klasszikus mód diák-nézete: kérdés, válaszgombok, felfedés.
@@ -19,6 +19,8 @@ export function ClassicStudentGame({
   view,
   sent,
   nickname,
+  avatar,
+  onRollAvatar,
   problem,
   reviewCount = 0,
   onOpenReview,
@@ -28,6 +30,9 @@ export function ClassicStudentGame({
   /** Amit már elküldtem, de még nem jött vissza a tanártól. */
   sent: number[] | null
   nickname: string
+  /** A figura magja; ha nincs, a becenévből képzett. */
+  avatar?: string
+  onRollAvatar?: () => void
   problem: string | null
   /** Hány kérdést rontott el: ennyi kártya vár a hibalistán (a játék végén). */
   reviewCount?: number
@@ -80,7 +85,7 @@ export function ClassicStudentGame({
     <div className="gq-stu">
       <TextSizeControl />
       <header className="gq-stu-bar">
-        <PlayerAvatar nickname={nickname} size={28} />
+        <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
         {/* Szavazás: nincs pont, tehát pontszámot sem mutatunk (B5). */}
         {mine && !view?.theme && view?.scoring !== false ? (

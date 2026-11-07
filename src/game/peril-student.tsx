@@ -4,7 +4,7 @@ import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
 import { useT } from '../i18n/index'
 import { TextSizeControl } from './text-size'
-import { PlayerAvatar } from './avatar-view'
+import { AvatarPicker } from './avatar-picker'
 
 /**
  * A Veszély! diák-nézete: csapatválasztás, mezőválasztás, buzzer, tét, válasz.
@@ -17,6 +17,8 @@ import { PlayerAvatar } from './avatar-view'
 export function PerilStudentGame({
   view,
   nickname,
+  avatar,
+  onRollAvatar,
   problem,
   sent,
   onChooseTeam,
@@ -27,6 +29,9 @@ export function PerilStudentGame({
 }: {
   view: PerilView | null
   nickname: string
+  /** A figura magja; ha nincs, a becenévből képzett. */
+  avatar?: string
+  onRollAvatar?: () => void
   problem: string | null
   sent: number | null
   onChooseTeam: (teamId: string) => void
@@ -59,7 +64,7 @@ export function PerilStudentGame({
     <div className="gq-stu">
       <TextSizeControl />
       <header className="gq-stu-bar">
-        <PlayerAvatar nickname={nickname} size={28} />
+        <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
         {myTeam ? <span className="gq-stu-role">{myTeam.name}</span> : null}
         {me ? <span className="gq-stu-points">{t('game.student.points', { points: me.points })}</span> : null}

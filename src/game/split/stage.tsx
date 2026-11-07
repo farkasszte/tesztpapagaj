@@ -123,7 +123,7 @@ export function SplitStage({
       <ol className="gq-split-board" aria-label={t('game.split.board')}>
         {players.map((player) => (
           <li key={player.id} className="gq-split-row" data-side={player.side}>
-            <PlayerAvatar nickname={player.nickname} size={28} />
+            <PlayerAvatar seed={player.avatar ?? player.nickname} size={28} />
             <span className="gq-split-row-name">{player.nickname}</span>
             <span className="gq-split-row-side">{names[player.side]}</span>
             <span className="gq-split-row-points">{player.points}</span>

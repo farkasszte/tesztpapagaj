@@ -7,7 +7,7 @@ import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
 import { useT, type TextKey } from '../i18n/index'
 import { TextSizeControl } from './text-size'
-import { PlayerAvatar } from './avatar-view'
+import { AvatarPicker } from './avatar-picker'
 
 /**
  * A Bajnok mód diák-nézete.
@@ -28,6 +28,8 @@ const HELP_LABELS: Record<Help, TextKey> = {
 export function ChampionStudentGame({
   view,
   nickname,
+  avatar,
+  onRollAvatar,
   problem,
   sent,
   onAnswer,
@@ -38,6 +40,9 @@ export function ChampionStudentGame({
 }: {
   view: View | null
   nickname: string
+  /** A figura magja; ha nincs, a becenévből képzett. */
+  avatar?: string
+  onRollAvatar?: () => void
   problem: string | null
   sent: number | null
   /** Az osztály válasza (Phase A). */
@@ -105,7 +110,7 @@ export function ChampionStudentGame({
     <div className="gq-stu">
       <TextSizeControl />
       <header className="gq-stu-bar">
-        <PlayerAvatar nickname={nickname} size={28} />
+        <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
         <span className="gq-stu-role" data-one={isOne ? 'yes' : 'no'}>
           {role}

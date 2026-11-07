@@ -104,7 +104,8 @@ export function SplitDevices({
         },
         reply: (from, payload) => {
           const message = payload as
-            | { kind: 'join'; nickname: string; side?: Side; playerId?: string; secret?: string }
+            | { kind: 'join'; nickname: string; side?: Side; playerId?: string; secret?: string; avatar?: string }
+            | { kind: 'avatar'; seed?: string }
             | { kind: 'answer'; choice?: number; choices?: number[]; texts?: string[] }
           if (message?.kind === 'join') {
             const side: Side = message.side === 'b' ? 'b' : 'a'
@@ -112,6 +113,7 @@ export function SplitDevices({
               ...(message.playerId ? { playerId: message.playerId } : {}),
               ...(message.secret ? { secret: message.secret } : {}),
               nickname: message.nickname ?? '',
+              ...(message.avatar ? { avatar: message.avatar } : {}),
             })
             if (!result.ok) {
               live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
@@ -124,6 +126,14 @@ export function SplitDevices({
             )
             live.send({ kind: 'view', view: viewOf(result.player.id) }, from)
             bump()
+            return
+          }
+          if (message?.kind === 'avatar') {
+            const seat = seats.current.get(from)
+            if (seat && message.seed) {
+              engines[seat.side].setAvatar(seat.playerId, message.seed)
+              bump()
+            }
             return
           }
           if (message?.kind === 'answer') {

@@ -85,7 +85,8 @@ export function ChampionDevices({
         },
         reply: (from, payload) => {
           const message = payload as
-            | { kind: 'join'; nickname: string; playerId?: string; secret?: string }
+            | { kind: 'join'; nickname: string; playerId?: string; secret?: string; avatar?: string }
+            | { kind: 'avatar'; seed?: string }
             | { kind: 'answer'; attemptId: string; choice: number }
             | { kind: 'one'; attemptId: string; choice: number }
             | { kind: 'help'; help: Help }
@@ -96,6 +97,7 @@ export function ChampionDevices({
               ...(message.playerId ? { playerId: message.playerId } : {}),
               ...(message.secret ? { secret: message.secret } : {}),
               nickname: message.nickname ?? '',
+              ...(message.avatar ? { avatar: message.avatar } : {}),
             })
             if (!result.ok) {
               live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
@@ -115,6 +117,12 @@ export function ChampionDevices({
 
           const playerId = seats.current.get(from)
           if (!playerId) return
+          if (message.kind === 'avatar') {
+            if (message.seed) engine.setAvatar(playerId, message.seed)
+            bump()
+            broadcast()
+            return
+          }
           const run = () => {
             switch (message.kind) {
               case 'answer':

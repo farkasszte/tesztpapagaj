@@ -72,6 +72,11 @@ export type Player = {
   /** Proves a reconnecting device is the same student. Never sent to other students. */
   secret: string;
   nickname: string;
+  /**
+   * A figura magja (a diák választotta, vagy a becenevéből képzett). Nem
+   * titok: a tanár színpadán ugyanez a mag rajzolja ugyanazt a figurát.
+   */
+  avatar?: string;
   role: Role;
   points: number;
   streak: number;
@@ -116,6 +121,8 @@ export type Settings = {
   championPick: 'spotlight' | 'teacher';
   /** The spotlight passes over students who have been Champion, until everyone has. */
   championsOnce: boolean;
+  /** A játékos-figurák készlete (DiceBear stílus-azonosító). */
+  avatarStyle?: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {

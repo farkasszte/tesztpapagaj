@@ -16,6 +16,8 @@ export type ClassicSettings = {
   roundResults?: boolean;
   /** A felfedés után a válasz kártyáján a betű helyén a választók száma áll. */
   showCounts?: boolean;
+  /** A játékos-figurák készlete (DiceBear stílus-azonosító). */
+  avatarStyle?: string;
 };
 
 export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = {
@@ -30,6 +32,8 @@ export type ClassicPlayer = {
   id: string;
   secret: string;
   nickname: string;
+  /** A figura magja: a diák választotta, vagy a becenevéből képzett. */
+  avatar?: string;
   points: number;
   joinedAt: number;
   connected: boolean;

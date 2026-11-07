@@ -20,7 +20,9 @@ export type ClassicView = {
   /** A futam és a szörny más játék: a telefonon nincs értelme pontot mutatni. */
   theme?: 'race' | 'boss';
   scoring: boolean;
-  roster: { id: string; nickname: string; connected: boolean }[];
+  /** A tanár által választott avatar-készlet: csak ez töltődik a diákoknál. */
+  avatarStyle?: string;
+  roster: { id: string; nickname: string; connected: boolean; avatar?: string }[];
   question: null | {
     /** Counted from 1. */
     number: number;
@@ -62,7 +64,7 @@ export type ClassicView = {
   report: ClassicReport | null;
   /** A kör eredménye a felfedés után: az első öt pontszerző, pont szerint.
    *  Csak a tanár nézetében van, és csak ha a beállítás kéri. */
-  roundTop: { nickname: string; points: number }[] | null;
+  roundTop: { nickname: string; points: number; avatar?: string }[] | null;
   /** Only in a student's view. */
   me?: {
     id: string;
@@ -99,7 +101,13 @@ export function buildClassicView(
     noDevices: !!s.noDevices,
     ...(options.theme ? { theme: options.theme } : {}),
     scoring: s.settings.scoring,
-    roster: s.players.map((p) => ({ id: p.id, nickname: p.nickname, connected: p.connected })),
+    avatarStyle: s.settings.avatarStyle,
+    roster: s.players.map((p) => ({
+      id: p.id,
+      nickname: p.nickname,
+      connected: p.connected,
+      ...(p.avatar ? { avatar: p.avatar } : {}),
+    })),
     question:
       shown && question
         ? {
@@ -150,7 +158,11 @@ export function buildClassicView(
     view.roundTop = [...s.players]
       .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
       .slice(0, 5)
-      .map((player) => ({ nickname: player.nickname, points: player.points }));
+      .map((player) => ({
+        nickname: player.nickname,
+        points: player.points,
+        ...(player.avatar ? { avatar: player.avatar } : {}),
+      }));
   }
   if (!viewer) {
     view.report = s.phase === 'REPORT' || s.phase === 'ENDED' ? reportOf(s) : null;

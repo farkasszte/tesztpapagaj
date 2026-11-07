@@ -93,6 +93,8 @@ export class ClassicEngine {
     playerId?: string;
     secret?: string;
     nickname: string;
+    /** A diák figurájának magja; később a `setAvatar` állítja át. */
+    avatar?: string;
   }): { ok: true; player: ClassicPlayer; rejoined: boolean } | { ok: false; message: string } {
     const s = this.session;
     if (input.playerId && this.kicked.has(input.playerId)) return { ok: false, message: 'Your teacher removed you from this game.' };
@@ -100,6 +102,7 @@ export class ClassicEngine {
     if (existing) {
       if (existing.secret !== input.secret) return { ok: false, message: 'That seat belongs to another device.' };
       existing.connected = true;
+      if (input.avatar) existing.avatar = input.avatar;
       this.changed();
       return { ok: true, player: existing, rejoined: true };
     }
@@ -115,6 +118,7 @@ export class ClassicEngine {
       id: randomId(this.clock.random),
       secret: randomId(this.clock.random),
       nickname,
+      ...(input.avatar ? { avatar: input.avatar } : {}),
       points: 0,
       joinedAt: this.clock.now(),
       connected: true,
@@ -122,6 +126,15 @@ export class ClassicEngine {
     s.players.push(player);
     this.changed();
     return { ok: true, player, rejoined: false };
+  }
+
+  /** A várakozás alatt kért új figura: a tanár gépe tárolja a magot. */
+  setAvatar(playerId: string, seed: string): void {
+    const player = this.player(playerId);
+    const clean = seed.trim().slice(0, 32);
+    if (!player || !clean || player.avatar === clean) return;
+    player.avatar = clean;
+    this.changed();
   }
 
   setConnected(playerId: string, connected: boolean): void {

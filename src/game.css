@@ -2246,3 +2246,55 @@ select.gq-input-small { text-align: center; }
   vertical-align: middle;
 }
 .gq-avatar svg { display: block; width: 100%; height: 100%; }
+
+/* A diák figurája és a kocka: a várakozás alatt másikat kérhet. */
+.gq-avatar-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gq-avatar-pick.is-header {
+  gap: 4px;
+}
+.gq-avatar-roll {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgb(36 28 23 / 0.28);
+  border-radius: 9999px;
+  background: #fffaf3;
+  color: #241c17;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.gq-avatar-pick.is-header .gq-avatar-roll {
+  padding: 4px;
+  border-radius: 8px;
+  background: transparent;
+  border-color: rgb(36 28 23 / 0.18);
+}
+.gq-avatar-roll:hover {
+  border-color: rgb(36 28 23 / 0.5);
+}
+.gq-avatar-roll:focus-visible {
+  outline: 2px solid #3f6b46;
+  outline-offset: 2px;
+}
+
+/* Az oktató választója a játék beállításai között. */
+.gq-avatar-style {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gq-avatar-style select {
+  font: inherit;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgb(36 28 23 / 0.28);
+  background: #fffaf3;
+  color: #241c17;
+}

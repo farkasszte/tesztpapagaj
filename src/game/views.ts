@@ -12,6 +12,8 @@ import { richShown, type RichQuestion } from './rich-text';
 export type RosterEntry = {
   id: string;
   nickname: string;
+  /** A figura magja (a színpad ugyanezt rajzolja, mint a telefon). */
+  avatar?: string;
   role: Role;
   points: number;
   connected: boolean;
@@ -28,6 +30,8 @@ export type View = {
   phase: Phase;
   paused: boolean;
   pauseReason: 'teacher' | 'one_disconnected' | null;
+  /** A tanár által választott avatar-készlet: csak ez a csomag töltődik a diákoknál. */
+  avatarStyle?: string;
   roster: RosterEntry[];
   standings: Standing[];
   pendingNextOne: { id: string; nickname: string } | null;
@@ -147,9 +151,11 @@ export function buildView(
     phase: s.phase,
     paused: s.paused,
     pauseReason: s.paused ? options.pauseReason : null,
+    avatarStyle: s.settings.avatarStyle,
     roster: s.players.map((p) => ({
       id: p.id,
       nickname: p.nickname,
+      ...(p.avatar ? { avatar: p.avatar } : {}),
       role: p.role,
       points: p.points,
       connected: p.connected,

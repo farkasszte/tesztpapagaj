@@ -156,6 +156,15 @@ export class PerilEngine {
     return { ok: true, player, rejoined: false };
   }
 
+  /** A várakozás alatt kért új figura: a tanár gépe tárolja a magot. */
+  setAvatar(playerId: string, seed: string): void {
+    const player = this.player(playerId);
+    const clean = seed.trim().slice(0, 32);
+    if (!player || !clean || player.avatar === clean) return;
+    player.avatar = clean;
+    this.changed();
+  }
+
   setConnected(playerId: string, connected: boolean): void {
     const player = this.player(playerId);
     if (!player || player.connected === connected) return;

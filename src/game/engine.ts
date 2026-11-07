@@ -165,6 +165,8 @@ export class Engine {
     playerId?: string;
     secret?: string;
     nickname: string;
+    /** A diák figurájának magja; a későbbi átállás a `setAvatar`-ral megy. */
+    avatar?: string;
   }): { ok: true; player: Player; rejoined: boolean } | { ok: false; message: string } {
     const s = this.session;
     if (input.playerId && this.kicked.has(input.playerId))
@@ -173,6 +175,7 @@ export class Engine {
     if (existing) {
       if (existing.secret !== input.secret) return { ok: false, message: 'That seat belongs to another device.' };
       existing.connected = true;
+      if (input.avatar) existing.avatar = input.avatar;
       this.onReconnect(existing);
       this.changed();
       return { ok: true, player: existing, rejoined: true };
@@ -187,10 +190,22 @@ export class Engine {
     );
     if (problem) return { ok: false, message: problem };
     // Late joiners play with the Comeback Crew until the next game starts.
-    const player = this.newPlayer(nickname, s.phase === 'LOBBY' ? 'mob' : 'crowd');
+    const player = this.newPlayer(nickname, s.phase === 'LOBBY' ? 'mob' : 'crowd', input.avatar);
     s.players.push(player);
     this.changed();
     return { ok: true, player, rejoined: false };
+  }
+
+  /**
+   * A diák a várakozás alatt új figurát kér. A magot a tanár gépe tárolja,
+   * tehát a színpad és a többi nézet ugyanazt rajzolja.
+   */
+  setAvatar(playerId: string, seed: string): void {
+    const player = this.player(playerId);
+    const clean = seed.trim().slice(0, 32);
+    if (!player || !clean || player.avatar === clean) return;
+    player.avatar = clean;
+    this.changed();
   }
 
   setConnected(playerId: string, connected: boolean): void {
@@ -325,11 +340,12 @@ export class Engine {
     return this.beginGame(one);
   }
 
-  private newPlayer(nickname: string, role: Player['role']): Player {
+  private newPlayer(nickname: string, role: Player['role'], avatar?: string): Player {
     return {
       id: randomId(this.clock.random),
       secret: randomId(this.clock.random),
       nickname,
+      ...(avatar ? { avatar } : {}),
       role,
       points: 0,
       streak: 0,

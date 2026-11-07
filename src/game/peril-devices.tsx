@@ -41,11 +41,13 @@ export function PerilDevices({
   title,
   questions,
   words,
+  avatarStyle,
   onExit,
 }: {
   title: string
   questions: Question[]
   words: Map<string, PlayableWords>
+  avatarStyle?: string
   onExit: () => void
 }) {
   const t = useT()
@@ -55,7 +57,7 @@ export function PerilDevices({
       new PerilEngine(
         createPerilSession({
           code,
-          settings: { teams: { names: TEAM_NAMES, assign: 'auto' } },
+          settings: { teams: { names: TEAM_NAMES, assign: 'auto' }, avatarStyle },
           noDevices: false,
         }),
       ),
@@ -104,7 +106,8 @@ export function PerilDevices({
         },
         reply: (from, payload) => {
           const message = payload as
-            | { kind: 'join'; nickname: string; playerId?: string; secret?: string }
+            | { kind: 'join'; nickname: string; playerId?: string; secret?: string; avatar?: string }
+            | { kind: 'avatar'; seed?: string }
             | { kind: 'team'; teamId: string }
             | { kind: 'pick'; column: number; row: number }
             | { kind: 'buzz' }
@@ -116,6 +119,7 @@ export function PerilDevices({
               ...(message.playerId ? { playerId: message.playerId } : {}),
               ...(message.secret ? { secret: message.secret } : {}),
               nickname: message.nickname ?? '',
+              ...(message.avatar ? { avatar: message.avatar } : {}),
             })
             if (!result.ok) {
               live.send({ kind: 'refused', message: gameMessage(result.message) }, from)
@@ -135,6 +139,12 @@ export function PerilDevices({
 
           const playerId = seats.current.get(from)
           if (!playerId) return
+          if (message.kind === 'avatar') {
+            if (message.seed) engine.setAvatar(playerId, message.seed)
+            bump()
+            broadcast()
+            return
+          }
           const result =
             message.kind === 'team'
               ? engine.chooseTeam(playerId, message.teamId)

@@ -193,7 +193,7 @@ export function ClassicStage({
                 {board.map((player, index) => (
                   <li key={player.nickname}>
                     <span className="gq-board-rank">{index + 1}</span>
-                    <PlayerAvatar nickname={player.nickname} size={30} />
+                    <PlayerAvatar seed={player.avatar ?? player.nickname} size={30} />
                     <span className="gq-board-name">{player.nickname}</span>
                     <span className="gq-board-points">{player.points}</span>
                   </li>
