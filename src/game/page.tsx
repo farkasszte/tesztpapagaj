@@ -20,6 +20,10 @@ import type { PerilSession } from './peril/types'
 import type { QuestionBankResource, QuestionBankSummary, QuestionBankWorkspaceService } from '../bank/question-bank-workspaces'
 import { useT } from '../i18n/index'
 import { AVATAR_STYLES, DEFAULT_AVATAR_STYLE, applyAvatarStyle } from './avatar-styles'
+import { PlayerAvatar } from './avatar-view'
+
+/** A minta három magja: mindig ugyanaz, hogy a készletek összehasonlíthatók legyenek. */
+const SAMPLE_SEEDS = ['minta-anna', 'minta-bence', 'minta-csilla']
 import '../game.css'
 
 /**
@@ -585,6 +589,13 @@ export function GamePage({
                   </option>
                 ))}
               </select>
+              {/* Minta a választás mellett: a készlet neve nem mond semmit, a
+                  figura igen. Csak a kiválasztott készlet töltődik le. */}
+              <span className="gq-avatar-sample" aria-hidden="true">
+                {SAMPLE_SEEDS.map((seed) => (
+                  <PlayerAvatar key={seed} seed={seed} size={22} />
+                ))}
+              </span>
             </label>
           </div>
           {needsDevices ? (

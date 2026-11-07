@@ -27,11 +27,28 @@ test('az oktató választása csak a kiválasztott készletet tölti le', async 
     .poll(() => asked.some((url) => /bottts/.test(url)), { timeout: 15_000 })
     .toBe(true)
 
+  // A választó értéke megmarad, és a beállítás a tárolóba is kerül.
+  expect(await page.evaluate(() => localStorage.getItem('testparrot.avatar-style'))).toBe('bottts')
+
+  // Csak a kiválasztott (és az alap) készlet jött le: a többi nem.
+  expect(asked.some((url) => /bottts/.test(url))).toBe(true)
+  expect(asked.some((url) => /^.*(personas|miniavs|fun-emoji|pixel-art)/.test(url))).toBe(false)
+
+  // A választó mellett minta áll: három figura a kiválasztott készletből,
+  // és váltáskor ezek is átrajzolódnak (nem kell fejből ismerni a neveket).
+  const sample = page.locator('.gq-avatar-sample .gq-avatar svg')
+  await expect(sample).toHaveCount(3)
+  const before = await sample.first().innerHTML()
+  await picker.selectOption('pixel-art')
+  await expect
+    .poll(async () => (await sample.first().innerHTML()) !== before, { timeout: 15_000 })
+    .toBe(true)
+  await expect.poll(() => asked.some((url) => /pixel-art/.test(url)), { timeout: 15_000 }).toBe(true)
+  expect(await page.evaluate(() => localStorage.getItem('testparrot.avatar-style'))).toBe('pixel-art')
+
   // A definíció a bundle-ben van: nincs külső kérés (CSP, offline, költség).
   expect(external.filter((url) => /dicebear|hopjs|cdn/i.test(url))).toEqual([])
-
-  // A választó értéke megmarad, és a beállítás a tárolóba is bekerül.
-  expect(await page.evaluate(() => localStorage.getItem('testparrot.avatar-style'))).toBe('bottts')
+  if (process.env.PROBE_SHOT) await page.locator('.gq-avatar-style').screenshot({ path: 'avatar-picker.png' })
 })
 
 test('a diák lapján a figura megrajzolódik, és a kocka másikat ad', async ({ page }) => {

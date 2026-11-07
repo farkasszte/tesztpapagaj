@@ -2298,3 +2298,11 @@ select.gq-input-small { text-align: center; }
   background: #fffaf3;
   color: #241c17;
 }
+
+/* Minta a készlet-választó mellett: három figura a kiválasztott készletből. */
+.gq-avatar-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding-left: 2px;
+}
