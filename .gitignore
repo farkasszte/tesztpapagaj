@@ -57,6 +57,7 @@ Desktop.ini
 .agents/
 .claude/
 .scratch/
+graphify-out/
 
 # Mérési képek a probe-spec-ekből — nem kerülnek a repóba.
 race-oval.png
