@@ -4,10 +4,11 @@ import { go } from './navigate'
 /**
  * Mérés és őr: mit játszik a differenciált kvíz a kettéosztott táblán.
  *
- * A két panel egyszerű szöveget rajzol (kérdés + válaszok), ezért a mód ma
- * **csak az egyszeres választású** kérdéseket viszi be (feleletválasztós,
- * igaz/hamis). Ez a teszt ezt a szerződést méri: vegyes bankból hány kör lesz,
- * elfér-e a panel, és a felfedés egy kártyát jelöl-e.
+ * A panel a bank saját szövegét rajzolja (DocView: kép, matek, táblázat), de
+ * **csak válaszkártyás** kérdést visz be: feleletválasztós, igaz/hamis és több
+ * helyes válasz. A sorrendezés, a párosítás, a kiegészítés és a rövid válasz
+ * kimarad. Ezt a szerződést méri ez a teszt: hány kör lesz, elfér-e a panel,
+ * hány kártyát jelöl a felfedés, és megjelenik-e a táblázat.
  */
 
 const choice = (said: string, correct = false) => ({
@@ -21,10 +22,25 @@ const paragraph = (text: string) => ({ type: 'paragraph', content: [{ type: 'tex
 const QUESTIONS = [
   {
     type: 'multiple-choice',
-    doc: [paragraph('Melyik gáz kell a növényeknek?'), {
-      type: 'multipleChoice',
-      content: [choice('Szén-dioxid'), choice('Oxigén', true), choice('Hélium')],
-    }],
+    doc: [
+      paragraph('Melyik gáz kell a növényeknek?'),
+      // Táblázat a kérdésben: a panel a bank saját szövegét rajzolja, tehát
+      // ennek is meg kell jelennie (nem sima szöveg).
+      {
+        type: 'table',
+        content: [{
+          type: 'table_row',
+          content: [
+            { type: 'table_cell', content: [paragraph('növény')] },
+            { type: 'table_cell', content: [paragraph('gáz')] },
+          ],
+        }],
+      },
+      {
+        type: 'multipleChoice',
+        content: [choice('Szén-dioxid'), choice('Oxigén', true), choice('Hélium')],
+      },
+    ],
   },
   {
     type: 'true-false',
@@ -104,7 +120,7 @@ async function seed(page: import('@playwright/test').Page): Promise<void> {
   throw new Error('a bankok vetése nem sikerült')
 }
 
-test('a kettéosztott tábla csak az egyszeres választást viszi be, és a panel elfér', async ({
+test('a kettéosztott tábla a válaszkártyás kérdéseket viszi be, a szöveget DocView-val rajzolja', async ({
   page,
   browser,
 }) => {
@@ -148,10 +164,16 @@ test('a kettéosztott tábla csak az egyszeres választást viszi be, és a pane
   await expect(stage).toBeVisible()
   const panel = page.locator('.gq-split-panel[data-side="a"]')
 
-  // Vegyes bankból **két** kör lesz: a feleletválasztós és az igaz/hamis.
+  // Vegyes bankból **három** kör lesz: feleletválasztós, igaz/hamis, több
+  // helyes válasz (a sorrendezés, a párosítás és a kiegészítés kimarad).
   const header = await panel.innerText()
   const rounds = Number(/Round 1 of (\d+)/.exec(header)?.[1] ?? '0')
-  expect(rounds).toBe(2)
+  expect(rounds).toBe(3)
+
+  // A táblázat a panelen: a DocView rajzolja, nem sima szöveg.
+  await expect(panel.locator('.gq-split-prompt .doc-content table')).toHaveCount(1)
+
+  if (process.env.PROBE_SHOT) await page.screenshot({ path: 'split-table.png' })
 
   const measured: { answers: number; overflow: boolean; marked: number }[] = []
   for (let round = 0; round < rounds; round += 1) {
@@ -167,7 +189,7 @@ test('a kettéosztott tábla csak az egyszeres választást viszi be, és a pane
 
   // Elfér: a panel tartalma nem lóg túl a kereten (1920×1080).
   expect(measured.every((one) => one.overflow === false)).toBe(true)
-  // Egyszeres választás: 3 és 2 kártya, felfedéskor pontosan egy jelölés.
-  expect(measured.map((one) => one.answers)).toEqual([3, 2])
-  expect(measured.map((one) => one.marked)).toEqual([1, 1])
+  // 3, 2 és 3 kártya; a több helyes válasznál **kettő** jelölés, a többinél egy.
+  expect(measured.map((one) => one.answers)).toEqual([3, 2, 3])
+  expect(measured.map((one) => one.marked)).toEqual([1, 1, 2])
 })

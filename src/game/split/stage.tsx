@@ -6,6 +6,8 @@ import { mergeRanks, type Side } from './pair'
 import { TextSizeControl } from '../text-size'
 import { TINCTURES, useStageFocusTrap } from '../parts'
 import { PlayerAvatar } from '../avatar-view'
+import { DocView } from '../../editor/doc-view'
+import type { PlayableWords } from '../projection'
 
 /**
  * A differenciált kvíz színpada (tp#45): a két bank kérdése egyszerre, bal és
@@ -15,10 +17,13 @@ import { PlayerAvatar } from '../avatar-view'
 export function SplitStage({
   engines,
   names,
+  words,
   onExit,
 }: {
   engines: { a: ClassicEngine; b: ClassicEngine }
   names: { a: string; b: string }
+  /** A kérdések szavai (formázás, kép, matek) oldalanként, ahogy a bank írta. */
+  words?: { a: Map<string, PlayableWords>; b: Map<string, PlayableWords> }
   onExit: () => void
 }) {
   const t = useT()
@@ -75,6 +80,9 @@ export function SplitStage({
           const engine = engines[side]
           const view = buildClassicView(engine.session, { now: Date.now() })
           const question = view.question
+          // A formázott szöveg (kép, matek, táblázat) a bank saját szavaiból jön:
+          // a panel ugyanazt rajzolja, mint a Klasszikus színpada.
+          const spoken = question ? words?.[side].get(question.id) : undefined
           return (
             <section key={side} className="gq-split-panel" data-side={side}>
               <h2 className="gq-split-name">{names[side]}</h2>
@@ -83,7 +91,9 @@ export function SplitStage({
                   <p className="gq-split-count">
                     {t('game.split.round', { number: question.number, total: question.total })}
                   </p>
-                  <p className="gq-split-prompt">{question.prompt}</p>
+                  <div className="gq-split-prompt">
+                    {spoken?.stem?.length ? <DocView content={spoken.stem} /> : question.prompt}
+                  </div>
                   <ol
                     className="gq-split-answers"
                     data-revealed={view.phase === 'REVEAL' ? 'true' : undefined}
@@ -100,7 +110,13 @@ export function SplitStage({
                           style={{ '--c': TINCTURES[index % TINCTURES.length] } as CSSProperties}
                         >
                           <span className="gq-split-letter">{'ABCD'[index] ?? index + 1}</span>
-                          <span className="gq-split-text">{choice}</span>
+                          <span className="gq-split-text">
+                            {spoken?.choices[index]?.length ? (
+                              <DocView content={spoken.choices[index]} />
+                            ) : (
+                              choice
+                            )}
+                          </span>
                         </li>
                       )
                     })}

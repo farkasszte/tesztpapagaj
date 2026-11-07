@@ -228,7 +228,10 @@ export function GamePage({
   const playable = useMemo(
     () => (bank
       ? playableQuestions(bank.questions, {
-          classic: mode === 'classic',
+          // A differenciált kvíz is a Klasszikus naplóját futtatja, de a
+          // kettéosztott tábla csak válaszkártyákat rajzol: ezért `choicesOnly`.
+          classic: mode === 'classic' || mode === 'split',
+          choicesOnly: mode === 'split',
           // Szavazásnál a helyes válasz nélküli kérdések a játszhatók.
           vote: mode === 'vote',
           shuffleAnswers,

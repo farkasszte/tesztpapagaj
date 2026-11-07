@@ -24,6 +24,8 @@ export type ClassicView = {
   avatarStyle?: string;
   roster: { id: string; nickname: string; connected: boolean; avatar?: string }[];
   question: null | {
+    /** A kérdés azonosítója: a szavak (kép, matek) ezzel kereshetők ki. */
+    id: string;
     /** Counted from 1. */
     number: number;
     total: number;
@@ -111,6 +113,7 @@ export function buildClassicView(
     question:
       shown && question
         ? {
+            id: question.id,
             number: s.index + 1,
             total: s.questions.length,
             prompt: question.prompt,

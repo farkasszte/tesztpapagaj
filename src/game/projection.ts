@@ -260,9 +260,23 @@ function scrambledIndices(count: number, seed: string): number[] {
 }
 
 /** Why a question can't be played, or null when it can. */
-function problemOf(question: BankQuestion, classic: boolean, vote: boolean): string | null {
+function problemOf(
+  question: BankQuestion,
+  classic: boolean,
+  vote: boolean,
+  choicesOnly = false,
+): string | null {
   if (!PLAYABLE_TYPES.has(question.type))
     return t('game.skip.type', { type: SECTION_LABELS[question.type] })
+  // A kettéosztott tábla csak válaszkártyákat rajzol: a többi típus kimarad.
+  if (
+    choicesOnly &&
+    (question.type === 'ordering' ||
+      question.type === 'matching' ||
+      question.type === 'fill-in-the-blank' ||
+      question.type === 'open')
+  )
+    return t('game.skip.multipleMode', { type: SECTION_LABELS[question.type] })
   // A több helyes válasz csak a Klasszikus módban játszható: a Bajnok és a
   // Veszély! egyetlen választ vár, ott ez a típus félrevezetne.
   if (
@@ -338,9 +352,21 @@ function problemOf(question: BankQuestion, classic: boolean, vote: boolean): str
  */
 export function playableQuestions(
   questions: readonly BankQuestion[],
-  options: { classic?: boolean; shuffleAnswers?: boolean; vote?: boolean } = {},
+  options: {
+    classic?: boolean;
+    shuffleAnswers?: boolean;
+    vote?: boolean;
+    /**
+     * Csak a válaszkártyás típusok (egyszeres és több helyes válasz). A
+     * differenciált kvíz kettéosztott táblája ezt kéri: a panel csak kérdést és
+     * válaszokat rajzol, tehát a sorrendezés, a párosítás, a kiegészítés és a
+     * rövid válasz ott félrevezető lenne.
+     */
+    choicesOnly?: boolean;
+  } = {},
 ): PlayableQuestions {
   const classic = options.classic ?? false
+  const choicesOnly = options.choicesOnly ?? false
   // Szavazás: a helyes válasz nélküli kérdések játéka (B5).
   const vote = options.vote ?? false
   // A kártyás kérdés válaszai felkeverve állnak, hogy a szerzői sorrend ne
@@ -352,7 +378,7 @@ export function playableQuestions(
   const words = new Map<string, PlayableWords>()
   const plain = (rich: RichText) => plainOf(rich).trim()
   questions.forEach((question, index) => {
-    const problem = problemOf(question, classic, vote)
+    const problem = problemOf(question, classic, vote, choicesOnly)
     if (problem) {
       skipped.push({ number: index + 1, reason: problem })
       return

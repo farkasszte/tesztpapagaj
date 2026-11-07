@@ -211,6 +211,7 @@ export function SplitDevices({
             <SplitStage
               engines={engines}
               names={{ a: banks.a.name, b: banks.b.name }}
+              words={{ a: banks.a.words, b: banks.b.words }}
               onExit={onExit}
             />,
             document.body,

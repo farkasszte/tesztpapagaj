@@ -805,6 +805,24 @@ select.gq-input-small { text-align: center; }
   font-size: calc(clamp(19px, 1.9vw, 30px) * var(--gq-text, 1)); text-wrap: balance;
   color: #fffaf3;
 }
+/* A panel a bank saját szövegét rajzolja (kép, matek, táblázat): a DocView a
+   fehér tintát és a panel méretét örökli, nem a dokumentum saját színeit. */
+.gq-split-prompt .doc-content,
+.gq-split-answer .doc-content {
+  font: inherit;
+  color: inherit;
+}
+.gq-split-prompt .doc-content *,
+.gq-split-answer .doc-content * {
+  color: inherit;
+}
+.gq-split-prompt .doc-content img,
+.gq-split-answer .doc-content img {
+  max-height: 30vh;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
 .gq-split-answers { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 /* A válaszok színesek, mint a Klasszikusban: a betű színe a `--c` tincture. */
 .gq-split-answer {
