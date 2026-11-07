@@ -788,7 +788,7 @@ export function QuestionBankPane({
             </button>}
             {onCreate && <button
               type="button"
-              className={layout === 'page' ? 'primary-button' : 'toolbar-icon-button'}
+              className="primary-button"
               aria-label={layout === 'page' ? undefined : t('editor.addQuestion')}
               title={layout === 'page' ? undefined : t('editor.addQuestion')}
               aria-haspopup="menu"
@@ -799,8 +799,8 @@ export function QuestionBankPane({
                 onCreate({ x: bounds.left, y: bounds.bottom + 4 })
               }}
             >
-              <Plus aria-hidden="true" />
-              {layout === 'page' && t('bank.newQuestion')}
+              {layout === 'page' && <Plus aria-hidden="true" />}
+              {layout === 'page' ? t('bank.newQuestion') : t('coll.new')}
             </button>}
             {onExport && bank.questions.length === 0 && <span id="empty-bank-export-help" className="sr-only">{t('ui.needOneQuestion')}</span>}
             {onExport && exportBlocked && <span id="editing-bank-export-help" className="sr-only">{t('ui.finishEditFirst')}</span>}

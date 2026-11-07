@@ -33,6 +33,7 @@ import { countOf, t, useT } from './i18n/index'
 import { usePopOver } from './editor/pop-over-context'
 import { navigate } from './use-route'
 import { ContextMenu, type MenuItem, type MenuPoint } from './context-menu'
+import { TopicBadge } from './editor/badges'
 
 function relativeTime(prefix: string, iso: string) {
   const minutes = Math.max(
@@ -368,15 +369,18 @@ export function HomePage({
               </div>
             </div>
             <div className="home-header-actions">
-              <button type="button" className="link-button shelf-new" onClick={onNewExam}>
-                <Plus aria-hidden="true" style={{ width: 14, height: 14, display: 'inline', verticalAlign: '-2px', marginRight: 4 }} />
+              <button type="button" className="secondary-button" onClick={onNewExam}>
+                <Plus aria-hidden="true" style={{ width: 14, height: 14, marginRight: 6 }} />
                 {tHook('home.newExam')}
               </button>
-              <button type="button" className="link-button shelf-new" onClick={onNewBank}>
-                <Plus aria-hidden="true" style={{ width: 14, height: 14, display: 'inline', verticalAlign: '-2px', marginRight: 4 }} />
+              <button type="button" className="secondary-button" onClick={onNewBank}>
+                <Plus aria-hidden="true" style={{ width: 14, height: 14, marginRight: 6 }} />
                 {tHook('home.newBank')}
               </button>
-              {importLink}
+              <button type="button" className="primary-button" onClick={onImport}>
+                <Upload aria-hidden="true" style={{ width: 14, height: 14, marginRight: 6 }} />
+                {tHook('home.import')}
+              </button>
               <div className="home-view-toggle" role="group" aria-label={tHook('home.viewTable')}>
                 <button
                   type="button"
@@ -649,12 +653,10 @@ export function HomePage({
                                     {item.kind === 'bank' && item.topics && item.topics.length > 0 && (
                                       <div className="home-item-topics">
                                         {item.topics.slice(0, 3).map((topic) => (
-                                          <span key={topic} className="home-topic-tag">
-                                            {topic}
-                                          </span>
+                                          <TopicBadge key={topic} topic={topic} />
                                         ))}
                                         {item.topics.length > 3 && (
-                                          <span className="home-topic-more">
+                                          <span className="badge">
                                             +{item.topics.length - 3}
                                           </span>
                                         )}

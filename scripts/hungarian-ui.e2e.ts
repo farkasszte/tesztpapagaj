@@ -206,11 +206,12 @@ test('az új kérdésbank neve magyar, a margók pedig centiméterben', async ({
   await expect(field).toHaveValue('3')
 })
 
-test('az Importok oldal Kahoot linket is kínál, magyar hibával', async ({ page }) => {
+test('a Kahoot link az import párbeszédben magyar hibát ad', async ({ page }) => {
   await go(page, '/imports')
-  const card = page.locator('.kahoot-link')
+  await page.getByRole('button', { name: 'Importálás', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  const card = dialog.locator('.kahoot-link')
   await expect(card).toBeVisible()
-  await expect(card).toContainText('Kahoot importálása linkről')
 
   await card.locator('input').fill('https://example.com/nem-kahoot')
   await card.getByRole('button', { name: 'Kahoot importálása', exact: true }).click()

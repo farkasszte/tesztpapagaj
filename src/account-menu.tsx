@@ -213,7 +213,6 @@ export function BackupSettings({ status }: { status: PersistentStorageStatus }) 
           {t('account.storageDenied')}
         </p>
       )}
-      {status === 'granted' && <p className="account-ok">{t('account.storageEnabled')}</p>}
       <div className="account-actions">
         <button type="button" className="secondary-button account-action" onClick={backup} disabled={busy !== null}>
           {busy === 'backup' ? <RefreshCw aria-hidden="true" className="account-spin" /> : <Download aria-hidden="true" />}

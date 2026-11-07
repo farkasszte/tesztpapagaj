@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, EllipsisVertical, FileImage, FileJson, FileText, FolderOpen, ImageIcon, Library, Trash2 } from 'lucide-react'
 import { AppShell } from '../app-shell'
 import { DEFAULT_EXAM_TITLE } from '../exam/exam'
-import { KahootLinkField } from './kahoot-link-field'
 import type { PersistentStorageStatus } from '../storage/durable-storage'
 import {
   WAITING_IMPORT_LIFETIME_MS,
@@ -19,7 +18,6 @@ import { SourceDocumentSteps } from './source-document-steps'
 import { ImportError } from './import-error'
 import { inspectUploadedFile, isRecordFile } from './question-bank-upload'
 import { countOf, t } from '../i18n/index'
-import type { ImportProposal } from './package-import'
 
 /**
  * The Imports section: every import this browser has started. Those still
@@ -169,15 +167,12 @@ function ImportCard({
 
 export function ImportsPage({
   onImport,
-  onProposal,
   persistentStorage,
   revision,
   picturesNeededIn,
 }: {
   /** Start an import, in the Import dialog. */
   onImport: () => void
-  /** A Kahoot link read into questions: the dialog shows it as if a file came. */
-  onProposal: (proposal: ImportProposal) => void
   persistentStorage: PersistentStorageStatus
   /** Changes whenever an import may have finished, so the list is read again. */
   revision: number
@@ -212,7 +207,6 @@ export function ImportsPage({
         <button type="button" className="primary-button" onClick={onImport}>{t('import.action')}</button>
       </div>
     </header>
-    <KahootLinkField onProposal={onProposal} />
     {entries === null
       ? <p className="import-list-status" role="status">{t('imports.loading')}</p>
       : entries.length === 0
