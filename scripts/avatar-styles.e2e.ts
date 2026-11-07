@@ -7,9 +7,14 @@ import { go } from './navigate'
 
 test('az oktató választása csak a kiválasztott készletet tölti le', async ({ page }) => {
   const asked: string[] = []
+  const external: string[] = []
   page.on('request', (request) => {
     const url = request.url()
     if (/\.min-[\w-]+\.js|\.min\.json/.test(url)) asked.push(url)
+    // A kép helyben készül: a stílus-definíció nem jöhet külső CDN-ről.
+    if (!/^https?:\/\/127\.0\.0\.1:4174\//.test(url) && !url.startsWith('data:') && !url.startsWith('ws:')) {
+      external.push(url)
+    }
   })
 
   await go(page, '/jatek')
@@ -21,6 +26,9 @@ test('az oktató választása csak a kiválasztott készletet tölti le', async 
   await expect
     .poll(() => asked.some((url) => /bottts/.test(url)), { timeout: 15_000 })
     .toBe(true)
+
+  // A definíció a bundle-ben van: nincs külső kérés (CSP, offline, költség).
+  expect(external.filter((url) => /dicebear|hopjs|cdn/i.test(url))).toEqual([])
 
   // A választó értéke megmarad, és a beállítás a tárolóba is bekerül.
   expect(await page.evaluate(() => localStorage.getItem('testparrot.avatar-style'))).toBe('bottts')
