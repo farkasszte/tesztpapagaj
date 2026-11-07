@@ -13,8 +13,7 @@ import type { PlayableWords } from './projection'
 import type { Question } from './types'
 import type { SavedGame } from './store'
 import { useT, type TextKey } from '../i18n/index'
-import { TextSizeControl } from './text-size'
-import { AmbientMusicControl } from './ambient-music'
+import { StageTools } from './stage-tools'
 
 /**
  * A Bajnok mód kivetítője, diákeszközök nélkül.
@@ -231,8 +230,7 @@ export function ChampionStage({
           )
         ) : null}
         <span className="gq-bar-end">
-          <AmbientMusicControl />
-          <TextSizeControl className="gq-textsize-stage" />
+          <StageTools />
           <button type="button" className="gq-quiet" onClick={onExit}>
             {t('game.stage.endGame')}
           </button>

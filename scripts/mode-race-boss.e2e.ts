@@ -146,12 +146,12 @@ test('a Szörnytámadásban a helyes válasz sebzi a szörnyet, a rossz a pajzso
   const stage = page.getByRole('dialog', { name: 'Boss battle' })
   await expect(stage).toBeVisible()
   await expect(stage.locator('.gq-boss-name')).toHaveText('Dragon')
-  await expect(stage.locator('.gq-boss-hp')).toHaveText('100 / 100')
+  await expect(stage.locator('.gq-boss-hp')).toHaveText('20 / 20')
 
   // Első kérdés: jó válasz → a szörny tíz életerőt veszít.
   const choices = student.locator('.gq-stu-choice')
   await choices.filter({ hasText: 'Carbon dioxide' }).click()
-  await expect(stage.locator('.gq-boss-hp')).toHaveText('90 / 100')
+  await expect(stage.locator('.gq-boss-hp')).toHaveText('10 / 20')
   await expect(stage.locator('.gq-boss-bites')).toContainText('1 hits')
 
   // Második kérdés: rossz válasz → a pajzs egy pipát veszít.

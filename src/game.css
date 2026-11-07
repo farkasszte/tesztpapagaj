@@ -231,6 +231,7 @@
 .gq-stage-bar {
   position: relative; display: flex; align-items: center; justify-content: space-between;
   gap: 16px; min-height: 40px; font-family: var(--sans);
+  flex-wrap: nowrap;
 }
 /* A menet-kártya a valódi középre kerül, nem a maradék hely közepére.
    A szélessége korlátos: a bal oldali állapot-jelző és a jobb oldali gomb
@@ -241,12 +242,15 @@
   /* A jobb oldali csoport (szövegméret, szünet, játék vége) helye: a kártya
      nem csúszhat alá. */
   max-width: calc(100% - 560px);
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 /* A fejléc jobb oldali gombfogója: a szövegméret-állító és a játékvezérlés. */
 .gq-bar-end {
   display: flex; align-items: center; gap: 8px;
   margin-inline-start: auto;
+  flex: none;
 }
 @media (max-width: 1279px) {
   .gq-where { position: static; transform: none; margin-inline: auto; }
@@ -2017,8 +2021,8 @@ select.gq-input-small { text-align: center; }
    Mindkettő a Klasszikus naplóját viszi (kérdés → válaszok → felfedés →
    következő), csak a tábla más: itt a táv, ott a közös életerő. A vászon és a
    betűk ugyanazok, hogy a három játék egy családnak látszódjon. */
-.gq-mode-stage { gap: 14px; }
-.gq-mode-left { display: inline-flex; align-items: center; gap: 12px; }
+.gq-mode-stage { gap: 18px; }
+.gq-mode-left { display: inline-flex; align-items: center; gap: 12px; flex: none; }
 .gq-mode-question { display: grid; gap: 12px; }
 .gq-mode-stem {
   font-family: var(--serif); font-size: clamp(22px, 1.9vw, 32px); line-height: 1.35;
@@ -2066,10 +2070,41 @@ select.gq-input-small { text-align: center; }
 }
 
 .gq-boss {
-  display: grid; gap: 8px; padding: 14px 16px; border-radius: 10px;
-  border: 1px solid rgb(245 236 220 / 0.18); background: rgb(245 236 220 / 0.05);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgb(245 236 220 / 0.18);
+  background: rgb(245 236 220 / 0.05);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.25);
+  transition: border-color 300ms ease, background 300ms ease, box-shadow 300ms ease;
 }
-.gq-boss[data-enraged='yes'] { border-color: rgb(196 64 47 / 0.7); background: rgb(196 64 47 / 0.12); }
+.gq-boss[data-enraged='yes'] {
+  border-color: rgb(196 64 47 / 0.7);
+  background: rgb(196 64 47 / 0.12);
+  box-shadow: 0 0 24px rgb(196 64 47 / 0.25);
+}
+.gq-boss-avatar-frame {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.5));
+}
+.gq-boss[data-enraged='yes'] .gq-boss-avatar-frame {
+  filter: drop-shadow(0 0 14px rgb(201 42 42 / 0.8)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.6));
+}
+.gq-boss-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
 .gq-boss-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .gq-boss-name {
   font-family: var(--display); font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase;
@@ -2081,6 +2116,36 @@ select.gq-input-small { text-align: center; }
   border: 1px solid rgb(245 236 220 / 0.22); background: rgb(8 7 6 / 0.6);
 }
 .gq-boss-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #8f2f22, #c4402f); transition: width 420ms ease; }
+.gq-boss[data-tier='peaceful'] .gq-boss-fill { background: linear-gradient(90deg, #2b8a3e, #40c057); }
+.gq-boss[data-tier='fierce'] .gq-boss-fill { background: linear-gradient(90deg, #1864ab, #339af0); }
+.gq-boss[data-tier='legendary'] .gq-boss-fill { background: linear-gradient(90deg, #8f2f22, #c4402f); }
+
+.gq-boss[data-tier='peaceful'][data-enraged='yes'] {
+  border-color: rgb(43 138 62 / 0.7);
+  background: rgb(43 138 62 / 0.12);
+  box-shadow: 0 0 24px rgb(43 138 62 / 0.25);
+}
+.gq-boss[data-tier='peaceful'][data-enraged='yes'] .gq-boss-avatar-frame {
+  filter: drop-shadow(0 0 14px rgb(43 138 62 / 0.8)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.6));
+}
+
+.gq-boss[data-tier='fierce'][data-enraged='yes'] {
+  border-color: rgb(24 100 171 / 0.7);
+  background: rgb(24 100 171 / 0.12);
+  box-shadow: 0 0 24px rgb(24 100 171 / 0.25);
+}
+.gq-boss[data-tier='fierce'][data-enraged='yes'] .gq-boss-avatar-frame {
+  filter: drop-shadow(0 0 14px rgb(24 100 171 / 0.8)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.6));
+}
+
+.gq-boss[data-tier='legendary'][data-enraged='yes'] {
+  border-color: rgb(196 64 47 / 0.7);
+  background: rgb(196 64 47 / 0.12);
+  box-shadow: 0 0 24px rgb(196 64 47 / 0.25);
+}
+.gq-boss[data-tier='legendary'][data-enraged='yes'] .gq-boss-avatar-frame {
+  filter: drop-shadow(0 0 14px rgb(201 42 42 / 0.8)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.6));
+}
 .gq-boss-shield { display: flex; align-items: center; gap: 6px; }
 .gq-boss-pip {
   width: 14px; height: 16px; border-radius: 3px 3px 6px 6px;
@@ -2088,6 +2153,89 @@ select.gq-input-small { text-align: center; }
 }
 .gq-boss-pip[data-on='yes'] { background: #2f5c8c; border-color: #6f9cc4; }
 .gq-boss-bites { margin-inline-start: 8px; font-size: 13px; color: rgb(245 236 220 / 0.72); }
+
+.gq-dragon-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  transform-origin: 50% 85%;
+  animation: gq-dragon-breathe 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+.gq-dragon-svg.gq-dragon--enraged {
+  animation: gq-dragon-enraged 1.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite alternate;
+}
+.gq-dragon-svg.gq-dragon--dead {
+  animation: none;
+  opacity: 0.55;
+  filter: grayscale(0.65);
+  transform: translate3d(0, 4px, 0) scale(0.96);
+  transition: transform 600ms ease, opacity 600ms ease, filter 600ms ease;
+}
+.gq-dragon-svg.gq-dragon--victorious {
+  animation: gq-dragon-roar 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+.gq-dragon-eyes {
+  transform-origin: 50% 50%;
+  animation: gq-dragon-eyes-pulse 3.4s ease-in-out infinite;
+}
+@keyframes gq-dragon-eyes-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.gq-dragon-breath {
+  transform-origin: 50% 60%;
+  animation: gq-dragon-breath-flare 0.9s ease-in-out infinite alternate;
+}
+@keyframes gq-dragon-breath-flare {
+  0% { opacity: 0.7; transform: scale(0.94); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+
+.gq-boss-outcome-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.gq-boss-outcome-avatar {
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.6));
+}
+
+@keyframes gq-dragon-breathe {
+  0%, 100% {
+    transform: translate3d(0, 1.5px, 0) scale(0.985);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0) scale(1.025);
+  }
+}
+
+@keyframes gq-dragon-enraged {
+  0% {
+    transform: translate3d(-1px, 1.5px, 0) scale(1.01) rotate(-1.2deg);
+  }
+  100% {
+    transform: translate3d(1px, -3px, 0) scale(1.06) rotate(1.2deg);
+  }
+}
+
+@keyframes gq-dragon-roar {
+  0% {
+    transform: translate3d(0, 1px, 0) scale(1.03);
+  }
+  100% {
+    transform: translate3d(0, -5px, 0) scale(1.12);
+  }
+}
 
 /* ── Grand Prix (tp#43) ────────────────────────────────────────────────────
    Egyetlen stadion alakú pálya (két egyenes és két félkör), a mezőny a vonalon.
@@ -2311,17 +2459,19 @@ select.gq-input-small { text-align: center; }
   color: rgb(255 250 243 / 0.66);
 }
 
-/* A szövegméret-állító a színpadon nem lebeg: a cím alatt, saját sorban. */
+/* A szövegméret-állító a színpadon nem lebeg: a fejléc eszközsorában vagy a kód alatt. */
 .gq-textsize-stage {
   position: static;
   inset: auto;
-  margin-top: 2px;
-  padding: 1px;
-  background: rgb(255 250 243 / 0.06);
-  border-color: rgb(255 250 243 / 0.18);
+  margin-top: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgb(12 10 8 / 0.5);
+  border: 1px solid rgb(217 167 44 / 0.5);
+  color: rgb(245 236 220 / 0.85);
+  font-family: var(--display);
 }
 
-.gq-mode-stage .gq-where { flex-wrap: wrap; }
 
 /* A szövegméret-állító saját sorban, középen — a cím (kód) alatt. */
 .gq-textsize-row {
@@ -2412,18 +2562,19 @@ select.gq-input-small { text-align: center; }
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  border-radius: 9999px;
-  background: rgb(255 250 243 / 0.08);
-  border: 1px solid rgb(255 250 243 / 0.2);
-  color: #fffaf3;
-  font-size: 0.75rem;
-  line-height: 1rem;
+  border-radius: 4px;
+  background: rgb(12 10 8 / 0.5);
+  border: 1px solid rgb(217 167 44 / 0.5);
+  color: rgb(245 236 220 / 0.85);
+  font-family: var(--display);
+  font-size: 0.875rem;
+  line-height: 1;
 }
 .gq-ambient-btn {
   border: none;
   background: transparent;
   padding: 2px 4px;
-  border-radius: 9999px;
+  border-radius: 3px;
   cursor: pointer;
   font-size: 0.875rem;
   line-height: 1;
@@ -2433,12 +2584,12 @@ select.gq-input-small { text-align: center; }
   color: inherit;
 }
 .gq-ambient-btn:hover {
-  background: rgb(255 250 243 / 0.16);
+  background: rgb(217 167 44 / 0.18);
 }
 .gq-ambient-slider {
   width: 54px;
   height: 4px;
-  accent-color: var(--gq-gold, #f59e0b);
+  accent-color: var(--or, #d9a72c);
   cursor: pointer;
 }
 .gq-ambient-val {
@@ -2446,4 +2597,155 @@ select.gq-input-small { text-align: center; }
   text-align: right;
   font-variant-numeric: tabular-nums;
   opacity: 0.85;
+}
+
+/* ── Színpadi egységes eszközsor: zene + betűméret ────────────────────────── */
+.gq-stage-tools {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid rgb(217 167 44 / 0.5);
+  background: rgb(12 10 8 / 0.5);
+  color: rgb(245 236 220 / 0.85);
+  font-family: var(--display);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+/* Zene vezérlő az eszközsoron belül */
+.gq-stage-tools .gq-ambient-control {
+  border: none;
+  background: transparent;
+  padding: 0 6px 0 2px;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  gap: 6px;
+  color: inherit;
+  font-family: var(--display);
+}
+.gq-stage-tools .gq-ambient-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.gq-stage-tools .gq-ambient-btn:hover {
+  background: rgb(217 167 44 / 0.18);
+}
+.gq-stage-tools .gq-ambient-slider {
+  width: 52px;
+  height: 4px;
+  accent-color: var(--or, #d9a72c);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.gq-stage-tools .gq-ambient-val {
+  min-width: 32px;
+  text-align: right;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgb(245 236 220 / 0.85);
+}
+
+/* Elválasztó vonal a zene és a méret között */
+.gq-stage-tools-sep {
+  width: 1px;
+  height: 18px;
+  background: rgb(217 167 44 / 0.35);
+  margin: 0 4px;
+  flex: none;
+}
+
+/* Betűméret vezérlő az eszközsoron belül */
+.gq-stage-tools .gq-textsize-stage {
+  border: none;
+  background: transparent;
+  padding: 0 2px 0 4px;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  gap: 2px;
+  color: inherit;
+}
+.gq-stage-tools .gq-textsize-button {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgb(245 236 220 / 0.88);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.gq-stage-tools .gq-textsize-button:not(:disabled):hover {
+  background: rgb(217 167 44 / 0.18);
+  color: #fff;
+}
+.gq-stage-tools .gq-textsize-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.gq-stage-tools .gq-textsize-value {
+  min-width: 38px;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgb(245 236 220 / 0.85);
+}
+
+.gq-stage-bar .gq-quiet {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-radius: 4px;
+  border: 1px solid rgb(217 167 44 / 0.5);
+  background: rgb(12 10 8 / 0.5);
+  color: rgb(245 236 220 / 0.85);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.gq-stage-bar .gq-quiet:hover {
+  background: rgb(217 167 44 / 0.18);
+  border-color: rgb(217 167 44 / 0.8);
+  color: #fff;
+}
+.gq-stage-bar .gq-go {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 4px;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }

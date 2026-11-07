@@ -21,8 +21,7 @@ import { Letter } from './shapes'
 import type { SavedGame } from './store'
 import { gameMessage } from './messages'
 import { useT } from '../i18n/index'
-import { TextSizeControl } from './text-size'
-import { AmbientMusicControl } from './ambient-music'
+import { StageTools } from './stage-tools'
 
 /**
  * A Veszély! kivetítője, diákeszközök nélkül.
@@ -229,8 +228,7 @@ export function PerilStage({
           ))}
         </span>
         <span className="gq-bar-end">
-          <AmbientMusicControl />
-          <TextSizeControl className="gq-textsize-stage" />
+          <StageTools />
           <button type="button" className="gq-quiet" onClick={onExit}>
             {t('game.stage.endGame')}
           </button>

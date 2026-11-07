@@ -229,3 +229,11 @@ test('a Kahoot mező az import párbeszédben is ott van', async ({ page }) => {
   await expect(dialog.locator('.kahoot-link input')).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Kahoot importálása', exact: true })).toBeVisible()
 })
+
+test('a játékmódok között megjelenik a Nagydíj, a Sárkányok völgye és a Bajnokok próbája', async ({ page }) => {
+  await go(page, '/jatek')
+  await expect(page.getByRole('button', { name: /^Nagydíj/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Sárkányok völgye/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Bajnokok próbája/ })).toBeVisible()
+})
+

@@ -2330,6 +2330,25 @@ body.margins-guides .exam-page::after {
   padding: 8px 22px; border-bottom: 1px solid #e8dfd2; background: #fffaf3;
 }
 .app-topbar-actions { display: flex; align-items: center; gap: 10px; }
+.app-topbar-actions .primary-button,
+.app-topbar-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.app-topbar-actions .primary-button svg,
+.app-topbar-actions .secondary-button svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  stroke-width: 2;
+}
 .app-main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 26px 22px 40px; }
 
 .breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
@@ -3149,7 +3168,26 @@ body.margins-guides .exam-page::after {
 .bank-page-title:focus { border-color: var(--paper-accent); }
 .bank-save-status { color: #6e5b4d; font-size: 13px; }
 /* A bank fejlécében a játék a fő művelet, a mentés-állapot mellette ül. */
-.bank-page-actions { display: inline-flex; align-items: center; gap: 12px; }
+.bank-page-actions { display: inline-flex; align-items: center; gap: 10px; }
+.bank-page-actions .primary-button,
+.bank-page-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.bank-page-actions .secondary-button svg,
+.bank-page-actions .primary-button svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  stroke-width: 2;
+}
 .bank-name-error { margin: 6px 0 0 7px; }
 .dialog-save-error { flex: 1; margin: 0; color: var(--paper-danger); font-size: 13px; }
 .danger-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 7px 12px; border: 1px solid var(--paper-danger); border-radius: 6px; color: #fff; background: var(--paper-danger); font: inherit; font-weight: 700; }

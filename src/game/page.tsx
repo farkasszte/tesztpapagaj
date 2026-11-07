@@ -14,6 +14,7 @@ import { FlashcardDeck } from './flashcard-view'
 import { deckOf } from './flashcard'
 import { playableQuestions } from './projection'
 import { clearSavedGame, readSavedGame, type GameMode, type SavedGame } from './store'
+import type { BossTier } from './boss'
 import type { ClassicSession } from './classic/types'
 import type { Session } from './types'
 import type { PerilSession } from './peril/types'
@@ -107,6 +108,8 @@ export function GamePage({
    *  értelme, ha a diákok a saját eszközükön játszanak: kivetítésnél nincs
    *  kit rangsorolni. */
   const [roundResults, setRoundResults] = useState(false)
+  /** Sárkányok völgye nehézsége / kategóriája: békés (40%), harcias (60%), legendás (80%). */
+  const [bossTier, setBossTier] = useState<BossTier>('legendary')
   /** A felfedés után a válasz kártyáján a betű helyén a választók száma. */
   const [showCounts, setShowCounts] = useState(false)
   /** A játékos-figurák készlete: ezt a ~5 kB-os csomagot kapja meg a diák. */
@@ -228,14 +231,14 @@ export function GamePage({
   const playable = useMemo(
     () => (bank
       ? playableQuestions(bank.questions, {
-          // A differenciált kvíz is a Klasszikus naplóját futtatja, de a
-          // kettéosztott tábla csak válaszkártyákat rajzol: ezért `choicesOnly`.
-          classic: mode === 'classic' || mode === 'split',
-          choicesOnly: mode === 'split',
-          // Szavazásnál a helyes válasz nélküli kérdések a játszhatók.
-          vote: mode === 'vote',
-          shuffleAnswers,
-        })
+        // A differenciált kvíz is a Klasszikus naplóját futtatja, de a
+        // kettéosztott tábla csak válaszkártyákat rajzol: ezért `choicesOnly`.
+        classic: mode === 'classic' || mode === 'split',
+        choicesOnly: mode === 'split',
+        // Szavazásnál a helyes válasz nélküli kérdések a játszhatók.
+        vote: mode === 'vote',
+        shuffleAnswers,
+      })
       : null),
     [bank, mode, shuffleAnswers],
   )
@@ -285,6 +288,7 @@ export function GamePage({
             // Szavazásnál nincs pont, és a megoszlás a lényeg.
             showCounts: mode === 'vote',
             scoring: mode !== 'vote',
+            bossTier: mode === 'boss' ? bossTier : undefined,
           }}
           onExit={exit}
           bankId={bankId}
@@ -360,276 +364,290 @@ export function GamePage({
       crumbs={[{ label: t('shell.home'), href: '/' }, { label: t('game.title') }]}
       persistentStorage={persistentStorage}
     >
-    <div className="gq-page">
-      <h1>{t('game.title')}</h1>
-      <p className="gq-lead">{t('game.intro')}</p>
+      <div className="gq-page">
+        <h1>{t('game.title')}</h1>
+        <p className="gq-lead">{t('game.intro')}</p>
 
-      {resume ? (
-        <div className="gq-resume">
+        {resume ? (
+          <div className="gq-resume">
+            <div>
+              <h2 className="gq-resume-title">{t('game.resume.title')}</h2>
+              <p className="gq-resume-line">
+                {t('game.resume.line', {
+                  title: resume.title,
+                  mode: t(`game.mode.${resume.mode}.name` as never),
+                  when: new Date(resume.savedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
+                })}
+              </p>
+              <p className="gq-hint">{t('game.resume.hint')}</p>
+            </div>
+            <div className="gq-resume-actions">
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => {
+                  setMode(resume.mode)
+                  setRestored(resume)
+                  setResume(null)
+                  setPlaying(true)
+                }}
+              >
+                {t('game.resume.go')}
+              </button>
+              <button
+                type="button"
+                className="gq-later"
+                onClick={() => {
+                  void clearSavedGame()
+                  setResume(null)
+                }}
+              >
+                {t('game.resume.drop')}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <fieldset className="gq-modes">
+          <legend className="gq-label">{t('game.mode.section')}</legend>
+          {MODES.map(({ id, name, blurb, ready, tincture }) => (
+            <button
+              key={id}
+              type="button"
+              className="gq-mode"
+              style={{ ['--t' as string]: tincture }}
+              aria-pressed={mode === id}
+              disabled={!ready}
+              onClick={() => setMode(id)}
+            >
+              <span className="gq-mode-mark">
+                <span className="gq-mode-dot" aria-hidden="true" />
+                {t(name as never)}
+              </span>
+              <span className="gq-mode-blurb">{t(blurb as never)}</span>
+              {ready ? null : <span className="gq-mode-tag">{t('game.mode.soon')}</span>}
+            </button>
+          ))}
+        </fieldset>
+
+        <div className="gq-setup">
           <div>
-            <h2 className="gq-resume-title">{t('game.resume.title')}</h2>
-            <p className="gq-resume-line">
-              {t('game.resume.line', {
-                title: resume.title,
-                mode: t(`game.mode.${resume.mode}.name` as never),
-                when: new Date(resume.savedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
-              })}
-            </p>
-            <p className="gq-hint">{t('game.resume.hint')}</p>
-          </div>
-          <div className="gq-resume-actions">
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() => {
-                setMode(resume.mode)
-                setRestored(resume)
-                setResume(null)
-                setPlaying(true)
-              }}
-            >
-              {t('game.resume.go')}
-            </button>
-            <button
-              type="button"
-              className="gq-later"
-              onClick={() => {
-                void clearSavedGame()
-                setResume(null)
-              }}
-            >
-              {t('game.resume.drop')}
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      <fieldset className="gq-modes">
-        <legend className="gq-label">{t('game.mode.section')}</legend>
-        {MODES.map(({ id, name, blurb, ready, tincture }) => (
-          <button
-            key={id}
-            type="button"
-            className="gq-mode"
-            style={{ ['--t' as string]: tincture }}
-            aria-pressed={mode === id}
-            disabled={!ready}
-            onClick={() => setMode(id)}
-          >
-            <span className="gq-mode-mark">
-              <span className="gq-mode-dot" aria-hidden="true" />
-              {t(name as never)}
-            </span>
-            <span className="gq-mode-blurb">{t(blurb as never)}</span>
-            {ready ? null : <span className="gq-mode-tag">{t('game.mode.soon')}</span>}
-          </button>
-        ))}
-      </fieldset>
-
-      <div className="gq-setup">
-        <div>
-          <div className="gq-field">
-            <label htmlFor="gq-bank">{t('game.chooseBank')}</label>
-            {/* A kereső csak akkor jelenik meg, ha már sok a bank: két banknál
+            <div className="gq-field">
+              <label htmlFor="gq-bank">{t('game.chooseBank')}</label>
+              {/* A kereső csak akkor jelenik meg, ha már sok a bank: két banknál
                 a mező csak zavarna. */}
-            {(summaries?.length ?? 0) >= 8 ? (
-              <>
-                <input
-                  id="gq-bank-search"
-                  className="gq-search"
-                  type="search"
-                  value={bankFilter}
-                  onChange={(event) => setBankFilter(event.target.value)}
-                  placeholder={t('game.bankSearch')}
-                  aria-label={t('game.bankSearch')}
-                  aria-controls="gq-bank"
-                />
-                <p className="gq-hint gq-search-count" role="status">
-                  {bankMatches === 0
-                    ? t('game.bankSearchNone')
-                    : t('game.bankSearchCount', {
+              {(summaries?.length ?? 0) >= 8 ? (
+                <>
+                  <input
+                    id="gq-bank-search"
+                    className="gq-search"
+                    type="search"
+                    value={bankFilter}
+                    onChange={(event) => setBankFilter(event.target.value)}
+                    placeholder={t('game.bankSearch')}
+                    aria-label={t('game.bankSearch')}
+                    aria-controls="gq-bank"
+                  />
+                  <p className="gq-hint gq-search-count" role="status">
+                    {bankMatches === 0
+                      ? t('game.bankSearchNone')
+                      : t('game.bankSearchCount', {
                         shown: bankMatches,
                         total: summaries?.length ?? 0,
                       })}
-                </p>
-              </>
-            ) : null}
-            <select
-              id="gq-bank"
-              value={bankId}
-              onChange={(event) => setBankId(event.target.value)}
-              disabled={!summaries || summaries.length === 0 || shownBanks.length === 0}
-            >
-              {shownBanks.map(({ summary, pinned }) => (
-                <option key={summary.id} value={summary.id}>
-                  {summary.name} ({summary.questionCount})
-                  {pinned ? ` — ${t('game.bankSearchPinned')}` : ''}
-                </option>
-              ))}
-            </select>
-            <p className="gq-hint">{t('game.chooseBankHint')}</p>
-          </div>
-
-          {mode === 'split' ? (
-            <div className="gq-field">
-              <label htmlFor="gq-bank-b">{t('game.split.bankB')}</label>
+                  </p>
+                </>
+              ) : null}
               <select
-                id="gq-bank-b"
-                value={bankBId}
-                onChange={(event) => setBankBId(event.target.value)}
-                disabled={(summaries?.length ?? 0) === 0}
+                id="gq-bank"
+                value={bankId}
+                onChange={(event) => setBankId(event.target.value)}
+                disabled={!summaries || summaries.length === 0 || shownBanks.length === 0}
               >
-                {(summaries ?? []).map((summary) => (
+                {shownBanks.map(({ summary, pinned }) => (
                   <option key={summary.id} value={summary.id}>
                     {summary.name} ({summary.questionCount})
+                    {pinned ? ` — ${t('game.bankSearchPinned')}` : ''}
                   </option>
                 ))}
               </select>
-              <p className="gq-hint">
-                {pairing
-                  ? t('game.split.pairCut', { count: pairing.length })
-                  : t('game.split.needsTwoBanks')}
-              </p>
-              <p className="gq-hint">{t('game.split.onlyChoice')}</p>
+              <p className="gq-hint">{t('game.chooseBankHint')}</p>
             </div>
-          ) : null}
 
-          {summaries && summaries.length === 0 ? <p className="gq-lead">{t('game.noBanks')}</p> : null}
-          {missingBank ? (
-            <p className="gq-tally gq-tally-empty" role="alert">
-              {t('game.bankMissing')}
-            </p>
-          ) : null}
+            {mode === 'split' ? (
+              <div className="gq-field">
+                <label htmlFor="gq-bank-b">{t('game.split.bankB')}</label>
+                <select
+                  id="gq-bank-b"
+                  value={bankBId}
+                  onChange={(event) => setBankBId(event.target.value)}
+                  disabled={(summaries?.length ?? 0) === 0}
+                >
+                  {(summaries ?? []).map((summary) => (
+                    <option key={summary.id} value={summary.id}>
+                      {summary.name} ({summary.questionCount})
+                    </option>
+                  ))}
+                </select>
+                <p className="gq-hint">
+                  {pairing
+                    ? t('game.split.pairCut', { count: pairing.length })
+                    : t('game.split.needsTwoBanks')}
+                </p>
+                <p className="gq-hint">{t('game.split.onlyChoice')}</p>
+              </div>
+            ) : null}
 
-          {playable ? (
-            <p className={playable.questions.length === 0 ? 'gq-tally gq-tally-empty' : 'gq-tally'}>
-              {playable.questions.length === 0 ? (
-                t('game.nothingPlayable')
-              ) : (
-                <strong>
-                  {t('game.playableCount', {
-                    playable: playable.questions.length,
-                    total: bank?.questions.length ?? 0,
-                  })}
-                </strong>
-              )}
-            </p>
-          ) : loading ? (
-            <p className="gq-hint">{t('game.chooseBank')}</p>
-          ) : null}
-        </div>
+            {summaries && summaries.length === 0 ? <p className="gq-lead">{t('game.noBanks')}</p> : null}
+            {missingBank ? (
+              <p className="gq-tally gq-tally-empty" role="alert">
+                {t('game.bankMissing')}
+              </p>
+            ) : null}
 
-        <div hidden={mode === 'flashcard'}>
-          <div className="gq-field">
-            <label htmlFor="gq-timer">{t('game.timer')}</label>
-            <input
-              id="gq-timer"
-              type="number"
-              min={5}
-              max={300}
-              step={5}
-              value={timerSeconds}
-              onChange={(event) => setTimerSeconds(Math.max(5, Math.min(300, Number(event.target.value) || 20)))}
-            />
+            {playable ? (
+              <p className={playable.questions.length === 0 ? 'gq-tally gq-tally-empty' : 'gq-tally'}>
+                {playable.questions.length === 0 ? (
+                  t('game.nothingPlayable')
+                ) : (
+                  <strong>
+                    {t('game.playableCount', {
+                      playable: playable.questions.length,
+                      total: bank?.questions.length ?? 0,
+                    })}
+                  </strong>
+                )}
+              </p>
+            ) : loading ? (
+              <p className="gq-hint">{t('game.chooseBank')}</p>
+            ) : null}
           </div>
-          <div className="gq-checks">
-            <label>
-              <input type="checkbox" checked={shuffle} onChange={(event) => setShuffle(event.target.checked)} />
-              {t('game.shuffle')}
-            </label>
-            <label>
+
+          <div hidden={mode === 'flashcard'}>
+            <div className="gq-field">
+              <label htmlFor="gq-timer">{t('game.timer')}</label>
               <input
-                type="checkbox"
-                checked={shuffleAnswers}
-                onChange={(event) => setShuffleAnswers(event.target.checked)}
+                id="gq-timer"
+                type="number"
+                min={5}
+                max={300}
+                step={5}
+                value={timerSeconds}
+                onChange={(event) => setTimerSeconds(Math.max(5, Math.min(300, Number(event.target.value) || 20)))}
               />
-              {t('game.shuffleAnswers')}
-            </label>
-            <label hidden={needsDevices}>
-              <input
-                type="checkbox"
-                checked={devices || needsDevices}
-                disabled={needsDevices}
-                onChange={(event) => {
-                  setDevices(event.target.checked)
-                  // Diák-eszköz nélkül nincs kit rangsorolni: a jelölő ne
-                  // maradjon bekapcsolva egy olyan beállításon, ami nem hat.
-                  if (!event.target.checked) setRoundResults(false)
-                }}
-              />
-              {t('game.devices.switch')}
-            </label>
-            {/* Csak a diák-eszközös Klasszikus módban van kit rangsorolni. */}
-            {devices && mode === 'classic' ? (
+            </div>
+            {mode === 'boss' ? (
+              <div className="gq-field">
+                <label htmlFor="gq-boss-tier">{t('game.boss.tierLabel')}</label>
+                <select
+                  id="gq-boss-tier"
+                  value={bossTier}
+                  onChange={(event) => setBossTier(event.target.value as BossTier)}
+                >
+                  <option value="peaceful">{t('game.boss.tier.peaceful')}</option>
+                  <option value="fierce">{t('game.boss.tier.fierce')}</option>
+                  <option value="legendary">{t('game.boss.tier.legendary')}</option>
+                </select>
+              </div>
+            ) : null}
+            <div className="gq-checks">
+              <label>
+                <input type="checkbox" checked={shuffle} onChange={(event) => setShuffle(event.target.checked)} />
+                {t('game.shuffle')}
+              </label>
               <label>
                 <input
                   type="checkbox"
-                  checked={roundResults}
-                  onChange={(event) => setRoundResults(event.target.checked)}
+                  checked={shuffleAnswers}
+                  onChange={(event) => setShuffleAnswers(event.target.checked)}
                 />
-                {t('game.roundResults')}
+                {t('game.shuffleAnswers')}
               </label>
-            ) : null}
-            {/* A megoszlás csak ott olvasható, ahol van kitől: diák-eszközös
+              <label hidden={needsDevices}>
+                <input
+                  type="checkbox"
+                  checked={devices || needsDevices}
+                  disabled={needsDevices}
+                  onChange={(event) => {
+                    setDevices(event.target.checked)
+                    // Diák-eszköz nélkül nincs kit rangsorolni: a jelölő ne
+                    // maradjon bekapcsolva egy olyan beállításon, ami nem hat.
+                    if (!event.target.checked) setRoundResults(false)
+                  }}
+                />
+                {t('game.devices.switch')}
+              </label>
+              {/* Csak a diák-eszközös Klasszikus módban van kit rangsorolni. */}
+              {devices && mode === 'classic' ? (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={roundResults}
+                    onChange={(event) => setRoundResults(event.target.checked)}
+                  />
+                  {t('game.roundResults')}
+                </label>
+              ) : null}
+              {/* A megoszlás csak ott olvasható, ahol van kitől: diák-eszközös
                 Klasszikus. A kivetítésnél senki nem válaszol, tehát minden
                 kártyán nulla állna. */}
-            {devices && mode === 'classic' ? (
-              <label>
-                <input
-                  type="checkbox"
-                  checked={showCounts}
-                  onChange={(event) => setShowCounts(event.target.checked)}
-                />
-                {t('game.showCounts')}
-              </label>
-            ) : null}
-            <label className="gq-avatar-style">
-              {t('game.avatar.styleLabel')}
-              <select value={avatarStyle} onChange={(event) => setAvatarStyle(event.target.value)}>
-                {AVATAR_STYLES.map((style) => (
-                  <option key={style.id} value={style.id}>
-                    {t(style.label as never)}
-                  </option>
-                ))}
-              </select>
-              {/* Minta a választás mellett: a készlet neve nem mond semmit, a
+              {devices && mode === 'classic' ? (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showCounts}
+                    onChange={(event) => setShowCounts(event.target.checked)}
+                  />
+                  {t('game.showCounts')}
+                </label>
+              ) : null}
+              <label className="gq-avatar-style">
+                {t('game.avatar.styleLabel')}
+                <select value={avatarStyle} onChange={(event) => setAvatarStyle(event.target.value)}>
+                  {AVATAR_STYLES.map((style) => (
+                    <option key={style.id} value={style.id}>
+                      {t(style.label as never)}
+                    </option>
+                  ))}
+                </select>
+                {/* Minta a választás mellett: a készlet neve nem mond semmit, a
                   figura igen. Csak a kiválasztott készlet töltődik le. */}
-              <span className="gq-avatar-sample" aria-hidden="true">
-                {SAMPLE_SEEDS.map((seed) => (
-                  <PlayerAvatar key={seed} seed={seed} size={22} />
-                ))}
-              </span>
-            </label>
+                <span className="gq-avatar-sample" aria-hidden="true">
+                  {SAMPLE_SEEDS.map((seed) => (
+                    <PlayerAvatar key={seed} seed={seed} size={22} />
+                  ))}
+                </span>
+              </label>
+            </div>
+            {needsDevices ? (
+              <p className="gq-hint">{t('game.mode.needsDevices')}</p>
+            ) : devices ? (
+              <p className="gq-hint">{t('game.devices.switchHint')}</p>
+            ) : null}
           </div>
-          {needsDevices ? (
-            <p className="gq-hint">{t('game.mode.needsDevices')}</p>
-          ) : devices ? (
-            <p className="gq-hint">{t('game.devices.switchHint')}</p>
-          ) : null}
+        </div>
+
+        {playable && playable.skipped.length > 0 ? (
+          <div className="gq-out">
+            <h3>
+              {t('game.leftOut')} — {playable.skipped.length}
+            </h3>
+            <ul>
+              {playable.skipped.slice(0, 12).map((skipped) => (
+                <li key={skipped.number}>
+                  {t('game.leftOutLine', { number: skipped.number, reason: skipped.reason })}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className="gq-start">
+          <button type="button" className="primary-button" disabled={!canStart} onClick={() => setPlaying(true)}>
+            {t('game.start')}
+          </button>
         </div>
       </div>
-
-      {playable && playable.skipped.length > 0 ? (
-        <div className="gq-out">
-          <h3>
-            {t('game.leftOut')} — {playable.skipped.length}
-          </h3>
-          <ul>
-            {playable.skipped.slice(0, 12).map((skipped) => (
-              <li key={skipped.number}>
-                {t('game.leftOutLine', { number: skipped.number, reason: skipped.reason })}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      <div className="gq-start">
-        <button type="button" className="primary-button" disabled={!canStart} onClick={() => setPlaying(true)}>
-          {t('game.start')}
-        </button>
-      </div>
-    </div>
     </AppShell>
   )
 }

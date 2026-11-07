@@ -18,6 +18,8 @@ export type ClassicSettings = {
   showCounts?: boolean;
   /** A játékos-figurák készlete (DiceBear stílus-azonosító). */
   avatarStyle?: string;
+  /** Sárkányok völgye nehézsége: békés (40%), harcias (60%), legendás (80%). */
+  bossTier?: 'peaceful' | 'fierce' | 'legendary';
 };
 
 export const DEFAULT_CLASSIC_SETTINGS: ClassicSettings = {

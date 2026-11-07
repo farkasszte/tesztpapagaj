@@ -8,8 +8,8 @@ import { raceOf, trackPositions } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { Letter } from './shapes'
 import { useT } from '../i18n/index'
-import { TextSizeControl } from './text-size'
-import { AmbientMusicControl } from './ambient-music'
+import { StageTools } from './stage-tools'
+import { DragonGraphic } from './dragon-graphic'
 
 /**
  * A két „másik játék” színpada: Grand Prix és Szörnytámadás.
@@ -113,6 +113,7 @@ function ModeStage({
   onExit,
   board,
   outcome,
+  isResolved = false,
 }: {
   nameKey: string
   title: string
@@ -123,6 +124,7 @@ function ModeStage({
   onExit: () => void
   board: (view: ClassicView) => ReactNode
   outcome?: ReactNode
+  isResolved?: boolean
 }) {
   const t = useT()
   const trapRef = useStageFocusTrap<HTMLDivElement>()
@@ -139,7 +141,10 @@ function ModeStage({
   useStageKeys({
     next: () => {
       if (view.phase === 'QUESTION') act(() => engine.lock())
-      else if (view.phase === 'REVEAL') act(() => engine.next())
+      else if (view.phase === 'REVEAL') {
+        if (isResolved) act(() => engine.endSession())
+        else act(() => engine.next())
+      }
     },
   })
 
@@ -166,7 +171,7 @@ function ModeStage({
       <div className="gq-stage-bar">
         <span className="gq-mode-left">{status}</span>
         <span className="gq-where">
-          <span>{title}</span>
+          <span className="gq-one-name">{title}</span>
           {view.question ? (
             <span className="gq-stat">
               <strong>
@@ -174,15 +179,13 @@ function ModeStage({
               </strong>
             </span>
           ) : null}
-          {/* A szövegméret a cím alatt, a kód helyén — nem lebeg a sarokban. */}
-          <span className="gq-textsize-row">
-            <AmbientMusicControl />
-            <TextSizeControl className="gq-textsize-stage" />
-          </span>
         </span>
-        <button type="button" className="gq-quiet" onClick={onExit}>
-          {t('game.stage.endGame')}
-        </button>
+        <span className="gq-bar-end">
+          <StageTools />
+          <button type="button" className="gq-quiet" onClick={onExit}>
+            {t('game.stage.endGame')}
+          </button>
+        </span>
       </div>
 
       {board(view)}
@@ -206,11 +209,14 @@ function ModeStage({
             <button
               type="button"
               className="gq-go"
-              onClick={() => act(() => engine.next())}
+              onClick={() => {
+                if (isResolved) act(() => engine.endSession())
+                else act(() => engine.next())
+              }}
             >
-              {view.question && view.question.number < view.question.total
-                ? t('game.stage.next')
-                : t('game.stage.finish')}
+              {isResolved || (view.question && view.question.number >= view.question.total)
+                ? t('game.stage.finish')
+                : t('game.stage.next')}
             </button>
           )}
         </>
@@ -346,11 +352,12 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
   )
 }
 
-/** Szörnytámadás: a közös szörny életereje és az osztály pajzsa. */
+/** Sárkányok völgye: a sárkány életereje és az osztály pajzsa. */
 export function BossStage({ title, onExit, engine, words, status, hint }: StageProps) {
   const t = useT()
   const session = engine.session
   const state = bossOf(session)
+  const isResolved = state.outcome === 'win' || state.outcome === 'lose'
 
   return (
     <ModeStage
@@ -361,37 +368,61 @@ export function BossStage({ title, onExit, engine, words, status, hint }: StageP
       status={status}
       hint={hint}
       onExit={onExit}
+      isResolved={isResolved}
       board={() => (
-        <div className="gq-boss" data-kind={state.kind} data-enraged={state.enraged ? 'yes' : 'no'}>
-          <div className="gq-boss-head">
-            <span className="gq-boss-name">{t(bossNameKey(state.kind) as never)}</span>
-            <span className="gq-boss-hp">
-              {state.hp} / {state.maxHp}
-            </span>
+        <div
+          className="gq-boss"
+          data-kind={state.kind}
+          data-tier={state.tier}
+          data-enraged={state.enraged ? 'yes' : 'no'}
+        >
+          <div className="gq-boss-avatar-frame">
+            <DragonGraphic
+              tier={state.tier}
+              enraged={state.enraged}
+              hp={state.hp}
+              outcome={state.outcome}
+            />
           </div>
-          <div className="gq-boss-bar" role="progressbar" aria-valuenow={state.hp} aria-valuemin={0} aria-valuemax={state.maxHp}>
-            <span className="gq-boss-fill" style={{ width: `${(state.hp / state.maxHp) * 100}%` }} />
-          </div>
-          <div className="gq-boss-shield" aria-label={t('game.boss.shield')}>
-            {Array.from({ length: Math.round(state.maxShield / 10) }, (_, index) => (
-              <span key={index} className="gq-boss-pip" data-on={index < state.shield / 10 ? 'yes' : 'no'} />
-            ))}
-            <span className="gq-boss-bites">{t('game.boss.hits', { hits: state.hits, bites: state.bites })}</span>
+          <div className="gq-boss-info">
+            <div className="gq-boss-head">
+              <span className="gq-boss-name">{t(bossNameKey(state.tier) as never)}</span>
+              <span className="gq-boss-hp">
+                {state.hp} / {state.maxHp}
+              </span>
+            </div>
+            <div className="gq-boss-bar" role="progressbar" aria-valuenow={state.hp} aria-valuemin={0} aria-valuemax={state.maxHp}>
+              <span className="gq-boss-fill" style={{ width: `${(state.hp / state.maxHp) * 100}%` }} />
+            </div>
+            <div className="gq-boss-shield" aria-label={t('game.boss.shield')}>
+              {Array.from({ length: Math.round(state.maxShield / 10) }, (_, index) => (
+                <span key={index} className="gq-boss-pip" data-on={index < state.shield / 10 ? 'yes' : 'no'} />
+              ))}
+              <span className="gq-boss-bites">{t('game.boss.hits', { hits: state.hits, bites: state.bites })}</span>
+            </div>
           </div>
         </div>
       )}
       outcome={
-        state.outcome === 'win' ? (
-          <h2 className="gq-big">{t('game.boss.won')}</h2>
-        ) : state.outcome === 'lose' ? (
-          <h2 className="gq-big">{t('game.boss.lost')}</h2>
-        ) : state.outcome === 'draw' ? (
-          <h2 className="gq-big">{t('game.boss.drawn')}</h2>
-        ) : (
-          // A küldetés úgy ért véget, hogy a szörny életben maradt, de a pajzs
-          // is: ez nem döntetlen, hanem kitartás.
-          <h2 className="gq-big">{t('game.boss.survived')}</h2>
-        )
+        <div className="gq-boss-outcome-wrap">
+          <div className="gq-boss-outcome-avatar">
+            <DragonGraphic
+              tier={state.tier}
+              enraged={false}
+              hp={state.hp}
+              outcome={state.outcome}
+            />
+          </div>
+          {state.outcome === 'win' ? (
+            <h2 className="gq-big">{t('game.boss.won')}</h2>
+          ) : state.outcome === 'lose' ? (
+            <h2 className="gq-big">{t('game.boss.lost')}</h2>
+          ) : (
+            // A küldetés úgy ért véget, hogy a sárkány életben maradt, de a pajzs
+            // is: ez nem döntetlen, hanem kitartás.
+            <h2 className="gq-big">{t('game.boss.survived')}</h2>
+          )}
+        </div>
       }
     />
   )

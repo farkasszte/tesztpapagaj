@@ -15,8 +15,7 @@ import { saveResult } from './results-store'
 import { Bell, Letter, Ring } from './shapes'
 import type { SavedGame } from './store'
 import { useT } from '../i18n/index'
-import { TextSizeControl } from './text-size'
-import { AmbientMusicControl } from './ambient-music'
+import { StageTools } from './stage-tools'
 
 /**
  * A kivetítés: a Klasszikus mód színpada diákeszközök nélkül.
@@ -157,8 +156,7 @@ export function ClassicStage({
             : view.title}
         </span>
         <span className="gq-bar-end">
-          <AmbientMusicControl />
-          <TextSizeControl className="gq-textsize-stage" />
+          <StageTools />
         {view.phase === 'QUESTION' && session.deadline !== null ? (
           <button type="button" className="gq-quiet" onClick={() => act(() => engine.pause())}>
             {t('game.stage.pause')}
