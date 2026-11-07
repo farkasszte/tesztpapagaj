@@ -57,6 +57,17 @@
   gap: 0.5rem;
 }
 
+/* A válaszkártyák a Klasszikus négy hangvételét viselik: vörös, kék, mély
+   arany, szilva — fehér betűvel. A gyakorló saját lapja, ezért a paletta itt
+   is megvan (a játék CSS-e nincs betöltve ezen az oldalon). */
+.practice {
+  --pr-gules: #c4402f;
+  --pr-azure: #2f5c8c;
+  --pr-or: #9a6e0d;
+  --pr-plum: #6c4a86;
+  --pr-paper: #f5ecdc;
+}
+
 .practice-choice {
   width: 100%;
   display: flex;
@@ -64,31 +75,44 @@
   gap: 0.75rem;
   text-align: left;
   padding: 0.7rem 0.9rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border, rgb(36 28 23 / 0.2));
-  background: #fff;
-  color: inherit;
+  border-radius: 0.85rem;
+  border: 1.5px solid rgb(255 250 243 / 0.68);
+  background: var(--c, #6c4a86);
+  color: #fff;
   font: inherit;
   cursor: pointer;
 }
 
+.practice-choice[data-tone-index='0'] { --c: var(--pr-gules); }
+.practice-choice[data-tone-index='1'] { --c: var(--pr-azure); }
+.practice-choice[data-tone-index='2'] { --c: var(--pr-or); }
+.practice-choice[data-tone-index='3'] { --c: var(--pr-plum); }
+
+/* A kártya szövege a DocView-ból jön: az örökölt szín a fehér maradjon. */
+.practice-choice .doc-content,
+.practice-choice .doc-content * {
+  color: inherit;
+}
+
 .practice-choice:hover:not(:disabled) {
-  border-color: var(--accent, #3f6b46);
+  border-color: var(--pr-paper);
 }
 
+/* Jelölés: krémes keret és gyűrű — a kártya belseje nem lép el. */
 .practice-choice.is-picked {
-  border-color: var(--accent, #3f6b46);
-  box-shadow: inset 0 0 0 1px var(--accent, #3f6b46);
+  border-color: var(--pr-paper);
+  box-shadow: 0 0 0 2px rgb(36 28 23 / 0.18), inset 0 0 0 1px var(--pr-paper);
 }
 
+/* A helyes válasz krémes gyűrűt kap; a téves csak halványul (a kártya már
+   színes, a szín nem mondana újat). */
 .practice-choice.is-right {
-  border-color: #3f6b46;
-  background: #eef6ef;
+  border-color: var(--pr-paper);
+  box-shadow: 0 0 0 2px var(--pr-paper), 0 8px 22px rgb(0 0 0 / 0.22);
 }
 
 .practice-choice.is-wrong {
-  border-color: #b3402f;
-  background: #fbecea;
+  opacity: 0.62;
 }
 
 .practice-letter {
@@ -144,21 +168,67 @@
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
-  font-size: 2rem;
   margin: 0;
 }
 
-.practice-score strong {
+/* A tört a nyers adat: normál súly. A százalék a lényeg: nagy és félkövér. */
+.practice-score-fraction {
+  font-size: 1.35rem;
+  opacity: 0.72;
   font-variant-numeric: tabular-nums;
 }
 
-.practice-score span {
-  font-size: 1.25rem;
-  opacity: 0.75;
+.practice-score-percent {
+  font-size: 2.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.practice-history {
+  border-top: 1px solid var(--border, rgb(36 28 23 / 0.14));
+  padding-top: 0.75rem;
+}
+
+.practice-history h2 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.practice-history ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.practice-history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.practice-history-when {
+  opacity: 0.65;
+}
+
+.practice-history-score {
+  font-weight: 600;
 }
 
 .practice-hint,
 .practice-loading {
   color: var(--muted-foreground, rgb(36 28 23 / 0.65));
   margin: 0;
+}
+
+/* Az előző eredmény a fejlécben: a diák azonnal meg tudja mutatni. */
+.practice-last {
+  font-weight: 600;
+  color: var(--foreground, #241c17);
 }

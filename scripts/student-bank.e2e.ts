@@ -102,14 +102,32 @@ test('a tanulói példány: mentés, import egy üres böngészőben, gyakorlás
   await expect(student.locator('.practice-stem')).toContainText('Melyik gáz', { timeout: 20_000 })
 
   // Végigválaszol: mind a három helyes.
+  // A válaszkártyák színesek: három különböző háttér (vörös, kék, arany).
+  const tones = await student.locator('.practice-choice').evaluateAll((nodes) =>
+    nodes.map((node) => getComputedStyle(node).backgroundColor),
+  )
+  expect(new Set(tones).size).toBe(3)
+  expect(tones.every((tone) => tone !== 'rgba(0, 0, 0, 0)' && tone !== 'rgb(255, 255, 255)')).toBe(true)
+
+  if (process.env.PROBE_SHOT) await student.screenshot({ path: 'practice-question.png', fullPage: true })
+
   for (const item of QUESTIONS) {
     await student.locator('.practice-choice').filter({ hasText: item.answer }).click()
     await expect(student.locator('.practice-verdict[data-right="true"]')).toHaveCount(1)
     await student.getByRole('button', { name: /Next question|See the result/ }).click()
   }
 
-  // Az eredmény: 3/3 — 100%.
-  await expect(student.locator('.practice-score strong')).toHaveText('3/3')
-  await expect(student.locator('.practice-score span')).toHaveText('100%')
+  // Az eredmény: a tört a nyers adat, a százalék a kiemelt.
+  await expect(student.locator('.practice-score-fraction')).toHaveText('3/3')
+  await expect(student.locator('.practice-score-percent')).toHaveText('100%')
+  await expect(student.locator('.practice-score-percent')).toHaveCSS('font-weight', '700')
+
+  if (process.env.PROBE_SHOT) await student.screenshot({ path: 'practice-result.png', fullPage: true })
+
+  // Az eredmény a telefonon marad: újratöltés után is ott a korábbi eredmény.
+  await student.reload()
+  await expect(student.locator('.practice-last')).toContainText('3/3 — 100%', { timeout: 20_000 })
+  const stored = await student.evaluate(() => localStorage.getItem('testparrot.practice-results'))
+  expect(stored).toContain('"total":3')
   await context.close()
 })

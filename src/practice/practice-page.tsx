@@ -5,6 +5,7 @@ import { textIsRight } from '../game/text-match'
 import { createQuestionBankWorkspaceService, type QuestionBankResource } from '../bank/question-bank-workspaces'
 import { t } from '../i18n/index'
 import { navigate } from '../use-route'
+import { practiceResultText, practiceResultsFor, savePracticeResult } from './practice-results'
 import './practice.css'
 
 /**
@@ -57,6 +58,8 @@ export function PracticePage({ bankId }: { bankId: string }) {
   const [typed, setTyped] = useState('')
   const [picked, setPicked] = useState<number[]>([])
   const [done, setDone] = useState(false)
+  /** A telefonon megőrzött eredmények ehhez a bankhoz (legújabb elöl). */
+  const [previous, setPrevious] = useState(() => practiceResultsFor(bankId))
 
   if (missing) {
     return (
@@ -105,11 +108,32 @@ export function PracticePage({ bankId }: { bankId: string }) {
       <main className="practice">
         <h1>{bank.name}</h1>
         <p className="practice-score" data-percent={percent}>
-          <strong>
+          <span className="practice-score-fraction">
             {right}/{results.length}
-          </strong>
-          <span>{percent}%</span>
+          </span>
+          <strong className="practice-score-percent">{percent}%</strong>
         </p>
+        {previous.length > 0 ? (
+          <div className="practice-history">
+            <h2>{t('practice.history')}</h2>
+            <ol>
+              {previous.slice(0, 5).map((entry) => (
+                <li key={entry.at}>
+                  <span className="practice-history-when">
+                    {new Date(entry.at).toLocaleDateString('hu-HU', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                  <span className="practice-history-score">{practiceResultText(entry)}</span>
+                </li>
+              ))}
+            </ol>
+            {previous.length >= 5 ? <p className="practice-hint">{t('practice.historyMore')}</p> : null}
+          </div>
+        ) : null}
         <p className="practice-hint">{t('practice.doneHint')}</p>
         {deck.skipped > 0 ? (
           <p className="practice-hint">{t('practice.skipped', { count: deck.skipped })}</p>
@@ -161,8 +185,17 @@ export function PracticePage({ bankId }: { bankId: string }) {
     setVerdict(null)
     setTyped('')
     setPicked([])
-    if (index + 1 >= total) setDone(true)
-    else setIndex(index + 1)
+    if (index + 1 >= total) {
+      // A diák meg tudja mutatni az iskolában: az eredmény a telefonon marad.
+      const saved = savePracticeResult({
+        bankId: bank.id,
+        name: bank.name,
+        right: results.filter(Boolean).length,
+        total: results.length,
+      })
+      setPrevious(practiceResultsFor(bank.id, saved))
+      setDone(true)
+    } else setIndex(index + 1)
   }
 
   return (
@@ -173,6 +206,12 @@ export function PracticePage({ bankId }: { bankId: string }) {
         <span className="practice-tally">
           {t('practice.tally', { right, answered: results.length })}
         </span>
+        {/* Az előző eredmény már az elején látszik: a diák meg tudja mutatni. */}
+        {index === 0 && results.length === 0 && previous.length > 0 ? (
+          <span className="practice-last">
+            {t('practice.lastTime', { result: practiceResultText(previous[0]) })}
+          </span>
+        ) : null}
       </header>
 
       <section className="practice-card">
@@ -196,6 +235,7 @@ export function PracticePage({ bankId }: { bankId: string }) {
                       (show && isRight ? ' is-right' : '') +
                       (show && isPicked && !isRight ? ' is-wrong' : '')
                     }
+                    data-tone-index={choiceIndex % 4}
                     aria-pressed={isPicked}
                     disabled={verdict !== null}
                     onClick={() => {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import { ClassicEngine, createClassicSession } from './classic/engine'
 import { buildClassicView } from './classic/views'
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import {
   AVATAR_STYLES,
   DEFAULT_AVATAR_STYLE,
