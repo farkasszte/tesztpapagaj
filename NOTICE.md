@@ -133,3 +133,11 @@ NOTICE.md                    (ez a fájl)
     ugyanott: `public/game-fonts/OFL-Lexend.txt`, `OFL-Literata.txt` és
     `OFL-Oswald.txt`. A többi beépített betű (GNU FreeFont) változatlan, saját
     licence a `public/fonts/FREEFONT-LICENSE.txt`-ben.
+
+14. **Játékos-avatarok.** A játék figurái a **DiceBear** „critters” stílusából
+    készülnek (`@dicebear/core` és `@dicebear/styles`, a `critters` definíció).
+    A stílus a DiceBear saját munkája, **CC0 1.0** alatt
+    (<https://www.dicebear.com/styles/critters/>, <https://creativecommons.org/publicdomain/zero/1.0/>),
+    tehát kötelező feltüntetés nincs; ez a bejegyzés csak a forrás átláthatóságáért
+    van itt. A képek **helyben**, a böngészőben készülnek: a program nem hívja a
+    DiceBear HTTP API-ját, és nem tölt képet külső szerverről.

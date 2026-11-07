@@ -6,6 +6,7 @@ import { choiceTone, rightLetters } from './student-tone'
 import { acceptedAnswersOf, textIsRight } from './text-match'
 import { useT } from '../i18n/index'
 import { TextSizeControl } from './text-size'
+import { PlayerAvatar } from './avatar-view'
 
 /**
  * A Klasszikus mód diák-nézete: kérdés, válaszgombok, felfedés.
@@ -79,6 +80,7 @@ export function ClassicStudentGame({
     <div className="gq-stu">
       <TextSizeControl />
       <header className="gq-stu-bar">
+        <PlayerAvatar nickname={nickname} size={28} />
         <span className="gq-stu-name">{nickname}</span>
         {/* Szavazás: nincs pont, tehát pontszámot sem mutatunk (B5). */}
         {mine && !view?.theme && view?.scoring !== false ? (

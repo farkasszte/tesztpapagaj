@@ -10,6 +10,7 @@ import { LETTERS, TINCTURES, useExitOnEscape, useGamePersistence, useNow, useSta
 import { buildCsv, csvFilename, downloadCsv } from './standings-csv'
 import { recordRevealCounts } from './question-stats'
 import { buildGameResult } from './results'
+import { PlayerAvatar } from './avatar-view'
 import { saveResult } from './results-store'
 import { Bell, Letter, Ring } from './shapes'
 import type { SavedGame } from './store'
@@ -192,6 +193,7 @@ export function ClassicStage({
                 {board.map((player, index) => (
                   <li key={player.nickname}>
                     <span className="gq-board-rank">{index + 1}</span>
+                    <PlayerAvatar nickname={player.nickname} size={30} />
                     <span className="gq-board-name">{player.nickname}</span>
                     <span className="gq-board-points">{player.points}</span>
                   </li>

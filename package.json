@@ -20,6 +20,8 @@
     "test:exports": "bun run scripts/test-exports.ts"
   },
   "dependencies": {
+    "@dicebear/core": "10",
+    "@dicebear/styles": "10",
     "@floating-ui/dom": "^1.8.0",
     "@milkdown/crepe": "^7.21.1",
     "@milkdown/kit": "^7.21.1",

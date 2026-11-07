@@ -4,6 +4,7 @@ import { StudentBlocks } from './student-blocks'
 import { choiceTone } from './student-tone'
 import { useT } from '../i18n/index'
 import { TextSizeControl } from './text-size'
+import { PlayerAvatar } from './avatar-view'
 
 /**
  * A Veszély! diák-nézete: csapatválasztás, mezőválasztás, buzzer, tét, válasz.
@@ -58,6 +59,7 @@ export function PerilStudentGame({
     <div className="gq-stu">
       <TextSizeControl />
       <header className="gq-stu-bar">
+        <PlayerAvatar nickname={nickname} size={28} />
         <span className="gq-stu-name">{nickname}</span>
         {myTeam ? <span className="gq-stu-role">{myTeam.name}</span> : null}
         {me ? <span className="gq-stu-points">{t('game.student.points', { points: me.points })}</span> : null}

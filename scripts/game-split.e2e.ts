@@ -213,6 +213,15 @@ test('két oldal egy szobában: mindenki csak a saját kérdését látja, köz�
   await expect(board.locator('[data-side="a"]')).toHaveCount(1)
   await expect(board.locator('[data-side="b"]')).toHaveCount(1)
 
+  // A név előtt figura áll, és nem lóg a névre: mérve, nem szemre.
+  const row = board.locator('.gq-split-row').first()
+  await expect(row.locator('.gq-avatar')).toHaveCount(1)
+  const avatarBox = (await row.locator('.gq-avatar').boundingBox())!
+  const nameBox = (await row.locator('.gq-split-row-name').boundingBox())!
+  expect(avatarBox.width).toBeGreaterThan(20)
+  expect(nameBox.x).toBeGreaterThanOrEqual(avatarBox.x + avatarBox.width - 1)
+  if (process.env.PROBE_SHOT) await page.screenshot({ path: 'split-board.png', fullPage: true })
+
   // Következő kör: mindkét oldal a saját második kérdésére lép.
   await stage.getByRole('button', { name: 'Next round' }).click()
   await expect(panelA.locator('.gq-split-prompt')).toHaveText('Második alap kérdés')
