@@ -24,6 +24,9 @@ export default defineConfig({
           // A nagy e2e-keszlet a felulet viselkedeset ellenorzi, ezert angolul fut:
           // a magyar feliratokat kulon spec-ek fedik (scripts/hungarian-ui.e2e.ts).
           { name: 'tesztpapagaj:language', value: 'en' },
+          // Az eredeti e2e tesztek a kártyás nézet viselkedését (lapozó, előnézet) ellenőrzik;
+          // az új táblázatos kezdőlap viselkedését a scripts/home-table.e2e.ts fedi.
+          { name: 'test-parrot:home-view', value: 'cards' },
         ],
       }],
     },

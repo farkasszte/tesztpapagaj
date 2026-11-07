@@ -2616,6 +2616,11 @@ body.margins-guides .exam-page::after {
   vertical-align: middle;
 }
 
+.home-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .home-table-row {
   cursor: pointer;
   background: #ffffff;
@@ -2681,6 +2686,25 @@ body.margins-guides .exam-page::after {
   color: #2d241e;
 }
 
+.home-item-title-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  color: #2d241e;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.home-item-title-btn:hover {
+  color: var(--paper-accent);
+  text-decoration: underline;
+}
+
 .home-item-topics {
   display: flex;
   align-items: center;
@@ -2740,7 +2764,7 @@ body.margins-guides .exam-page::after {
 }
 
 .home-actions-group {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
@@ -2758,6 +2782,7 @@ body.margins-guides .exam-page::after {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  flex: none;
   transition: all 0.15s ease;
 }
 
@@ -2778,6 +2803,7 @@ body.margins-guides .exam-page::after {
   background: transparent;
   color: #6e5b4d;
   cursor: pointer;
+  flex: none;
   transition: all 0.15s ease;
 }
 
