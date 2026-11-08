@@ -71,3 +71,19 @@ export function practiceResultText(result: Pick<PracticeResult, 'right' | 'total
   const percent = result.total === 0 ? 0 : Math.round((result.right / result.total) * 100)
   return `${result.right}/${result.total} — ${percent}%`
 }
+
+
+/**
+ * A megosztható sor: „Sejtek — 12/15 (80%) — 2026.11.07."
+ *
+ * A dátum a gép helyi ideje szerint, pontosan így — a diák ezt küldi tovább a
+ * tanárnak vagy a szülőnek.
+ */
+export function practiceShareText(
+  result: Pick<PracticeResult, 'name' | 'right' | 'total'>,
+  now = new Date(),
+): string {
+  const percent = result.total === 0 ? 0 : Math.round((result.right / result.total) * 100)
+  const date = now.toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  return `${result.name} — ${result.right}/${result.total} (${percent}%) — ${date}`
+}

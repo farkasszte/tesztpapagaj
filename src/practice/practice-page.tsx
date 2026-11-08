@@ -5,7 +5,7 @@ import { textIsRight } from '../game/text-match'
 import { createQuestionBankWorkspaceService, type QuestionBankResource } from '../bank/question-bank-workspaces'
 import { t } from '../i18n/index'
 import { navigate } from '../use-route'
-import { practiceResultText, practiceResultsFor, savePracticeResult } from './practice-results'
+import { practiceResultText, practiceResultsFor, practiceShareText, savePracticeResult } from './practice-results'
 import './practice.css'
 
 /**
@@ -60,6 +60,12 @@ export function PracticePage({ bankId }: { bankId: string }) {
   const [done, setDone] = useState(false)
   /** A telefonon megőrzött eredmények ehhez a bankhoz (legújabb elöl). */
   const [previous, setPrevious] = useState(() => practiceResultsFor(bankId))
+  /** Az elrontott kérdések azonosítói ebben a futásban. */
+  const [wrongIds, setWrongIds] = useState<string[]>([])
+  /** `null`: a teljes pakli; tömb: csak ezek a kérdések („csak a hibásakat"). */
+  const [subset, setSubset] = useState<string[] | null>(null)
+  /** A megosztás visszajelzése („Kimásolva"), pár másodpercig. */
+  const [shared, setShared] = useState(false)
 
   if (missing) {
     return (
@@ -81,9 +87,14 @@ export function PracticePage({ bankId }: { bankId: string }) {
     )
   }
 
-  const total = deck.items.length
+  const items = subset
+    ? deck.items.filter((question) => subset.includes(question.id))
+    : deck.items
+  const total = items.length
   const right = results.filter(Boolean).length
   const percent = results.length === 0 ? 0 : Math.round((right / results.length) * 100)
+  /** Amit a megosztás elküld — a gomb címkéjében is ott van, hogy látszódjon. */
+  const shareText = practiceShareText({ name: bank.name, right, total: results.length })
 
   if (total === 0) {
     return (
@@ -113,6 +124,48 @@ export function PracticePage({ bankId }: { bankId: string }) {
           </span>
           <strong className="practice-score-percent">{percent}%</strong>
         </p>
+        {wrongIds.length > 0 ? (
+          <div className="practice-review">
+            <h2>{t('practice.wrongTitle', { count: wrongIds.length })}</h2>
+            <ol>
+              {wrongIds.map((id) => {
+                const missed = deck.items.find((one) => one.id === id)
+                if (!missed) return null
+                const spoken = deck.words.get(id)
+                const answer = spoken?.choices?.length
+                  ? (missed.correctChoices ?? [missed.correct])
+                      .map((index) => missed.choices[index] ?? '')
+                      .join(' / ')
+                  : (missed.accepted?.[0] ?? missed.blanks?.join(' / ') ?? '')
+                return (
+                  <li key={id}>
+                    <span className="practice-review-stem">
+                      {spoken?.stem?.length ? <DocView content={spoken.stem} /> : missed.prompt}
+                    </span>
+                    {answer ? <span className="practice-review-answer">{answer}</span> : null}
+                  </li>
+                )
+              })}
+            </ol>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                // Csak a hibásak: ugyanaz a pakli, kiszűrve a jól megválaszoltak.
+                setSubset(wrongIds)
+                setWrongIds([])
+                setResults([])
+                setIndex(0)
+                setVerdict(null)
+                setTyped('')
+                setPicked([])
+                setDone(false)
+              }}
+            >
+              {t('practice.onlyWrong')}
+            </button>
+          </div>
+        ) : null}
         {previous.length > 0 ? (
           <div className="practice-history">
             <h2>{t('practice.history')}</h2>
@@ -143,6 +196,8 @@ export function PracticePage({ bankId }: { bankId: string }) {
             type="button"
             className="primary-button"
             onClick={() => {
+              setSubset(null)
+              setWrongIds([])
               setIndex(0)
               setResults([])
               setVerdict(null)
@@ -156,6 +211,15 @@ export function PracticePage({ bankId }: { bankId: string }) {
           <button
             type="button"
             className="secondary-button"
+            title={shareText}
+            data-share-text={shareText}
+            onClick={() => void share()}
+          >
+            {shared ? t('practice.shared') : t('practice.share')}
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
             onClick={() => navigate(`/jatek?bank=${encodeURIComponent(bank.id)}&mod=kartya`)}
           >
             {t('practice.flashcards')}
@@ -165,10 +229,29 @@ export function PracticePage({ bankId }: { bankId: string }) {
     )
   }
 
-  const question = deck.items[Math.min(index, total - 1)]
+  const question = items[Math.min(index, total - 1)]
   const words = deck.words.get(question.id)
   const choices = question.choices.length > 0
   const correctChoices = question.correctChoices ?? [question.correct]
+
+  /**
+   * Az eredmény megosztása: mobilon a rendszer megosztója, asztali gépen a
+   * vágólap. A szöveg a diák telefonszámára megy, nem szerverre.
+   */
+  const share = async () => {
+    const text = shareText
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ text })
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        setShared(true)
+        setTimeout(() => setShared(false), 3000)
+      }
+    } catch {
+      // A felhasználó elvetette a megosztást: nincs mit tenni.
+    }
+  }
 
   const judge = (answer: { picked?: number[]; text?: string }) => {
     if (verdict !== null) return
@@ -179,6 +262,7 @@ export function PracticePage({ bankId }: { bankId: string }) {
       : textIsRight(answer.text ?? '', question.accepted ?? [])
     setVerdict(isRight)
     setResults((all) => [...all, isRight])
+    if (!isRight) setWrongIds((all) => (all.includes(question.id) ? all : [...all, question.id]))
   }
 
   const next = () => {

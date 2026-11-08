@@ -232,3 +232,46 @@
   font-weight: 600;
   color: var(--foreground, #241c17);
 }
+
+/* A végén: a rossz kérdések és a helyes válaszuk. */
+.practice-review {
+  border-top: 1px solid var(--border, rgb(36 28 23 / 0.14));
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.practice-review h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.practice-review ol {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.practice-review li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.practice-review-stem :is(p, .doc-content) {
+  margin: 0;
+}
+
+.practice-review-answer {
+  color: #2f5c8c;
+  font-weight: 600;
+}
+
+.practice-review .secondary-button {
+  align-self: flex-start;
+}

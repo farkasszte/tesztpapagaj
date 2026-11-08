@@ -4,6 +4,7 @@ import {
   PRACTICE_RESULTS_KEY,
   practiceResultText,
   practiceResultsFor,
+  practiceShareText,
   readPracticeResults,
   savePracticeResult,
 } from './practice-results'
@@ -66,6 +67,15 @@ describe('gyakorló eredmények', () => {
     expect(readPracticeResults()).toEqual([])
     localStorage.setItem(PRACTICE_RESULTS_KEY, JSON.stringify([{ bankId: 1 }, null, 'x']))
     expect(readPracticeResults()).toEqual([])
+  })
+
+  it('a megosztható sor: név, tört, százalék, dátum', () => {
+    const text = practiceShareText(
+      { name: 'Sejtek', right: 12, total: 15 },
+      new Date('2026-11-07T18:30:00'),
+    )
+    // A magyar dátumforma pontokkal és szóközzel áll: `2026. 11. 07.`
+    expect(text).toBe('Sejtek — 12/15 (80%) — 2026. 11. 07.')
   })
 
   it('a felirat: tört és százalék', () => {
