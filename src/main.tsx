@@ -25,9 +25,14 @@ async function start() {
   // de el kell indulnia.
   if ('serviceWorker' in navigator) {
     try {
+      // Élesben mindig az offline héj fut; fejlesztésben csak akkor, ha a lap
+      // `?offline=1`-gyel nyílt — így a viselkedés mérhető anélkül, hogy a
+      // fejlesztői munkamenet cache-ből szolgálna ki.
+      const offlineShell =
+        import.meta.env.PROD || new URLSearchParams(window.location.search).has('offline')
       const ready = await Promise.race([
         navigator.serviceWorker
-          .register(import.meta.env.PROD ? '/service-worker.js?offline=1' : '/service-worker.js')
+          .register(offlineShell ? '/service-worker.js?offline=1' : '/service-worker.js')
           .then(() => navigator.serviceWorker.ready),
         new Promise<'timeout'>((resolve) => window.setTimeout(resolve, 1500, 'timeout' as const)),
       ])

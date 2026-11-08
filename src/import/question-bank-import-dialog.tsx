@@ -1123,8 +1123,7 @@ export function QuestionBankImportDialog({
             {needsConversion ? (
               <div className="bank-import-assist" data-emphasis="true" role="alert">
                 <span>
-                  <strong>{t('import.notParrotYet')}</strong>{' '}
-                  Drop your test here as a PDF or Word document to convert it.
+                  <strong>{t('import.notParrotYet')}</strong> {t('import.dropToConvert')}
                 </span>
               </div>
             ) : <>
@@ -1156,7 +1155,7 @@ export function QuestionBankImportDialog({
               {paired!.stemsChecked > 0 && paired!.stemsFound * 2 <= paired!.stemsChecked
                 ? t('import.mostNotInTest')
                 : ''}
-              You can import it anyway, or choose another file.
+              {t('import.importAnywayHint')}
             </p>
             <span className="bank-import-assist-actions">
               {resolvingSource && occurrences.some(({ key }) => !resolutions.has(key)) && (
@@ -1409,7 +1408,9 @@ export function QuestionBankImportDialog({
               >
                 <RailHead kind="exam" name={name} allowed={chosen.allowed} />
                 {!chosen.allowed && denied.length > 0 && <p className="bank-import-denied-reason">
-                  Not imported because {denied.map(bankName).join(' and ')} {denied.length === 1 ? 'is' : 'are'} not being imported.
+                  {denied.length === 1
+                    ? t('import.deniedOne', { bank: bankName(denied[0]) })
+                    : t('import.deniedMany', { banks: denied.map(bankName).join(', ') })}
                 </p>}
 
                 <dl className="bank-import-summary">

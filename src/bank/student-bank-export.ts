@@ -8,7 +8,12 @@ import type { QuestionBankResource } from './question-bank-workspaces'
  */
 export async function exportStudentBank(bank: QuestionBankResource): Promise<string> {
   const prepared = await prepareQuestionBankExport(bank)
-  const { json } = encodeStudentBank({ record: prepared.record, files: prepared.files })
+  const { json } = await encodeStudentBank({
+    record: prepared.record,
+    files: prepared.files,
+    // A forrás bank azonosítója: ezzel ismeri fel az import a frissítést.
+    bankKey: bank.id,
+  })
   const name = studentBankFileName(bank.name)
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }))
   try {

@@ -63,8 +63,8 @@ export function TagChooser({
   const pages = [...new Set(source.tags.map((tag) => tag.page))].sort((a, b) =>
     a === page ? -1 : b === page ? 1 : a - b,
   )
-  if (pages.length === 0) return <p className="resolve-image-note">{source.fileName} has no tagged pictures. Crop one from a page instead.</p>
-  return <div className="resolve-image-chooser" role="group" aria-label={`Pictures in ${source.fileName}`}>
+  if (pages.length === 0) return <p className="resolve-image-note">{t('pictures.noneTagged', { file: source.fileName })}</p>
+  return <div className="resolve-image-chooser" role="group" aria-label={t('pictures.inFile', { file: source.fileName })}>
     {pages.map((number) => (
       <section key={number}>
         {hasPages(source) && <h5>{t('imports.pageLabel', { page: number })}</h5>}
@@ -320,10 +320,9 @@ export function ResolveImages({
       <div>
         <h3 id="resolve-images-heading">{t('pictures.resolveTitle')}</h3>
         <p role="status">
-          {filling
-            ? t('imports.takingPictures')
-            : `${ready} of ${occurrences.length} ${occurrences.length === 1 ? 'picture' : 'pictures'} ready.`}
-          {' '}Any left unresolved stay as “picture needed” and can be added later.
+          {filling ? t('imports.takingPictures') : t('pictures.ready', { ready, total: occurrences.length })}
+          {' '}
+          {t('pictures.keepPending')}
         </p>
       </div>
     </header>

@@ -31,8 +31,16 @@ export function QuestionFileReport({
   return <section className="question-file-report" aria-label={t('report.howRead')}>
     <div className="question-file-report-head">
       <p role="status">
-        {countOf(reading.found, 'question')} found · <strong>{reading.imported} coming in</strong>
-        {leftOut > 0 && <> · <span className="question-file-report-left-out">{leftOut} left out</span></>}
+        {t('report.foundCount', { count: countOf(reading.found, 'question') })} ·{' '}
+        <strong>{t('report.importedCount', { count: reading.imported })}</strong>
+        {leftOut > 0 && (
+          <>
+            {' · '}
+            <span className="question-file-report-left-out">
+              {t('report.leftOutCount', { count: leftOut })}
+            </span>
+          </>
+        )}
       </p>
       {onConvertInstead && (
         <button type="button" className="link-button" disabled={busy} onClick={onConvertInstead}>

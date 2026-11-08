@@ -1,6 +1,7 @@
 import { StudentBankError, decodeStudentBank, isStudentBankFile } from './student-bank'
 import { createQuestionBankWorkspaceService } from './question-bank-workspaces'
 import { importedQuestionsFromRecord } from '../import/question-bank-import'
+import type { QuestionBankRecord } from '../export/question-bank-export'
 
 /**
  * Tanulói példány importja fájlból: kicsomagolja, a kérdéseket a helyi alakra
@@ -15,10 +16,10 @@ export async function importStudentBankFile(file: File): Promise<{ bankId: strin
     throw new StudentBankError('A fájl nem olvasható JSON.')
   }
   if (!isStudentBankFile(parsed)) throw new StudentBankError('Ez nem tanulói példány.')
-  const { record, files, name } = decodeStudentBank(parsed)
+  const { record, files, name, bankKey } = await decodeStudentBank(parsed)
 
   const questions = importedQuestionsFromRecord(record)
-  const media = record.media.map((asset) => {
+  const media = record.media.map((asset: QuestionBankRecord['media'][number]) => {
     const bytes = files.get(asset.file)
     if (!bytes) throw new StudentBankError(`Hiányzó kép: ${asset.file}`)
     return {
@@ -35,6 +36,7 @@ export async function importStudentBankFile(file: File): Promise<{ bankId: strin
     name,
     questions,
     media,
+    ...(bankKey ? { studentKey: bankKey } : {}),
   })
   return { bankId: bank.id, name: bank.name, questions: questions.length }
 }

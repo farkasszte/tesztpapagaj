@@ -44,6 +44,11 @@ export type QuestionBankResource = QuestionBankProvenance & {
    * meg — csak tanulókártya és gyakorló mód indul belőle.
    */
   student?: boolean
+  /**
+   * A forrás bank azonosítója a tanulói fájlból: ugyanezzel a kulccsal jött
+   * fájl **frissíti** ezt a bankot ahelyett, hogy újat hozna létre.
+   */
+  studentKey?: string
   createdAt: string
   lastUpdatedAt: string
   questions: Question[]
@@ -322,6 +327,7 @@ async function readBank(database: IDBDatabase, id: string): Promise<QuestionBank
     ...(bank.author !== undefined ? { author: bank.author } : {}),
     ...(bank.license !== undefined ? { license: { ...bank.license } } : {}),
     ...(bank.student ? { student: true } : {}),
+    ...(bank.studentKey ? { studentKey: bank.studentKey } : {}),
     createdAt: bank.createdAt,
     lastUpdatedAt: bank.lastUpdatedAt,
     questions: bank.questionIds.flatMap((questionId) => {
@@ -676,12 +682,56 @@ export function createQuestionBankWorkspaceService(
       name: string
       questions: Question[]
       media: { hash: string; mimeType: string; bytes: ArrayBuffer; width: number; height: number }[]
+      /** A forrás bank kulcsa: ha már van ilyen, azt frissítjük. */
+      studentKey?: string
     }): Promise<QuestionBankResource> {
       const timestamp = now().toISOString()
+      // Ugyanaz a tanulói példány újra: a bank azonosítója marad, tehát a
+      // mentett gyakorló-eredmények nem szakadnak el.
+      if (input.studentKey) {
+        const database = await registry
+        const scan = database.transaction(QUESTION_BANK_REGISTRY_STORE, 'readonly')
+        const stored = (await requestOf(scan.objectStore(QUESTION_BANK_REGISTRY_STORE).getAll())) as StoredBank[]
+        await completionOf(scan)
+        const existing = stored.find((bank) => bank.student === true && bank.studentKey === input.studentKey)
+        if (existing) {
+          await transact(
+            [QUESTION_BANK_REGISTRY_STORE, CANONICAL_QUESTION_STORE, MEDIA_ASSET_STORE],
+            'readwrite',
+            (transaction) => {
+              const questionStore = transaction.objectStore(CANONICAL_QUESTION_STORE)
+              for (const questionId of existing.questionIds) questionStore.delete(questionId)
+              for (const question of input.questions) {
+                questionStore.put({ ...question, bankId: existing.id } satisfies StoredQuestion)
+              }
+              const mediaStore = transaction.objectStore(MEDIA_ASSET_STORE)
+              for (const asset of input.media) mediaStore.put(asset)
+              transaction.objectStore(QUESTION_BANK_REGISTRY_STORE).put({
+                ...existing,
+                name: input.name,
+                lastUpdatedAt: timestamp,
+                questionIds: input.questions.map((question) => question.id),
+              } satisfies StoredBank)
+            },
+          )
+          return (
+            (await readBank(database, existing.id)) ?? {
+              id: existing.id,
+              name: input.name,
+              student: true,
+              ...(existing.studentKey ? { studentKey: existing.studentKey } : {}),
+              createdAt: existing.createdAt,
+              lastUpdatedAt: timestamp,
+              questions: input.questions,
+            }
+          )
+        }
+      }
       const bank: QuestionBankResource = {
         id: createId(),
         name: input.name,
         student: true,
+        ...(input.studentKey ? { studentKey: input.studentKey } : {}),
         createdAt: timestamp,
         lastUpdatedAt: timestamp,
         questions: input.questions,
@@ -699,6 +749,7 @@ export function createQuestionBankWorkspaceService(
             id: bank.id,
             name: bank.name,
             student: true,
+            ...(input.studentKey ? { studentKey: input.studentKey } : {}),
             createdAt: bank.createdAt,
             lastUpdatedAt: bank.lastUpdatedAt,
             questionIds: bank.questions.map((question) => question.id),

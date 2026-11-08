@@ -15,7 +15,13 @@ import type { QuestionBankRecord } from '../export/question-bank-export'
  */
 
 export const STUDENT_BANK_FORMAT = 'testparrot/student-bank'
-export const STUDENT_BANK_VERSION = 1
+/**
+ * 1 — base64 (a JSON nyersen).
+ * 2 — gzip + base64: ugyanaz a tartalom, tipikusan 4–6× kisebb fájlban.
+ */
+export const STUDENT_BANK_VERSION = 2
+/** A régi (1-es) fájlok továbbra is beolvashatók. */
+export type StudentBankEncoding = 'base64' | 'gzip+base64'
 
 /** A fejlécben olvasható mondat: a tanár és a diák is érti, mi ez a fájl. */
 export const STUDENT_BANK_NOTICE =
@@ -23,7 +29,9 @@ export const STUDENT_BANK_NOTICE =
 
 export type StudentBankFile = {
   format: typeof STUDENT_BANK_FORMAT
-  version: typeof STUDENT_BANK_VERSION
+  version: number
+  /** Hiányzó érték = base64 (az 1-es változat). */
+  encoding?: StudentBankEncoding
   notice: string
   /** A bank neve: ennyi olvasható a fejlécben (a felismeréshez és a listához). */
   name: string
@@ -71,6 +79,21 @@ function fromBase64(text: string): Uint8Array {
   return bytes
 }
 
+/** Van-e a böngészőben (vagy a Bunban) gzip-patak? Ha nincs, marad a base64. */
+function canCompress(): boolean {
+  return typeof CompressionStream === 'function' && typeof DecompressionStream === 'function'
+}
+
+async function gzip(bytes: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([bytes.slice().buffer]).stream().pipeThrough(new CompressionStream('gzip'))
+  return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+
+async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([bytes.slice().buffer]).stream().pipeThrough(new DecompressionStream('gzip'))
+  return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+
 /** A tanulói fájl neve: a böngésző ezt ajánlja mentéskor. */
 export function studentBankFileName(name: string): string {
   const base = name
@@ -81,22 +104,31 @@ export function studentBankFileName(name: string): string {
   return `${base || 'gyakorlo-bank'} (gyakorlo).json`
 }
 
-/** Egy bankból tanulói fájl: a fejléc olvasható, a tartalom base64. */
-export function encodeStudentBank(input: {
+/** Egy bankból tanulói fájl: a fejléc olvasható, a tartalom tömörítve. */
+export async function encodeStudentBank(input: {
   record: QuestionBankRecord
   files: ReadonlyMap<string, Uint8Array>
   now?: number
-}): { file: StudentBankFile; json: string } {
+  /** A forrás bank azonosítója: ezzel ismeri fel az import a frissítést. */
+  bankKey?: string
+}): Promise<{ file: StudentBankFile; json: string }> {
   const assets = input.record.media.map((media) => {
     const bytes = input.files.get(media.file)
     if (!bytes) throw new StudentBankError(`Hiányzó kép: ${media.file}`)
     return { ...media, data: toBase64(bytes) }
   })
-  const body = JSON.stringify({ record: input.record, assets })
-  const payload = toBase64(new TextEncoder().encode(body))
+  const body = JSON.stringify({
+    record: input.record,
+    assets,
+    ...(input.bankKey ? { bankKey: input.bankKey } : {}),
+  })
+  const raw = new TextEncoder().encode(body)
+  const packed = canCompress()
+  const payload = toBase64(packed ? await gzip(raw) : raw)
   const file: StudentBankFile = {
     format: STUDENT_BANK_FORMAT,
     version: STUDENT_BANK_VERSION,
+    encoding: packed ? 'gzip+base64' : 'base64',
     notice: STUDENT_BANK_NOTICE,
     name: input.record.bank.name,
     questions: input.record.bank.questions.length,
@@ -114,17 +146,32 @@ export function isStudentBankFile(value: unknown): value is StudentBankFile {
 }
 
 /** A tanulói fájl kicsomagolása; hibánál `StudentBankError` a magyar okkal. */
-export function decodeStudentBank(value: unknown): StudentBankBody & { name: string; questions: number } {
+export async function decodeStudentBank(
+  value: unknown,
+): Promise<StudentBankBody & { name: string; questions: number; bankKey?: string }> {
   if (!isStudentBankFile(value)) throw new StudentBankError('Ez nem tanulói példány.')
-  if (value.version !== STUDENT_BANK_VERSION) {
+  // 1-es (base64) és 2-es (gzip) változat is olvasható.
+  if (value.version !== 1 && value.version !== STUDENT_BANK_VERSION) {
     throw new StudentBankError('A tanulói példány újabb változatban készült — frissítsd az oldalt.')
   }
   if (checksumOf(value.payload) !== value.checksum) {
     throw new StudentBankError('A fájl sérült: az ellenőrző összeg nem egyezik.')
   }
-  let parsed: { record?: QuestionBankRecord; assets?: (QuestionBankRecord['media'][number] & { data: string })[] }
+  const encoding: StudentBankEncoding = value.encoding === 'gzip+base64' ? 'gzip+base64' : 'base64'
+  let body: Uint8Array
   try {
-    parsed = JSON.parse(new TextDecoder().decode(fromBase64(value.payload))) as typeof parsed
+    const bytes = fromBase64(value.payload)
+    body = encoding === 'gzip+base64' ? await gunzip(bytes) : bytes
+  } catch {
+    throw new StudentBankError('A fájl tartalma nem olvasható.')
+  }
+  let parsed: {
+    record?: QuestionBankRecord
+    assets?: (QuestionBankRecord['media'][number] & { data: string })[]
+    bankKey?: string
+  }
+  try {
+    parsed = JSON.parse(new TextDecoder().decode(body)) as typeof parsed
   } catch {
     throw new StudentBankError('A fájl tartalma nem olvasható.')
   }
@@ -138,5 +185,6 @@ export function decodeStudentBank(value: unknown): StudentBankBody & { name: str
     files,
     name: value.name || parsed.record.bank.name,
     questions: parsed.record.bank.questions.length,
+    ...(parsed.bankKey ? { bankKey: parsed.bankKey } : {}),
   }
 }
