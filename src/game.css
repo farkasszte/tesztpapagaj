@@ -2815,3 +2815,74 @@ select.gq-input-small { text-align: center; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+/* Párosítás a kettéosztott táblán: két oszlop, felfedéskor párok. */
+.gq-split-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 10px 14px;
+  align-items: start;
+}
+
+.gq-split-column {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gq-split-concept {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px dashed rgb(245 236 220 / 0.4);
+  background: rgb(255 250 243 / 0.06);
+  font-family: var(--game-text);
+  font-size: calc(clamp(14px, 1vw, 18px) * var(--gq-text, 1));
+  color: #fffaf3;
+}
+
+.gq-split-pairs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gq-split-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgb(255 250 243 / 0.06);
+  border: 1px solid rgb(245 236 220 / 0.28);
+  font-family: var(--game-text);
+  font-size: calc(clamp(14px, 1vw, 18px) * var(--gq-text, 1));
+  color: #fffaf3;
+}
+
+/* A nyíl a fogalom és a válasz **között** áll: a bal cella flex, a nyíl a jobb
+   szélén, tehát nem törik új sorba. */
+.gq-split-pair-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.gq-split-pair-left::after {
+  content: '→';
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+/* Sorrendezés: a sorszám karikája nem betű, hanem szám. */
+.gq-split-answer[data-ordered='true'] .gq-split-letter {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

@@ -231,10 +231,10 @@ export function GamePage({
   const playable = useMemo(
     () => (bank
       ? playableQuestions(bank.questions, {
-        // A differenciált kvíz is a Klasszikus naplóját futtatja, de a
-        // kettéosztott tábla csak válaszkártyákat rajzol: ezért `choicesOnly`.
+        // A differenciált kvíz is a Klasszikus naplóját futtatja; a
+        // kettéosztott tábla készlete szűkebb: `splitPanel`.
         classic: mode === 'classic' || mode === 'split',
-        choicesOnly: mode === 'split',
+        splitPanel: mode === 'split',
         // Szavazásnál a helyes válasz nélküli kérdések a játszhatók.
         vote: mode === 'vote',
         shuffleAnswers,

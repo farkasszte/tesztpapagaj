@@ -4,11 +4,11 @@ import { go } from './navigate'
 /**
  * Mérés és őr: mit játszik a differenciált kvíz a kettéosztott táblán.
  *
- * A panel a bank saját szövegét rajzolja (DocView: kép, matek, táblázat), de
- * **csak válaszkártyás** kérdést visz be: feleletválasztós, igaz/hamis és több
- * helyes válasz. A sorrendezés, a párosítás, a kiegészítés és a rövid válasz
- * kimarad. Ezt a szerződést méri ez a teszt: hány kör lesz, elfér-e a panel,
- * hány kártyát jelöl a felfedés, és megjelenik-e a táblázat.
+ * A panel a bank saját szövegét rajzolja (DocView: kép, matek, táblázat), és
+ * ezeket a típusokat viszi be: feleletválasztós, igaz/hamis, több helyes válasz,
+ * **sorrendezés** és **párosítás**. A kiegészítés és a rövid válasz kimarad
+ * (gépelés). Ezt a szerződést méri: hány kör lesz, elfér-e a panel, hány kártyát
+ * jelöl a felfedés, számozódik-e a sorrend, és látszanak-e a párok.
  */
 
 const choice = (said: string, correct = false) => ({
@@ -164,32 +164,62 @@ test('a kettéosztott tábla a válaszkártyás kérdéseket viszi be, a szöveg
   await expect(stage).toBeVisible()
   const panel = page.locator('.gq-split-panel[data-side="a"]')
 
-  // Vegyes bankból **három** kör lesz: feleletválasztós, igaz/hamis, több
-  // helyes válasz (a sorrendezés, a párosítás és a kiegészítés kimarad).
+  // Vegyes bankból **öt** kör lesz; csak a kiegészítés marad ki.
   const header = await panel.innerText()
   const rounds = Number(/Round 1 of (\d+)/.exec(header)?.[1] ?? '0')
-  expect(rounds).toBe(3)
+  expect(rounds).toBe(5)
 
   // A táblázat a panelen: a DocView rajzolja, nem sima szöveg.
   await expect(panel.locator('.gq-split-prompt .doc-content table')).toHaveCount(1)
 
   if (process.env.PROBE_SHOT) await page.screenshot({ path: 'split-table.png' })
 
-  const measured: { answers: number; overflow: boolean; marked: number }[] = []
+  const measured: {
+    answers: number
+    overflow: boolean
+    marked: number
+    ordered?: boolean
+    numbers?: string[]
+    pairs?: string[]
+  }[] = []
+
   for (let round = 0; round < rounds; round += 1) {
     const before = await panel.evaluate((node) => ({
       answers: node.querySelectorAll('.gq-split-answer').length,
       overflow: node.scrollHeight > node.clientHeight + 1,
+      ordered: Boolean(node.querySelector('.gq-split-answer[data-ordered="true"]')),
+      pairs: [...node.querySelectorAll('.gq-split-pair')].map((one) => one.textContent?.trim() ?? ''),
     }))
     await stage.getByRole('button', { name: 'Show the answer' }).click()
     const marked = await panel.locator('.gq-split-answer[data-right="true"]').count()
-    measured.push({ ...before, marked })
+    // Sorrendnél a felfedés után a sorszámok 1..n sorrendben állnak.
+    const numbers = await panel.evaluate((node) =>
+      [...node.querySelectorAll('.gq-split-answer[data-ordered="true"] .gq-split-letter')].map(
+        (one) => one.textContent ?? '',
+      ),
+    )
+    const pairs = await panel.evaluate((node) =>
+      [...node.querySelectorAll('.gq-split-pair')].map((one) => one.textContent?.trim() ?? ''),
+    )
+    measured.push({ ...before, marked, ...(numbers.length ? { numbers } : {}), ...(pairs.length ? { pairs } : {}) })
+    if (process.env.PROBE_SHOT && round === 4) await page.screenshot({ path: 'split-matching.png' })
     if (round < rounds - 1) await stage.getByRole('button', { name: 'Next round' }).click()
   }
 
   // Elfér: a panel tartalma nem lóg túl a kereten (1920×1080).
   expect(measured.every((one) => one.overflow === false)).toBe(true)
-  // 3, 2 és 3 kártya; a több helyes válasznál **kettő** jelölés, a többinél egy.
-  expect(measured.map((one) => one.answers)).toEqual([3, 2, 3])
-  expect(measured.map((one) => one.marked)).toEqual([1, 1, 2])
+  // Feleletválasztós (3), igaz/hamis (2), több helyes (3), sorrendezés (3),
+  // párosítás (2 kártya + 2 fogalom).
+  expect(measured.map((one) => one.answers)).toEqual([3, 2, 3, 3, 2])
+  // A több helyes válasznál kettő jelölés, a többinél egy (a párosításnál a
+  // jelölés a párokon van, nem a kártyákon).
+  expect(measured.slice(0, 4).map((one) => one.marked)).toEqual([1, 1, 2, 0])
+  // Sorrendezés: felfedéskor a sorszámok 1..3.
+  expect(measured[3].numbers).toEqual(['1', '2', '3'])
+  expect(measured[3].ordered).toBe(true)
+  // Párosítás: felfedéskor a két pár a helyes válasszal.
+  expect(measured[4].pairs?.[0]).toContain('Fotoszintézis')
+  expect(measured[4].pairs?.[0]).toContain('Cukrot termel')
+  expect(measured[4].pairs?.[1]).toContain('Légzés')
+  expect(measured[4].pairs?.[1]).toContain('Oxigént használ')
 })

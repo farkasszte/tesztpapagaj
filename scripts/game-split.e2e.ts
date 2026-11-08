@@ -82,7 +82,7 @@ test('a differenciált mód két bankot kér, és a hosszabbat a rövidebbre vá
 
   // 3 és 2 kérdés: a közös kör 2 kérdés.
   await expect(page.getByText('2 questions in the shared round')).toBeVisible()
-  await expect(page.getByText('Only questions with answer cards can be played (one or more right answers): ordering, matching, fill in the blank and short answer are left out.')).toBeVisible()
+  await expect(page.getByText('Questions that can be read are played: answer cards, ordering and matching. Fill in the blank and short answer are left out.')).toBeVisible()
 
   await page.getByRole('button', { name: 'Start', exact: true }).click()
   const lobby = page.locator('.gq-lobby')

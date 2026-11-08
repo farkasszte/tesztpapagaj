@@ -94,33 +94,104 @@ export function SplitStage({
                   <div className="gq-split-prompt">
                     {spoken?.stem?.length ? <DocView content={spoken.stem} /> : question.prompt}
                   </div>
-                  <ol
-                    className="gq-split-answers"
-                    data-revealed={view.phase === 'REVEAL' ? 'true' : undefined}
-                  >
-                    {question.choices.map((choice, index) => {
-                      const right =
-                        view.phase === 'REVEAL' &&
-                        (question.correctChoices ?? (question.correct === null ? [] : [question.correct])).includes(index)
-                      return (
-                        <li
-                          key={index}
-                          className="gq-split-answer"
-                          data-right={right ? 'true' : undefined}
-                          style={{ '--c': TINCTURES[index % TINCTURES.length] } as CSSProperties}
-                        >
-                          <span className="gq-split-letter">{'ABCD'[index] ?? index + 1}</span>
-                          <span className="gq-split-text">
-                            {spoken?.choices[index]?.length ? (
-                              <DocView content={spoken.choices[index]} />
-                            ) : (
-                              choice
-                            )}
-                          </span>
-                        </li>
+                  {(() => {
+                    const revealed = view.phase === 'REVEAL'
+                    const ordered = question.ordered
+                    const matching = question.matching
+
+                    // Párosítás: két oszlop, felfedéskor a párok egymás mellett.
+                    if (matching) {
+                      const prompts = question.prompts ?? []
+                      const matches = question.matchAnswers ?? []
+                      return revealed ? (
+                        <ol className="gq-split-pairs" data-revealed="true">
+                          {prompts.map((prompt, index) => (
+                            <li key={index} className="gq-split-pair">
+                              <span className="gq-split-pair-left">
+                                {spoken?.prompts?.[index]?.length ? (
+                                  <DocView content={spoken.prompts[index]} />
+                                ) : (
+                                  prompt
+                                )}
+                              </span>
+                              <span className="gq-split-pair-right">
+                                {spoken?.choices?.[matches[index]]?.length ? (
+                                  <DocView content={spoken.choices[matches[index]]} />
+                                ) : (
+                                  (question.choices[matches[index]] ?? '')
+                                )}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <div className="gq-split-columns">
+                          <ol className="gq-split-column">
+                            {prompts.map((prompt, index) => (
+                              <li key={`p-${index}`} className="gq-split-concept">
+                                {spoken?.prompts?.[index]?.length ? (
+                                  <DocView content={spoken.prompts[index]} />
+                                ) : (
+                                  prompt
+                                )}
+                              </li>
+                            ))}
+                          </ol>
+                          <ol className="gq-split-column">
+                            {question.choices.map((choice, index) => (
+                              <li
+                                key={`a-${index}`}
+                                className="gq-split-answer"
+                                style={{ '--c': TINCTURES[index % TINCTURES.length] } as CSSProperties}
+                              >
+                                <span className="gq-split-letter">{'ABCD'[index] ?? index + 1}</span>
+                                <span className="gq-split-text">
+                                  {spoken?.choices[index]?.length ? (
+                                    <DocView content={spoken.choices[index]} />
+                                  ) : (
+                                    choice
+                                  )}
+                                </span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
                       )
-                    })}
-                  </ol>
+                    }
+
+                    // Sorrendezés: felfedéskor a kártyák a helyes sorrendben,
+                    // sorszámozva állnak; kérdés közben szám nélkül (nem A/B/C).
+                    const order = ordered && revealed ? (question.correctOrder ?? []) : question.choices.map((_, index) => index)
+                    return (
+                      <ol className="gq-split-answers" data-revealed={revealed ? 'true' : undefined}>
+                        {order.map((choiceIndex, position) => {
+                          const choice = question.choices[choiceIndex] ?? ''
+                          const right = revealed && !ordered &&
+                            (question.correctChoices ?? (question.correct === null ? [] : [question.correct])).includes(choiceIndex)
+                          return (
+                            <li
+                              key={choiceIndex}
+                              className="gq-split-answer"
+                              data-right={right ? 'true' : undefined}
+                              data-ordered={ordered ? 'true' : undefined}
+                              style={{ '--c': TINCTURES[position % TINCTURES.length] } as CSSProperties}
+                            >
+                              <span className="gq-split-letter">
+                                {ordered ? position + 1 : ('ABCD'[choiceIndex] ?? choiceIndex + 1)}
+                              </span>
+                              <span className="gq-split-text">
+                                {spoken?.choices?.[choiceIndex]?.length ? (
+                                  <DocView content={spoken.choices[choiceIndex]} />
+                                ) : (
+                                  choice
+                                )}
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ol>
+                    )
+                  })()}
                   <p className="gq-split-answered">
                     {t('game.devices.answered', {
                       answered: question.answered,
