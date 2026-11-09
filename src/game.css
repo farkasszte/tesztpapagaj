@@ -2886,3 +2886,119 @@ select.gq-input-small { text-align: center; }
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Távirányító: a tanár telefonja játékosként lép be, aztán ezt nyomja meg.
+   A diák-nézet papírja világos, tehát a gombok is papírszínűek — sötét betűvel. */
+.gq-stu-remote {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid var(--paper-outline, #e0d3c2);
+  background: transparent;
+  color: #4e3b2f;
+  font-family: var(--game-text);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gq-stu-remote:hover {
+  border-color: var(--paper-accent, #9f5037);
+  color: var(--paper-accent, #9f5037);
+}
+
+.gq-remote {
+  gap: 12px;
+  align-content: start;
+}
+
+.gq-remote-bar {
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.gq-remote-badge {
+  font-family: var(--game-display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #332a24;
+}
+
+.gq-remote-status {
+  font-family: var(--game-display);
+  font-size: 12px;
+  color: #6e5b4d;
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-remote-hint {
+  margin: 0;
+  font-family: var(--game-text);
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6e5b4d;
+}
+
+.gq-remote-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.gq-remote-action {
+  min-height: 62px;
+  border-radius: 14px;
+  border: 1px solid var(--paper-outline, #e0d3c2);
+  background: #fffdf9;
+  color: #241c17;
+  font-family: var(--game-display);
+  font-size: 17px;
+  letter-spacing: 0.02em;
+}
+
+.gq-remote-action:disabled {
+  opacity: 0.4;
+}
+
+.gq-remote-action[data-tone='go'] {
+  border-color: #3f6b46;
+  background: #3f6b46;
+  color: #fffaf3;
+}
+
+.gq-remote-action[data-tone='end'] {
+  border-color: var(--paper-danger-line, #eec8be);
+  color: var(--paper-danger, #a3321f);
+}
+
+.gq-remote-close {
+  margin-top: 2px;
+  background: none;
+  border: 0;
+  padding: 10px 0;
+  color: #6e5b4d;
+  font-family: var(--game-text);
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.gq-board-kick {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgb(245 236 220 / 0.28);
+  background: transparent;
+  color: rgb(245 236 220 / 0.7);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.gq-board-kick:hover {
+  border-color: rgb(196 64 47 / 0.8);
+  color: #f3c9c1;
+}

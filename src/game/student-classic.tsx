@@ -1,3 +1,4 @@
+import { RemoteButton } from './remote-control'
 import { useEffect, useState } from 'react'
 import type { ClassicView } from './classic/views'
 import { StudentBlocks } from './student-blocks'
@@ -21,6 +22,7 @@ export function ClassicStudentGame({
   nickname,
   avatar,
   onRollAvatar,
+  onOpenRemote,
   problem,
   reviewCount = 0,
   onOpenReview,
@@ -33,6 +35,8 @@ export function ClassicStudentGame({
   /** A figura magja; ha nincs, a becenévből képzett. */
   avatar?: string
   onRollAvatar?: () => void
+  /** Ezzel lesz a telefonból távirányító (a tanár saját eszköze). */
+  onOpenRemote?: () => void
   problem: string | null
   /** Hány kérdést rontott el: ennyi kártya vár a hibalistán (a játék végén). */
   reviewCount?: number
@@ -87,6 +91,7 @@ export function ClassicStudentGame({
       <header className="gq-stu-bar">
         <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
+        {onOpenRemote ? <RemoteButton onOpen={onOpenRemote} /> : null}
         {/* Szavazás: nincs pont, tehát pontszámot sem mutatunk (B5). */}
         {mine && !view?.theme && view?.scoring !== false ? (
           <span className="gq-stu-points">{t('game.student.points', { points: mine.points })}</span>

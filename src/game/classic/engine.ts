@@ -95,6 +95,8 @@ export class ClassicEngine {
     nickname: string;
     /** A diák figurájának magja; később a `setAvatar` állítja át. */
     avatar?: string;
+    /** A tanár telefonja: játékos, de nem játszik (lásd `remote`). */
+    remote?: boolean;
   }): { ok: true; player: ClassicPlayer; rejoined: boolean } | { ok: false; message: string } {
     const s = this.session;
     if (input.playerId && this.kicked.has(input.playerId)) return { ok: false, message: 'Your teacher removed you from this game.' };
@@ -103,6 +105,7 @@ export class ClassicEngine {
       if (existing.secret !== input.secret) return { ok: false, message: 'That seat belongs to another device.' };
       existing.connected = true;
       if (input.avatar) existing.avatar = input.avatar;
+      if (input.remote) existing.remote = true;
       this.changed();
       return { ok: true, player: existing, rejoined: true };
     }
@@ -122,6 +125,7 @@ export class ClassicEngine {
       points: 0,
       joinedAt: this.clock.now(),
       connected: true,
+      ...(input.remote ? { remote: true } : {}),
     };
     s.players.push(player);
     this.changed();
@@ -134,6 +138,15 @@ export class ClassicEngine {
     const clean = seed.trim().slice(0, 32);
     if (!player || !clean || player.avatar === clean) return;
     player.avatar = clean;
+    this.changed();
+  }
+
+  /** A telefon a belépés után jelöli ki magát távirányítónak (vagy vissza). */
+  setRemote(playerId: string, remote: boolean): void {
+    const player = this.player(playerId);
+    if (!player || player.remote === (remote ? true : undefined)) return;
+    if (remote) player.remote = true;
+    else delete player.remote;
     this.changed();
   }
 
@@ -165,7 +178,7 @@ export class ClassicEngine {
     const s = this.session;
     if (s.phase !== 'LOBBY') return no('The game has already started.');
     if (!s.questions.length) return no('There are no questions.');
-    if (!s.players.length && !s.noDevices) return no('Wait for a student to join.');
+    if (!s.players.some((p) => !p.remote) && !s.noDevices) return no('Wait for a student to join.');
     return this.open(0);
   }
 
@@ -250,7 +263,8 @@ export class ClassicEngine {
   private closeIfAllIn() {
     const s = this.session;
     const answered = new Set(s.answers[s.index].map((a) => a.playerId));
-    if (s.players.filter((p) => p.connected).every((p) => answered.has(p.id))) this.reveal();
+    // A távirányító nem válaszol, tehát nem tarthatja nyitva a kört.
+    if (s.players.filter((p) => p.connected && !p.remote).every((p) => answered.has(p.id))) this.reveal();
   }
 
   /** Locks the answers early, from the teacher's screen. */

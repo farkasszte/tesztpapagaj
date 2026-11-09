@@ -163,6 +163,8 @@ export function ClassicDevices({
           const message = payload as
             | { kind: 'join'; nickname: string; playerId?: string; secret?: string; avatar?: string }
             | { kind: 'avatar'; seed?: string }
+            | { kind: 'remote'; off?: boolean }
+            | { kind: 'command'; action?: string }
             | { kind: 'answer'; choice?: number; choices?: number[]; texts?: string[] }
           if (message?.kind === 'join') {
             const result = engine.join({
@@ -195,6 +197,31 @@ export function ClassicDevices({
               engine.setAvatar(playerId, message.seed)
               bump()
             }
+            return
+          }
+          if (message?.kind === 'remote') {
+            // A tanár telefonja játékosként lépett be, és most magát jelöli
+            // távirányítónak: nem kerül a táblára, nem kap pontot.
+            const playerId = seats.current.get(from)
+            if (!playerId) return
+            engine.setRemote(playerId, !message.off)
+            bump()
+            broadcastSoon()
+            return
+          }
+          if (message?.kind === 'command') {
+            // Csak távirányító parancsolhat, és csak a színpad gombjait
+            // nyomhatja meg — a motor ugyanazt teszi, mintha a laptopon tette.
+            const playerId = seats.current.get(from)
+            if (!playerId || !engine.player(playerId)?.remote) return
+            const action = message.action
+            if (action === 'pause') engine.pause()
+            else if (action === 'resume') engine.resume()
+            else if (action === 'reveal') engine.lock()
+            else if (action === 'next') engine.next()
+            else if (action === 'finish') engine.endSession()
+            bump()
+            broadcastSoon()
             return
           }
           if (message?.kind === 'answer') {
@@ -239,6 +266,16 @@ export function ClassicDevices({
     return createPortal(
       <Stage
         title={title}
+        onKick={(playerId) => {
+          if (!engine.kick(playerId).ok) return
+          const entry = [...seats.current].find(([, id]) => id === playerId)
+          if (entry) {
+            connection.current?.send({ kind: 'refused', message: t('game.student.kicked') }, entry[0])
+            seats.current.delete(entry[0])
+          }
+          bump()
+          broadcast()
+        }}
         questions={questions}
         words={words}
         settings={settings}
@@ -250,7 +287,9 @@ export function ClassicDevices({
           <>
             <span className="gq-pin">{spacedRoomCode(code)}</span>
             <span className="gq-players">
-              {t('game.devices.joined', { count: engine.session.players.filter((p) => p.connected).length })}
+              {t('game.devices.joined', {
+                count: engine.session.players.filter((p) => p.connected && !p.remote).length,
+              })}
             </span>
           </>
         }
@@ -264,11 +303,15 @@ export function ClassicDevices({
       code={code}
       status={status}
       problem={problem}
-      players={engine.session.players.map((player) => ({
-        id: player.id,
-        nickname: player.nickname,
-        connected: player.connected,
-      }))}
+      // A távirányító játékos-kapcsolat, de nem játékos: sem a létszámban,
+      // sem a névsorban nem szerepel.
+      players={engine.session.players
+        .filter((player) => !player.remote)
+        .map((player) => ({
+          id: player.id,
+          nickname: player.nickname,
+          connected: player.connected,
+        }))}
       onKick={(playerId) => {
         if (!engine.kick(playerId).ok) return
         const entry = [...seats.current].find(([, id]) => id === playerId)

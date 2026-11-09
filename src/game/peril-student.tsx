@@ -1,3 +1,4 @@
+import { RemoteButton } from './remote-control'
 import { useEffect, useState } from 'react'
 import type { PerilView } from './peril/views'
 import { StudentBlocks } from './student-blocks'
@@ -19,6 +20,7 @@ export function PerilStudentGame({
   nickname,
   avatar,
   onRollAvatar,
+  onOpenRemote,
   problem,
   sent,
   onChooseTeam,
@@ -32,6 +34,8 @@ export function PerilStudentGame({
   /** A figura magja; ha nincs, a becenévből képzett. */
   avatar?: string
   onRollAvatar?: () => void
+  /** Ezzel lesz a telefonból távirányító (a tanár saját eszköze). */
+  onOpenRemote?: () => void
   problem: string | null
   sent: number | null
   onChooseTeam: (teamId: string) => void
@@ -66,6 +70,7 @@ export function PerilStudentGame({
       <header className="gq-stu-bar">
         <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
+        {onOpenRemote ? <RemoteButton onOpen={onOpenRemote} /> : null}
         {myTeam ? <span className="gq-stu-role">{myTeam.name}</span> : null}
         {me ? <span className="gq-stu-points">{t('game.student.points', { points: me.points })}</span> : null}
       </header>

@@ -15,6 +15,8 @@ export type ClassicView = {
   code: string;
   title: string;
   phase: ClassicPhase;
+  /** Áll-e az óra: a távirányító ebből tudja, hogy szünet van. */
+  paused: boolean;
   /** Played with no student devices, so there are no answers to count. */
   noDevices: boolean
   /** A futam és a szörny más játék: a telefonon nincs értelme pontot mutatni. */
@@ -66,7 +68,7 @@ export type ClassicView = {
   report: ClassicReport | null;
   /** A kör eredménye a felfedés után: az első öt pontszerző, pont szerint.
    *  Csak a tanár nézetében van, és csak ha a beállítás kéri. */
-  roundTop: { nickname: string; points: number; avatar?: string }[] | null;
+  roundTop: { id: string; nickname: string; points: number; avatar?: string }[] | null;
   /** Only in a student's view. */
   me?: {
     id: string;
@@ -100,16 +102,20 @@ export function buildClassicView(
     code: s.code,
     title: s.title,
     phase: s.phase,
+    paused: !!s.paused,
     noDevices: !!s.noDevices,
     ...(options.theme ? { theme: options.theme } : {}),
     scoring: s.settings.scoring,
     avatarStyle: s.settings.avatarStyle,
-    roster: s.players.map((p) => ({
-      id: p.id,
-      nickname: p.nickname,
-      connected: p.connected,
-      ...(p.avatar ? { avatar: p.avatar } : {}),
-    })),
+    // A távirányító nem kerül a táblára: nem játékos, csak a tanár keze.
+    roster: s.players
+      .filter((p) => !p.remote)
+      .map((p) => ({
+        id: p.id,
+        nickname: p.nickname,
+        connected: p.connected,
+        ...(p.avatar ? { avatar: p.avatar } : {}),
+      })),
     question:
       shown && question
         ? {
@@ -120,7 +126,9 @@ export function buildClassicView(
             choices: question.choices,
             rich: richShown(question, true, !!revealed),
             answered: answers.length,
-            answering: s.players.filter((p) => p.connected || answers.some((a) => a.playerId === p.id)).length,
+            answering: s.players.filter(
+              (p) => !p.remote && (p.connected || answers.some((a) => a.playerId === p.id)),
+            ).length,
             remainingMs: s.phase === 'QUESTION' && s.deadline !== null ? Math.max(0, s.deadline - options.now) : null,
             // Sorrendnél és párosításnál nincs egyetlen helyes válasz: a válasz
             // maga a sorrend, illetve a párok. Ilyenkor nem adunk betűt, mert a
@@ -157,11 +165,14 @@ export function buildClassicView(
   const viewer = options.viewerId ? s.players.find((p) => p.id === options.viewerId) : undefined;
   // A kör eredménye a tanár színpadára megy, a diák a sajátját látja: a telefon
   // nem kaphat listát az egész osztály pontjairól.
-  if (!viewer && revealed && s.settings.roundResults && s.players.length > 0) {
-    view.roundTop = [...s.players]
+  // A távirányító nem versenyző: a kör eredményében sem szerepel.
+  const competitors = s.players.filter((p) => !p.remote)
+  if (!viewer && revealed && s.settings.roundResults && competitors.length > 0) {
+    view.roundTop = [...competitors]
       .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
       .slice(0, 5)
       .map((player) => ({
+        id: player.id,
         nickname: player.nickname,
         points: player.points,
         ...(player.avatar ? { avatar: player.avatar } : {}),

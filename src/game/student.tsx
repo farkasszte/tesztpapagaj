@@ -5,6 +5,7 @@ import type { PerilView } from './peril/views'
 import type { Help } from './types'
 import { cleanRoomCode, isRoomCode, type RoomCode } from './room-protocol'
 import { connectRoom, relayHealthUrl, type RoomConnection } from './room-client'
+import { RemoteControl } from './remote-control'
 import { ClassicStudentGame } from './student-classic'
 import { ChampionStudentGame } from './student-champion'
 import { PerilStudentGame } from './peril-student'
@@ -110,6 +111,12 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   const [problem, setProblem] = useState<string | null>(null)
   /** Amit már elküldtem: egy válasz, vagy több egy több helyes válaszos kérdésnél. */
   const [sent, setSent] = useState<number[] | null>(null)
+  /**
+   * Távirányító mód: a tanár a saját telefonját jelöli ki. Ilyenkor a telefon
+   * nem játszik — a tanár gépe nem vár rá válaszra, nem ad neki pontot —, hanem
+   * a színpad gombjait nyomja meg.
+   */
+  const [remote, setRemote] = useState(false)
   /** A játék végén kapott hibalista, és a telefonon megőrzött paklik. */
   const [review, setReview] = useState<{ title: string; cards: Flashcard[] } | null>(null)
   const [decks, setDecks] = useState<ReviewDeck[]>(() => loadReviewDecks())
@@ -315,6 +322,12 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
 
   const reply = (payload: unknown) => connection.current?.sendReply(payload)
 
+  /** A tanár telefonja távirányító lesz: a tanár gépe ettől nem vár rá. */
+  const openRemote = () => {
+    reply({ kind: 'remote' })
+    setRemote(true)
+  }
+
   /** Új figura: a mag a telefonon marad, a tanár gépe azonnal megkapja. */
   const rollAvatar = () => {
     const next = randomAvatarSeed()
@@ -392,6 +405,18 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   }
 
 
+  if (remote) {
+    return (
+      <RemoteControl
+        view={view && view.mode === 'classic' ? view : null}
+        onCommand={(action) => reply({ kind: 'command', action })}
+        onClose={() => {
+          reply({ kind: 'remote', off: true })
+          setRemote(false)
+        }}
+      />
+    )
+  }
   if (view) {
     if (view.mode === 'champion') {
       return (
@@ -444,6 +469,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           nickname={nickname}
           avatar={avatar}
           onRollAvatar={rollAvatar}
+          onOpenRemote={splitRoom ? undefined : openRemote}
           problem={problem}
           reviewCount={review?.cards.length ?? 0}
           onOpenReview={review ? () => setOpenDeck(review) : undefined}

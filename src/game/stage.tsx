@@ -38,6 +38,7 @@ export function ClassicStage({
   words,
   settings,
   onExit,
+  onKick,
   restored,
   engine: given,
   status,
@@ -49,6 +50,8 @@ export function ClassicStage({
   words: Map<string, PlayableWords>
   settings: Partial<ClassicSettings>
   onExit: () => void
+  /** Kitenni egy játékost (illetlen név, elakadt kapcsolat). */
+  onKick?: (playerId: string) => void
   /** Félbehagyott játék a böngésző tárolójából: onnan folytatjuk, ahol állt. */
   restored?: SavedGame
   /** Diák-eszközös módban a tanár fülén futó motor; ilyenkor nem ez hozza létre. */
@@ -191,11 +194,22 @@ export function ClassicStage({
               <p className="gq-board-kicker">{t('game.roundResults.title')}</p>
               <ol className="gq-board-list">
                 {board.map((player, index) => (
-                  <li key={player.nickname}>
+                  <li key={player.id}>
                     <span className="gq-board-rank">{index + 1}</span>
                     <PlayerAvatar seed={player.avatar ?? player.nickname} size={30} />
                     <span className="gq-board-name">{player.nickname}</span>
                     <span className="gq-board-points">{player.points}</span>
+                    {/* Illetlen név vagy elakadt kapcsolat: itt is ki lehet tenni. */}
+                    {onKick ? (
+                      <button
+                        type="button"
+                        className="gq-board-kick"
+                        aria-label={t('game.devices.kick', { name: player.nickname })}
+                        onClick={() => onKick(player.id)}
+                      >
+                        ×
+                      </button>
+                    ) : null}
                   </li>
                 ))}
               </ol>

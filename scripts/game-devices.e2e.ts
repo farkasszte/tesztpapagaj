@@ -499,3 +499,90 @@ test('veszély eszközös mód: csapatok beállítása, diák csapatválasztása
   await expect(lobby.locator('.gq-roster-name')).toContainText('Panni')
   await expect(lobby.locator('.gq-roster-team')).toContainText('Tigrisek')
 })
+
+test('a tanár telefonja játékosként lép be, és távirányító lesz', async ({ page }) => {
+  await seedBank(page, 'Remote bank', [
+    THREE('r1', 'Which gas do plants take in?'),
+    THREE('r2', 'And which do they give off?'),
+  ])
+  // Egy szoba, két böngésző-környezet: a telefon és a diák ne lássa egymás
+  // tárolóját (különben a második lap a mentett hely miatt nem kérne nevet).
+  const room = new Room()
+  const wire = (context: BrowserContext) =>
+    context.routeWebSocket(/\/room\/[0-9]{6}$/, (socket) => room.handle(socket))
+  await wire(page.context())
+
+  await go(page, '/jatek')
+  await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
+  // A kör eredménye a táblát is kihozza — ott van a kirúgás gombja is.
+  await page.getByRole('checkbox', { name: 'Show the results after each question' }).check()
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+
+  const lobby = page.locator('.gq-lobby')
+  await expect(lobby).toBeVisible()
+  const code = (await lobby.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
+
+  // A tanár telefonja ugyanúgy lép be, mint bármelyik diák: kód + becenév.
+  const phone = await page.context().newPage()
+  await phone.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
+  await phone.getByPlaceholder('For example: Panni').fill('Tanár telefon')
+  await phone.getByRole('button', { name: 'Join the game' }).click()
+  await expect(phone.getByText('You are in.')).toBeVisible()
+
+  // …aztán magát távirányítónak jelöli: a telefon nem játszik többé.
+  await phone.getByRole('button', { name: 'Remote' }).click()
+  await expect(phone.locator('.gq-remote')).toBeVisible()
+  await expect(phone.getByRole('button', { name: 'Pause' })).toBeVisible()
+
+  // A távirányító nem kerül a táblára: a lobbi szerint senki sem lépett be.
+  await expect(lobby.getByText('Waiting for the first student.')).toBeVisible()
+
+  // Egy igazi diák viszont kell a játékhoz — saját környezetben.
+  const studentContext = await page.context().browser()!.newContext()
+  await wire(studentContext)
+  await studentContext.addInitScript(() => {
+    window.localStorage.setItem('tesztpapagaj:language', 'en')
+    window.localStorage.setItem('test-parrot:welcomed', 'true')
+  })
+  const student = await studentContext.newPage()
+  await student.goto(new URL(`/jatek?kod=${code}`, page.url()).toString())
+  await student.getByPlaceholder('For example: Panni').fill('Panni')
+  await student.getByRole('button', { name: 'Join the game' }).click()
+  await expect(student.getByText('You are in.')).toBeVisible()
+  await expect(lobby.getByText('1 joined')).toBeVisible()
+
+  await lobby.getByRole('button', { name: 'Start the game' }).click()
+  const stage = page.getByRole('dialog', { name: 'Quiz game' })
+  await expect(stage.getByText('Which gas do plants take in?')).toBeVisible()
+
+  // A telefonon a távirányító állapota: hányadik kérdés, hányan válaszoltak.
+  await expect(phone.locator('.gq-remote-status')).toContainText('Question 1 of 2')
+
+  if (process.env.PROBE_SHOT) await phone.screenshot({ path: 'remote.png' })
+
+  // Szünet a telefonról: a tanár színpadán megjelenik a „Folytatás", majd
+  // ugyanonnan folytatjuk.
+  await phone.getByRole('button', { name: 'Pause' }).click()
+  await expect(stage.getByRole('button', { name: 'Carry on' })).toBeVisible()
+  await phone.getByRole('button', { name: 'Resume' }).click()
+  await expect(stage.getByRole('button', { name: 'Pause' })).toBeVisible()
+
+  // A távirányító nem válaszol, tehát Panni válasza lezárja a kört.
+  await student.locator('.gq-stu-choice').nth(1).click()
+  await expect(stage.getByText('1/1 answered')).toBeVisible({ timeout: 10_000 })
+
+  // Következő kérdés a telefonról.
+  await phone.getByRole('button', { name: 'Next question' }).click()
+  await expect(stage.getByText('And which do they give off?')).toBeVisible()
+  await student.locator('.gq-stu-choice').nth(1).click()
+  await expect(stage.getByText('1/1 answered')).toBeVisible({ timeout: 10_000 })
+
+  // A kör eredménye külön lépés: a táblán van a kirúgás gombja is.
+  await stage.getByRole('button', { name: 'Show the round results' }).click()
+  await expect(stage.locator('.gq-board')).toBeVisible()
+
+  // Kirúgás a tábláról (illetlen név vagy elakadt kapcsolat): a diák értesül.
+  await stage.getByRole('button', { name: 'Remove Panni' }).click()
+  await expect(student.getByText('The teacher removed you from this game.')).toBeVisible()
+  await studentContext.close()
+})

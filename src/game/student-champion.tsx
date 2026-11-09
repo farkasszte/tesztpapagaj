@@ -1,3 +1,4 @@
+import { RemoteButton } from './remote-control'
 import { useEffect, useState } from 'react'
 import type { View } from './views'
 import type { Help } from './types'
@@ -30,6 +31,7 @@ export function ChampionStudentGame({
   nickname,
   avatar,
   onRollAvatar,
+  onOpenRemote,
   problem,
   sent,
   onAnswer,
@@ -43,6 +45,8 @@ export function ChampionStudentGame({
   /** A figura magja; ha nincs, a becenévből képzett. */
   avatar?: string
   onRollAvatar?: () => void
+  /** Ezzel lesz a telefonból távirányító (a tanár saját eszköze). */
+  onOpenRemote?: () => void
   problem: string | null
   sent: number | null
   /** Az osztály válasza (Phase A). */
@@ -112,6 +116,7 @@ export function ChampionStudentGame({
       <header className="gq-stu-bar">
         <AvatarPicker seed={avatar ?? nickname} size={26} inHeader onRoll={onRollAvatar ?? (() => undefined)} />
         <span className="gq-stu-name">{nickname}</span>
+        {onOpenRemote ? <RemoteButton onOpen={onOpenRemote} /> : null}
         <span className="gq-stu-role" data-one={isOne ? 'yes' : 'no'}>
           {role}
         </span>

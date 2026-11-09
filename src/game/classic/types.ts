@@ -39,6 +39,11 @@ export type ClassicPlayer = {
   points: number;
   joinedAt: number;
   connected: boolean;
+  /**
+   * Távirányító: a tanár telefonja, amely játékosként lépett be, de nem
+   * játszik — nem kerül a táblára, nem kap pontot, és nem vár rá senki.
+   */
+  remote?: boolean;
 };
 
 export type ClassicPhase =
