@@ -1,5 +1,6 @@
 import { BackupSettings } from './account-menu'
 import { DriveSettings } from './storage/drive-settings'
+import { PersonalDataSettings } from './storage/personal-data-settings'
 import { AppShell } from './app-shell'
 import type { PersistentStorageStatus } from './storage/durable-storage'
 import { LANGUAGE_NAMES, getLanguage, setLanguage, useT, type LanguageCode } from './i18n/index'
@@ -42,6 +43,8 @@ export function SettingsPage({ persistentStorage }: { persistentStorage: Persist
         <BackupSettings status={persistentStorage} />
 
         <DriveSettings />
+
+        <PersonalDataSettings />
       </div>
     </AppShell>
   )

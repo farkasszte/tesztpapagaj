@@ -31,12 +31,21 @@ export default defineConfig({
       }],
     },
   },
-  webServer: {
-    command: 'bunx vite --host 127.0.0.1 --port 4174',
-    url: 'http://127.0.0.1:4174',
-    // A diák-eszközös e2e a helyi relayhez csatlakozik, nem az éles workerhez;
-    // magát a relayt az a spec indítja, mert csak azt az egy tesztet érinti.
-    env: { VITE_ROOM_URL: 'ws://127.0.0.1:8788' },
-    reuseExistingServer: true,
-  },
+  // Két szerver kell: a lapot kiszolgáló Vite, és a **helyi relay**, amelyre a
+  // diák-eszközös mérések csatlakoznak. A relayt eddig kézzel kellett indítani;
+  // ha elhalt, a split-mérések érthetetlenül buktak (a diák a választón maradt).
+  webServer: [
+    {
+      command: 'bunx vite --host 127.0.0.1 --port 4174',
+      url: 'http://127.0.0.1:4174',
+      env: { VITE_ROOM_URL: 'ws://127.0.0.1:8788' },
+      reuseExistingServer: true,
+    },
+    {
+      command: 'bun run dev:room',
+      url: 'http://127.0.0.1:8788/health',
+      timeout: 90_000,
+      reuseExistingServer: true,
+    },
+  ],
 })

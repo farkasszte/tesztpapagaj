@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { go } from './navigate'
+import { seedBank } from './seed'
 
 // A bajnok mód magyar felületének jelképei: a nagycím ékezetei nem lógnak a
 // felső sorba, az életjelzők piros szívek, a díjalap aranytallér.
@@ -8,58 +9,39 @@ import { go } from './navigate'
 
 const HUNGARIAN = { name: 'tesztpapagaj:language', value: 'hu' }
 
-/** Egy igazi kérdésbank a beépített szolgáltatással, két játszható kérdéssel. */
-async function seedBank(page: Page, name: string): Promise<void> {
-  // Az első látogatás service worker-újratöltése elviheti az `evaluate`-t, és a
-  // kérdés-azonosítók nem ismételhetők: minden próbálkozás saját azonosítókat kap.
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    await go(page, '/about').catch(() => undefined)
-    const tag = `${Date.now().toString(36)}-${attempt}`
-    try {
-      await page.evaluate(async ({ bankName, suffix }) => {
-    const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
-    )) as typeof import('../src/bank/question-bank-workspaces')
-    const banks = createQuestionBankWorkspaceService()
-    const bank = await banks.create()
-    await banks.commit(bank.id, { kind: 'rename', name: bankName })
-    const question = (id: string, stem: string) => ({
-      id,
-      type: 'multiple-choice' as const,
-      columns: 2 as const,
-      doc: {
-        type: 'doc',
-        content: [
-          { type: 'paragraph', content: [{ type: 'text', text: stem }] },
-          {
-            type: 'multipleChoice',
-            content: [
-              ['Oxigén', false],
-              ['Szén-dioxid', true],
-              ['Hélium', false],
-            ].map(([text, correct], index) => ({
-              type: 'multipleChoiceChoice',
-              attrs: { id: `${id}-${index}`, correct },
-              content: [{ type: 'paragraph', content: [{ type: 'text', text: String(text) }] }],
-            })),
-          },
-        ],
-      },
-    })
-      await banks.commit(bank.id, {
-        kind: 'create-questions',
-        questions: [
-          question(`c1-${suffix}`, 'Melyik gáz kell a növényeknek?'),
-          question(`c2-${suffix}`, 'Melyik gáz keletkezik?'),
-        ],
-      } as never)
-      }, { bankName: name, suffix: tag })
-      return
-    } catch {
-      await page.waitForTimeout(600)
-    }
+/** Egy játszható kérdés a bank saját dokumentum-alakjában. */
+function question(id: string, stem: string) {
+  return {
+    id,
+    type: 'multiple-choice' as const,
+    columns: 2 as const,
+    doc: {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: stem }] },
+        {
+          type: 'multipleChoice',
+          content: [
+            ['Oxigén', false],
+            ['Szén-dioxid', true],
+            ['Hélium', false],
+          ].map(([text, correct], index) => ({
+            type: 'multipleChoiceChoice',
+            attrs: { id: `${id}-${index}`, correct },
+            content: [{ type: 'paragraph', content: [{ type: 'text', text: String(text) }] }],
+          })),
+        },
+      ],
+    },
   }
-  throw new Error('a bank vetése nem sikerült')
+}
+
+/** Két játszható kérdés a bankban; a közös vető kezeli az újratöltés versenyét. */
+async function seed(page: Page, name: string): Promise<void> {
+  await seedBank(page, name, (tag) => [
+    question(`c1-${tag}`, 'Melyik gáz kell a növényeknek?'),
+    question(`c2-${tag}`, 'Melyik gáz keletkezik?'),
+  ])
 }
 
 test.beforeEach(async ({ page }) => {
@@ -71,7 +53,7 @@ test.beforeEach(async ({ page }) => {
 /** A bajnok színpada az első kérdés felnyitása előtt. */
 async function openChampion(page: Page) {
   await page.setViewportSize({ width: 1600, height: 1024 })
-  await seedBank(page, 'Bajnok bank')
+  await seed(page, 'Bajnok bank')
   await go(page, '/jatek')
   await page.getByRole('button', { name: /^Bajnok/ }).click()
   await page.getByRole('button', { name: 'Indítás', exact: true }).click()

@@ -142,21 +142,36 @@ test('a kettéosztott tábla a válaszkártyás kérdéseket viszi be, a szöveg
   await pick('#gq-bank-b', 'Split B')
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
-  // Két diák kell a kör indításához (élő relay).
+  // Két diák kell a kör indításához (élő relay). A belépés versenyezhet a szoba
+  // létrejöttével: ilyenkor a diák a választón marad, ezért az egész belépést
+  // újrapróbáljuk (a lap újratöltése új kapcsolatot indít).
   const code = (await page.locator('.gq-lobby-code').innerText()).replace(/\s+/g, '')
-  for (const [index, name] of ['Anna', 'Bence'].entries()) {
+  const origin = new URL(page.url()).origin
+
+  const joinSide = async (index: number, name: string) => {
     const context = await browser.newContext()
     await context.addInitScript(() => window.localStorage.setItem('tesztpapagaj:language', 'en'))
     const phone = await context.newPage()
     await phone.setViewportSize({ width: 390, height: 844 })
-    await phone.goto(new URL(`/jatek?kod=${code}&oldal=1`, page.url()).toString())
-    const sides = phone.locator('.gq-stu-side')
-    await expect(sides).toHaveCount(2)
-    await (index === 0 ? sides.first() : sides.nth(1)).click()
-    await phone.getByPlaceholder('For example: Panni').fill(name)
-    await phone.getByRole('button', { name: 'Join the game' }).click()
-    await expect(phone.locator('.gq-stu-sides')).toHaveCount(0, { timeout: 20_000 })
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await phone.goto(`${origin}/jatek?kod=${code}&oldal=1`)
+      const sides = phone.locator('.gq-stu-side')
+      await expect(sides).toHaveCount(2)
+      await (index === 0 ? sides.first() : sides.nth(1)).click()
+      await phone.getByPlaceholder('For example: Panni').fill(name)
+      await phone.getByRole('button', { name: 'Join the game' }).click()
+      try {
+        await expect(phone.locator('.gq-stu-sides')).toHaveCount(0, { timeout: 8_000 })
+        return
+      } catch {
+        // A szoba még nem fogad: újratöltés, új kapcsolat.
+      }
+    }
+    throw new Error(`${name} nem tudott belépni a szobába`)
   }
+
+  for (const [index, name] of ['Anna', 'Bence'].entries()) await joinSide(index, name)
+
   await expect(page.locator('.gq-lobby').getByText('2 joined')).toBeVisible({ timeout: 20_000 })
   await page.locator('.gq-lobby').getByRole('button', { name: 'Start the game' }).click()
 
