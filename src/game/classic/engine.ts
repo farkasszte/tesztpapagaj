@@ -141,13 +141,31 @@ export class ClassicEngine {
     this.changed();
   }
 
-  /** A telefon a belépés után jelöli ki magát távirányítónak (vagy vissza). */
+  /**
+   * Távirányító kijelölése a **tanár gépén** (nem a telefonon): egyszerre egy
+   * eszköz lehet távirányító, tehát a tanár döntése mindig felülírja az előzőt.
+   * A telefon magától nem tud távirányítóvá válni — így egy diák sem tudja
+   * kiszorítani a tanárt.
+   */
   setRemote(playerId: string, remote: boolean): void {
     const player = this.player(playerId);
-    if (!player || player.remote === (remote ? true : undefined)) return;
-    if (remote) player.remote = true;
-    else delete player.remote;
+    if (!player) return;
+    if (remote) {
+      for (const other of this.session.players) {
+        if (other.id !== playerId && other.remote) delete other.remote;
+      }
+      if (player.remote) return;
+      player.remote = true;
+    } else {
+      if (!player.remote) return;
+      delete player.remote;
+    }
     this.changed();
+  }
+
+  /** Ki a távirányító most (a tanár gépén ezt jelzi a névsor). */
+  remotePlayer(): ClassicPlayer | undefined {
+    return this.session.players.find((player) => player.remote);
   }
 
   setConnected(playerId: string, connected: boolean): void {

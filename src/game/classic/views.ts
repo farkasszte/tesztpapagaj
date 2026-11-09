@@ -68,7 +68,7 @@ export type ClassicView = {
   report: ClassicReport | null;
   /** A kör eredménye a felfedés után: az első öt pontszerző, pont szerint.
    *  Csak a tanár nézetében van, és csak ha a beállítás kéri. */
-  roundTop: { id: string; nickname: string; points: number; avatar?: string }[] | null;
+  roundTop: { nickname: string; points: number; avatar?: string }[] | null;
   /** Only in a student's view. */
   me?: {
     id: string;
@@ -172,7 +172,6 @@ export function buildClassicView(
       .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
       .slice(0, 5)
       .map((player) => ({
-        id: player.id,
         nickname: player.nickname,
         points: player.points,
         ...(player.avatar ? { avatar: player.avatar } : {}),

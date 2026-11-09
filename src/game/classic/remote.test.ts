@@ -57,6 +57,21 @@ describe('távirányító', () => {
     expect(started.ok).toBe(false)
   })
 
+  test('egyszerre egy távirányító van: a tanár új döntése az előzőt visszateszi', () => {
+    const { engine, ids } = setup(['Anna', 'Tanár telefon', 'Tartalék telefon'])
+    const [, teacher, spare] = ids
+    engine.setRemote(teacher, true)
+    expect(engine.remotePlayer()?.id).toBe(teacher)
+
+    engine.setRemote(spare, true)
+    expect(engine.remotePlayer()?.id).toBe(spare)
+    // Az előző telefon újra játékos: nem marad két távirányító.
+    expect(engine.player(teacher)?.remote).toBeUndefined()
+
+    engine.setRemote(spare, false)
+    expect(engine.remotePlayer()).toBeUndefined()
+  })
+
   test('a távirányító visszavonható: újra játékos lesz', () => {
     const { engine, ids } = setup(['Anna', 'Tanár'])
     const [, teacher] = ids

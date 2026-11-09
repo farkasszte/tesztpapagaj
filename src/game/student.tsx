@@ -171,6 +171,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             | { kind: 'seat'; playerId: string; secret: string; nickname: string }
             | { kind: 'refused'; message: string }
             | { kind: 'note'; message: string }
+            | { kind: 'remote-mode'; on: boolean }
             | { kind: 'view'; view: ClassicView | View | PerilView | ReviewView }
           if (message?.kind === 'seat') {
             const next: Seat = {
@@ -189,6 +190,11 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
             // Kitették vagy lezárult a szoba: nincs értelme újrapróbálkozni.
             setStatus('denied')
             connection.current?.leave()
+            return
+          }
+          if (message?.kind === 'remote-mode') {
+            // A tanár jelölte ki ezt az eszközt távirányítónak (vagy vette vissza).
+            setRemote(message.on)
             return
           }
           if (message?.kind === 'note') {
@@ -321,12 +327,6 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   }
 
   const reply = (payload: unknown) => connection.current?.sendReply(payload)
-
-  /** A tanár telefonja távirányító lesz: a tanár gépe ettől nem vár rá. */
-  const openRemote = () => {
-    reply({ kind: 'remote' })
-    setRemote(true)
-  }
 
   /** Új figura: a mag a telefonon marad, a tanár gépe azonnal megkapja. */
   const rollAvatar = () => {
@@ -469,7 +469,6 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
           nickname={nickname}
           avatar={avatar}
           onRollAvatar={rollAvatar}
-          onOpenRemote={splitRoom ? undefined : openRemote}
           problem={problem}
           reviewCount={review?.cards.length ?? 0}
           onOpenReview={review ? () => setOpenDeck(review) : undefined}

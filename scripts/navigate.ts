@@ -9,7 +9,9 @@ import type { Page } from '@playwright/test'
  * `net::ERR_ABORTED`-ot ad — ez nem hiba, csak meg kell ismételni.
  */
 export async function go(page: Page, url: string): Promise<void> {
-  const transient = /ERR_ABORTED|NS_BINDING_ABORTED|interrupted by another navigation/i
+  // A lassú fejlesztői szerver (2 magos gép, 58 mérés egymás után) néha
+  // túllépi a navigáció időkeretét: ez is átmeneti, nem hiba.
+  const transient = /ERR_ABORTED|NS_BINDING_ABORTED|interrupted by another navigation|timeout/i
 
   for (let attempt = 0; attempt < 6; attempt += 1) {
     try {

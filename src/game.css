@@ -2887,28 +2887,22 @@ select.gq-input-small { text-align: center; }
   font-variant-numeric: tabular-nums;
 }
 
-/* Távirányító: a tanár telefonja játékosként lép be, aztán ezt nyomja meg.
-   A diák-nézet papírja világos, tehát a gombok is papírszínűek — sötét betűvel. */
-.gq-stu-remote {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* A névsorban ez a jelölés teszi a telefont távirányítóvá. */
+.gq-roster-remote {
+  width: 26px;
   height: 26px;
-  padding: 0 9px;
   border-radius: 999px;
-  border: 1px solid var(--paper-outline, #e0d3c2);
+  border: 1px solid rgb(245 236 220 / 0.28);
   background: transparent;
-  color: #4e3b2f;
-  font-family: var(--game-text);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: rgb(245 236 220 / 0.75);
+  font-size: 13px;
+  line-height: 1;
 }
 
-.gq-stu-remote:hover {
-  border-color: var(--paper-accent, #9f5037);
-  color: var(--paper-accent, #9f5037);
+.gq-roster-remote[data-on='true'] {
+  border-color: #9a6e0d;
+  background: rgb(154 110 13 / 0.35);
+  color: #f7e6c4;
 }
 
 .gq-remote {

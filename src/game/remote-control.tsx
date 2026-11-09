@@ -4,13 +4,15 @@ import type { ClassicView } from './classic/views'
 /**
  * Távirányító a tanár telefonján.
  *
- * A telefon **játékosként** lép be (kód + becenév), aztán egy gombbal magát
- * távirányítónak jelöli: a tanár gépe ettől fogva nem vár rá válaszra, nem
- * teszi a táblára és nem ad neki pontot — a kattintásai viszont pontosan azt
- * teszik, mintha a laptopon nyomta volna meg a gombot.
+ * A telefon **játékosként** lép be (kód + becenév), és a **tanár jelöli ki**
+ * a saját gépén, a névsorban: egyszerre egy eszköz lehet távirányító. A telefon
+ * magától nem tud távirányítóvá válni — így egy diák sem tudja kiszorítani a
+ * tanárt, és nem kell külön kód, QR vagy kulcs.
  *
- * Nincs külön kód, QR vagy kulcs: a tanár a saját telefonját jelöli ki, és
- * bármikor visszavonhatja (a `close` gombbal újra játékos nézetet kap).
+ * Kijelölés után a tanár gépe nem vár rá válaszra, nem teszi a táblára és nem
+ * ad neki pontot; a gombjai viszont pontosan azt teszik, mintha a laptopon
+ * nyomták volna meg őket. A telefon a „Vissza a játékhoz" gombbal kérheti,
+ * hogy tegyék vissza játékosnak.
  */
 
 export type RemoteCommand = 'pause' | 'resume' | 'reveal' | 'next' | 'finish'
@@ -76,16 +78,5 @@ export function RemoteControl({
         {t('game.remote.close')}
       </button>
     </div>
-  )
-}
-
-/** A fejlécben ülő apró gomb: ezzel lesz a telefonból távirányító. */
-export function RemoteButton({ onOpen }: { onOpen: () => void }) {
-  const t = useT()
-  return (
-    <button type="button" className="gq-stu-remote" onClick={onOpen} title={t('game.remote.open')}>
-      <span aria-hidden="true">⏯</span>
-      <span className="gq-stu-remote-text">{t('game.remote.open')}</span>
-    </button>
   )
 }

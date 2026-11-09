@@ -10,7 +10,14 @@ import { useT } from '../i18n/index'
  * játék más. A kódot és a linket is kiírja, hogy a QR mellett kézzel is
  * beírható legyen, ha a kamera nem működik.
  */
-export type LobbyPlayer = { id: string; nickname: string; connected: boolean; teamName?: string }
+export type LobbyPlayer = {
+  id: string
+  nickname: string
+  connected: boolean
+  teamName?: string
+  /** Ez az eszköz a tanár távirányítója (a tanár jelölte ki). */
+  remote?: boolean
+}
 
 export function GameLobby({
   code,
@@ -21,6 +28,7 @@ export function GameLobby({
   onStart,
   onExit,
   onKick,
+  onRemote,
   onEditBoard,
   split,
 }: {
@@ -33,6 +41,8 @@ export function GameLobby({
   onExit: () => void
   /** A tanár eltávolíthat valakit a szobából. */
   onKick?: (playerId: string) => void
+  /** A tanár telefonja távirányító lesz (vagy vissza): a tanár dönt, nem a telefon. */
+  onRemote?: (playerId: string) => void
   /** Vissza a tábla beosztásához (a szoba közben nyitva marad). */
   onEditBoard?: () => void
   /** Differenciált szoba: a diák a belépésnél oldalt választ (tp#45). */
@@ -107,6 +117,22 @@ export function GameLobby({
               <li key={player.id} className={player.connected ? undefined : 'gq-roster-gone'}>
                 <span className="gq-roster-name">{player.nickname}</span>
                 {player.teamName ? <span className="gq-roster-team">{player.teamName}</span> : null}
+                {onRemote ? (
+                  <button
+                    type="button"
+                    className="gq-roster-remote"
+                    data-on={player.remote ? 'true' : undefined}
+                    aria-pressed={player.remote ? true : false}
+                    aria-label={
+                      player.remote
+                        ? t('game.remote.unmark', { name: player.nickname })
+                        : t('game.remote.mark', { name: player.nickname })
+                    }
+                    onClick={() => onRemote(player.id)}
+                  >
+                    ⏯
+                  </button>
+                ) : null}
                 {onKick ? (
                   <button
                     type="button"

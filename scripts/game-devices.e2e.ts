@@ -500,7 +500,7 @@ test('veszély eszközös mód: csapatok beállítása, diák csapatválasztása
   await expect(lobby.locator('.gq-roster-team')).toContainText('Tigrisek')
 })
 
-test('a tanár telefonja játékosként lép be, és távirányító lesz', async ({ page }) => {
+test('a tanár a saját gépén teszi távirányítóvá a telefonját', async ({ page }) => {
   await seedBank(page, 'Remote bank', [
     THREE('r1', 'Which gas do plants take in?'),
     THREE('r2', 'And which do they give off?'),
@@ -514,8 +514,6 @@ test('a tanár telefonja játékosként lép be, és távirányító lesz', asyn
 
   await go(page, '/jatek')
   await page.getByRole('checkbox', { name: 'Students on their own devices' }).check()
-  // A kör eredménye a táblát is kihozza — ott van a kirúgás gombja is.
-  await page.getByRole('checkbox', { name: 'Show the results after each question' }).check()
   await page.getByRole('button', { name: 'Start', exact: true }).click()
 
   const lobby = page.locator('.gq-lobby')
@@ -529,15 +527,15 @@ test('a tanár telefonja játékosként lép be, és távirányító lesz', asyn
   await phone.getByRole('button', { name: 'Join the game' }).click()
   await expect(phone.getByText('You are in.')).toBeVisible()
 
-  // …aztán magát távirányítónak jelöli: a telefon nem játszik többé.
-  await phone.getByRole('button', { name: 'Remote' }).click()
+  // A telefon magától **nem** tud távirányítóvá válni: nincs rá gombja.
+  await expect(phone.getByRole('button', { name: 'Remote' })).toHaveCount(0)
+
+  // A tanár jelöli ki, a saját névsorában: egyszerre egy eszköz lehet az.
+  await lobby.getByRole('button', { name: 'Make Tanár telefon the remote control' }).click()
   await expect(phone.locator('.gq-remote')).toBeVisible()
   await expect(phone.getByRole('button', { name: 'Pause' })).toBeVisible()
 
-  // A távirányító nem kerül a táblára: a lobbi szerint senki sem lépett be.
-  await expect(lobby.getByText('Waiting for the first student.')).toBeVisible()
-
-  // Egy igazi diák viszont kell a játékhoz — saját környezetben.
+  // A távirányító játékos-kapcsolat, de a létszámban nem játékos.
   const studentContext = await page.context().browser()!.newContext()
   await wire(studentContext)
   await studentContext.addInitScript(() => {
@@ -549,13 +547,23 @@ test('a tanár telefonja játékosként lép be, és távirányító lesz', asyn
   await student.getByPlaceholder('For example: Panni').fill('Panni')
   await student.getByRole('button', { name: 'Join the game' }).click()
   await expect(student.getByText('You are in.')).toBeVisible()
-  await expect(lobby.getByText('1 joined')).toBeVisible()
 
+  // Ha a diák megpróbálná magát távirányítónak jelölni, nem tudja: a tanár
+  // gombja egyszerre csak egy eszközt jelöl, és a diák telefonján nincs ilyen.
+  await expect(student.getByRole('button', { name: 'Remote' })).toHaveCount(0)
+  await lobby.getByRole('button', { name: 'Make Panni the remote control' }).click()
+  // A tanár döntése felülírja az előzőt: a telefon visszakapja a játékot.
+  await expect(phone.locator('.gq-remote')).toHaveCount(0)
+  await expect(student.locator('.gq-remote')).toBeVisible()
+  // …majd visszaadja a tanár telefonjának.
+  await lobby.getByRole('button', { name: 'Make Tanár telefon the remote control' }).click()
+  await expect(phone.locator('.gq-remote')).toBeVisible()
+  await expect(student.locator('.gq-remote')).toHaveCount(0)
+
+  await expect(lobby.getByText('2 joined')).toBeVisible()
   await lobby.getByRole('button', { name: 'Start the game' }).click()
   const stage = page.getByRole('dialog', { name: 'Quiz game' })
   await expect(stage.getByText('Which gas do plants take in?')).toBeVisible()
-
-  // A telefonon a távirányító állapota: hányadik kérdés, hányan válaszoltak.
   await expect(phone.locator('.gq-remote-status')).toContainText('Question 1 of 2')
 
   if (process.env.PROBE_SHOT) await phone.screenshot({ path: 'remote.png' })
@@ -567,22 +575,12 @@ test('a tanár telefonja játékosként lép be, és távirányító lesz', asyn
   await phone.getByRole('button', { name: 'Resume' }).click()
   await expect(stage.getByRole('button', { name: 'Pause' })).toBeVisible()
 
-  // A távirányító nem válaszol, tehát Panni válasza lezárja a kört.
+  // A távirányító nem válaszol, tehát a diák válasza lezárja a kört.
   await student.locator('.gq-stu-choice').nth(1).click()
   await expect(stage.getByText('1/1 answered')).toBeVisible({ timeout: 10_000 })
 
   // Következő kérdés a telefonról.
   await phone.getByRole('button', { name: 'Next question' }).click()
   await expect(stage.getByText('And which do they give off?')).toBeVisible()
-  await student.locator('.gq-stu-choice').nth(1).click()
-  await expect(stage.getByText('1/1 answered')).toBeVisible({ timeout: 10_000 })
-
-  // A kör eredménye külön lépés: a táblán van a kirúgás gombja is.
-  await stage.getByRole('button', { name: 'Show the round results' }).click()
-  await expect(stage.locator('.gq-board')).toBeVisible()
-
-  // Kirúgás a tábláról (illetlen név vagy elakadt kapcsolat): a diák értesül.
-  await stage.getByRole('button', { name: 'Remove Panni' }).click()
-  await expect(student.getByText('The teacher removed you from this game.')).toBeVisible()
   await studentContext.close()
 })

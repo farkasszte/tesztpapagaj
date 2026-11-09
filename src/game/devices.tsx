@@ -200,11 +200,13 @@ export function ClassicDevices({
             return
           }
           if (message?.kind === 'remote') {
-            // A tanár telefonja játékosként lépett be, és most magát jelöli
-            // távirányítónak: nem kerül a táblára, nem kap pontot.
+            // A telefon **nem** tudja magát távirányítóvá tenni: csak azt kérheti,
+            // hogy tegyék vissza játékosnak. A kijelölés a tanár gépén történik.
             const playerId = seats.current.get(from)
-            if (!playerId) return
-            engine.setRemote(playerId, !message.off)
+            if (!playerId || !message.off) return
+            if (engine.player(playerId)?.remote !== true) return
+            engine.setRemote(playerId, false)
+            live.send({ kind: 'remote-mode', on: false }, from)
             bump()
             broadcastSoon()
             return
@@ -266,16 +268,6 @@ export function ClassicDevices({
     return createPortal(
       <Stage
         title={title}
-        onKick={(playerId) => {
-          if (!engine.kick(playerId).ok) return
-          const entry = [...seats.current].find(([, id]) => id === playerId)
-          if (entry) {
-            connection.current?.send({ kind: 'refused', message: t('game.student.kicked') }, entry[0])
-            seats.current.delete(entry[0])
-          }
-          bump()
-          broadcast()
-        }}
         questions={questions}
         words={words}
         settings={settings}
@@ -305,13 +297,28 @@ export function ClassicDevices({
       problem={problem}
       // A távirányító játékos-kapcsolat, de nem játékos: sem a létszámban,
       // sem a névsorban nem szerepel.
-      players={engine.session.players
-        .filter((player) => !player.remote)
-        .map((player) => ({
-          id: player.id,
-          nickname: player.nickname,
-          connected: player.connected,
-        }))}
+      players={engine.session.players.map((player) => ({
+        id: player.id,
+        nickname: player.nickname,
+        connected: player.connected,
+        ...(player.remote ? { remote: true } : {}),
+      }))}
+      onRemote={(playerId) => {
+        // Egyszerre egy távirányító: a tanár döntése az előzőt visszateszi.
+        const previous = engine.remotePlayer()
+        const next = previous?.id === playerId ? null : playerId
+        if (previous) {
+          const seat = [...seats.current].find(([, id]) => id === previous.id)
+          if (seat) connection.current?.send({ kind: 'remote-mode', on: false }, seat[0])
+        }
+        engine.setRemote(playerId, next !== null)
+        if (next) {
+          const seat = [...seats.current].find(([, id]) => id === next)
+          if (seat) connection.current?.send({ kind: 'remote-mode', on: true }, seat[0])
+        }
+        bump()
+        broadcastSoon()
+      }}
       onKick={(playerId) => {
         if (!engine.kick(playerId).ok) return
         const entry = [...seats.current].find(([, id]) => id === playerId)
