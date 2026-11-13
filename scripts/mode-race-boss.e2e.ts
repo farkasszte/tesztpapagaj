@@ -45,7 +45,7 @@ async function seedBank(page: Page) {
   await go(page, '/about')
   await page.evaluate(async (questions) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+      /* @vite-ignore */ ('/src/bank/question-bank-workspaces.ts' as string)
     )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()
@@ -55,9 +55,12 @@ async function seedBank(page: Page) {
 }
 
 /** A tanár szobát nyit, a diák bejön, és elindul a játék. */
-async function joinRoom(page: Page, mode: RegExp) {
+async function joinRoom(page: Page, mode: RegExp, options?: { roundResults?: boolean }) {
   await go(page, '/jatek')
   await page.getByRole('button', { name: mode }).click()
+  if (options?.roundResults) {
+    await page.getByRole('checkbox', { name: 'Show the results after each question' }).check()
+  }
   await page.getByRole('button', { name: 'Start', exact: true }).click()
   const lobby = page.locator('.gq-lobby')
   await expect(lobby).toBeVisible()
@@ -164,5 +167,34 @@ test('a Szörnytámadásban a helyes válasz sebzi a szörnyet, a rossz a pajzso
   await stage.getByRole('button', { name: 'Finish' }).click()
   // Két kérdés: a szörny talpon maradt, de a pajzs is kitartott.
   await expect(stage.getByText('The monster is still standing')).toBeVisible()
+  await student.close()
+})
+
+
+test('a Szörnytámadásban is bekapcsolható a körönkénti eredménytábla', async ({ page }) => {
+  await seedBank(page)
+  await connectRelay(page.context())
+  const student = await joinRoom(page, /^Boss battle/, { roundResults: true })
+
+  const stage = page.getByRole('dialog', { name: 'Boss battle' })
+  await expect(stage).toBeVisible()
+
+  // Első kérdés megválaszolása → megjelenik a „Kör eredménye” gomb.
+  const choices = student.locator('.gq-stu-choice')
+  await choices.filter({ hasText: 'Carbon dioxide' }).click()
+  await expect(stage.getByRole('button', { name: 'Show the round results' })).toBeVisible()
+  await stage.getByRole('button', { name: 'Show the round results' }).click()
+  await expect(stage.locator('.gq-board')).toBeVisible()
+  await expect(stage.locator('.gq-board-list')).toContainText('Panni')
+
+  // Továbblépés a második kérdésre.
+  await stage.getByRole('button', { name: 'Next question' }).click()
+  await expect(choices.filter({ hasText: 'The Sun' })).toBeVisible()
+  await choices.filter({ hasText: 'The Sun' }).click()
+  await stage.getByRole('button', { name: 'Show the round results' }).click()
+  await expect(stage.locator('.gq-board')).toBeVisible()
+
+  await stage.getByRole('button', { name: 'Finish' }).click()
+  await expect(stage.locator('.gq-report')).toContainText('Panni')
   await student.close()
 })

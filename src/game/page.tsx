@@ -284,11 +284,12 @@ export function GamePage({
           settings={{
             timerSeconds,
             shuffleQuestions: shuffle,
-            roundResults: false,
+            roundResults: mode === 'boss' ? roundResults : false,
             // Szavazásnál nincs pont, és a megoszlás a lényeg.
             showCounts: mode === 'vote',
             scoring: mode !== 'vote',
             bossTier: mode === 'boss' ? bossTier : undefined,
+            avatarStyle,
           }}
           onExit={exit}
           bankId={bankId}
@@ -570,33 +571,42 @@ export function GamePage({
                   disabled={needsDevices}
                   onChange={(event) => {
                     setDevices(event.target.checked)
-                    // Diák-eszköz nélkül nincs kit rangsorolni: a jelölő ne
-                    // maradjon bekapcsolva egy olyan beállításon, ami nem hat.
-                    if (!event.target.checked) setRoundResults(false)
+                    // Diák-eszköz nélkül nincs kit rangsorolni és nincs megoszlás:
+                    // a jelölők ne maradjanak bekapcsolva úgy, hogy nem hatnak.
+                    if (!event.target.checked) {
+                      setRoundResults(false)
+                      setShowCounts(false)
+                    }
                   }}
                 />
                 {t('game.devices.switch')}
               </label>
-              {/* Csak a diák-eszközös Klasszikus módban van kit rangsorolni. */}
-              {devices && mode === 'classic' ? (
+              {/* A Klasszikus módban és a Sárkányok völgyében is választható a körönkénti
+                eredménytábla; Klasszikusban automatikusan bekapcsolja a diák-eszközöket is. */}
+              {mode === 'classic' || mode === 'boss' ? (
                 <label>
                   <input
                     type="checkbox"
                     checked={roundResults}
-                    onChange={(event) => setRoundResults(event.target.checked)}
+                    onChange={(event) => {
+                      const checked = event.target.checked
+                      setRoundResults(checked)
+                      if (checked && mode === 'classic') setDevices(true)
+                    }}
                   />
                   {t('game.roundResults')}
                 </label>
               ) : null}
-              {/* A megoszlás csak ott olvasható, ahol van kitől: diák-eszközös
-                Klasszikus. A kivetítésnél senki nem válaszol, tehát minden
-                kártyán nulla állna. */}
-              {devices && mode === 'classic' ? (
+              {mode === 'classic' ? (
                 <label>
                   <input
                     type="checkbox"
                     checked={showCounts}
-                    onChange={(event) => setShowCounts(event.target.checked)}
+                    onChange={(event) => {
+                      const checked = event.target.checked
+                      setShowCounts(checked)
+                      if (checked) setDevices(true)
+                    }}
                   />
                   {t('game.showCounts')}
                 </label>

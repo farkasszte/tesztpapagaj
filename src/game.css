@@ -2212,13 +2212,74 @@ select.gq-input-small { text-align: center; }
 .gq-boss[data-tier='legendary'][data-enraged='yes'] .gq-boss-avatar-frame {
   filter: drop-shadow(0 0 14px rgb(201 42 42 / 0.8)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.6));
 }
-.gq-boss-shield { display: flex; align-items: center; gap: 6px; }
-.gq-boss-pip {
-  width: 14px; height: 16px; border-radius: 3px 3px 6px 6px;
-  border: 1px solid rgb(245 236 220 / 0.4);
+.gq-boss-shield {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
-.gq-boss-pip[data-on='yes'] { background: #2f5c8c; border-color: #6f9cc4; }
-.gq-boss-bites { margin-inline-start: 8px; font-size: 13px; color: rgb(245 236 220 / 0.72); }
+.gq-boss-shield-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: rgb(245 236 220 / 0.86);
+}
+.gq-boss-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gq-boss-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 34px;
+  transition: transform 240ms ease, filter 240ms ease, opacity 240ms ease;
+}
+.gq-boss-shield-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.gq-boss-shield-body {
+  fill: rgb(245 236 220 / 0.08);
+  stroke: rgb(245 236 220 / 0.34);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.gq-boss-pip[data-on='yes'] {
+  filter: drop-shadow(0 0 8px rgb(43 92 150 / 0.7)) drop-shadow(0 2px 4px rgb(0 0 0 / 0.45));
+}
+.gq-boss-pip[data-on='yes'] .gq-boss-shield-body {
+  fill: var(--azure);
+  stroke: var(--or);
+  stroke-width: 1.9;
+}
+.gq-boss-shield-crest {
+  fill: none;
+  stroke: rgb(255 247 232 / 0.72);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gq-boss-pip[data-on='no'] {
+  opacity: 0.55;
+  transform: scale(0.92);
+}
+.gq-boss-shield-crack {
+  fill: none;
+  stroke: var(--gules);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gq-boss-bites {
+  margin-inline-start: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(245 236 220 / 0.78);
+}
 
 .gq-dragon-svg {
   width: 100%;
@@ -2930,6 +2991,11 @@ select.gq-input-small { text-align: center; }
   font-variant-numeric: tabular-nums;
 }
 
+.gq-remote-guard-bar {
+  display: grid;
+  gap: 8px;
+}
+
 .gq-remote-hint {
   margin: 0;
   font-family: var(--game-text);
@@ -2938,47 +3004,103 @@ select.gq-input-small { text-align: center; }
   color: #6e5b4d;
 }
 
+.gq-remote-lock {
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--paper-outline, #e0d3c2);
+  background: #fffdf9;
+  color: #332a24;
+  font-family: var(--game-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gq-remote-lock[data-locked='yes'] {
+  border-color: var(--or-card);
+  background: var(--or-card);
+  color: #fff;
+}
+
 .gq-remote-actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
+/* A távirányító gombjai a válaszlehetőségek heraldikus színeit követik (--or-card,
+   --azure, --plum, --gules), hogy a telefonon gyorsan megkülönböztethetők legyenek. */
 .gq-remote-action {
   min-height: 62px;
   border-radius: 14px;
-  border: 1px solid var(--paper-outline, #e0d3c2);
+  border: 1.5px solid rgb(255 250 243 / 0.68);
   background: #fffdf9;
-  color: #241c17;
+  color: #fff;
   font-family: var(--game-display);
   font-size: 17px;
+  font-weight: 600;
   letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgb(36 28 23 / 0.14);
+  transition: transform 90ms ease, box-shadow 120ms ease, opacity 120ms ease, filter 120ms ease;
+}
+
+.gq-remote-action:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .gq-remote-action:disabled {
-  opacity: 0.4;
+  opacity: 0.36;
+  filter: grayscale(0.25);
+  box-shadow: none;
+}
+
+.gq-remote-action[data-tone='pause'] {
+  background: var(--or-card);
 }
 
 .gq-remote-action[data-tone='go'] {
-  border-color: #3f6b46;
   background: #3f6b46;
-  color: #fffaf3;
+}
+
+.gq-remote-action[data-tone='reveal'] {
+  background: var(--azure);
+}
+
+.gq-remote-action[data-tone='next'] {
+  background: var(--plum);
 }
 
 .gq-remote-action[data-tone='end'] {
-  border-color: var(--paper-danger-line, #eec8be);
-  color: var(--paper-danger, #a3321f);
+  background: var(--gules);
+}
+
+.gq-remote-action[data-tone='end'][data-armed='yes'] {
+  outline: 3px solid var(--gules);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(196 64 47 / 0.25);
 }
 
 .gq-remote-close {
   margin-top: 2px;
   background: none;
-  border: 0;
-  padding: 10px 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
   color: #6e5b4d;
   font-family: var(--game-text);
   font-size: 13px;
   text-decoration: underline;
+}
+
+.gq-remote-close[data-armed='yes'] {
+  border-color: var(--gules);
+  color: var(--gules);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gq-remote-close:disabled {
+  opacity: 0.4;
 }
 
 .gq-board-kick {

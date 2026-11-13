@@ -34,7 +34,7 @@ async function seedBank(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
   await page.evaluate(async (questions) => {
     const { createQuestionBankWorkspaceService } = (await import(
-      /* @vite-ignore */ '/src/bank/question-bank-workspaces.ts'
+      /* @vite-ignore */ ('/src/bank/question-bank-workspaces.ts' as string)
     )) as typeof import('../src/bank/question-bank-workspaces')
     const banks = createQuestionBankWorkspaceService()
     const bank = await banks.create()

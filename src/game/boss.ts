@@ -111,10 +111,21 @@ export function bossAfter(
   }
 }
 
-/** A napló állása a munkamenetből. */
+/** Hány lezárt kör (kérdés) értékelhető már a munkamenet aktuális fázisában. */
+function completedQuestionCount(session: ClassicSession): number {
+  const total = session.questions.length
+  if (session.phase === 'LOBBY') return 0
+  // Nyitott kérdésnél még futnak be a válaszok: a kiértékelés csak a felfedéskor történik.
+  if (session.phase === 'QUESTION') return Math.max(0, Math.min(session.index, total))
+  if (session.phase === 'REVEAL') return Math.max(0, Math.min(session.index + 1, total))
+  return total
+}
+
+/** A napló állása a munkamenetből (csak a lezárt körök alapján). */
 export function bossOf(session: ClassicSession, kindOrTier?: BossKind): BossState {
   const tier = normalizeTier(kindOrTier ?? session.settings.bossTier)
-  const answers = session.questions.map((question, index) => {
+  const completed = completedQuestionCount(session)
+  const answers = session.questions.slice(0, completed).map((question, index) => {
     const list = session.answers[index] ?? []
     let right = 0
     let wrong = 0
@@ -133,8 +144,9 @@ export function bossNameKey(tierOrKind: BossKind): `game.boss.name.${BossTier}` 
   return `game.boss.name.${tier}`
 }
 
-/** Az utolsó kérdés kimenetele a színpad jelzéséhez. */
+/** Az utolsó lezárt kérdés kimenetele a színpad jelzéséhez. */
 export function lastBite(session: ClassicSession): 'hit' | 'bite' | null {
+  if (session.phase === 'LOBBY' || session.phase === 'QUESTION') return null
   const question = session.questions[session.index]
   if (!question) return null
   const list: ClassicAnswer[] = session.answers[session.index] ?? []

@@ -43,14 +43,20 @@ function seatKey(code: RoomCode): string {
   return `testparrot.game-seat.${code}`
 }
 
-/** A diák figurájának magja: a telefonon marad, a tanár csak a magot kapja meg. */
+/** A diák figurájának magja: a telefonon marad (szobára és következő játékokra is), a tanár csak a magot kapja meg. */
+const LAST_AVATAR_KEY = 'testparrot.game-avatar.last'
+
 function avatarKey(code: RoomCode): string {
   return `testparrot.game-avatar.${code}`
 }
 
 function readAvatarSeed(code: RoomCode): string | null {
   try {
-    return localStorage.getItem(avatarKey(code))
+    if (code) {
+      const byRoom = localStorage.getItem(avatarKey(code))
+      if (byRoom) return byRoom
+    }
+    return localStorage.getItem(LAST_AVATAR_KEY)
   } catch {
     return null
   }
@@ -58,7 +64,8 @@ function readAvatarSeed(code: RoomCode): string | null {
 
 function writeAvatarSeed(code: RoomCode, seed: string): void {
   try {
-    localStorage.setItem(avatarKey(code), seed)
+    localStorage.setItem(LAST_AVATAR_KEY, seed)
+    if (code) localStorage.setItem(avatarKey(code), seed)
   } catch {
     // Magánböngészés: a figura akkor is megy, csak újratöltésnél új lesz.
   }
@@ -92,8 +99,12 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
   /** A figura magja: ha a diák nem kért másikat, véletlen. A várakozás alatt
    *  a kockával bármikor másikat kap. */
   const [avatar, setAvatar] = useState(() => {
-    const stored = readAvatarSeed(cleanRoomCode(initialCode))
-    return stored ?? randomAvatarSeed()
+    const clean = cleanRoomCode(initialCode)
+    const stored = readAvatarSeed(clean)
+    if (stored) return stored
+    const fresh = randomAvatarSeed()
+    writeAvatarSeed(clean, fresh)
+    return fresh
   })
   /** Differenciált szoba: a link `oldal=1`-et hoz, a diák itt választ oldalt. */
   const [splitRoom] = useState(
@@ -130,6 +141,7 @@ export function GameStudent({ initialCode = '' }: { initialCode?: string }) {
       setProblem(t('game.student.badCode'))
       return
     }
+    writeAvatarSeed(roomCode, avatar)
     const stored = readSeat(roomCode)
     setSeat(stored)
     setStatus('connecting')

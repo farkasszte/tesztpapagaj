@@ -181,4 +181,60 @@ describe('Sárkányok völgye: kategóriák és harci logika', () => {
     )
     expect(lastBite(bite)).toBe('bite')
   })
+
+  test('nyitott kérdésnél a beküldött válaszok csak a kör végén (REVEAL) értékelődnek ki', () => {
+    const base = session(
+      [
+        [
+          { playerId: 'p1', choice: 1, ms: 100 },
+          { playerId: 'p2', choice: 0, ms: 100 },
+          { playerId: 'p3', choice: 0, ms: 100 },
+        ],
+      ],
+      2,
+      'peaceful',
+    )
+    const openFirst = { ...base, phase: 'QUESTION' as const, index: 0 }
+    const duringFirst = bossOf(openFirst)
+    expect(duringFirst.hp).toBe(10)
+    expect(duringFirst.shield).toBe(30)
+    expect(duringFirst.hits).toBe(0)
+    expect(duringFirst.bites).toBe(0)
+    expect(duringFirst.outcome).toBeNull()
+    expect(lastBite(openFirst)).toBeNull()
+
+    const revealedFirst = { ...base, phase: 'REVEAL' as const, index: 0 }
+    expect(bossOf(revealedFirst).outcome).toBeNull()
+
+    const openSecond = {
+      ...base,
+      phase: 'QUESTION' as const,
+      index: 1,
+      answers: [
+        [
+          { playerId: 'p1', choice: 0, ms: 100 },
+          { playerId: 'p2', choice: 0, ms: 100 },
+        ],
+        [
+          { playerId: 'p1', choice: 1, ms: 100 },
+          { playerId: 'p2', choice: 1, ms: 100 },
+        ],
+      ],
+    }
+    const duringSecond = bossOf(openSecond)
+    // Az első kör harapása már él, de a nyitott 2. kör még nem sebzi a sárkányt és nem zárja le a harcot.
+    expect(duringSecond.bites).toBe(1)
+    expect(duringSecond.shield).toBe(20)
+    expect(duringSecond.hits).toBe(0)
+    expect(duringSecond.hp).toBe(10)
+    expect(duringSecond.outcome).toBeNull()
+    expect(lastBite(openSecond)).toBeNull()
+
+    const revealedSecond = { ...openSecond, phase: 'REVEAL' as const, index: 1 }
+    const afterSecond = bossOf(revealedSecond)
+    expect(afterSecond.hits).toBe(1)
+    expect(afterSecond.hp).toBe(0)
+    expect(afterSecond.outcome).toBe('win')
+    expect(lastBite(revealedSecond)).toBe('hit')
+  })
 })

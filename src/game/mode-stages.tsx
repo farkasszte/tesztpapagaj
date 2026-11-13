@@ -1,4 +1,4 @@
-import { useEffect, useReducer, type ReactNode } from 'react'
+import { useEffect, useReducer, useState, type ReactNode } from 'react'
 import { DocView } from '../editor/doc-view'
 import type { ClassicEngine } from './classic/engine'
 import { buildClassicView, type ClassicView } from './classic/views'
@@ -7,6 +7,7 @@ import { bossNameKey, bossOf } from './boss'
 import { raceOf, trackPositions } from './race'
 import { LETTERS, TINCTURES, useExitOnEscape, useNow, useStageFocusTrap, useStageKeys } from './parts'
 import { Letter } from './shapes'
+import { PlayerAvatar } from './avatar-view'
 import { useT } from '../i18n/index'
 import { StageTools } from './stage-tools'
 import { DragonGraphic } from './dragon-graphic'
@@ -37,12 +38,14 @@ function QuestionBoard({
   questionId,
   hint,
   remaining,
+  board,
 }: {
   view: ClassicView
   words: Map<string, PlayableWords>
   questionId: string | undefined
   hint?: string
   remaining: number
+  board: ClassicView['roundTop']
 }) {
   const t = useT()
   const question = view.question
@@ -54,7 +57,21 @@ function QuestionBoard({
       <div className="gq-mode-stem">
         {shown ? <DocView content={shown.stem} /> : <span>{question.prompt}</span>}
       </div>
-      {question.textEntry ? (
+      {board ? (
+        <section className="gq-board">
+          <p className="gq-board-kicker">{t('game.roundResults.title')}</p>
+          <ol className="gq-board-list">
+            {board.map((player, index) => (
+              <li key={player.nickname}>
+                <span className="gq-board-rank">{index + 1}</span>
+                <PlayerAvatar seed={player.avatar ?? player.nickname} size={30} />
+                <span className="gq-board-name">{player.nickname}</span>
+                <span className="gq-board-points">{player.points}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : question.textEntry ? (
         <p className="gq-written-hint">{t('game.mode.textAnswer')}</p>
       ) : shown ? (
         <div className="gq-choices" data-count={shown.choices.length}>
@@ -123,17 +140,19 @@ function ModeStage({
   hint?: string
   onExit: () => void
   board: (view: ClassicView) => ReactNode
-  outcome?: ReactNode
+  outcome?: ReactNode | ((view: ClassicView) => ReactNode)
   isResolved?: boolean
 }) {
   const t = useT()
   const trapRef = useStageFocusTrap<HTMLDivElement>()
   const [, bump] = useReducer((count: number) => count + 1, 0)
+  const [boardOf, setBoardOf] = useState<number | null>(null)
   const now = useNow()
   useExitOnEscape(onExit)
 
   const session = engine.session
   const view = buildClassicView(session, { now })
+  const roundBoard = boardOf === session.index ? view.roundTop : null
   const act = (run: () => unknown) => {
     run()
     bump()
@@ -142,6 +161,7 @@ function ModeStage({
     next: () => {
       if (view.phase === 'QUESTION') act(() => engine.lock())
       else if (view.phase === 'REVEAL') {
+        setBoardOf(null)
         if (isResolved) act(() => engine.endSession())
         else act(() => engine.next())
       }
@@ -191,7 +211,7 @@ function ModeStage({
       {board(view)}
 
       {finished ? (
-        <div className="gq-mode-outcome">{outcome}</div>
+        <div className="gq-mode-outcome">{typeof outcome === 'function' ? outcome(view) : outcome}</div>
       ) : (
         <>
           <QuestionBoard
@@ -200,16 +220,22 @@ function ModeStage({
             questionId={session.questions[session.index]?.id}
             hint={hint}
             remaining={remaining}
+            board={roundBoard}
           />
           {view.phase === 'QUESTION' ? (
             <button type="button" className="gq-go" onClick={() => act(() => engine.lock())}>
               {t('game.stage.showAnswer')}
+            </button>
+          ) : roundBoard === null && view.roundTop && view.roundTop.length > 0 ? (
+            <button type="button" className="gq-go" onClick={() => act(() => setBoardOf(session.index))}>
+              {t('game.roundResults.open')}
             </button>
           ) : (
             <button
               type="button"
               className="gq-go"
               onClick={() => {
+                setBoardOf(null)
                 if (isResolved) act(() => engine.endSession())
                 else act(() => engine.next())
               }}
@@ -395,15 +421,44 @@ export function BossStage({ title, onExit, engine, words, status, hint }: StageP
               <span className="gq-boss-fill" style={{ width: `${(state.hp / state.maxHp) * 100}%` }} />
             </div>
             <div className="gq-boss-shield" aria-label={t('game.boss.shield')}>
-              {Array.from({ length: Math.round(state.maxShield / 10) }, (_, index) => (
-                <span key={index} className="gq-boss-pip" data-on={index < state.shield / 10 ? 'yes' : 'no'} />
-              ))}
+              <span className="gq-boss-shield-label">{t('game.boss.shield')}</span>
+              <div className="gq-boss-pips">
+                {Array.from({ length: Math.round(state.maxShield / 10) }, (_, index) => {
+                  const intact = index < state.shield / 10
+                  return (
+                    <span
+                      key={index}
+                      className="gq-boss-pip"
+                      data-on={intact ? 'yes' : 'no'}
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 24 28" className="gq-boss-shield-svg">
+                        <path
+                          className="gq-boss-shield-body"
+                          d="M12 1.5L22 5.2V13.2C22 19.6 17.6 24.4 12 26.5C6.4 24.4 2 19.6 2 13.2V5.2L12 1.5Z"
+                        />
+                        {intact ? (
+                          <path
+                            className="gq-boss-shield-crest"
+                            d="M12 4.5V23.3M5.5 9.2L12 6.8L18.5 9.2"
+                          />
+                        ) : (
+                          <path
+                            className="gq-boss-shield-crack"
+                            d="M13.5 4.2L9.8 11.4L14.2 14.4L10.4 22.8"
+                          />
+                        )}
+                      </svg>
+                    </span>
+                  )
+                })}
+              </div>
               <span className="gq-boss-bites">{t('game.boss.hits', { hits: state.hits, bites: state.bites })}</span>
             </div>
           </div>
         </div>
       )}
-      outcome={
+      outcome={(view) => (
         <div className="gq-boss-outcome-wrap">
           <div className="gq-boss-outcome-avatar">
             <DragonGraphic
@@ -422,8 +477,28 @@ export function BossStage({ title, onExit, engine, words, status, hint }: StageP
             // is: ez nem döntetlen, hanem kitartás.
             <h2 className="gq-big">{t('game.boss.survived')}</h2>
           )}
+          {session.settings.roundResults && view.report && view.report.students.length > 0 ? (
+            <div className="gq-report-wrap">
+              <h3 className="gq-report-title">{t('game.devices.report')}</h3>
+              <ol className="gq-report">
+                {[...view.report.students]
+                  .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+                  .slice(0, 8)
+                  .map((student, index) => (
+                    <li key={student.nickname}>
+                      <span className="gq-report-rank">{index + 1}</span>
+                      <span className="gq-report-name">{student.nickname}</span>
+                      <span className="gq-report-right">
+                        {t('game.devices.reportRight', { right: student.correct, asked: student.answered })}
+                      </span>
+                      <span className="gq-report-points">{student.points}</span>
+                    </li>
+                  ))}
+              </ol>
+            </div>
+          ) : null}
         </div>
-      }
+      )}
     />
   )
 }
