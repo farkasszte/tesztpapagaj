@@ -3330,13 +3330,19 @@ body.margins-guides .exam-page::after {
 .bank-drop-card strong { font-size: 19px; }
 .bank-drop-card span { color: var(--paper-ink-soft); font-size: 14px; }
 .resource-picker {
+  display: flex; flex-direction: column;
   width: min(480px, calc(100vw - 32px)); max-height: min(620px, calc(100vh - 48px));
-  padding: 20px; overflow-y: auto; border-radius: 12px; background: #fffdf8;
+  padding: 20px; overflow: hidden; border-radius: 12px; background: #fffdf8;
   box-shadow: 0 18px 60px rgb(58 42 30 / 24%);
 }
-.resource-picker-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.resource-picker-header { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .resource-picker-header h2 { margin: 0; font-size: 20px; }
-.resource-picker-list { display: grid; gap: 8px; }
+/* The search box stays put and only the names scroll under it: a teacher with a
+   dozen banks should never have to scroll back up to change the query. */
+.resource-picker-search { flex: none; margin-bottom: 12px; }
+.resource-picker-search input { padding: 8px 8px 8px 27px; font-size: 14px; }
+.resource-picker-none { margin: 0; color: #6e5b4d; font-size: 14px; }
+.resource-picker-list { display: grid; gap: 8px; min-height: 0; overflow-y: auto; }
 .resource-picker-list > button {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 12px; border: 1px solid #e0d3c2; border-radius: 8px;

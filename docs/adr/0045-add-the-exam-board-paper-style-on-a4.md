@@ -23,4 +23,4 @@ Point placements are independent rules any style may take — after each answer,
 
 The page number prints at the top on a row of its own rather than on the header line, so it never stands over the first page's blanks; the row adds to the header of each test page and packing fills only what is left.
 
-**Paper size is a Paper Style rule.** The Layout Plan carried US Letter as its one page size; it now carries the size its style names, US Letter for every style but Exam Board. A4 paginates, prints and exports through the same Layout Plan, so export parity covers it as it covers Letter.
+**Paper size is a Paper Style rule.** The Layout Plan carried US Letter as its one page size; it then carried the size its style names, US Letter for every style but Exam Board. A4 paginates, prints and exports through the same Layout Plan, so export parity covers it as it covers Letter. **Superseded in part by ADR-0053:** A4 is now every style's sheet, and a recorded Letter plan keeps its own.

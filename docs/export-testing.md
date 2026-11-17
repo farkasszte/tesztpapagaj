@@ -178,10 +178,11 @@ line of its own before the header line, `para 2` then `para Name: ____ …`
 row in the PDF), and the footer reads its number when it prints there, then
 "Turn over" (`para Turn over`).
 
-Every page records its dimensions in CSS px. An A4 plan packs on 794×1123px
+Every page records its dimensions in CSS px. A plan packs on A4, 794×1123px (ADR-0053),
 and says `paper: 'a4'`, so each adapter cuts the sheet to A4 exactly —
 595.28×841.89pt in the PDF, 11906×16838 twips in DOCX (read back as
-794×1123), and `@page a4 { size: 210mm 297mm }` in print.
+794×1123), and `@page a4 { size: 210mm 297mm }` in print. A plan recorded on US
+Letter keeps that sheet and re-exports on it.
 
 Inline content uses plain text, marked spans, links, math source, stable image
 ordinals, and authored-break markers. Fingerprints are adapter diagnostics only:
@@ -214,7 +215,7 @@ The implementations are:
   plan: what prints before a number, answer and Word Bank letters and layout,
   the Work Space a style supplies and what overrides it, the question gap
   handed to `Measure`, and an Answer Key that never changes with the style;
-  and Exam Board's A4, labels, dotted ruling, Points placements (measured,
+  and Exam Board's labels, dotted ruling, Points placements (measured,
   and only on a split question's last piece), the paper's total beneath the
   title, and running furniture.
 - `src/word-bank-layout.test.ts` — where a matching set's Word Bank prints:
@@ -295,9 +296,9 @@ rendering.
 | Poppler             | `pdftotext`, `pdfinfo` | normalized PDF manifests      |
 | Playwright Chromium | —                      | Reference PDF capture         |
 
-`LANG`, `LC_ALL`, and `TZ` are pinned to `C`/`UTC`; the PDF uses US Letter — or
-A4 for an Exam Board plan — with zero outer margin because the Layout Plan
-owns the page padding. An Exam's own
+`LANG`, `LC_ALL`, and `TZ` are pinned to `C`/`UTC`; the PDF uses the plan's own
+sheet — A4 (ADR-0053) — with zero outer margin because the Layout Plan owns the
+page padding. An Exam's own
 Page Margins (ADR-0039) are part of the plan's `pageSize`, and the parity
 fingerprints compare every side.
 

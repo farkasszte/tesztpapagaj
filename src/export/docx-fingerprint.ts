@@ -433,6 +433,15 @@ function pageOf(section: Section, index: number, reader: Reader): PageFingerprin
   const header = referencedPart(section.properties, 'w:headerReference', reader)
   const footer = referencedPart(section.properties, 'w:footerReference', reader)
   const body = { name: 'section', attrs: {}, children: section.children, text: '' }
+  // Word's header and footer live in the margins, so a section states the
+  // sheet's own margins as the distances it puts them at, and widens `top` and
+  // `bottom` by the bands the plan packed inside (`sectionOf`). The sheet's
+  // margins are therefore the header and footer distances; absent, as a package
+  // written before they were set, they are the margins themselves.
+  const sheetMargin = (side: 'top' | 'bottom'): string | undefined => {
+    const distance = margin?.attrs[`w:${side === 'top' ? 'header' : 'footer'}`]
+    return distance === undefined ? margin?.attrs[`w:${side}`] : distance
+  }
   return {
     number: index + 1,
     width: px(size?.attrs['w:w']),
@@ -440,9 +449,9 @@ function pageOf(section: Section, index: number, reader: Reader): PageFingerprin
     // Exact rather than whole pixels: a margin set in twentieths of an inch
     // is a fraction of a pixel, and is compared with the plan's own.
     margins: {
-      top: exactPx(margin?.attrs['w:top']),
+      top: exactPx(sheetMargin('top')),
       right: exactPx(margin?.attrs['w:right']),
-      bottom: exactPx(margin?.attrs['w:bottom']),
+      bottom: exactPx(sheetMargin('bottom')),
       left: exactPx(margin?.attrs['w:left']),
     },
     header: header ? blockLines(header, reader) : [],

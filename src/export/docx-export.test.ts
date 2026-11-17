@@ -446,6 +446,60 @@ describe('what Word is asked to draw stays on the sheet', () => {
   })
 })
 
+describe('the spacing packing measured, in Word', () => {
+  const choice = (id: string, correct: boolean) => ({
+    type: 'multipleChoiceChoice',
+    attrs: { id, correct },
+    content: [paragraph(text(`answer ${id}`))],
+  })
+  const question = (id: string): Exam['questions'][number] => ({
+    id,
+    type: 'multiple-choice',
+    columns: 1,
+    doc: {
+      type: 'doc',
+      content: [
+        paragraph(text(`question ${id}`)),
+        { type: 'multipleChoice', content: [choice(`${id}-a`, true), choice(`${id}-b`, false)] },
+      ],
+    },
+  })
+  const twoQuestions: Exam = {
+    title: 'Two Questions',
+    questions: [question('q1'), question('q2')],
+  }
+  const ordering: Arrangement = {
+    id: 'v1',
+    letter: 'A',
+    questionOrder: ['q1', 'q2'],
+    choiceOrder: {},
+  }
+
+  async function xmlOf(): Promise<string> {
+    const zip = await packageOf(
+      await createExamDocx([planOf(twoQuestions, ordering)], async () => null),
+    )
+    return part(zip, 'word/document.xml')
+  }
+
+  // `.exam-question`'s bottom margin — 26px under Standard — is what packing
+  // counted between two questions. A Word page that leaves it out draws its
+  // content shorter than the page it was packed for, and the break falls early.
+  test('opens a question another one follows by the Paper Style’s gap', async () => {
+    expect(await xmlOf()).toContain('w:before="390"')
+  })
+
+  // Word gives a table no space of its own, so the paragraph above a choice
+  // grid carries the whole paragraph gap — print's collapsed 1em — and a cell's
+  // paragraphs sit tight, as their zero cell padding does.
+  test('puts the paragraph gap above a table, and none inside its cells', async () => {
+    const xml = await xmlOf()
+    expect(xml).toContain('w:after="225"')
+    const table = xml.slice(xml.indexOf('<w:tbl>'), xml.indexOf('</w:tbl>'))
+    expect(table).not.toMatch(/w:after="(?!0")/)
+  })
+})
+
 describe('a choice grid hangs where print draws it', () => {
   // Print sets a Multiple Choice question's answers in from its stem by
   // `CHOICE_INDENT`, and the stem starts past the number column the Paper

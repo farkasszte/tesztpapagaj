@@ -10,7 +10,7 @@ import { useWorkspaceDrag } from '../editor/use-workspace-drag'
 import { ResolveImagesDialog } from '../editor/resolve-images-dialog'
 import { storedPicture } from '../editor/resolved-pictures'
 import { pendingImagesOfQuestions, withStoredPictures, type PendingImageResolution, type StoredPicture } from '../editor/pending-images'
-import { Download, FolderOpen, Import, Pencil, PictureInPicture2, Plus, Undo2, X } from 'lucide-react'
+import { Download, FolderOpen, Import, Pencil, PictureInPicture2, Plus, Search, Undo2, X } from 'lucide-react'
 import { ContextMenu, type MenuPoint } from '../context-menu'
 import { usePopOver } from '../editor/pop-over-context'
 import { navigate } from '../use-route'
@@ -21,9 +21,14 @@ import { AppShell } from '../app-shell'
 import { type PersistentStorageStatus } from '../storage/durable-storage'
 import { QuestionBankExportDialog } from '../export/question-bank-export-dialog'
 import { countOf, t, useT } from '../i18n/index'
+import { nameMatches } from './picker-search'
 import { QUESTION_TYPE_ICONS } from '../editor/question-type-icons'
 import { QuestionDialog } from '../editor/question-editor'
 import { QuestionDeletionConfirmation } from '../confirmations'
+
+/** How many names a picker holds before it offers a search box: up to this, the
+ *  whole list is one glance. */
+const PICKER_SEARCH_MIN = 5
 
 export function ResourcePicker({
   title,
@@ -43,11 +48,24 @@ export function ResourcePicker({
   const titleId = useId()
   const dialog = useRef<HTMLElement>(null)
   const chosen = useRef(false)
+  // A teacher with a screenful of banks finds one by name, not by scrolling.
+  // The box appears once the list is longer than a glance, and stays out of the
+  // way of a picker that holds two or three.
+  const [query, setQuery] = useState('')
+  const searchable = resources.length > PICKER_SEARCH_MIN
+  const matches = useMemo(
+    () => (searchable ? resources.filter((resource) => nameMatches(resource.name, query)) : resources),
+    [resources, query, searchable],
+  )
   const onCloseRef = useRef(onClose)
   useEffect(() => { onCloseRef.current = onClose }, [onClose])
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
-    const focusable = () => Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled)') ?? [])
+    // The search box is a stop of its own, first in the dialog, so a teacher
+    // who opened the picker can type without reaching for the pointer.
+    const focusable = () => Array.from(
+      dialog.current?.querySelectorAll<HTMLElement>('input, button:not(:disabled)') ?? [],
+    )
     requestAnimationFrame(() => focusable()[0]?.focus())
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -91,9 +109,28 @@ export function ResourcePicker({
         <h2 id={titleId}>{title}</h2>
         <button type="button" className="question-bank-action" aria-label={closeLabel} onClick={onClose}><X /></button>
       </header>
+      {searchable && <div className="bank-search resource-picker-search">
+        <Search aria-hidden="true" />
+        <input
+          type="search"
+          aria-label={t('picker.search')}
+          placeholder={t('picker.searchPlaceholder')}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            // Enter opens the first name that answers the query, so a search
+            // that narrows the list to one line needs no second gesture.
+            if (event.key !== 'Enter' || matches.length === 0) return
+            event.preventDefault()
+            chosen.current = true
+            onChoose(matches[0]!.id)
+          }}
+        />
+      </div>}
       {resources.length === 0 ? <p>{emptyMessage}</p> :
+        matches.length === 0 ? <p className="resource-picker-none">{t('picker.noMatch')}</p> :
         <div className="resource-picker-list">
-          {resources.map((resource) => <button key={resource.id} type="button" onClick={() => {
+          {matches.map((resource) => <button key={resource.id} type="button" onClick={() => {
             chosen.current = true
             onChoose(resource.id)
           }}>

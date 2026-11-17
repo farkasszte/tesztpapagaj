@@ -620,13 +620,13 @@ describe('page geometry', () => {
     expect(questionIndentOf({ type: 'true-false' })).toBe(70)
   })
 
-  test('is US Letter at 96dpi with three-quarter-inch margins', () => {
-    expect([PAGE_WIDTH, PAGE_HEIGHT]).toEqual([816, 1056])
+  test('is A4 at 96dpi with three-quarter-inch margins', () => {
+    expect([PAGE_WIDTH, PAGE_HEIGHT]).toEqual([794, 1123])
     expect(PAGE_MARGIN).toBe(72)
-    expect(PAGE_CONTENT_WIDTH).toBe(672)
+    expect(PAGE_CONTENT_WIDTH).toBe(650)
     // A Multiple Choice question's answers are set in from its stem.
     expect(CHOICE_INDENT).toBe(18)
-    expect(CHOICE_AREA_WIDTH).toBe(632 - CHOICE_INDENT)
+    expect(CHOICE_AREA_WIDTH).toBe(PAGE_CONTENT_WIDTH - 40 - CHOICE_INDENT)
   })
 
   test('subtracts the header and footer from the content box', () => {
@@ -1231,10 +1231,11 @@ describe('the Layout Plan', () => {
     expect(plan.arrangement).toEqual({ id: 'v1', letter: 'C' })
   })
 
-  test('is cut to US Letter at the geometry packing used', () => {
+  test('is cut to A4 at the geometry packing used', () => {
     expect(planOf().pageSize).toEqual({
       width: PAGE_WIDTH,
       height: PAGE_HEIGHT,
+      paper: 'a4',
       margins: { top: PAGE_MARGIN, right: PAGE_MARGIN, bottom: PAGE_MARGIN, left: PAGE_MARGIN },
       contentWidth: PAGE_CONTENT_WIDTH,
     })
@@ -1259,13 +1260,14 @@ describe('the Layout Plan', () => {
     expect(narrow.pageSize).toEqual({
       width: PAGE_WIDTH,
       height: PAGE_HEIGHT,
+      paper: 'a4',
       margins: { top: 144, right: 96, bottom: 144, left: 120 },
       contentWidth: PAGE_WIDTH - 96 - 120,
     })
     expect([...widths]).toEqual([PAGE_WIDTH - 96 - 120])
-    // 1056 - 288 = 768 tall; less the first page's header and the footer
-    // leaves 648, which holds three 180px questions where today's 744 holds four.
-    expect(pageContentHeight('first', narrow.pageSize)).toBe(768 - HEADER_HEIGHT.first - FOOTER_HEIGHT)
+    // 1123 - 288 = 835 tall; less the first page's header and the footer
+    // leaves 715, which holds three 180px questions where today's 859 holds four.
+    expect(pageContentHeight('first', narrow.pageSize)).toBe(835 - HEADER_HEIGHT.first - FOOTER_HEIGHT)
     expect(narrow.pages.map((page) => page.items.filter((item) => item.kind === 'question').length))
       .toEqual([3, 2])
     const usual = planExport({
@@ -1278,9 +1280,17 @@ describe('the Layout Plan', () => {
       .toEqual([4, 1])
   })
 
-  test('a plan an Export Record kept from before margins could be set reads as the same sheet', () => {
+  test('a plan an Export Record kept from before margins could be set reads as the sheet it recorded', () => {
+    // A record made before ADR-0053 planned a US Letter sheet, and reprints on
+    // that sheet: the read adds the one margin it stated and changes nothing
+    // else about its geometry.
     const stored = { ...planOf(), pageSize: { width: 816, height: 1056, margin: 72, contentWidth: 672 } }
-    expect(readStoredLayoutPlan(stored as unknown as LayoutPlan).pageSize).toEqual(planOf().pageSize)
+    expect(readStoredLayoutPlan(stored as unknown as LayoutPlan).pageSize).toEqual({
+      width: 816,
+      height: 1056,
+      margins: { top: 72, right: 72, bottom: 72, left: 72 },
+      contentWidth: 672,
+    })
   })
 
   test('a plan recorded before the Paper Style was renamed keeps its style', () => {

@@ -35,7 +35,7 @@ import { headerLineOf, type HeaderLine } from '../export/page-header'
 import { pageContentStyle } from '../export/export-typography'
 import { pageGeometry } from '../export/page-geometry'
 import {
-  US_LETTER,
+  DEFAULT_PAGE_SIZE,
   maxWorkSpaceHeight,
   runningHeadHeight,
   numberLabelOf,
@@ -1618,7 +1618,7 @@ function clearOnBackgroundClick(selection: Selection) {
 }
 
 /** Today's sheet, for a page drawn with no plan of its own behind it. */
-export const PAGE_GEOMETRY = pageGeometry(US_LETTER)
+export const PAGE_GEOMETRY = pageGeometry(DEFAULT_PAGE_SIZE)
 
 // How long *editing* settles before the page is measured and packed again.
 // Measurement is the expensive, DOM-touching half of the render, and the exam

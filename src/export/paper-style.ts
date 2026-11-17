@@ -191,11 +191,16 @@ export const STANDARD_QUESTION_GAP = 26
  *  a third of an inch. */
 const STANDARD_WORK_SPACE_PITCH = 32
 
-/** What every style printed before the Exam Board style: US Letter, `1.`
- *  `a.` `i.` `A.`, solid rules, no Points on the test, and the page number at
- *  the foot. */
+/** What every style printed before the Exam Board style: `1.` `a.` `i.` `A.`,
+ *  solid rules, no Points on the test, and the page number at the foot.
+ *
+ *  The sheet is A4, whatever the style: a Hungarian school prints on A4, and a
+ *  US Letter sheet is four millimetres too wide and eleven too short — the page
+ *  a teacher got from Word was not the page the app drew (ADR-0053). A style
+ *  that names a size still wins, which is how a recorded Letter plan keeps
+ *  re-exporting on the sheet it was planned for. */
 const SHEET_RULES = {
-  pageSize: 'letter',
+  pageSize: 'a4',
   labels: PERIOD_LABELS,
   ruling: 'solid',
   points: {},

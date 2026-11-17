@@ -83,8 +83,10 @@ const arrangementOf = (questionOrder: string[]): Arrangement =>
   ({ id: 'v', letter: 'A', questionOrder, choiceOrder: {} })
 
 // Every block a piece prints is as tall as its kind, and each work space as
-// tall as the plan made it: what a page holds is their sum.
-const HEIGHTS: Record<string, number> = { paragraph: 60, 'image-block': 400, table: 300 }
+// tall as the plan made it: what a page holds is their sum. The numbers are
+// chosen against the real content box — a first A4 page holds 859px — so the
+// relationships each test asserts still hold on the sheet the plan packs for.
+const HEIGHTS: Record<string, number> = { paragraph: 60, 'image-block': 460, table: 300 }
 const blocks = (stem: readonly ProseMirrorJSON[]) =>
   stem.reduce((sum, block) => sum + (HEIGHTS[block.type as string] ?? 60), 0)
 const answering = (piece: Pick<PlannedSubpart, 'stem' | 'workSpace'>) =>

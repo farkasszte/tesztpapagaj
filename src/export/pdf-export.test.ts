@@ -10,7 +10,7 @@ import {
   type PdfFontLoader,
 } from './pdf-export'
 import { FIXTURES, PIXEL_PNG } from './export-fixtures'
-import { SECTION_INSTRUCTIONS, planExport, questionIndentOf, unmeasured } from './export-plan'
+import { PAGE_WIDTH, SECTION_INSTRUCTIONS, planExport, questionIndentOf, unmeasured } from './export-plan'
 import {
   DEFAULT_EXPORT_CONFIGURATION,
   EMPTY_EXPORT_HISTORY,
@@ -70,7 +70,8 @@ describe('PDF Export Adapter', () => {
     expect(document.getPageCount()).toBe(plans.reduce((sum, plan) => sum + plan.pages.length, 0))
     expect(document.getTitle()).toBe(fixture.exam.title)
     expect(document.getCreator()).toBe('Test Parrot')
-    expect(document.getPage(0).getSize()).toEqual({ width: 612, height: 792 })
+    // A4, in points: the sheet the plan packed for (ADR-0053).
+    expect(document.getPage(0).getSize()).toEqual({ width: 595.28, height: 841.89 })
     // pdf-lib writes real text operators. Whole-page rasterization would have
     // image XObjects but no text-showing operators in the content streams.
     const source = new TextDecoder('latin1').decode(bytes)
@@ -355,7 +356,7 @@ describe('PDF Export Adapter', () => {
     expect(g).toBeDefined()
     const margin = 72 * 0.75
     const body = margin + questionIndentOf({ type: 'multiple-choice' }) * 0.75
-    const lane = 816 * 0.75 - margin - body
+    const lane = PAGE_WIDTH * 0.75 - margin - body
     const panel = lane / 2
     // Side by side: g in the right Panel, level with f rather than below it.
     expect(g!.left).toBeGreaterThanOrEqual(body + panel - 0.5)
@@ -387,7 +388,7 @@ describe('PDF Export Adapter', () => {
     }
     const margin = 72 * 0.75
     const body = margin + questionIndentOf({ type: 'open' }) * 0.75
-    const lane = 816 * 0.75 - margin - body
+    const lane = PAGE_WIDTH * 0.75 - margin - body
     const middle = body + lane / 2
     // The figure, half the lane wide, and its centre the lane's.
     expect(images[0]!.width).toBeCloseTo(lane / 2, 0)
@@ -484,7 +485,10 @@ describe('PDF Export Adapter', () => {
     const changed = structuredClone(plans)
     const item = changed[0]!.pages[0]!.items.find((candidate) => candidate.kind === 'question')!
     if (item.kind !== 'question') throw new Error('fixture has no question')
-    item.stem = Array.from({ length: 24 }, (_unused, index) => ({
+    // Enough lines to run past an A4 page's foot: a line and its paragraph gap
+    // is about 33px, the page the plan filled holds 859 of them, so the last
+    // line lands in the bottom margin and is drawn there anyway.
+    item.stem = Array.from({ length: 27 }, (_unused, index) => ({
       type: 'paragraph',
       content: [{ type: 'text', text: `Line ${index + 1} was not in the measured Layout Plan.` }],
     }))
@@ -497,7 +501,7 @@ describe('PDF Export Adapter', () => {
     const drawn = (await (await document.getPage(1)).getTextContent()).items
       .map((item) => ('str' in item ? item.str : '')).join(' ')
     // Every line is drawn where the plan put it, the last ones in the margin.
-    expect(drawn).toContain('Line 24 was')
+    expect(drawn).toContain('Line 27 was')
     expect(pastMarginWarning(pagesPastMargin)).toBe(
       'Page 1 of the PDF runs past its bottom margin. Check it before printing.',
     )

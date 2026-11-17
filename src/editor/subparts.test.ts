@@ -383,8 +383,10 @@ describe('Subparts across pages', () => {
 
   test('breaks between Subparts, keeping the stem and lead-in with Subpart (i)', () => {
     // A third of a page each: the stem, lead-in and Subpart (i) fill two
-    // thirds, and the rest go on together without the lead-in again.
-    const each = Math.floor(box / 3)
+    // thirds, and the rest go on together without the lead-in again. The fourth
+    // of a page past the third keeps a third Subpart off the first page while
+    // the three still fit the taller one it goes on to.
+    const each = Math.floor(box / 3) + 4
     expect(pieces(lab(), measureOf(1, each))).toEqual([
       [['a(i)']],
       [['…(ii,iii,iv)']],

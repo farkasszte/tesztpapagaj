@@ -804,8 +804,8 @@ function furnitureOf(
 // ---------------------------------------------------------------------------
 // Page geometry
 //
-// US Letter at 96dpi: an 816×1056px sheet, by default with ¾" (72px) margins
-// on every side, leaving a 672×912px box. An Exam may set its own Page Margins
+// A4 at 96dpi: a 794×1123px sheet, by default with ¾" (72px) margins on every
+// side, leaving a 650×979px box. An Exam may set its own Page Margins
 // (ADR-0039), and its plan's `pageSize` then carries them and the box they
 // leave. The header and footer come out of that box's height, so how much
 // packing may fill depends on which header the page carries — the first page's
@@ -816,16 +816,19 @@ function furnitureOf(
 // plan's page size as CSS custom properties so the rendered page is laid out at
 // exactly the size packed against, and the print `@page` is the same sheet. A
 // mismatch here is what makes content creep onto an extra sheet on paper.
-export const PAGE_WIDTH = 816
-export const PAGE_HEIGHT = 1056
 
 /** A4 at 96dpi, 210×297mm, in the whole CSS pixels the plan packs in:
  *  793.7×1122.5px, rounded. Every adapter cuts the sheet itself to A4 exactly
  *  — 595.28×841.89pt in the PDF, 11906×16838 twips in DOCX, `A4` in print's
- *  `@page` — so the plan's half-pixel never reaches paper. The Exam Board
- *  Paper Style prints on it (ADR-0045). */
+ *  `@page` — so the plan's half-pixel never reaches paper. Today's sheet, and
+ *  the only one an Exam prints on (ADR-0053). */
 export const A4_WIDTH = 794
 export const A4_HEIGHT = 1123
+
+/** The sheet every Exam prints on. A US Letter sheet — 816×1056px — is what a
+ *  plan recorded before ADR-0053 carries, and re-exports as it was planned. */
+export const PAGE_WIDTH = A4_WIDTH
+export const PAGE_HEIGHT = A4_HEIGHT
 /** The margin of an Exam that never set its own, on every side. */
 export const PAGE_MARGIN = marginPx(DEFAULT_MARGIN)
 
@@ -833,9 +836,10 @@ export const PAGE_MARGIN = marginPx(DEFAULT_MARGIN)
  *  margins is laid out at its plan's `pageSize.contentWidth` instead. */
 export const PAGE_CONTENT_WIDTH = PAGE_WIDTH - 2 * PAGE_MARGIN
 
-/** Today's sheet: the page of every Exam that never set its margins. Declared
- *  here, ahead of what reads it, though `pageSizeOf` is with the Layout Plan. */
-export const US_LETTER: PageSize = pageSizeOf(undefined)
+/** Today's sheet: A4 with the default margins, the page of every Exam that sets
+ *  neither. Declared here, ahead of what reads it, though `pageSizeOf` is with
+ *  the Layout Plan. */
+export const DEFAULT_PAGE_SIZE: PageSize = pageSizeOf(undefined)
 
 // Exhaustive over `PageHeader` on purpose: a new variant cannot be added
 // without deciding how tall its furniture is. The answer key's header carries
@@ -889,7 +893,7 @@ export function headerHeightOf(
  *  row a page number printed at the top takes (`runningHeadHeight`). */
 export function pageContentHeight(
   header: PageHeader,
-  pageSize: PageSize = US_LETTER,
+  pageSize: PageSize = DEFAULT_PAGE_SIZE,
   titleExtra = 0,
   headExtra = 0,
 ): number {
@@ -901,7 +905,7 @@ export function pageContentHeight(
  *  an inch for the question itself, so a question and its space still fit on
  *  one sheet. Filling the rest of a page is the way to ask for more. Deeper
  *  margins leave a shorter page, and so a shorter most. */
-export function maxWorkSpaceHeight(pageSize: PageSize = US_LETTER, headExtra = 0): number {
+export function maxWorkSpaceHeight(pageSize: PageSize = DEFAULT_PAGE_SIZE, headExtra = 0): number {
   return pageContentHeight('later', pageSize, 0, headExtra) - 96
 }
 
@@ -2213,9 +2217,9 @@ export type PageSize = {
   contentWidth: number
 }
 
-/** The sheet a Paper Style names — US Letter unless it says A4 — with an
+/** The sheet a Paper Style names — A4 unless it says otherwise — with an
  *  Exam's Page Margins, in the pixels the plan packs in. */
-export function pageSizeOf(margins: PageMargins | undefined, paper: PaperSize = 'letter'): PageSize {
+export function pageSizeOf(margins: PageMargins | undefined, paper: PaperSize = 'a4'): PageSize {
   const inches = marginsOf(margins)
   const px = {
     top: marginPx(inches.top),

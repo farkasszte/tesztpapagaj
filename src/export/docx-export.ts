@@ -83,6 +83,8 @@ import {
   answerKeyPointsText,
   answerKeyTotalText,
   CHOICE_INDENT,
+  FOOTER_HEIGHT,
+  headerHeightOf,
   printedLabel,
   printedNumberOf,
   type PaperTotalItem,
@@ -100,7 +102,7 @@ import {
   type AnswerKeySectionItem,
   type ChoiceGrid,
   type IdentityField,
-  US_LETTER,
+  DEFAULT_PAGE_SIZE,
   type LayoutPlan,
   type MatchingSet,
   type PageFurniture,
@@ -113,6 +115,7 @@ import {
   rowsOfPlanned,
 } from './export-plan'
 import { DIFFICULTY_LABELS } from '../exam/exam'
+import { paperStyleRules } from './paper-style'
 import type { ProseMirrorJSON } from '../editor/question-doc'
 import { BLANK_LINE } from '../editor/blank'
 import { pictureKey, printedPictureWidth } from '../editor/picture-geometry'
@@ -309,6 +312,11 @@ type BuildContext = {
   /** The width the page's margins leave, in px, however deep a block sits:
    *  what a choice grid or a matching set is laid out across. */
   pageWidth: number
+  /** The room a question leaves below itself, in twips: the Paper Style's
+   *  `questionGap`, which packing measured between two questions and print
+   *  draws as `.exam-question`'s bottom margin. Word has no such rule, so the
+   *  gap opens above the question that follows. */
+  questionBefore?: number
 }
 
 function inlineChildren(
@@ -371,6 +379,11 @@ type BlockContext = {
   /** Extra room above the first paragraph produced, in twips: the gap a new
    *  paragraph or list opens below the block before it. Used up like `prefix`. */
   before?: number
+  /** What every paragraph this block produces leaves below itself, in twips,
+   *  where the block's own rule is not the sheet's: the paragraph gap that
+   *  opens above a table-shaped block, which print sets as the paragraph's own
+   *  bottom margin. */
+  after?: number
   /** Blocks that sit close, as a choice's or a list item's do in print: no
    *  paragraph gap opens between them. */
   tight?: boolean
@@ -425,7 +438,9 @@ function paragraphOptions(
     spacing: {
       line: BODY_SPACING.line,
       lineRule: LineRuleType.AT_LEAST,
-      after: context.list ? BODY_SPACING.listItemGap : BLOCK_AFTER,
+      after: context.list
+        ? BODY_SPACING.listItemGap
+        : context.tight ? 0 : (context.after ?? BLOCK_AFTER),
       ...(context.before ? { before: context.before } : {}),
     },
     indent: indent?.left || indent?.hanging ? indent : undefined,
@@ -497,28 +512,53 @@ const HEADINGS = [
   HeadingLevel.HEADING_6,
 ]
 
+/** The blocks that print as a Word table rather than as paragraphs, and so
+ *  leave no space below themselves: the gap above one is the paragraph
+ *  before's own, `PARAGRAPH_GAP_EM` as print's collapsed margins settle it. */
+const TABLE_BLOCKS = new Set(['table', 'blockquote', 'sideBySide'])
+
 /** Blocks in order, with the opening prefix used up by the first one that
  *  actually produces something. */
 function blocks(
   nodes: readonly ProseMirrorJSON[],
   context: BlockContext,
   build: BuildContext,
+  /** Whether a table-shaped block follows this run — a choice grid or a Word
+   *  Bank below a stem — so its last block carries the gap above it. */
+  followedByTable = false,
 ): (Paragraph | Table)[] {
   const result: (Paragraph | Table)[] = []
   let prefix = context.prefix
   let hanging = context.hanging
   let before = context.before
   let previous: string | undefined
-  for (const node of nodes) {
+  for (const [index, node] of nodes.entries()) {
     // A paragraph or list below another block opens the paragraph gap, less
-    // what that block already left below itself.
+    // what that block already left below itself. A table leaves nothing at
+    // all, so what follows one opens the whole gap.
     if (previous !== undefined && !context.tight && GAP_BLOCKS.has(node.type as string)) {
       const left = previous === 'bullet_list' || previous === 'ordered_list'
         ? BODY_SPACING.listItemGap
-        : BLOCK_AFTER
+        : TABLE_BLOCKS.has(previous) ? 0 : BLOCK_AFTER
       before = Math.max(0, BODY_SPACING.paragraphGap - left)
     }
-    const produced = blockOf(node, { ...context, prefix, hanging, before }, build)
+    // A table below a paragraph gets no space of its own, so the paragraph
+    // carries the whole gap — the same room print's collapsed margins leave.
+    const next = nodes[index + 1]
+    const nextIsTable = next !== undefined
+      ? TABLE_BLOCKS.has(next.type as string)
+      : followedByTable && index === nodes.length - 1
+    const produced = blockOf(
+      node,
+      {
+        ...context,
+        prefix,
+        hanging,
+        before,
+        ...(nextIsTable ? { after: BODY_SPACING.paragraphGap } : {}),
+      },
+      build,
+    )
     result.push(...produced)
     if (produced.length > 0) {
       prefix = undefined
@@ -1121,6 +1161,7 @@ function questionContent(
     hanging: numbered ? indent : undefined,
     prefix: numbered ? prefix : undefined,
     right: twips(build.pageWidth),
+    ...(build.questionBefore ? { before: build.questionBefore } : {}),
   }
 
   // A Multipart question with no stem opens with Part (a) on its number's
@@ -1128,7 +1169,7 @@ function questionContent(
   const opening = partsOpenNumberLine(item)
   const stem =
     item.stem.length > 0
-      ? blocks(item.stem, context, build)
+      ? blocks(item.stem, context, build, item.grid !== undefined || item.matching !== undefined)
       : numbered && !opening
         ? [new Paragraph(paragraphOptions(context, { children: prefix }))]
         : []
@@ -1252,7 +1293,12 @@ function answeringContent(
         right: twips(build.pageWidth),
       }
     : { indent, right: twips(build.pageWidth) }
-  const stem = blocks(part.stem, context, { ...build, contentWidth: build.pageWidth - indentPx })
+  const stem = blocks(
+    part.stem,
+    context,
+    { ...build, contentWidth: build.pageWidth - indentPx },
+    part.grid !== undefined,
+  )
   return [
     ...(stem.length > 0 || !prefix ? stem : [new Paragraph(paragraphOptions(context, { children: prefix }))]),
     // Set in from the Part's stem as a question's answers are from its own.
@@ -1553,30 +1599,50 @@ const A4_TWIPS = { width: 11906, height: 16838 }
 
 /** One Word section per planned page. Sections default to starting on a new
  *  page, which is what serializes the plan's pagination instead of leaving Word
- *  to discover one of its own. */
+ *  to discover one of its own.
+ *
+ *  The section's margins are not the sheet's: Word draws a header and a footer
+ *  in the margins and gives the body whatever is left between them, while the
+ *  plan packed its pages inside those two bands and print draws them there. Stated
+ *  as the sheet's own margins, every page would have the header's and the
+ *  footer's room a second time — Word's body box would be taller than the box a
+ *  page was filled in — so each section widens its margins by the bands the plan
+ *  reserved, and puts the header and the footer at the sheet's margins with
+ *  `header` and `footer`. A page then holds exactly what the plan put on it. */
 function sectionOf(
   page: PlannedPage,
   plan: LayoutPlan,
   build: BuildContext,
 ): ISectionOptions {
+  const sheet = plan.pageSize
+  const questionGap = twips(paperStyleRules(plan.paperStyle).questionGap)
   return {
     properties: {
       page: {
         // An A4 plan is cut to A4 exactly, not to the whole pixels it packed in.
-        size: plan.pageSize.paper === 'a4'
+        size: sheet.paper === 'a4'
           ? A4_TWIPS
-          : { width: twips(plan.pageSize.width), height: twips(plan.pageSize.height) },
+          : { width: twips(sheet.width), height: twips(sheet.height) },
         margin: {
-          top: twips(plan.pageSize.margins.top),
-          right: twips(plan.pageSize.margins.right),
-          bottom: twips(plan.pageSize.margins.bottom),
-          left: twips(plan.pageSize.margins.left),
+          top: twips(sheet.margins.top + headerHeightOf(page.header, page.furniture)),
+          right: twips(sheet.margins.right),
+          bottom: twips(sheet.margins.bottom + FOOTER_HEIGHT),
+          left: twips(sheet.margins.left),
+          header: twips(sheet.margins.top),
+          footer: twips(sheet.margins.bottom),
         },
       },
     },
-    headers: { default: new Header({ children: headerParagraphs(page.furniture, plan.pageSize.contentWidth) }) },
-    footers: { default: new Footer({ children: [footerParagraph(page.furniture, plan.pageSize.contentWidth)] }) },
-    children: page.items.flatMap((item) => itemContent(item, build)),
+    headers: { default: new Header({ children: headerParagraphs(page.furniture, sheet.contentWidth) }) },
+    footers: { default: new Footer({ children: [footerParagraph(page.furniture, sheet.contentWidth)] }) },
+    children: page.items.flatMap((item, index) => {
+      const followsQuestion = item.kind === 'question'
+        && page.items[index - 1]?.kind === 'question'
+      return itemContent(
+        item,
+        followsQuestion ? { ...build, questionBefore: questionGap } : build,
+      )
+    }),
   }
 }
 
@@ -1593,7 +1659,7 @@ export function createExamDocxDocument(
 ): Document {
   const numbering = new Numbering()
   const first = plans[0]
-  const contentWidth = first?.pageSize.contentWidth ?? US_LETTER.contentWidth
+  const contentWidth = first?.pageSize.contentWidth ?? DEFAULT_PAGE_SIZE.contentWidth
   const build: BuildContext = { numbering, images, contentWidth, pageWidth: contentWidth }
   // Sections first: the list configurations only exist once the content that
   // uses them has been built.

@@ -54,6 +54,7 @@ const NOT_FAST = new Set([
   'page-header.e2e.ts',
   'pasted-images.e2e.ts',
   'pending-images.e2e.ts',
+  'picker-search.e2e.ts',
   'probe-avatar.e2e.ts',
   'probe-classic.e2e.ts',
   'probe-offline.e2e.ts',

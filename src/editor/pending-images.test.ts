@@ -141,11 +141,11 @@ describe('sizing a picture from its page', () => {
   const crop = (width: number, pageShare: number) => ({ asset: asset(width), origin: { kind: 'crop', page: 1 } as const, pageShare })
 
   test('prints a picture about as wide as it was on its page', () => {
-    // A third of a Letter page, cropped at 300 DPI: wider than the lane, so
-    // its size is a share of the lane.
-    expect(estimatedSize(crop(850, 1 / 3), { where: 'Question' })).toBe(0.4)
+    // A third of an A4 page, cropped at 300 DPI: wider than the lane, so its
+    // size is a share of the lane.
+    expect(estimatedSize(crop(850, 1 / 3), { where: 'Question' })).toBe(0.41)
     // A small embedded image narrower than the lane is a share of it too.
-    expect(estimatedSize(crop(400, 0.25), { where: 'Question' })).toBe(0.3)
+    expect(estimatedSize(crop(400, 0.25), { where: 'Question' })).toBe(0.31)
   })
 
   test('leaves a picture that filled its page, an upload, and a matching set’s pictures at the size they fit', () => {
@@ -211,7 +211,7 @@ describe('sizing a picture from its page', () => {
     const first = occurrences[0]!
     const resolution = resolutionOf(new Map([[first.key, crop(850, 1 / 3)]]), occurrences)
     const plan = planImport(found, initialSelection(found), (() => { let next = 0; return () => `id-${next++}` })(), resolution)
-    expect(JSON.stringify(plan.banks[0]!.questions[0]!.doc)).toContain('"size":0.4}')
+    expect(JSON.stringify(plan.banks[0]!.questions[0]!.doc)).toContain('"size":0.41}')
   })
 
   test('the estimated size replaces the legacy ratio a 0.6.0 Pending Image was written with', async () => {
@@ -225,7 +225,7 @@ describe('sizing a picture from its page', () => {
 
     const sized = planImport(found, initialSelection(found), ids(), resolutionOf(new Map([[first.key, crop(850, 1 / 3)]]), occurrences))
     const sizedDoc = JSON.stringify(sized.banks[0]!.questions[0]!.doc)
-    expect(sizedDoc).toContain('"size":0.4}')
+    expect(sizedDoc).toContain('"size":0.41}')
     expect(sizedDoc).not.toContain('"ratio"')
 
     // Left unsized by its resolution, it keeps the size its record gave it.
@@ -291,7 +291,7 @@ describe('a Pending Image inside a Side-by-Side', () => {
     // its page.
     expect(occurrences.every((occurrence) => occurrence.inPanel)).toBe(true)
     const third = { asset: { ...pixel, width: 850 }, origin: { kind: 'crop', page: 1 } as const, pageShare: 1 / 3 }
-    expect(estimatedSize(third, { where: 'Question' })).toBe(0.4)
+    expect(estimatedSize(third, { where: 'Question' })).toBe(0.41)
     expect(estimatedSize(third, occurrences[0]!)).toBeUndefined()
 
     const resolution = new Map(occurrences.map(({ key }) => [key, { asset: pixel }]))
