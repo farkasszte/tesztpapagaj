@@ -27,8 +27,11 @@ export type Racer = {
   right: number
   /** A legutóbb mért sebesség km/h-ban, csak kijelzésre. */
   speed: number
-  /** A legjobb helyes válasz ideje ms-ban (a körideje); nincs jó válasz → null. */
-  bestMs: number | null
+  /**
+   * A legjobb helyes válasz ideje ms-ban — a legjobb **szakaszidő**: egy kérdés
+   * egy szakasz, nem a teljes futam egy köre. Nincs jó válasz → null.
+   */
+  bestSectorMs: number | null
 }
 
 /** A pálya: ennyi kérdés alatt lehet végigérni. */
@@ -59,7 +62,7 @@ export function raceOf(session: ClassicSession): Racer[] {
     let answered = 0
     let right = 0
     let speed = 0
-    let bestMs: number | null = null
+    let bestSectorMs: number | null = null
     session.questions.forEach((question, index) => {
       const answer = findAnswer(session.answers[index], player.id)
       if (!answer) return
@@ -69,7 +72,7 @@ export function raceOf(session: ClassicSession): Racer[] {
       distance += gain
       if (ok) {
         right += 1
-        bestMs = bestMs === null ? answer.ms : Math.min(bestMs, answer.ms)
+        bestSectorMs = bestSectorMs === null ? answer.ms : Math.min(bestSectorMs, answer.ms)
         const ratio = Math.max(0, Math.min(1, 1 - answer.ms / Math.max(1, limitMs)))
         speed = Math.round(90 + ratio * 130)
         if (ratio > 0.5) nitro += 1
@@ -88,7 +91,7 @@ export function raceOf(session: ClassicSession): Racer[] {
       answered,
       right,
       speed,
-      bestMs,
+      bestSectorMs,
     }
   })
 

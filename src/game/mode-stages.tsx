@@ -268,74 +268,102 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
       hint={hint}
       onExit={onExit}
       board={() => (
-        <>
-          {/* Egyetlen ovál pálya: a mezőny együtt fut, a hely összemérhető. */}
-          <div className="gq-oval" aria-hidden="true">
-            <span className="gq-oval-road" />
-            <span className="gq-oval-inner" />
-            <span className="gq-oval-start" />
-            {trackPositions(racers).map((spot) => {
-              const anchor = spot.racers[0]
-              const many = spot.racers.length > 1
-              return (
-                <span
-                  key={spot.id}
-                  className="gq-runner"
-                  data-lead={anchor?.place === 1 ? 'yes' : undefined}
-                  data-slot={spot.slot}
-                  data-count={many ? spot.racers.length : undefined}
-                  title={spot.racers.map((one) => one.nickname).join(', ')}
-                  style={{
-                    left: `${spot.x}%`,
-                    top: `${spot.y}%`,
-                    background: TINCTURES[((anchor?.place ?? 1) - 1) % TINCTURES.length],
-                    zIndex: 100 - (anchor?.place ?? 99),
-                  }}
-                >
-                  <span className="gq-runner-dot">{many ? spot.racers.length : ''}</span>
-                  {many ? null : <span className="gq-runner-name">{anchor?.nickname}</span>}
-                </span>
-              )
-            })}
+        <div className="gq-race">
+          {/* Egyetlen ovál pálya: a mezőny együtt fut, a hely összemérhető.
+              A pálya balra kerül, jobbra pedig a mezőny állása egy hasábban: így
+              ötven versenyzőnél sem csúszik a pálya alá a táblázat, hanem a
+              hasáb maga görget. */}
+          <div className="gq-race-track">
+            <div className="gq-oval" aria-hidden="true">
+              <span className="gq-oval-road" />
+              <span className="gq-oval-inner" />
+              <span className="gq-oval-start" />
+              {trackPositions(racers).map((spot) => {
+                const anchor = spot.racers[0]
+                const many = spot.racers.length > 1
+                return (
+                  <span
+                    key={spot.id}
+                    className="gq-runner"
+                    data-lead={anchor?.place === 1 ? 'yes' : undefined}
+                    data-slot={spot.slot}
+                    data-count={many ? spot.racers.length : undefined}
+                    title={spot.racers.map((one) => one.nickname).join(', ')}
+                    style={{
+                      left: `${spot.x}%`,
+                      top: `${spot.y}%`,
+                      background: TINCTURES[((anchor?.place ?? 1) - 1) % TINCTURES.length],
+                      zIndex: 100 - (anchor?.place ?? 99),
+                    }}
+                  >
+                    <span className="gq-runner-dot">{many ? spot.racers.length : ''}</span>
+                    {many ? null : <span className="gq-runner-name">{anchor?.nickname}</span>}
+                  </span>
+                )
+              })}
+            </div>
           </div>
-          <table className="gq-laptimes" aria-label={t('game.race.standings')}>
-            <thead>
-              <tr>
-                <th scope="col">{t('game.race.place')}</th>
-                <th scope="col">{t('game.race.racer')}</th>
-                <th scope="col">{t('game.race.bestLap')}</th>
-                <th scope="col">{t('game.race.nitroCount', { count: '' })}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {racers.map((racer) => (
-                <tr key={racer.id} data-lead={racer.place === 1 ? 'yes' : undefined}>
-                  <td className="gq-lap-place">{racer.place}.</td>
-                  <td className="gq-lap-name">{racer.nickname}</td>
-                  <td className="gq-lap-time">
-                    {racer.bestMs === null
-                      ? t('game.race.noLap')
-                      : t('game.race.seconds', {
-                          seconds: (racer.bestMs / 1000).toFixed(1).replace('.', ','),
-                        })}
-                  </td>
-                  <td className="gq-lap-marks">
-                    {racer.nitro > 0 ? (
-                      <span className="gq-lap-nitro" title={t('game.race.nitroCount', { count: racer.nitro })}>
-                        {racer.nitro}
-                      </span>
-                    ) : null}
-                    {racer.spunOut > 0 ? (
-                      <span className="gq-lap-spin" title={t('game.race.spinCount', { count: racer.spunOut })}>
-                        !
-                      </span>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
+          <aside className="gq-race-board">
+            <p className="gq-race-board-head">
+              <span className="gq-race-board-title">{t('game.race.standings')}</span>
+              <span className="gq-race-board-count">{t('game.race.count', { count: racers.length })}</span>
+            </p>
+            {/* A lista saját görgetője: a fejléc helyben marad, a sorok csúsznak. */}
+            <div
+              className="gq-race-scroll"
+              tabIndex={0}
+              role="group"
+              aria-label={t('game.race.standings')}
+            >
+              <table className="gq-sectors">
+                <thead>
+                  <tr>
+                    <th scope="col" className="gq-sector-place">
+                      {t('game.race.place')}
+                    </th>
+                    <th scope="col">{t('game.race.racer')}</th>
+                    <th scope="col" className="gq-sector-time">
+                      {t('game.race.sector')}
+                    </th>
+                    <th scope="col" className="gq-sector-marks">
+                      {t('game.race.nitroCount', { count: '' })}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {racers.map((racer) => (
+                    <tr key={racer.id} data-lead={racer.place === 1 ? 'yes' : undefined}>
+                      <td className="gq-sector-place">{racer.place}.</td>
+                      <td className="gq-sector-name">{racer.nickname}</td>
+                      <td
+                        className="gq-sector-time"
+                        title={t('game.race.bestSector')}
+                      >
+                        {racer.bestSectorMs === null
+                          ? t('game.race.noSector')
+                          : t('game.race.seconds', {
+                              seconds: (racer.bestSectorMs / 1000).toFixed(1).replace('.', ','),
+                            })}
+                      </td>
+                      <td className="gq-sector-marks">
+                        {racer.nitro > 0 ? (
+                          <span className="gq-sector-nitro" title={t('game.race.nitroCount', { count: racer.nitro })}>
+                            {racer.nitro}
+                          </span>
+                        ) : null}
+                        {racer.spunOut > 0 ? (
+                          <span className="gq-sector-spin" title={t('game.race.spinCount', { count: racer.spunOut })}>
+                            !
+                          </span>
+                        ) : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </aside>
+        </div>
       )}
       outcome={
         leader ? (
@@ -358,12 +386,17 @@ export function RaceStage({ title, onExit, engine, words, status, hint }: StageP
                     <span className="gq-podium-height">
                       <span className="gq-podium-place">{racer.place}</span>
                     </span>
-                    <span className="gq-podium-meters">
-                      {racer.bestMs === null
-                        ? t('game.race.noLap')
-                        : t('game.race.seconds', {
-                            seconds: (racer.bestMs / 1000).toFixed(1).replace('.', ','),
-                          })}
+                    <span className="gq-podium-time">
+                      {/* A futam végén is megmondjuk, mit lát a tanár: ez nem
+                          kör-, hanem szakaszidő — egy kérdés egy szakasz. */}
+                      <span className="gq-podium-time-label">{t('game.race.bestSector')}</span>
+                      <span className="gq-podium-meters">
+                        {racer.bestSectorMs === null
+                          ? t('game.race.noSector')
+                          : t('game.race.seconds', {
+                              seconds: (racer.bestSectorMs / 1000).toFixed(1).replace('.', ','),
+                            })}
+                      </span>
                     </span>
                   </li>
                 )

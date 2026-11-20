@@ -2456,58 +2456,143 @@ select.gq-input-small { text-align: center; }
   .gq-runner { transition: none; }
 }
 
-/* Kompakt köridő-táblázat: hely, név, legjobb kör, nitró/kipördülés. */
-.gq-laptimes {
-  width: 100%;
-  border-collapse: collapse;
-  color: rgb(255 250 243 / 0.92);
-  font-variant-numeric: tabular-nums;
+/* ── A mezőny állása: a pálya melletti hasáb ──────────────────────────────
+   A pálya balra, a statisztika jobbra: a hasáb a pálya mellé simul, és a
+   felület magasságáig nyúlik. Ami nem fér ki, az a saját görgetőjében csúszik,
+   a fejléc helyben marad — így ötven versenyzőnél sem tolódik el a pálya. */
+.gq-race {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(240px, 24vw, 360px);
+  align-items: center;
+  gap: clamp(12px, 1.6vw, 26px);
+  min-height: 0;
 }
 
-.gq-laptimes thead th {
-  padding: 4px 10px;
-  text-align: start;
+.gq-race-track {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+}
+
+/* A pálya a saját sávjában áll: a hasáb magassága nem nyújtja meg. */
+.gq-race-track .gq-oval { margin: 0 auto; }
+
+.gq-race-board {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: clamp(200px, 46vh, 520px);
+  overflow: hidden;
+  border: 1px solid rgb(255 250 243 / 0.16);
+  border-radius: 12px;
+  background: rgb(255 250 243 / 0.04);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.22);
+}
+
+.gq-race-board-head {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgb(255 250 243 / 0.14);
+}
+
+.gq-race-board-title {
   font-family: var(--display);
   font-size: calc(clamp(10px, 0.8vw, 13px) * var(--gq-text, 1));
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: rgb(255 250 243 / 0.62);
+}
+
+.gq-race-board-count {
+  flex: none;
+  font-family: var(--display);
+  font-size: calc(12px * var(--gq-text, 1));
+  font-variant-numeric: tabular-nums;
   color: rgb(255 250 243 / 0.5);
+}
+
+/* A görgető: a táblázat fejléce tapad, a sorok fölötte csúsznak el. */
+.gq-race-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 250 243 / 0.28) transparent;
+}
+
+.gq-race-scroll:focus-visible {
+  outline: 2px solid rgb(203 162 60 / 0.9);
+  outline-offset: -2px;
+}
+
+/* Hely, versenyző, szakaszidő, jelvények — a keskeny hasábhoz szabva. */
+.gq-sectors {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: rgb(255 250 243 / 0.92);
+  font-variant-numeric: tabular-nums;
+}
+
+.gq-sectors thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 6px 10px;
+  text-align: start;
+  font-family: var(--display);
+  font-size: calc(clamp(10px, 0.8vw, 13px) * var(--gq-text, 1));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(255 250 243 / 0.5);
+  background: rgb(20 16 13 / 0.97);
   border-bottom: 1px solid rgb(255 250 243 / 0.18);
 }
 
-.gq-laptimes tbody td {
-  padding: 5px 10px;
+.gq-sectors tbody td {
+  padding: 6px 10px;
   font-size: calc(clamp(13px, 1vw, 17px) * var(--gq-text, 1));
   border-bottom: 1px solid rgb(255 250 243 / 0.08);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.gq-laptimes tbody tr[data-lead='yes'] td {
+.gq-sectors tbody tr[data-lead='yes'] td {
   background: rgb(203 162 60 / 0.12);
   color: #fffaf3;
 }
 
-.gq-lap-place {
-  width: 4em;
+.gq-sector-place {
+  width: 2.8em;
   font-family: var(--display);
   color: rgb(255 250 243 / 0.7);
 }
 
-.gq-lap-name { font-weight: 600; }
+.gq-sector-name { font-weight: 600; }
 
-.gq-lap-time {
-  width: 9em;
+.gq-sector-time {
+  width: 5.4em;
+  text-align: end;
   font-family: var(--display);
 }
 
-.gq-lap-marks {
-  width: 7em;
+.gq-sector-marks {
+  width: 4.6em;
   text-align: end;
   white-space: nowrap;
 }
 
-.gq-lap-nitro,
-.gq-lap-spin {
+.gq-sector-nitro,
+.gq-sector-spin {
   display: inline-block;
   min-width: 24px;
   margin-inline-start: 4px;
@@ -2519,8 +2604,14 @@ select.gq-input-small { text-align: center; }
   text-align: center;
 }
 
-.gq-lap-nitro { color: #241c17; background: #f0c04a; }
-.gq-lap-spin { color: #fffaf3; background: rgb(196 64 47 / 0.85); }
+.gq-sector-nitro { color: #241c17; background: #f0c04a; }
+.gq-sector-spin { color: #fffaf3; background: rgb(196 64 47 / 0.85); }
+
+/* Keskeny kivetítőn a hasáb a pálya alá kerül, és alacsonyabban görget. */
+@media (max-width: 1023px) {
+  .gq-race { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+  .gq-race-board { max-height: clamp(160px, 32vh, 320px); }
+}
 
 /* Dobogó a futam végén: 2. – 1. – 3., a középső fok a legmagasabb. */
 .gq-podium {
@@ -2584,6 +2675,22 @@ select.gq-input-small { text-align: center; }
 .gq-podium-meters {
   font-size: calc(clamp(10px, 0.85vw, 13px) * var(--gq-text, 1));
   color: rgb(255 250 243 / 0.66);
+}
+
+/* A dobogón a felirat is kiírja, hogy szakaszidőről van szó, nem körről. */
+.gq-podium-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.gq-podium-time-label {
+  font-family: var(--display);
+  font-size: calc(clamp(8px, 0.62vw, 10px) * var(--gq-text, 1));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 250 243 / 0.42);
 }
 
 /* A szövegméret-állító a színpadon nem lebeg: a fejléc eszközsorában vagy a kód alatt. */

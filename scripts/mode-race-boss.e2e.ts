@@ -89,11 +89,11 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   const stage = page.getByRole('dialog', { name: 'Grand Prix' })
   await expect(stage).toBeVisible()
   // A mód minden választ számol: a beállításban ezt ki is mondja.
-  const rows = stage.locator('.gq-laptimes tbody tr')
+  const rows = stage.locator('.gq-sectors tbody tr')
   await expect(rows).toHaveCount(1)
   await expect(rows.first()).toContainText('Panni')
-  // A táblázat köridőt mutat, nem százalékot.
-  await expect(rows.first().locator('.gq-lap-time')).toHaveText('—')
+  // A hasáb szakaszidőt mutat, nem százalékot.
+  await expect(rows.first().locator('.gq-sector-time')).toHaveText('—')
 
   // A mezőny egyetlen ovál pályán fut: egy futó, a startvonalon (fent).
   const oval = stage.locator('.gq-oval')
@@ -101,11 +101,26 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await expect(oval.locator('.gq-runner')).toHaveCount(1)
   const startTop = await oval.locator('.gq-runner').evaluate((node) => node.getBoundingClientRect().top)
 
+  // Az állás a pálya **mellett**, jobbra áll, saját görgetővel: a mezőny nem
+  // tolja arrébb a pályát, hanem a hasáb belsejében csúszik.
+  const board = stage.locator('.gq-race-board')
+  await expect(board).toBeVisible()
+  await expect(board.getByRole('columnheader', { name: 'Sector' })).toBeVisible()
+  await expect(stage.locator('.gq-race-scroll')).toHaveCSS('overflow-y', 'auto')
+  const placed = await stage.evaluate(() => {
+    const track = document.querySelector('.gq-oval')!.getBoundingClientRect()
+    const column = document.querySelector('.gq-race-board')!.getBoundingClientRect()
+    return { trackRight: track.right, trackBottom: track.bottom, columnLeft: column.left, columnTop: column.top }
+  })
+  // A pálya és a hasáb egymás mellett áll, nem egymás alatt.
+  expect(placed.columnLeft).toBeGreaterThanOrEqual(placed.trackRight)
+  expect(placed.columnTop).toBeLessThan(placed.trackBottom)
+
   // Helyes válasz a telefonon: a futó elindul, és nitrót kap.
   const choices = student.locator('.gq-stu-choice')
   await choices.filter({ hasText: 'Carbon dioxide' }).click()
-  await expect(stage.locator('.gq-lap-nitro')).toHaveCount(1)
-  const halfway = (await rows.first().locator('.gq-lap-time').innerText()).replace(',', '.')
+  await expect(stage.locator('.gq-sector-nitro')).toHaveCount(1)
+  const halfway = (await rows.first().locator('.gq-sector-time').innerText()).replace(',', '.')
   expect(Number(halfway.replace(' s', ''))).toBeGreaterThan(0)
 
   // A pályán is elmozdult: a futó már nem a startvonalon áll.
@@ -130,7 +145,9 @@ test('a Grand Prix a helyes válaszért távot ad, a végén győztest hirdet', 
   await expect(stage.locator('.gq-podium')).toBeVisible()
   await expect(stage.locator('.gq-podium-step')).toHaveCount(1)
   await expect(stage.locator('.gq-podium-step').first()).toHaveAttribute('data-place', '1')
-  // A dobogó a köridőt hozza, és a verseny végére javul (kisebb lesz).
+  // A dobogó a legjobb szakaszidőt hozza, és a futam végére javul (kisebb lesz).
+  // A felirat is kiírja, hogy szakaszidőről van szó, nem körről.
+  await expect(stage.locator('.gq-podium-time-label').first()).toHaveText('Best sector')
   const result = (await stage.locator('.gq-podium-meters').first().innerText()).replace(',', '.')
   expect(Number(result.replace(' s', ''))).toBeLessThan(Number(halfway.replace(' s', '')) + 0.001)
 

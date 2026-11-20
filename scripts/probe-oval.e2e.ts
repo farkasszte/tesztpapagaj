@@ -168,7 +168,7 @@ test('a pálya képe három futóval', async ({ page, browser }) => {
   // A lebegő szövegméret-pirula ne takarjon semmit a színpadon.
   const cover = await page.evaluate(() => {
     const pill = document.querySelector('[class*=text-size], .gq-text-size, [data-testid=text-size]')
-    const targets = Array.from(document.querySelectorAll('.gq-laptimes, .gq-oval, .gq-prompt'))
+    const targets = Array.from(document.querySelectorAll('.gq-sectors, .gq-oval, .gq-prompt'))
     if (!pill) return { pill: null, hits: [] as string[] }
     const box = pill.getBoundingClientRect()
     const hits = targets
