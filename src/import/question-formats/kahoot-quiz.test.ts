@@ -126,4 +126,70 @@ describe('a Kahoot kvíz kérdései', () => {
     // A szófelhő kérdése nincs benne, a többiek igen.
     expect(result.questions).toHaveLength(6)
   })
+
+  test('a Markdown és HTML félkövér jelölések (pl. **szöveg**) valódi strong jelöléssé válnak', () => {
+    const formatted = kahootQuizQuestions({
+      title: 'Markdown kvíz',
+      questions: [
+        {
+          type: 'quiz',
+          question: 'Melyik **város** Magyarország *fővárosa*?<p>Mi a **helyes** pár?</p>',
+          choices: [
+            { answer: '**Budapest**', correct: true },
+            { answer: '2 * 3 = 6 és _____', correct: false },
+          ],
+        },
+        {
+          type: 'quiz',
+          question: 'Mi** nem** igaz és **nincs **a végén?',
+          choices: [
+            { answer: '**Balaton**', correct: true },
+            { answer: 'Fertő', correct: false },
+          ],
+        },
+      ],
+    })
+    const q = formatted.questions[0]!
+    expect(q.stem).toEqual([
+      {
+        type: 'paragraph',
+        content: [
+          { type: 'text', text: 'Melyik ' },
+          { type: 'text', text: 'város', marks: [{ type: 'strong' }] },
+          { type: 'text', text: ' Magyarország ' },
+          { type: 'text', text: 'fővárosa', marks: [{ type: 'emphasis' }] },
+          { type: 'text', text: '?' },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          { type: 'text', text: 'Mi a ' },
+          { type: 'text', text: 'helyes', marks: [{ type: 'strong' }] },
+          { type: 'text', text: ' pár?' },
+        ],
+      },
+    ])
+    const plainMd = formatted.questions[1]!
+    expect(plainMd.stem).toEqual([
+      {
+        type: 'paragraph',
+        content: [
+          { type: 'text', text: 'Mi ' },
+          { type: 'text', text: 'nem', marks: [{ type: 'strong' }] },
+          { type: 'text', text: ' igaz és ' },
+          { type: 'text', text: 'nincs', marks: [{ type: 'strong' }] },
+          { type: 'text', text: ' a végén?' },
+        ],
+      },
+    ])
+    if (q.kind === 'multiple-choice') {
+      expect(q.choices[0]!.content[0]?.content).toEqual([
+        { type: 'text', text: 'Budapest', marks: [{ type: 'strong' }] },
+      ])
+      expect(q.choices[1]!.content[0]?.content).toEqual([
+        { type: 'text', text: '2 * 3 = 6 és _____' },
+      ])
+    }
+  })
 })

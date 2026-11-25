@@ -1,4 +1,4 @@
-import { plainBlocks } from '../rich-text'
+import { kahootBlocks } from '../rich-text'
 import { t } from '../../../i18n/index'
 import { excerpt, plainStructure } from '../text'
 import type { ForeignQuestion, FormatInput, FormatSpec, ImportIssue, ParseResult } from '../types'
@@ -61,12 +61,12 @@ function parseRow(row: SheetRow, header: Header): ForeignQuestion | string {
   }
   const empty = numbers.find((number) => !answers.some((answer) => answer.number === number))
   if (empty !== undefined) return `its correct answer is answer ${empty}, which is empty.`
-  const base = { line: row.line, stem: plainBlocks(field(header.question).trim()) }
+  const base = { line: row.line, stem: kahootBlocks(field(header.question).trim()) }
   if (answers.length === 2 && numbers.length === 1 && answers.every((answer) => TRUE_FALSE.test(answer.text))) {
     const chosen = answers.find((answer) => answer.number === numbers[0])!
     return { ...base, kind: 'true-false', answer: chosen.text.toLowerCase() === 'true' }
   }
-  const choices = answers.map((answer) => ({ content: plainBlocks(answer.text), correct: numbers.includes(answer.number) }))
+  const choices = answers.map((answer) => ({ content: kahootBlocks(answer.text), correct: numbers.includes(answer.number) }))
   return numbers.length > 1 ? { ...base, kind: 'multiple-answer', choices } : { ...base, kind: 'multiple-choice', choices }
 }
 

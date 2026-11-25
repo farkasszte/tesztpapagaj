@@ -1,4 +1,4 @@
-import { htmlBlocks } from './rich-text'
+import { kahootBlocks } from './rich-text'
 import { excerpt } from './text'
 import type { ForeignChoice, ForeignQuestion, ImportIssue, ParseResult } from './types'
 import { t } from '../../i18n/index'
@@ -72,7 +72,7 @@ export function kahootQuizQuestions(quiz: unknown): ParseResult {
     const stem = typeof item.question === 'string' ? item.question.trim() : ''
     const rawChoices = Array.isArray(item.choices) ? (item.choices as KahootChoice[]) : []
     const choices: ForeignChoice[] = rawChoices
-      .map((choice) => ({ content: htmlBlocks(choiceText(choice)), correct: isCorrect(choice) }))
+      .map((choice) => ({ content: kahootBlocks(choiceText(choice)), correct: isCorrect(choice) }))
       .filter((choice) => choice.content.length > 0)
 
     if (!stem) {
@@ -81,7 +81,7 @@ export function kahootQuizQuestions(quiz: unknown): ParseResult {
     }
 
     const type = String(item.type ?? 'quiz')
-    const base = { number, sourceType: type, stem: htmlBlocks(stem) }
+    const base = { number, sourceType: type, stem: kahootBlocks(stem) }
 
     switch (type) {
       case 'quiz':

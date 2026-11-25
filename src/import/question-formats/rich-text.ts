@@ -15,16 +15,20 @@ export function textRun(text: string, marks?: SemanticMark[]): SemanticNode {
   return marks && marks.length ? { type: 'text', text, marks } : { type: 'text', text }
 }
 
-/** Plain text as blocks: one paragraph, its line breaks kept. */
-export function plainBlocks(text: string): Blocks {
+function lineBlocks(text: string, runs: (line: string) => SemanticNode[]): Blocks {
   const lines = text.replace(/\r\n?/g, '\n').split('\n')
   const content: SemanticNode[] = []
   lines.forEach((line, index) => {
     if (index > 0) content.push({ type: 'hard-break' })
-    if (line) content.push(textRun(line))
+    if (line) content.push(...runs(line))
   })
   while (content.at(-1)?.type === 'hard-break') content.pop()
   return [content.length ? { type: 'paragraph', content } : { type: 'paragraph' }]
+}
+
+/** Plain text as blocks: one paragraph, its line breaks kept. */
+export function plainBlocks(text: string): Blocks {
+  return lineBlocks(text, (line) => [textRun(line)])
 }
 
 /** The plain text of blocks, for messages and comparisons. */
@@ -65,6 +69,8 @@ export type HtmlOptions = {
   image?: ImageResolver
   /** Called with a picture's `src` when it is left out. */
   onMissing?: (source: string) => void
+  /** Parse inline Markdown (`**bold**`, `*italic*`, `` `code` ``, `~~strike~~`) inside text nodes. */
+  inlineMarkdown?: boolean
 }
 
 const BLOCK_ELEMENTS = new Set([
@@ -102,6 +108,15 @@ export function looksLikeHtml(text: string): boolean {
 /** Text that may be HTML or plain, as blocks. */
 export function richBlocks(text: string, options: HtmlOptions = {}): Blocks {
   return looksLikeHtml(text) ? htmlBlocks(text, options) : plainBlocks(text)
+}
+
+/** Kahoot question or choice text: HTML when tagged or entity-encoded (with
+ *  inline Markdown also converted inside text nodes), otherwise lines with
+ *  inline Markdown formatting (`**bold**`, `*italic*`, `` `code` ``, `~~strike~~`). */
+export function kahootBlocks(text: string): Blocks {
+  return looksLikeHtml(text)
+    ? htmlBlocks(text, { inlineMarkdown: true })
+    : lineBlocks(text, (line) => inlineMarkdownNodes(line))
 }
 
 class HtmlReader {
@@ -203,7 +218,10 @@ class HtmlReader {
   inline(node: XmlNode, marks: SemanticMark[]): SemanticNode[] {
     if (!isElement(node)) {
       const text = node.replace(/[\t\n\r ]+/g, ' ')
-      return text ? mathRuns(text, marks) : []
+      if (!text) return []
+      return this.options.inlineMarkdown
+        ? inlineMarkdownNodes(text, marks)
+        : mathRuns(text, marks)
     }
     const mark = MARKS[node.local]
     if (mark) return this.inlineChildren(node, withMark(marks, { type: mark }))
@@ -283,6 +301,96 @@ function mathRuns(text: string, marks: SemanticMark[]): SemanticNode[] {
     last = match.index + match[0].length
   }
   if (last < text.length) nodes.push(textRun(text.slice(last), marks))
+  return nodes
+}
+
+/** Inline Markdown formatting (`**bold**`, `__bold__`, `*italic*`, `_italic_`,
+ *  `~~strike~~`, `` `code` ``) without rewriting blanks (`_____`) or math spacing (`2 * 3`). */
+function inlineMarkdownNodes(text: string, marks: SemanticMark[] = []): SemanticNode[] {
+  const nodes: SemanticNode[] = []
+  let plain = ''
+  const flush = () => {
+    if (plain) nodes.push(...mathRuns(plain, marks))
+    plain = ''
+  }
+  let index = 0
+  while (index < text.length) {
+    const rest = text.slice(index)
+    const character = text[index]!
+    if (character === '\\' && /^\\[\\`*_~]/.test(rest)) {
+      plain += rest[1]!
+      index += 2
+      continue
+    }
+    const code = /^(`+)([\s\S]+?)\1(?!`)/.exec(rest)
+    if (code) {
+      flush()
+      nodes.push(textRun(code[2]!.trim(), withMark(marks, { type: 'inline-code' })))
+      index += code[0].length
+      continue
+    }
+    const boldItalic = /^\*\*\*(?=\S)([\s\S]+?)(?<=\S)\*\*\*/.exec(rest)
+    if (boldItalic) {
+      flush()
+      nodes.push(
+        ...inlineMarkdownNodes(
+          boldItalic[1]!,
+          withMark(withMark(marks, { type: 'strong' }), { type: 'emphasis' }),
+        ),
+      )
+      index += boldItalic[0].length
+      continue
+    }
+    const strongStar = /^\*\*([^\n]+?)\*\*(?!\*)/.exec(rest)
+    if (strongStar) {
+      const inner = strongStar[1]!
+      const trimmed = inner.trim()
+      const tightStart = !/^\s/.test(inner) || (index > 0 && /\S/.test(text[index - 1]!))
+      const tightEnd = !/\s$/.test(inner) || /\S/.test(rest[strongStar[0].length] ?? '')
+      if (trimmed && !trimmed.startsWith('*') && !trimmed.endsWith('*') && tightStart && tightEnd) {
+        const leading = inner.slice(0, inner.length - inner.trimStart().length)
+        const trailing = inner.slice(inner.trimEnd().length)
+        plain += leading
+        flush()
+        nodes.push(...inlineMarkdownNodes(trimmed, withMark(marks, { type: 'strong' })))
+        plain += trailing
+        index += strongStar[0].length
+        continue
+      }
+    }
+    const strongUnder = /^__(?=[^\s_])([\s\S]*?[^\s_])__(?!_)/.exec(rest)
+    if (strongUnder) {
+      flush()
+      nodes.push(...inlineMarkdownNodes(strongUnder[1]!, withMark(marks, { type: 'strong' })))
+      index += strongUnder[0].length
+      continue
+    }
+    const emphasisStar = /^\*(?=\S)([\s\S]+?)(?<=\S)\*/.exec(rest)
+    if (emphasisStar) {
+      flush()
+      nodes.push(...inlineMarkdownNodes(emphasisStar[1]!, withMark(marks, { type: 'emphasis' })))
+      index += emphasisStar[0].length
+      continue
+    }
+    const emphasisUnder = /^_(?=[^\s_])([\s\S]*?[^\s_])_(?![_\w])/.exec(rest)
+    const wordBefore = character === '_' && /\w/.test(text[index - 1] ?? '')
+    if (emphasisUnder && !wordBefore) {
+      flush()
+      nodes.push(...inlineMarkdownNodes(emphasisUnder[1]!, withMark(marks, { type: 'emphasis' })))
+      index += emphasisUnder[0].length
+      continue
+    }
+    const strike = /^~~(?=\S)([\s\S]+?)(?<=\S)~~/.exec(rest)
+    if (strike) {
+      flush()
+      nodes.push(...inlineMarkdownNodes(strike[1]!, withMark(marks, { type: 'strike' })))
+      index += strike[0].length
+      continue
+    }
+    plain += character
+    index += 1
+  }
+  flush()
   return nodes
 }
 

@@ -80,4 +80,27 @@ describe('Kahoot spreadsheet', () => {
     expect(reading.format).toBe('kahoot')
     expect(questions[0]!.choices!.map((choice) => choice.correct)).toEqual([false, true])
   })
+
+  test('converts Markdown **bold** and *italic* remnants in Kahoot cells into marks', async () => {
+    const { questions } = await read('kahoot-md.csv', encode([
+      'Kahoot quiz,,,,,,',
+      'Question,Answer 1,Answer 2,Answer 3,Answer 4,Time limit,Correct answer(s)',
+      'Which is **bold** and *italic*?,**Right**,Wrong,,,20,1',
+    ].join('\n')))
+    const q = questions[0]!
+    expect(q.stem.content[0]).toEqual({
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: 'Which is ' },
+        { type: 'text', text: 'bold', marks: [{ type: 'strong' }] },
+        { type: 'text', text: ' and ' },
+        { type: 'text', text: 'italic', marks: [{ type: 'emphasis' }] },
+        { type: 'text', text: '?' },
+      ],
+    })
+    expect(q.choices![0]!.content.content[0]).toEqual({
+      type: 'paragraph',
+      content: [{ type: 'text', text: 'Right', marks: [{ type: 'strong' }] }],
+    })
+  })
 })
